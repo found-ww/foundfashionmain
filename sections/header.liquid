@@ -229,6 +229,12 @@ HEADER CONTENT
                       {%- assign should_space_evenly = true -%}
                     {%- endif -%}
 
+                    {%- assign mega_collection_handle = '' -%}
+                    {%- if link.url contains '/collections/' -%}
+                      {%- assign mega_collection_handle = link.url | split: '/collections/' | last | split: '?' | first | split: '/' | first -%}
+                    {%- endif -%}
+                    {%- assign mega_collection = collections[mega_collection_handle] -%}
+
                     <div class="MegaMenu {% if push_image_count != 0 and link.links.size == 0 %}MegaMenu--spacingCenter{% elsif should_space_evenly %}MegaMenu--spacingEvenly{% endif %} {% if push_image_count == 0 and link.links.size > 4 %}MegaMenu--grid{% endif %}" aria-hidden="true" {{ block.shopify_attributes }}>
                       <div class="MegaMenu__Inner">
                         {%- for sub_link in link.links -%}
@@ -247,7 +253,43 @@ HEADER CONTENT
                           </div>
                         {%- endfor -%}
 
-                        {%- if push_image_count > 0 -%}
+                        {%- assign available_count = 0 -%}
+                        {%- if mega_collection != blank -%}
+                          {%- for product in mega_collection.products limit: 20 -%}
+                            {%- if product.available -%}{%- assign available_count = available_count | plus: 1 -%}{%- endif -%}
+                          {%- endfor -%}
+                        {%- endif -%}
+
+                        {%- if available_count > 0 -%}
+                          <div class="MegaMenu__Item">
+                            <a href="{{ mega_collection.url }}" class="MegaMenu__Title Heading Text--subdued u-h7">Featured Products</a>
+                            <div style="display: flex; gap: 16px; margin-top: 12px;">
+                              {%- assign rendered_count = 0 -%}
+                              {%- for product in mega_collection.products limit: 20 -%}
+                                {%- if product.available and rendered_count < 3 -%}
+                                  {%- assign rendered_count = rendered_count | plus: 1 -%}
+                                  {%- assign media_aspect_ratio = product.featured_media.aspect_ratio | default: product.featured_media.preview_image.aspect_ratio | default: 1.333 -%}
+                                  <div class="MegaMenu__Push">
+                                    <a class="MegaMenu__PushLink" href="{{ product.url }}">
+                                      {%- if product.featured_media -%}
+                                        {%- assign image_url = product.featured_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                                        <div class="MegaMenu__PushImageWrapper AspectRatio" style="max-width: 150px; --aspect-ratio: {{ media_aspect_ratio }}">
+                                          <img class="Image--lazyLoad Image--fadeIn"
+                                               data-src="{{ image_url }}"
+                                               data-widths="[150, 200, 300]"
+                                               data-sizes="auto"
+                                               alt="{{ product.featured_media.alt | default: product.title | escape }}">
+                                          <span class="Image__Loader"></span>
+                                        </div>
+                                      {%- endif -%}
+                                      <p class="MegaMenu__PushHeading Heading u-h7">{{ product.title | truncate: 40 | escape }}</p>
+                                    </a>
+                                  </div>
+                                {%- endif -%}
+                              {%- endfor -%}
+                            </div>
+                          </div>
+                        {%- elsif push_image_count > 0 -%}
                           <div class="MegaMenu__Item" style="{% if push_image_count == 1 %}width: 370px; min-width: 250px;{% else %}width: 660px; min-width: 425px;{% endif %}">
                             {%- if block.settings.push_1_image -%}
                               <div class="MegaMenu__Push {% if push_image_count == 2 %}MegaMenu__Push--shrink{% endif %}">
