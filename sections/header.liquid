@@ -240,7 +240,6 @@ HEADER CONTENT
 
                         {%- comment -%} Left column: nav links {%- endcomment -%}
                         <div class="FoundMegaMenu__Nav">
-                          <span class="FoundMegaMenu__NavLabel">Shop {{ link.title }}</span>
                           <ul class="FoundMegaMenu__NavList">
                             {%- for sub_link in link.links -%}
                               {%- unless sub_link.url == link.url -%}
@@ -574,20 +573,16 @@ HEADER CONTENT
     transition: background-color 0.2s ease;
   }
 
-  /* Hairline vertical rule between cards */
-  .FoundStrip__Card:not(:last-child) {
-    border-right: 1px solid #e8e2d8;
+  /* Hairline vertical rule between adjacent product cards only */
+  .FoundStrip__Card + .FoundStrip__Card {
+    border-left: 1px solid #e8e2d8;
   }
 
-  /* Empty column — white space with hairline rule, no content */
+  /* Empty column — pure white, no border, no content */
   .FoundStrip__Empty {
     flex: 1;
     min-width: 0;
     background: #ffffff;
-  }
-
-  .FoundStrip__Empty:not(:last-child) {
-    border-right: 1px solid #e8e2d8;
   }
 
   .FoundStrip__Card:hover {
@@ -596,7 +591,7 @@ HEADER CONTENT
 
   /* Image area — fixed 220px height */
   .FoundStrip__ImageWrap {
-    height: 220px;
+    height: 280px;
     overflow: hidden;
     background: #f5f3ef;
     flex-shrink: 0;
