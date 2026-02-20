@@ -1,3 +1,3 @@
-# foundfashionstaging
+# Found Fashion Website CORE
 
-Staging version of Found Fashion Website
+Main version of Found Fashion Website
