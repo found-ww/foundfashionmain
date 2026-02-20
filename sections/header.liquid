@@ -243,9 +243,16 @@ HEADER CONTENT
                           <span class="FoundMegaMenu__NavLabel">Shop {{ link.title }}</span>
                           <ul class="FoundMegaMenu__NavList">
                             {%- for sub_link in link.links -%}
-                              <li class="FoundMegaMenu__NavItem">
-                                <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
-                              </li>
+                              {%- if sub_link.links != blank -%}
+                                <li class="FoundMegaMenu__NavItem">
+                                  <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
+                                </li>
+                                {%- for sub_sub_link in sub_link.links -%}
+                                  <li class="FoundMegaMenu__NavItem">
+                                    <a href="{{ sub_sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_sub_link.title | upcase }}</a>
+                                  </li>
+                                {%- endfor -%}
+                              {%- endif -%}
                             {%- endfor -%}
                           </ul>
                         </div>
