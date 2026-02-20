@@ -243,9 +243,11 @@ HEADER CONTENT
                           <span class="FoundMegaMenu__NavLabel">Shop {{ link.title }}</span>
                           <ul class="FoundMegaMenu__NavList">
                             {%- for sub_link in link.links -%}
-                              <li class="FoundMegaMenu__NavItem">
-                                <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
-                              </li>
+                              {%- unless sub_link.url == link.url -%}
+                                <li class="FoundMegaMenu__NavItem">
+                                  <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
+                                </li>
+                              {%- endunless -%}
                             {%- endfor -%}
                           </ul>
                         </div>
@@ -278,6 +280,12 @@ HEADER CONTENT
                                 </a>
                               {%- endif -%}
                             {%- endfor -%}
+                            {%- if rendered_count < 4 -%}
+                              {%- assign empty_count = 4 | minus: rendered_count -%}
+                              {%- for i in (1..empty_count) -%}
+                                <div class="FoundStrip__Empty"></div>
+                              {%- endfor -%}
+                            {%- endif -%}
                           </div>
                         {%- endif -%}
 
@@ -568,6 +576,17 @@ HEADER CONTENT
 
   /* Hairline vertical rule between cards */
   .FoundStrip__Card:not(:last-child) {
+    border-right: 1px solid #e8e2d8;
+  }
+
+  /* Empty column — white space with hairline rule, no content */
+  .FoundStrip__Empty {
+    flex: 1;
+    min-width: 0;
+    background: #ffffff;
+  }
+
+  .FoundStrip__Empty:not(:last-child) {
     border-right: 1px solid #e8e2d8;
   }
 
