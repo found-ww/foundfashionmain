@@ -240,20 +240,19 @@ HEADER CONTENT
 
                         {%- comment -%} Left column: nav links {%- endcomment -%}
                         <div class="FoundMegaMenu__Nav">
+                          <span class="FoundMegaMenu__NavLabel">Shop {{ link.title }}</span>
                           <ul class="FoundMegaMenu__NavList">
                             {%- for sub_link in link.links -%}
-                              {%- unless sub_link.url == link.url -%}
-                                <li class="FoundMegaMenu__NavItem">
-                                  <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
-                                </li>
-                              {%- endunless -%}
+                              <li class="FoundMegaMenu__NavItem">
+                                <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
+                              </li>
                             {%- endfor -%}
                           </ul>
                         </div>
 
-                        {%- comment -%} Right section: 4-card product strip {%- endcomment -%}
-                        {%- if mega_collection != blank -%}
-                          <div class="FoundStrip">
+                        {%- comment -%} Right section: 4-card product strip (always rendered for full-width layout) {%- endcomment -%}
+                        <div class="FoundStrip">
+                          {%- if mega_collection != blank -%}
                             {%- assign rendered_count = 0 -%}
                             {%- for product in mega_collection.products limit: 20 -%}
                               {%- if product.available and rendered_count < 4 -%}
@@ -285,8 +284,8 @@ HEADER CONTENT
                                 <div class="FoundStrip__Empty"></div>
                               {%- endfor -%}
                             {%- endif -%}
-                          </div>
-                        {%- endif -%}
+                          {%- endif -%}
+                        </div>
 
                       </div>
                     </div>
@@ -514,7 +513,7 @@ HEADER CONTENT
   }
 
   .FoundMegaMenu__NavLabel {
-    display: block;
+    display: none;
     font-family: 'Jost', sans-serif;
     font-size: 9px;
     font-weight: 500;
