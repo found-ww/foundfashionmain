@@ -249,26 +249,14 @@
   4. DISCOVER THE STORY SECTION (configurable via "Discover the Story" block)
   ----------------------------------------------------{%- endcomment -%}
 
-  {%- comment -%} Detect Medor tag — find matching blog article for story override {%- endcomment -%}
+  {%- comment -%} Detect Medor tag — use section settings for story override {%- endcomment -%}
   {%- assign ppv1_is_medor = false -%}
   {%- for tag in product.tags -%}
-    {%- if tag == 'Medor' or tag == 'medor' or tag == 'Médor' -%}
+    {%- if tag downcase == 'medor' or tag downcase == 'médor' -%}
       {%- assign ppv1_is_medor = true -%}
       {%- break -%}
     {%- endif -%}
   {%- endfor -%}
-  {%- assign ppv1_medor_article = nil -%}
-  {%- if ppv1_is_medor -%}
-    {%- for blog in blogs -%}
-      {%- for article in blog.articles -%}
-        {%- if article.title contains 'Médor' or article.title contains 'Medor' -%}
-          {%- assign ppv1_medor_article = article -%}
-          {%- break -%}
-        {%- endif -%}
-      {%- endfor -%}
-      {%- if ppv1_medor_article != nil -%}{%- break -%}{%- endif -%}
-    {%- endfor -%}
-  {%- endif -%}
 
   {%- assign story_block = section.blocks | where: 'type', 'discover_story' | first -%}
 
@@ -298,14 +286,16 @@
     {%- if story_block.settings.button_url != blank -%}{%- assign story_btn_url = story_block.settings.button_url -%}{%- endif -%}
   {%- endif -%}
 
-  {%- comment -%} Medor override: use blog article URL, excerpt, and image link {%- endcomment -%}
+  {%- comment -%} Medor override: use section settings configured once in the theme editor {%- endcomment -%}
   {%- assign ppv1_story_img_link = '' -%}
-  {%- if ppv1_is_medor and ppv1_medor_article != nil -%}
-    {%- assign story_btn_url = ppv1_medor_article.url -%}
+  {%- if ppv1_is_medor and section.settings.medor_article_url != blank -%}
+    {%- assign story_btn_url = section.settings.medor_article_url -%}
     {%- assign story_btn_label = 'READ MORE' -%}
     {%- assign story_text_html = blank -%}
-    {%- assign story_text_plain = ppv1_medor_article.excerpt_or_content | strip_html | truncatewords: 60 -%}
-    {%- assign ppv1_story_img_link = ppv1_medor_article.url -%}
+    {%- if section.settings.medor_article_text != blank -%}
+      {%- assign story_text_plain = section.settings.medor_article_text -%}
+    {%- endif -%}
+    {%- assign ppv1_story_img_link = section.settings.medor_article_url -%}
   {%- endif -%}
 
   <div class="ppv1-story" {% if story_block != blank %}{{ story_block.shopify_attributes }}{% endif %}>
@@ -1231,6 +1221,25 @@
     }
   ],
   "settings": [
+    {
+      "type": "header",
+      "content": "Médor story"
+    },
+    {
+      "type": "paragraph",
+      "content": "Products tagged 'Medor' or 'Médor' will automatically use these settings for the Discover the Story section."
+    },
+    {
+      "type": "url",
+      "id": "medor_article_url",
+      "label": "Médor blog article URL"
+    },
+    {
+      "type": "textarea",
+      "id": "medor_article_text",
+      "label": "Médor story excerpt",
+      "info": "Short text shown in the story section. Leave blank to show no text."
+    },
     {
       "type": "header",
       "content": "Media"
