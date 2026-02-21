@@ -1,140 +1,197 @@
-{%- assign hand_picked_count = 0 -%}
-{%- for block in section.blocks -%}
-  {%- if block.settings.product != blank -%}
-    {%- assign hand_picked_count = hand_picked_count | plus: 1 -%}
-  {%- endif -%}
-{%- endfor -%}
+<section class="ppv1-recs-section"
+         data-product-id="{{ product.id }}"
+         data-section-id="{{ section.id }}"
+         data-section-type="product-recommendations">
 
-{%- capture flickity_options -%}
-{
-  "prevNextButtons": true,
-  "pageDots": false,
-  "wrapAround": false,
-  "contain": true,
-  "cellAlign": "left",
-  "watchCSS": true,
-  "dragThreshold": 8,
-  "groupCells": true,
-  "arrowShape": {"x0": 20, "x1": 60, "y1": 40, "x2": 60, "y2": 35, "x3": 25}
-}
-{%- endcapture -%}
+  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
 
-{%- comment -%}
-  Same-collection fallback: use first collection the product belongs to,
-  excluding the current product.
-{%- endcomment -%}
-{%- assign ppv1_same_col = product.collections.first -%}
-
-<section class="Section Section--spacingNormal" data-section-id="{{ section.id }}" data-section-type="product-recommendations">
-  {%- if section.settings.heading != blank -%}
-    <header class="SectionHeader SectionHeader--center">
-      <div class="Container">
-        <h3 class="SectionHeader__Heading Heading u-h3">{{ section.settings.heading | escape }}</h3>
-      </div>
-    </header>
-  {%- endif -%}
-
-  <div class="ProductRecommendations">
-    {%- if hand_picked_count > 0 -%}
-
-      <div class="ProductListWrapper">
-        <div class="ProductList ProductList--carousel Carousel" data-flickity-config='{{ flickity_options }}'>
-          {%- for block in section.blocks -%}
-            {%- assign rec_p = block.settings.product -%}
-            {%- if rec_p != blank -%}
-              <div class="Carousel__Cell">
-                {% render 'product-item', product: rec_p, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true %}
-              </div>
-            {%- endif -%}
-          {%- endfor -%}
-        </div>
-      </div>
-
-    {%- elsif ppv1_same_col != blank -%}
-
-      {%- assign ppv1_rendered = 0 -%}
-      {%- for col_p in ppv1_same_col.products limit: 20 -%}
-        {%- unless col_p.id == product.id -%}
-          {%- if ppv1_rendered < 8 -%}
-            {%- assign ppv1_rendered = ppv1_rendered | plus: 1 -%}
-          {%- endif -%}
-        {%- endunless -%}
-      {%- endfor -%}
-
-      {%- if ppv1_rendered > 0 -%}
-        <div class="ProductListWrapper">
-          <div class="ProductList ProductList--carousel Carousel" data-flickity-config='{{ flickity_options }}'>
-            {%- assign ppv1_show = 0 -%}
-            {%- for col_p in ppv1_same_col.products limit: 20 -%}
-              {%- unless col_p.id == product.id -%}
-                {%- if ppv1_show < 8 -%}
-                  <div class="Carousel__Cell">
-                    {% render 'product-item', product: col_p, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true %}
-                  </div>
-                  {%- assign ppv1_show = ppv1_show | plus: 1 -%}
-                {%- endif -%}
-              {%- endunless -%}
-            {%- endfor -%}
-          </div>
-        </div>
-      {%- else -%}
-        <style>#shopify-section-{{ section.id }} { display: none; }</style>
-      {%- endif -%}
-
-    {%- else -%}
-      <style>#shopify-section-{{ section.id }} { display: none; }</style>
+    {%- if section.settings.heading != blank -%}
+      <h2 class="ppv1-recs__heading">{{ section.settings.heading | escape }}</h2>
     {%- endif -%}
-  </div>
+
+    <div class="ppv1-recs__track-wrap">
+      <div class="ppv1-recs__track">
+        {%- for rec in recommendations.products -%}
+          <a href="{{ rec.url }}" class="ppv1-recs__card">
+            <div class="ppv1-recs__img-wrap">
+              {%- if rec.featured_image -%}
+                <img class="ppv1-recs__img"
+                     src="{{ rec.featured_image | img_url: '400x' }}"
+                     alt="{{ rec.featured_image.alt | default: rec.title | escape }}"
+                     loading="lazy">
+              {%- else -%}
+                <div class="ppv1-recs__img ppv1-recs__img--placeholder"></div>
+              {%- endif -%}
+            </div>
+            <div class="ppv1-recs__info">
+              <p class="ppv1-recs__title">{{ rec.title | escape }}</p>
+              <p class="ppv1-recs__price">{{ rec.price | money }}</p>
+            </div>
+          </a>
+        {%- endfor -%}
+      </div>
+    </div>
+
+  {%- endif -%}
+
 </section>
+
+<style>
+.ppv1-recs-section {
+  padding: 60px 35px 40px;
+  background: #ffffff;
+  font-family: 'Jost', sans-serif;
+}
+
+.ppv1-recs__heading {
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 0 0 40px;
+}
+
+.ppv1-recs__track-wrap {
+  overflow: hidden;
+}
+
+.ppv1-recs__track {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ppv1-recs__track::-webkit-scrollbar {
+  display: none;
+}
+
+.ppv1-recs__card {
+  flex: 0 0 calc((100% - 60px) / 4);
+  scroll-snap-align: start;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.ppv1-recs__img-wrap {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #f5f5f5;
+  margin-bottom: 12px;
+}
+
+.ppv1-recs__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.ppv1-recs__card:hover .ppv1-recs__img {
+  transform: scale(1.04);
+}
+
+.ppv1-recs__img--placeholder {
+  width: 100%;
+  height: 100%;
+  background: #ece9e4;
+}
+
+.ppv1-recs__info {
+  padding: 0 4px;
+}
+
+.ppv1-recs__title {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ppv1-recs__price {
+  font-size: 12px;
+  font-weight: 300;
+  color: #888;
+  margin: 0;
+}
+
+@media screen and (max-width: 900px) {
+  .ppv1-recs-section {
+    padding: 40px 0 32px;
+  }
+
+  .ppv1-recs__heading {
+    padding: 0 24px;
+  }
+
+  .ppv1-recs__track {
+    padding: 0 24px;
+  }
+
+  .ppv1-recs__card {
+    flex: 0 0 58%;
+  }
+}
+</style>
+
+<script>
+  (function () {
+    var sec = document.querySelector('.ppv1-recs-section');
+    if (!sec) return;
+
+    var productId = sec.dataset.productId;
+    var sectionId = sec.dataset.sectionId;
+
+    if (!productId || !sectionId) return;
+
+    var url = '/recommendations/products?section_id=' + sectionId
+            + '&product_id=' + productId
+            + '&limit=8';
+
+    fetch(url)
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var updated = doc.querySelector('.ppv1-recs-section');
+        if (updated && updated.querySelector('.ppv1-recs__card')) {
+          sec.innerHTML = updated.innerHTML;
+        }
+      })
+      .catch(function () {});
+  })();
+</script>
 
 {% schema %}
 {
   "name": "Product recommendations",
   "class": "",
   "templates": ["product"],
-  "max_blocks": 10,
-  "blocks": [
-    {
-      "type": "product",
-      "name": "Product",
-      "settings": [
-        {
-          "type": "paragraph",
-          "content": "Manually selected products override same-collection recommendations."
-        },
-        {
-          "type": "product",
-          "id": "product",
-          "label": "Product"
-        }
-      ]
-    }
-  ],
   "settings": [
     {
       "type": "text",
       "id": "heading",
       "label": "Heading",
-      "default": "You may also like"
+      "default": "YOU MAY LIKE"
     },
     {
-      "type": "checkbox",
-      "id": "show_product_info",
-      "label": "Show product info",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "show_vendor",
-      "label": "Show vendor",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_color_swatch",
-      "label": "Show color swatch",
-      "info": "Some colors appear white? [Learn more](http://support.maestrooo.com/article/80-product-upgrading-custom-color-for-color-swatch).",
-      "default": false
+      "type": "range",
+      "id": "limit",
+      "label": "Number of products",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 8
     }
   ],
   "presets": [

@@ -97,18 +97,8 @@
         <hr class="ppv1-divider">
       {%- endif -%}
 
-      {%- comment -%} CTA row: form transparent to flex layout so both buttons sit side by side {%- endcomment -%}
+      {%- comment -%} CTA row: Offerly Make an Offer only {%- endcomment -%}
       <div class="ppv1-cta-row">
-        {%- form 'product', product, class: 'ppv1-form' -%}
-          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
-          {%- if product.selected_or_first_available_variant.available -%}
-            <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart">
-              ADD TO CART &bull; {{ product.selected_or_first_available_variant.price | money }}
-            </button>
-          {%- else -%}
-            <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled>SOLD OUT</button>
-          {%- endif -%}
-        {%- endform -%}
         <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
            target="_blank"
            rel="noopener"
@@ -438,7 +428,6 @@
   margin-top: 24px;
 }
 
-.ppv1-atc-btn,
 .ppv1-offer-btn {
   font-family: 'Jost', sans-serif;
   font-size: 11px;
