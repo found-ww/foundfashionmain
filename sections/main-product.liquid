@@ -345,6 +345,9 @@
   font-family: 'Jost', sans-serif;
   color: #1a1a1a;
   background: #ffffff;
+  padding-left: 35px;
+  padding-right: 35px;
+  padding-top: 20px;
 }
 
 /* ---- HERO ---- */
@@ -353,9 +356,9 @@
   min-height: 640px;
 }
 
-/* 0) Image column 40% smaller: 60% → 36% */
+
 .ppv1-hero__gallery {
-  flex: 0 0 36%;
+  flex: 0 0 45%;
   position: relative;
   background: #f5f5f5;
   overflow: hidden;
@@ -371,7 +374,6 @@
   display: block;
 }
 
-/* Info panel fills remaining space; +10% horizontal padding: 48 → 53px */
 .ppv1-hero__info {
   flex: 1;
   padding: 64px 53px;
@@ -380,7 +382,6 @@
   justify-content: center;
 }
 
-/* 2) Title uses theme heading font via Heading/u-h2 classes */
 .ppv1-title {
   margin: 0 0 0;
   line-height: 1.25;
@@ -394,7 +395,7 @@
   margin: 20px 0;
 }
 
-/* Metadata key/value grid */
+
 .ppv1-meta {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -423,7 +424,7 @@
   line-height: 1.6;
 }
 
-/* CTA row — always side by side */
+
 .ppv1-cta-row {
   display: flex;
   gap: 12px;
@@ -431,7 +432,6 @@
   align-items: stretch;
 }
 
-/* Form transparent to flex — button participates directly in the row */
 .ppv1-form {
   display: contents;
 }
@@ -501,7 +501,6 @@
   margin-top: 24px;
 }
 
-/* ATC and offer buttons sizing */
 .ppv1-atc-btn,
 .ppv1-offer-btn {
   font-family: 'Jost', sans-serif;
@@ -516,10 +515,9 @@
 }
 
 /* ---- CAROUSEL STRIP ---- */
-/* 7) Gap between hero and carousel */
 .ppv1-strip {
   position: relative;
-  background: #f5f5f5;
+  background: #fff;
   margin-top: 40px;
 }
 
@@ -529,8 +527,7 @@
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* 9) 10px gap between slides */
-  gap: 10px;
+  gap: 20px;
   padding: 0 10px;
 }
 
