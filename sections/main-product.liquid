@@ -245,95 +245,6 @@
     </div>
   </div>
 
-  {%- comment -%}----------------------------------------------------
-  4. DISCOVER THE STORY SECTION (configurable via "Discover the Story" block)
-  ----------------------------------------------------{%- endcomment -%}
-
-  {%- comment -%} Detect Medor tag — use section settings for story override {%- endcomment -%}
-  {%- assign ppv1_is_medor = false -%}
-  {%- for tag in product.tags -%}
-    {%- assign ppv1_tag_lower = tag | downcase -%}
-    {%- if ppv1_tag_lower == 'medor' or ppv1_tag_lower == 'médor' -%}
-      {%- assign ppv1_is_medor = true -%}
-      {%- break -%}
-    {%- endif -%}
-  {%- endfor -%}
-
-  {%- assign story_block = section.blocks | where: 'type', 'discover_story' | first -%}
-
-  {%- comment -%} Story image: block override → second product image → first product image {%- endcomment -%}
-  {%- if story_block != blank and story_block.settings.image != blank -%}
-    {%- assign story_use_picker = true -%}
-    {%- assign story_picker_img = story_block.settings.image -%}
-  {%- else -%}
-    {%- assign story_use_picker = false -%}
-    {%- assign story_media = product.media[1] -%}
-    {%- if story_media == blank or story_media.media_type != 'image' -%}
-      {%- assign story_media = product.media[0] -%}
-    {%- endif -%}
-  {%- endif -%}
-
-  {%- comment -%} Story text: block richtext → product description truncated {%- endcomment -%}
-  {%- if story_block != blank and story_block.settings.text != blank -%}
-    {%- assign story_text_html = story_block.settings.text -%}
-  {%- elsif product.description != blank -%}
-    {%- assign story_text_plain = product.description | strip_html | truncatewords: 70 -%}
-  {%- endif -%}
-
-  {%- assign story_btn_label = 'READ MORE' -%}
-  {%- assign story_btn_url = product.url -%}
-  {%- if story_block != blank -%}
-    {%- if story_block.settings.button_text != blank -%}{%- assign story_btn_label = story_block.settings.button_text -%}{%- endif -%}
-    {%- if story_block.settings.button_url != blank -%}{%- assign story_btn_url = story_block.settings.button_url -%}{%- endif -%}
-  {%- endif -%}
-
-  {%- comment -%} Medor override: read from the "Médor Story" block configured in the theme editor {%- endcomment -%}
-  {%- assign ppv1_medor_block = section.blocks | where: 'type', 'medor_story' | first -%}
-  {%- assign ppv1_story_img_link = '' -%}
-  {%- if ppv1_is_medor and ppv1_medor_block != blank and ppv1_medor_block.settings.article_url != blank -%}
-    {%- assign story_btn_url = ppv1_medor_block.settings.article_url -%}
-    {%- assign story_btn_label = 'READ MORE' -%}
-    {%- assign story_text_html = blank -%}
-    {%- if ppv1_medor_block.settings.article_text != blank -%}
-      {%- assign story_text_plain = ppv1_medor_block.settings.article_text -%}
-    {%- endif -%}
-    {%- assign ppv1_story_img_link = ppv1_medor_block.settings.article_url -%}
-  {%- endif -%}
-
-  <div class="ppv1-story" {%- if ppv1_is_medor and ppv1_medor_block != blank -%}{{ ppv1_medor_block.shopify_attributes }}{%- elsif story_block != blank -%}{{ story_block.shopify_attributes }}{%- endif -%}>
-    <div class="ppv1-story__cols">
-      <div class="ppv1-story__image">
-        {%- if ppv1_story_img_link != '' -%}<a href="{{ ppv1_story_img_link }}" class="ppv1-story__img-link">{%- endif -%}
-        {%- if story_use_picker -%}
-          {%- assign story_picker_url = story_picker_img | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-          <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
-               data-src="{{ story_picker_url }}"
-               data-widths="[600, 800, 1000]"
-               data-sizes="auto"
-               alt="{{ story_picker_img.alt | default: product.title | escape }}">
-          <span class="Image__Loader"></span>
-        {%- elsif story_media and story_media.media_type == 'image' -%}
-          {%- assign story_url = story_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-          <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
-               data-src="{{ story_url }}"
-               data-widths="[600, 800, 1000]"
-               data-sizes="auto"
-               alt="{{ story_media.alt | default: product.title | escape }}">
-          <span class="Image__Loader"></span>
-        {%- endif -%}
-        {%- if ppv1_story_img_link != '' -%}</a>{%- endif -%}
-      </div>
-      <div class="ppv1-story__content">
-        <h2 class="ppv1-story__heading">DISCOVER THE STORY</h2>
-        {%- if story_text_html != blank -%}
-          <div class="ppv1-story__text Rte">{{ story_text_html }}</div>
-        {%- elsif story_text_plain != blank -%}
-          <div class="ppv1-story__text">{{ story_text_plain }}</div>
-        {%- endif -%}
-        <a href="{{ story_btn_url }}" class="ppv1-btn ppv1-btn--tertiary ppv1-btn--centered">{{ story_btn_label }}</a>
-      </div>
-    </div>
-  </div>
 
 </section>
 
@@ -752,73 +663,6 @@
   margin: 0;
 }
 
-/* ---- DISCOVER THE STORY ---- */
-.ppv1-story {
-  min-height: 540px;
-}
-
-.ppv1-story__cols {
-  display: flex;
-  min-height: 540px;
-}
-
-.ppv1-story__image {
-  flex: 0 0 50%;
-  position: relative;
-  background: #f0ebe3;
-  overflow: hidden;
-}
-
-.ppv1-story__img-link {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: block;
-}
-
-.ppv1-story__img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Heading inside right column, centred */
-.ppv1-story__heading {
-  font-family: 'Jost', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #1a1a1a;
-  text-align: center;
-  margin: 0 0 32px;
-}
-
-.ppv1-story__content {
-  flex: 0 0 50%;
-  background: rgba(215, 182, 161, 0.15);
-  padding: 60px 66px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.ppv1-story__text {
-  font-family: 'Jost', sans-serif;
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.9;
-  color: #444444;
-  text-align: center;
-  margin-bottom: 0;
-}
 
 /* ---- MOBILE ---- */
 @media screen and (max-width: 900px) {
@@ -884,26 +728,6 @@
     width: 100%;
   }
 
-  .ppv1-story__heading {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-
-  .ppv1-story__cols {
-    flex-direction: column;
-    min-height: auto;
-  }
-
-  .ppv1-story__image {
-    flex: none;
-    height: 70vw;
-    min-height: 280px;
-  }
-
-  .ppv1-story__content {
-    flex: none;
-    padding: 40px 24px;
-  }
 }
 </style>
 
@@ -1190,60 +1014,6 @@
         }
       ]
     },
-    {
-      "name": "Discover the Story",
-      "type": "discover_story",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Story image",
-          "info": "Leave blank to use the second product image"
-        },
-        {
-          "type": "richtext",
-          "id": "text",
-          "label": "Story text",
-          "info": "Leave blank to use a truncated product description"
-        },
-        {
-          "type": "text",
-          "id": "button_text",
-          "label": "Button label",
-          "default": "READ MORE"
-        },
-        {
-          "type": "url",
-          "id": "button_url",
-          "label": "Button link",
-          "info": "Leave blank to link to the product page"
-        }
-      ]
-    },
-    {
-      "name": "Médor Story",
-      "type": "medor_story",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "paragraph",
-          "content": "Applied automatically to products tagged 'Médor'. Configure the story panel for all Médor products here."
-        },
-        {
-          "type": "text",
-          "id": "article_url",
-          "label": "Blog article URL",
-          "info": "Paste the full URL to the Discover The Médor blog article"
-        },
-        {
-          "type": "textarea",
-          "id": "article_text",
-          "label": "Story excerpt",
-          "info": "Short text shown in the story panel. Leave blank to show no text."
-        }
-      ]
-    }
   ],
   "settings": [
     {

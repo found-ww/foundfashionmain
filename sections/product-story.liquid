@@ -1,0 +1,278 @@
+{%- comment -%}
+  Product Story Section
+  Standalone section rendered below the product details.
+  - For regular products: shows a configurable image/text/CTA panel
+  - For products tagged 'Médor' (or 'medor'): overrides URL and text with
+    Médor-specific settings configured here in the theme editor
+{%- endcomment -%}
+
+{%- assign ps_is_medor = false -%}
+{%- for tag in product.tags -%}
+  {%- assign ps_tag_lower = tag | downcase -%}
+  {%- if ps_tag_lower == 'medor' or ps_tag_lower == 'médor' -%}
+    {%- assign ps_is_medor = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Story image: section image picker → second product image → first product image {%- endcomment -%}
+{%- if section.settings.image != blank -%}
+  {%- assign ps_use_picker = true -%}
+  {%- assign ps_picker_img = section.settings.image -%}
+{%- else -%}
+  {%- assign ps_use_picker = false -%}
+  {%- assign ps_media = product.media[1] -%}
+  {%- if ps_media == blank or ps_media.media_type != 'image' -%}
+    {%- assign ps_media = product.media[0] -%}
+  {%- endif -%}
+{%- endif -%}
+
+{%- comment -%} Story text: section richtext → product description truncated {%- endcomment -%}
+{%- if section.settings.text != blank -%}
+  {%- assign ps_text_html = section.settings.text -%}
+{%- elsif product.description != blank -%}
+  {%- assign ps_text_plain = product.description | strip_html | truncatewords: 70 -%}
+{%- endif -%}
+
+{%- comment -%} Button defaults {%- endcomment -%}
+{%- assign ps_btn_label = 'READ MORE' -%}
+{%- assign ps_btn_url = product.url -%}
+{%- if section.settings.button_text != blank -%}
+  {%- assign ps_btn_label = section.settings.button_text -%}
+{%- endif -%}
+{%- if section.settings.button_url != blank -%}
+  {%- assign ps_btn_url = section.settings.button_url -%}
+{%- endif -%}
+
+{%- comment -%} Médor override {%- endcomment -%}
+{%- assign ps_img_link = '' -%}
+{%- if ps_is_medor and section.settings.medor_article_url != blank -%}
+  {%- assign ps_btn_url = section.settings.medor_article_url -%}
+  {%- assign ps_btn_label = 'READ MORE' -%}
+  {%- assign ps_text_html = blank -%}
+  {%- if section.settings.medor_article_text != blank -%}
+    {%- assign ps_text_plain = section.settings.medor_article_text -%}
+  {%- else -%}
+    {%- assign ps_text_plain = blank -%}
+  {%- endif -%}
+  {%- assign ps_img_link = section.settings.medor_article_url -%}
+{%- endif -%}
+
+<div class="ps-story" {{ section.shopify_attributes }}>
+  <div class="ps-story__cols">
+    <div class="ps-story__image">
+      {%- if ps_img_link != '' -%}
+        <a href="{{ ps_img_link }}" class="ps-story__img-link"></a>
+      {%- endif -%}
+      {%- if ps_use_picker -%}
+        {%- assign ps_picker_url = ps_picker_img | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+        <img class="ps-story__img Image--lazyLoad Image--fadeIn"
+             data-src="{{ ps_picker_url }}"
+             data-widths="[600, 800, 1000]"
+             data-sizes="auto"
+             alt="{{ ps_picker_img.alt | default: product.title | escape }}">
+        <span class="Image__Loader"></span>
+      {%- elsif ps_media and ps_media.media_type == 'image' -%}
+        {%- assign ps_media_url = ps_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+        <img class="ps-story__img Image--lazyLoad Image--fadeIn"
+             data-src="{{ ps_media_url }}"
+             data-widths="[600, 800, 1000]"
+             data-sizes="auto"
+             alt="{{ ps_media.alt | default: product.title | escape }}">
+        <span class="Image__Loader"></span>
+      {%- endif -%}
+    </div>
+
+    <div class="ps-story__content">
+      <h2 class="ps-story__heading">DISCOVER THE STORY</h2>
+      {%- if ps_text_html != blank -%}
+        <div class="ps-story__text Rte">{{ ps_text_html }}</div>
+      {%- elsif ps_text_plain != blank -%}
+        <div class="ps-story__text">{{ ps_text_plain }}</div>
+      {%- endif -%}
+      <a href="{{ ps_btn_url }}" class="ps-btn ps-btn--tertiary">{{ ps_btn_label }}</a>
+    </div>
+  </div>
+</div>
+
+<style>
+.ps-story {
+  min-height: 540px;
+  font-family: 'Jost', sans-serif;
+}
+
+.ps-story__cols {
+  display: flex;
+  min-height: 540px;
+}
+
+.ps-story__image {
+  flex: 0 0 50%;
+  position: relative;
+  background: #f0ebe3;
+  overflow: hidden;
+}
+
+.ps-story__img-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
+  z-index: 1;
+}
+
+.ps-story__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ps-story__content {
+  flex: 0 0 50%;
+  background: rgba(215, 182, 161, 0.15);
+  padding: 60px 66px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.ps-story__heading {
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 0 0 32px;
+}
+
+.ps-story__text {
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.9;
+  color: #444444;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.ps-btn {
+  display: inline-block;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 0;
+  white-space: nowrap;
+  padding: 14px 24px;
+}
+
+.ps-btn--tertiary {
+  background: transparent;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+  margin-top: 28px;
+}
+
+.ps-btn--tertiary:hover {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+@media screen and (max-width: 900px) {
+  .ps-story {
+    min-height: auto;
+  }
+
+  .ps-story__cols {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .ps-story__image {
+    flex: none;
+    height: 70vw;
+    min-height: 280px;
+  }
+
+  .ps-story__content {
+    flex: none;
+    padding: 40px 24px;
+  }
+
+  .ps-story__heading {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+}
+</style>
+
+{% schema %}
+{
+  "name": "Product Story",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Story Panel"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Story image",
+      "info": "Leave blank to use the second product image automatically"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Story text",
+      "info": "Leave blank to show a truncated product description"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button label",
+      "default": "READ MORE"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button link",
+      "info": "Leave blank to link to the product page"
+    },
+    {
+      "type": "header",
+      "content": "Médor Story Override"
+    },
+    {
+      "type": "paragraph",
+      "content": "These settings apply automatically to any product tagged 'Médor'. They override the general settings above for those products only."
+    },
+    {
+      "type": "text",
+      "id": "medor_article_url",
+      "label": "Médor article URL",
+      "info": "Paste the full URL to the Discover The Médor blog article"
+    },
+    {
+      "type": "textarea",
+      "id": "medor_article_text",
+      "label": "Médor story excerpt",
+      "info": "Short text shown for Médor products. Leave blank to show no text."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Story"
+    }
+  ]
+}
+{% endschema %}
