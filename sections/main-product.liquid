@@ -39,6 +39,11 @@
 {%- assign ppv1_stamp = product.metafields.custom.bag_stamp -%}
 {%- assign ppv1_condition = product.metafields.custom.condition -%}
 {%- assign ppv1_location = product.metafields.custom.location -%}
+{%- assign ppv1_dimensions = product.metafields.custom.dimensions -%}
+{%- assign ppv1_colors = product.metafields.custom.colors -%}
+{%- assign ppv1_model = product.metafields.custom.model -%}
+{%- assign ppv1_straplength = product.metafields.custom.strap_length -%}
+{%- assign ppv1_otherdetails = product.metafields.custom.other_details -%}
 
 <section class="Product product-page-v1" data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
 
@@ -173,16 +178,28 @@
                     <dt>Brand</dt><dd>{{ product.vendor }}</dd>
                   {%- endif -%}
                   {%- if ppv1_mat != blank -%}
+                    <dt>Model</dt><dd>{{ ppv1_model }}</dd>
+                  {%- endif -%}
+                  {%- if ppv1_colors != blank -%}
+                    <dt>Material</dt><dd>{{ ppv1_colors }}</dd>
+                  {%- endif -%}
+                  {%- if ppv1_mat != blank -%}
                     <dt>Material</dt><dd>{{ ppv1_mat }}</dd>
                   {%- endif -%}
                   {%- if ppv1_stamp != blank -%}
                     <dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>
                   {%- endif -%}
+                  {%- if ppv1_dimensions != blank -%}
+                    <dt>Stamp</dt><dd>{{ ppv1_dimensions }}</dd>
+                  {%- endif -%}      
+                  {%- if ppv1_straplength != blank -%}
+                    <dt>Stamp</dt><dd>{{ ppv1_straplength }}</dd>
+                  {%- endif -%}   
+                  {%- if ppv1_otherdetails != blank -%}
+                    <dt>Stamp</dt><dd>{{ ppv1_otherdetails }}</dd>
+                  {%- endif -%}                                                   
                   {%- if ppv1_condition != blank -%}
                     <dt>Condition</dt><dd>{{ ppv1_condition }}</dd>
-                  {%- endif -%}
-                  {%- if ppv1_location != blank -%}
-                    <dt>Location</dt><dd>{{ ppv1_location }}</dd>
                   {%- endif -%}
                 </dl>
               </div>
