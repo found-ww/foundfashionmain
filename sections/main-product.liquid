@@ -299,7 +299,7 @@
     {%- assign ppv1_story_img_link = ppv1_medor_block.settings.article_url -%}
   {%- endif -%}
 
-  <div class="ppv1-story" {% if story_block != blank %}{{ story_block.shopify_attributes }}{% endif %}>
+  <div class="ppv1-story" {%- if ppv1_is_medor and ppv1_medor_block != blank -%}{{ ppv1_medor_block.shopify_attributes }}{%- elsif story_block != blank -%}{{ story_block.shopify_attributes }}{%- endif -%}>
     <div class="ppv1-story__cols">
       <div class="ppv1-story__image">
         {%- if ppv1_story_img_link != '' -%}<a href="{{ ppv1_story_img_link }}" class="ppv1-story__img-link">{%- endif -%}
@@ -609,16 +609,19 @@
 }
 
 /* ---- ALL DETAILS ---- */
+/* Negative margins cancel the parent's 35px side padding so the grey goes edge-to-edge */
 .ppv1-details {
-  padding: 80px 44px;
-  background: #F8F8F8;
+  margin-left: -35px;
+  margin-right: -35px;
+  padding: 80px 79px; /* 44 design padding + 35 to compensate for negative margins */
+  background: #F8F8F8 !important;
 }
 
-/* Heading in its own centred div above the two columns, aligned with cols max-width */
+/* Full-width heading centred above the two columns */
 .ppv1-details__header {
-  text-align: center;
-  margin: 0 auto 52px;
-  max-width: 1200px;
+  width: 100%;
+  text-align: center !important;
+  margin-bottom: 52px;
 }
 
 .ppv1-details__heading {
@@ -1230,9 +1233,10 @@
           "content": "Applied automatically to products tagged 'Médor'. Configure the story panel for all Médor products here."
         },
         {
-          "type": "url",
+          "type": "text",
           "id": "article_url",
-          "label": "Blog article URL"
+          "label": "Blog article URL",
+          "info": "Paste the full URL to the Discover The Médor blog article"
         },
         {
           "type": "textarea",
