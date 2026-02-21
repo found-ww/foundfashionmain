@@ -369,8 +369,6 @@
   font-family: 'Jost', sans-serif;
   color: #1a1a1a;
   background: #ffffff;
-  padding-left: 35px;
-  padding-right: 35px;
   padding-top: 20px;
 }
 
@@ -544,6 +542,7 @@
   position: relative;
   background: #fff;
   margin-top: 40px;
+  padding: 0 35px;
 }
 
 .ppv1-strip__track {
@@ -610,12 +609,9 @@
 }
 
 /* ---- ALL DETAILS ---- */
-/* Negative margins cancel the parent's 35px side padding so the grey goes edge-to-edge */
 .ppv1-details {
-  margin-left: -35px;
-  margin-right: -35px;
-  padding: 80px 79px; /* 44 design padding + 35 to compensate for negative margins */
-  background: #F8F8F8 !important;
+  padding: 80px 44px;
+  background: #F8F8F8;
 }
 
 /* Full-width heading centred above the two columns */
@@ -856,6 +852,7 @@
 
   .ppv1-strip {
     margin-top: 24px;
+    padding: 0;
   }
 
   .ppv1-strip__slide {
