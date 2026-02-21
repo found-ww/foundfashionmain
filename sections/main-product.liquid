@@ -21,448 +21,257 @@
 {%- endcapture -%}
 
 <script>
-  // To power the recently viewed products section, we save the ID of the product inside the local storage
   (() => {
     let items = JSON.parse(localStorage.getItem('recentlyViewedProducts') || '[]');
-
-    // We check if the current product already exists, and if it does not, we add it at the start
     if (!items.includes({{ product.id }})) {
       items.unshift({{ product.id }});
     }
-
-    // Then, we save the current product into the local storage, by keeping only the 8 most recent
     try {
       localStorage.setItem('recentlyViewedProducts', JSON.stringify(items.slice(0, 8)));
-    } catch (error) {
-      // Do nothing, this may happen in Safari in incognito mode
-    }
+    } catch (error) {}
   })();
 </script>
 
-<section class="Product Product--{{ section.settings.image_size }}" data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
-  <div class="Product__Wrapper">
-    {%- capture action_list_items -%}
-      {%- if section.settings.enable_image_zoom -%}
-        <div class="Product__ActionItem hidden-lap-and-up">
-          <button class="RoundButton RoundButton--small RoundButton--flat" aria-label="{{ 'product.slideshow.zoom' | t | escape }}" data-action="open-product-zoom">{% render 'icon' with 'plus' %}</button>
-        </div>
+<section class="Product product-page-v1" data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
+
+  {%- comment -%} Hidden product data for theme JS (variant switching, ajax cart) {%- endcomment -%}
+  {%- form 'product', product, class: 'ProductForm', style: 'display:none' -%}
+    {%- render 'product-data', product: product -%}
+    <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
+  {%- endform -%}
+
+  {%- comment -%}----------------------------------------------------
+  1. HERO SECTION
+  ----------------------------------------------------{%- endcomment -%}
+
+  <div class="ppv1-hero">
+    <div class="ppv1-hero__gallery">
+      {%- if product.featured_media -%}
+        {%- assign hero_url = product.featured_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+        <img class="ppv1-hero__main-img Image--lazyLoad Image--fadeIn"
+             data-src="{{ hero_url }}"
+             data-widths="[600, 800, 1000, 1200]"
+             data-sizes="auto"
+             alt="{{ product.featured_media.alt | default: product.title | escape }}">
+        <span class="Image__Loader"></span>
       {%- endif -%}
-
-      {%- if share_buttons_block != blank -%}
-        <div class="Product__ActionItem hidden-lap-and-up">
-          <button class="RoundButton RoundButton--small RoundButton--flat" data-action="toggle-social-share" data-animate-bottom aria-expanded="false">
-            <span class="RoundButton__PrimaryState">{% render 'icon' with 'share' %}</span>
-            <span class="RoundButton__SecondaryState">{% render 'icon' with 'close' %}</span>
-          </button>
-
-          {%- assign share_url = shop.url | append: product.url -%}
-          {%- assign twitter_text = product.title -%}
-          {%- assign pinterest_description = product.description | strip_html | truncatewords: 15 | url_param_escape -%}
-          {%- assign pinterest_image = product.featured_media | img_url: '1024x' | prepend: 'https:' -%}
-
-          <div class="Product__ShareList" aria-hidden="true">
-            <a class="Product__ShareItem" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'facebook' -%} Facebook</a>
-            <a class="Product__ShareItem" href="https://pinterest.com/pin/create/button/?url={{ share_url }}{% if pinterest_image != blank %}&media={{ pinterest_image }}{% endif %}&description={{ pinterest_description }}" target="_blank" rel="noopener">{%- render 'icon' with 'pinterest' -%} Pinterest</a>
-            <a class="Product__ShareItem" href="https://twitter.com/share?{% if twitter_text != blank %}text={{twitter_text}}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'twitter' -%} Twitter</a>
-          </div>
-        </div>
-      {%- endif -%}
-    {%- endcapture -%}
-
-    {%- comment -%}
-    --------------------------------------------------------------------------------------------------------------------
-    PRODUCT GALLERY
-    --------------------------------------------------------------------------------------------------------------------
-    {%- endcomment -%}
-
-    {%- assign initial_media_id = product.featured_media.id -%}
-    {%- assign initial_media_index = 0 -%}
-    {%- assign media_count = 0 -%}
-
-    {%- capture slideshow_media -%}
-      {%- for media in product.media -%}
-        {%- if product.selected_variant and media.id == product.selected_variant.featured_media.id -%}
-          {%- assign initial_media_index = media_count -%}
-          {%- assign initial_media_id = media.id -%}
-        {%- endif -%}
-
-        {%- capture supported_sizes -%}{%- render 'image-size', sizes: '200,400,600,700,800,900,1000,1200,1400,1600', image: media -%}{%- endcapture -%}
-
-        {%- case media.media_type -%}
-          {%- when 'image' -%}
-            <div id="Media{{ media.id }}" tabindex="0" class="Product__SlideItem Product__SlideItem--image Carousel__Cell {% if initial_media_id == media.id %}is-selected{% endif %}" data-media-type="image" data-media-id="{{ media.id }}" data-media-position="{{ media.position }}" data-image-media-position="{% increment image_position %}">
-              <div class="AspectRatio AspectRatio--withFallback" style="padding-bottom: {{ 100.0 | divided_by: media.aspect_ratio }}%; --aspect-ratio: {{ media.aspect_ratio }};">
-                {% assign image_url = media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' %}
-
-                <img class="Image--lazyLoad Image--fadeIn" data-src="{{ image_url }}" data-widths="[{{ supported_sizes }}]" data-sizes="auto" data-expand="-100" alt="{{ media.alt | escape }}" data-max-width="{{ media.width }}" data-max-height="{{ media.height }}" data-original-src="{{ media | img_url: 'master' }}">
-                <span class="Image__Loader"></span>
-
-                <noscript>
-                  <img src="{{ media | img_url: '800x' }}" alt="{{ media.alt | escape }}">
-                </noscript>
-              </div>
-            </div>
-
-          {%- when 'external_video' -%}
-            <div id="Media{{ media.id }}" tabindex="-1" class="Product__SlideItem Product__SlideItem--video Carousel__Cell {% if initial_media_id == media.id %}is-selected{% endif %}" data-media-type="external_video" data-media-id="{{ media.id }}" data-media-position="{{ media.position }}" data-video-host="{{ media.host | escape }}" data-video-id="{{ media.external_id | escape }}">
-              <div class="Image--lazyLoad Image--fadeIn" data-expand="-100">
-                <div class="VideoWrapper">
-                  {{- media | external_video_tag: image_size: '1024x' -}}
-                </div>
-              </div>
-            </div>
-
-          {%- when 'video' -%}
-            <div id="Media{{ media.id }}" tabindex="-1" class="Product__SlideItem Product__SlideItem--video Carousel__Cell {% if initial_media_id == media.id %}is-selected{% endif %}" data-media-type="video" data-media-id="{{ media.id }}" data-media-position="{{ media.position }}">
-              <div class="Image--lazyLoad Image--fadeIn" data-expand="-100">
-                <div class="VideoWrapper VideoWrapper--native" style="padding-bottom: {{ 100.0 | divided_by: media.aspect_ratio }}%">
-                  {{- media | video_tag: image_size: '1024x', controls: true -}}
-                </div>
-              </div>
-            </div>
-
-          {%- when 'model' -%}
-            <div id="Media{{ media.id }}" tabindex="-1" class="Product__SlideItem Product__SlideItem--model Carousel__Cell {% if initial_media_id == media.id %}is-selected{% endif %}" data-media-type="model" data-media-id="{{ media.id }}" data-media-position="{{ media.position }}">
-              <div class="Image--lazyLoad Image--fadeIn" data-expand="-100">
-                <div class="ModelWrapper">
-                  {{- media | model_viewer_tag: image_size: '1024x', reveal: 'interaction', toggleable: true -}}
-                </div>
-              </div>
-            </div>
-        {%- endcase -%}
-
-        {%- assign media_count = media_count | plus: 1 -%}
-      {%- endfor -%}
-    {%- endcapture -%}
-
-    {%- if product.media.size > 0 -%}
-      <div class="Product__Gallery {% if section.settings.stack_images %}Product__Gallery--stack{% endif %} {% if section.settings.show_thumbnails and media_count > 1 %}Product__Gallery--withThumbnails{% else %}Product__Gallery--withDots{% endif %}">
-        <span id="ProductGallery" class="Anchor"></span>
-
-        {%- if action_list_items != blank -%}
-          <div class="Product__ActionList hidden-lap-and-up {% if product.media[initial_media_index].media_type != 'image' %}is-hidden{% endif %}">
-            {{ action_list_items }}
-          </div>
-        {%- endif -%}
-
-        {%- capture slideshow_nav -%}
-          {%- if media_count > 1 -%}
-            {%- if section.settings.show_thumbnails -%}
-              <div class="Product__SlideshowNav Product__SlideshowNav--thumbnails">
-                <div class="Product__SlideshowNavScroller">
-                  {%- for media in product.media -%}
-                    {%- capture nav_item_badge -%}
-                      {%- case media.media_type -%}
-                        {%- when 'model' -%}
-                          <span class="Product__SlideshowNavBadge">{% render 'icon', icon: 'media-model-badge' %}</span>
-
-                        {%- when 'video' or 'external_video' -%}
-                          <span class="Product__SlideshowNavBadge">{% render 'icon', icon: 'media-video-badge' %}</span>
-                      {%- endcase -%}
-                    {%- endcapture -%}
-
-                    {%- if section.settings.stack_images -%}
-                      <a href="#Media{{ media.id }}" data-offset="-25" data-focus-on-click data-media-id="{{ media.id }}" class="Product__SlideshowNavImage AspectRatio {% if forloop.first %}is-selected{% endif %}" style="--aspect-ratio: {{ media.preview_image.aspect_ratio }}">
-                        <img src="{{ media | img_url: '160x' }}" alt="{{ media.alt | escape }}">
-                        {{- nav_item_badge -}}
-                      </a>
-                    {%- else -%}
-                      <a href="{{ media | img_url: '1024x' }}" data-media-id="{{ media.id }}" class="Product__SlideshowNavImage AspectRatio {% if media.id == initial_media_id %}is-selected{% endif %}" style="--aspect-ratio: {{ media.preview_image.aspect_ratio }}">
-                        <img src="{{ media | img_url: '160x' }}" alt="{{ media.alt | escape }}">
-                        {{- nav_item_badge -}}
-                      </a>
-                    {%- endif -%}
-                  {%- endfor -%}
-                </div>
-              </div>
-            {%- endif -%}
-
-            {%- if section.settings.stack_images -%}
-              <div class="Product__SlideshowNav Product__SlideshowNav--dots">
-                <div class="Product__SlideshowNavScroller">
-                  {%- for media in product.media -%}
-                    <a href="#Media{{ media.id }}" data-offset="-25" data-focus-on-click class="Product__SlideshowNavDot {% if forloop.first %}is-selected{% endif %}"></a>
-                  {%- endfor -%}
-                </div>
-              </div>
-            {%- endif -%}
-          {%- endif -%}
-        {%- endcapture -%}
-
-        {%- if section.settings.stack_images -%}
-          {{- slideshow_nav -}}
-        {%- endif -%}
-
-        {%- capture flickity_options -%}
-        {
-          "prevNextButtons": false,
-          "pageDots": false,
-          "adaptiveHeight": true,
-          "watchCSS": true,
-          "dragThreshold": 8,
-          "initialIndex": {{ initial_media_index }},
-          "arrowShape": {"x0": 20, "x1": 60, "y1": 40, "x2": 60, "y2": 35, "x3": 25}
-        }
-        {%- endcapture -%}
-
-        <div class="Product__Slideshow {% if section.settings.enable_image_zoom %}Product__Slideshow--zoomable{% endif %} Carousel" data-flickity-config='{{ flickity_options }}'>
-          {{ slideshow_media }}
-        </div>
-
-        {%- comment -%}Add the "view in your space" button, which allows to show the product in customer's environment (if the device supports it){%- endcomment -%}
-        {%- assign first_3d_model = product.media | where: 'media_type', 'model' | first -%}
-
-        {%- if first_3d_model -%}
-          <button class="Product__ViewInSpace Button Button--full" data-shopify-xr data-shopify-model3d-id="{{ first_3d_model.id }}" data-shopify-model3d-default-id="{{ first_3d_model.id }}" data-shopify-title="{{ product.title | escape }}" data-shopify-xr-hidden>
-            {%- render 'icon', icon: 'media-view-in-space' -%} {{- 'product.general.view_in_space' | t -}}
-          </button>
-        {%- endif -%}
-
-        {%- if media_count > 1 -%}
-          {%- comment -%}
-            IMPLEMENTATION NOTE: The reason we create ourselves our own UI instead of relying of the built-in feature of Flickity is that,
-            since the media API, Shopify requires to add arrows next to the dot. Unfortunately this layout is not
-            achievable easily using Flickity options only, so we have to run our own
-          {%- endcomment -%}
-
-          <div class="Product__SlideshowMobileNav {% if section.settings.stack_images or section.settings.show_thumbnails %}hidden-lap-and-up{% endif %}">
-            <button class="Product__SlideshowNavArrow Product__SlideshowNavArrow--previous" type="button" data-direction="previous" aria-label="{{ 'general.accessibility.previous' | t }}">
-              {% render 'icon' with 'media-arrow-left' %}
-            </button>
-
-            <div class="flickity-page-dots">
-              {%- for i in (1..media_count) -%}
-                <button type="button" aria-label="{{ 'product.slideshow.go_to_image' | t: i: i | escape }}" class="dot {% if forloop.index0 == initial_media_index %}is-selected{% endif %}" data-index="{{ forloop.index0 }}"></button>
-              {%- endfor -%}
-            </div>
-
-            <button class="Product__SlideshowNavArrow Product__SlideshowNavArrow--next" type="button" data-direction="next" aria-label="{{ 'general.accessibility.next' | t }}">
-              {% render 'icon' with 'media-arrow-right' %}
-            </button>
-          </div>
-        {%- endif -%}
-
-        {%- unless section.settings.stack_images -%}
-          {{- slideshow_nav -}}
-        {%- endunless -%}
-      </div>
-    {%- endif -%}
-
-    {%- capture product_aside -%}
-      {%- comment -%}
-      --------------------------------------------------------------------------------------------------------------------
-      PRODUCT TABS
-      --------------------------------------------------------------------------------------------------------------------
-      {%- endcomment -%}
-
-      {%- render 'product-tabs' -%}
-
-      {%- comment -%}
-      --------------------------------------------------------------------------------------------------------------------
-      PRODUCT WEAR IT WITH
-      --------------------------------------------------------------------------------------------------------------------
-      {%- endcomment -%}
-
-      {%- assign buy_it_with_block = section.blocks | where: 'type', 'buy_it_with' | first -%}
-
-      {%- if buy_it_with_block != blank and buy_it_with_block.settings.product != blank -%}
-        {%- assign associated_product = buy_it_with_block.settings.product -%}
-
-        <div class="Section Section--spacingNormal">
-          <header class="SectionHeader SectionHeader--center">
-            <h3 class="SectionHeader__Heading Heading u-h4">{{ buy_it_with_block.settings.title | escape }}</h3>
-          </header>
-
-          {% render 'product-item', product: associated_product, use_horizontal: true, show_labels: false, show_product_info: true, show_vendor: false, show_price_on_hover: false %}
-        </div>
-      {%- endif -%}
-    {%- endcapture -%}
-
-    <div class="Product__InfoWrapper">
-      <div class="Product__Info {% if media_count == 0 %}Product__Info--noGallery{% endif %}">
-        <div class="Container">
-          {%- assign has_ouputted_variant_selector = false -%}
-
-          {%- form 'product', product, class: 'ProductForm' -%}
-            {%- render 'product-data', product: product -%}
-
-            {%- for block in section.blocks -%}
-              {%- case block.type -%}
-                {%- when '@app' -%}
-                  {%- render block -%}
-
-                {%- when 'product_meta' -%}
-                  {%- render 'product-meta', form: form, block: block, product: product -%}
-
-                {%- when 'description' -%}
-                  {%- if product.description != blank -%}
-                    <div class="ProductMeta__Description" {{ block.shopify_attributes }}>
-                      <div class="Rte">
-                        {{- product.description | replace: 'data-section-type', 'data-section-type-placeholder' -}}
-                      </div>
-                    </div>
-                  {%- endif -%}
-
-                {%- when 'share_buttons' -%}
-                  <div class="ProductMeta__ShareButtons hidden-pocket" {{ block.shopify_attributes }}>
-                    <span class="ProductMeta__ShareTitle Heading Text--subdued u-h7">{{ 'product.form.share' | t }}</span>
-
-                    {%- assign share_url = shop.url | append: product.url -%}
-                    {%- assign twitter_text = product.title -%}
-                    {%- assign pinterest_description = product.description | strip_html | truncatewords: 15 | url_param_escape -%}
-                    {%- assign pinterest_image = product.featured_image | img_url: 'large' | prepend: 'https:' -%}
-
-                    <div class="ProductMeta__ShareList Text--subdued">
-                      <a class="ProductMeta__ShareItem" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" aria-label="Facebook">{%- render 'icon' with 'facebook' -%}</a>
-                      <a class="ProductMeta__ShareItem" href="https://twitter.com/share?{% if twitter_text != blank %}text={{twitter_text}}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" aria-label="Twitter">{%- render 'icon' with 'twitter' -%}</a>
-                      <a class="ProductMeta__ShareItem" href="https://pinterest.com/pin/create/button/?url={{ share_url }}{% if pinterest_image != blank %}&media={{ pinterest_image }}{% endif %}&description={{ pinterest_description }}" target="_blank" rel="noopener" aria-label="Pinterest">{%- render 'icon' with 'pinterest' -%}</a>
-                    </div>
-                  </div>
-
-                {%- when 'variant_selector' -%}
-                  {%- assign has_ouputted_variant_selector = true -%}
-                  {%- render 'product-form', block: block, product: product -%}
-
-                {%- when 'quantity_selector' -%}
-                  <div class="ProductForm__QuantitySelector" {{ block.shopify_attributes }}>
-                    {%- if block.settings.show_label -%}
-                      <span class="ProductForm__Label">{{ 'product.form.quantity' | t }}:</span>
-                    {%- endif -%}
-
-                    <div class="QuantitySelector QuantitySelector--large">
-                      {%- assign quantity_minus_one = line_item.quantity | minus: 1 -%}
-
-                      <button type="button" class="QuantitySelector__Button Link Link--secondary" data-action="decrease-quantity">{% render 'icon' with 'minus' %}</button>
-                      <input type="text" class="QuantitySelector__CurrentQuantity" pattern="[0-9]*" name="quantity" value="1" aria-label="{{ 'product.form.quantity' | t }}">
-                      <button type="button" class="QuantitySelector__Button Link Link--secondary" data-action="increase-quantity">{% render 'icon' with 'plus' %}</button>
-                    </div>
-                  </div>
-
-                {%- when 'inventory' -%}
-                  {%- assign hide_inventory_quantity_by_default = false -%}
-
-                  {%- if product.selected_or_first_available_variant.inventory_management == blank or product.selected_or_first_available_variant.inventory_quantity <= 0 -%}
-                    {%- assign hide_inventory_quantity_by_default = true -%}
-                  {%- endif -%}
-
-                  {%- if block.settings.inventory_quantity_threshold != 0 and product.selected_or_first_available_variant.inventory_quantity > block.settings.inventory_quantity_threshold -%}
-                    {%- assign hide_inventory_quantity_by_default = true -%}
-                  {%- endif -%}
-
-                  <p class="ProductForm__Inventory Text--subdued" {% if hide_inventory_quantity_by_default %}style="display: none"{% endif %} {{ block.shopify_attributes }}>
-                    {%- if block.settings.inventory_quantity_threshold == 0 -%}
-                      {{- 'product.form.inventory_quantity_count' | t: count: product.selected_or_first_available_variant.inventory_quantity -}}
-                    {%- else -%}
-                      {{- 'product.form.low_inventory_quantity_count' | t: count: product.selected_or_first_available_variant.inventory_quantity -}}
-                    {%- endif -%}
-                  </p>
-
-                {%- when 'buy_buttons' -%}
-                  {%- if block.settings.show_payment_button == false or product.selling_plan_groups.size > 0 -%}
-                    {%- assign use_primary_button = true -%}
-                  {%- else -%}
-                    {%- assign use_primary_button = false -%}
-                  {%- endif -%}
-
-                  <div class="ProductForm__BuyButtons" {{ block.shopify_attributes }}>
-                    {%- if block.settings.show_payment_button and product.selected_or_first_available_variant.available == false -%}
-                      <style>
-                        #shopify-section-{{ section.id }} .shopify-payment-button {
-                          display: none;
-                        }
-                      </style>
-                    {%- endif -%}
-
-                    <button type="submit" data-use-primary-button="{% if use_primary_button %}true{% else %}false{% endif %}" class="ProductForm__AddToCart Button {% if product.selected_or_first_available_variant.available and use_primary_button %}Button--primary{% else %}Button--secondary{% endif %} Button--full" {% if product.selected_or_first_available_variant.available %}data-action="add-to-cart"{% else %}disabled="disabled"{% endif %}>
-                      {%- if product.selected_or_first_available_variant.available -%}
-                        <span>{% if product.template_suffix == 'pre-order' %}{{ 'product.form.pre_order' | t }}{% else %}{{ 'product.form.add_to_cart' | t }}{% endif %}</span>
-
-                        {%- if block.settings.show_price_in_button -%}
-                          <span class="Button__SeparatorDot"></span>
-                          <span>{{ product.selected_or_first_available_variant.price | money }}</span>
-                        {%- endif -%}
-                      {%- else -%}
-                        {{- 'product.form.sold_out' | t -}}
-                      {%- endif -%}
-                    </button>
-
-                    {%- if block.settings.show_payment_button and product.template_suffix != 'pre-order' -%}
-                      {{ form | payment_button }}
-                    {%- endif -%}
-                  </div>
-
-                {%- when 'store_pickup' -%}
-                  {%- comment -%}The availability container will be added automatically if there is store pickup available{%- endcomment -%}
-                  <div class="ProductMeta__StoreAvailabilityContainer" {{ block.shopify_attributes }}></div>
-
-                {%- when 'text' -%}
-                  {%- if block.settings.text != blank -%}
-                    <div class="ProductMeta__Text" {{ block.shopify_attributes }}>
-                      {{- block.settings.text -}}
-                    </div>
-                  {%- endif -%}
-
-                {%- when 'liquid' -%}
-                  {%- if block.settings.liquid != blank -%}
-                    <div class="ProductMeta__Text" {{ block.shopify_attributes }}>
-                      {{ block.settings.liquid }}
-                    </div>
-                  {%- endif -%}
-
-              {%- endcase -%}
-            {%- endfor -%}
-
-            {%- unless has_ouputted_variant_selector -%}
-              {%- comment -%}If for any reason the merchant has removed the variant selector block, we still output the ID here{%- endcomment -%}
-              <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-            {%- endunless -%}
-          {%- endform -%}
-
-          {%- if section.settings.stack_images and product_aside != blank and media_count > 0 -%}
-            <div class="Product__QuickNav hidden-pocket">
-              <div class="Product__QuickNavWrapper">
-                <a href="#ProductAside" class="Heading Link Link--secondary u-h7">{{ 'product.form.view_info' | t }} {% render 'icon' with 'select-arrow-right' %}</a>
-                <a href="#ProductGallery" class="Heading Link Link--secondary u-h7">{{ 'product.form.view_images' | t }} {% render 'icon' with 'select-arrow-right' %}</a>
-              </div>
-            </div>
-          {%- endif -%}
-        </div>
-      </div>
     </div>
 
-    {%- if product_aside != blank -%}
-      <div class="Product__Aside">
-        <span id="ProductAside" class="Anchor"></span>
-        {{- product_aside -}}
-      </div>
-    {%- endif -%}
+    <div class="ppv1-hero__info">
+      {%- if product.vendor != blank -%}
+        <span class="ppv1-brand">{{ product.vendor | upcase }}</span>
+      {%- endif -%}
+
+      <h1 class="ppv1-title">{{ product.title }}</h1>
+
+      {%- comment -%} Metadata from product tags in "Key: Value" format {%- endcomment -%}
+      {%- assign has_meta_tags = false -%}
+      {%- for tag in product.tags -%}
+        {%- if tag contains ': ' -%}
+          {%- assign has_meta_tags = true -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if has_meta_tags -%}
+        <dl class="ppv1-meta">
+          {%- for tag in product.tags -%}
+            {%- if tag contains ': ' -%}
+              {%- assign tag_parts = tag | split: ': ' -%}
+              <dt class="ppv1-meta__key">{{ tag_parts[0] }}</dt>
+              <dd class="ppv1-meta__val">{{ tag_parts[1] }}</dd>
+            {%- endif -%}
+          {%- endfor -%}
+        </dl>
+      {%- endif -%}
+
+      <hr class="ppv1-divider">
+
+      <div class="ppv1-price">{{ product.selected_or_first_available_variant.price | money }}</div>
+
+      {%- form 'product', product, class: 'ppv1-form' -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
+        <div class="ppv1-cta-row">
+          {%- if product.selected_or_first_available_variant.available -%}
+            <button type="submit" class="ppv1-btn ppv1-btn--primary" data-action="add-to-cart">
+              ADD TO CART &mdash; {{ product.selected_or_first_available_variant.price | money }}
+            </button>
+          {%- else -%}
+            <button type="button" class="ppv1-btn ppv1-btn--primary" disabled>SOLD OUT</button>
+          {%- endif -%}
+          <a href="https://wa.me/85293476168?text={{ 'Hello, I would like to make an offer on the ' | append: product.title | append: '.' | url_encode }}"
+             target="_blank"
+             rel="noopener"
+             class="ppv1-btn ppv1-btn--secondary">MAKE AN OFFER</a>
+        </div>
+      {%- endform -%}
+    </div>
   </div>
+
+  {%- comment -%}----------------------------------------------------
+  2. IMAGE CAROUSEL STRIP
+  ----------------------------------------------------{%- endcomment -%}
+
+  {%- if product.media.size > 1 -%}
+    <div class="ppv1-strip">
+      <button class="ppv1-strip__arrow ppv1-strip__arrow--prev" id="ppv1-prev" type="button" aria-label="Previous images">&#8592;</button>
+      <div class="ppv1-strip__track" id="ppv1-track">
+        {%- for media in product.media -%}
+          {%- if media.media_type == 'image' -%}
+            {%- assign strip_url = media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+            <div class="ppv1-strip__slide">
+              <img class="ppv1-strip__img Image--lazyLoad Image--fadeIn"
+                   data-src="{{ strip_url }}"
+                   data-widths="[400, 600, 800]"
+                   data-sizes="auto"
+                   alt="{{ media.alt | default: product.title | escape }}">
+              <span class="Image__Loader"></span>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      <button class="ppv1-strip__arrow ppv1-strip__arrow--next" id="ppv1-next" type="button" aria-label="Next images">&#8594;</button>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%}----------------------------------------------------
+  3. ALL DETAILS SECTION
+  ----------------------------------------------------{%- endcomment -%}
+
+  <div class="ppv1-details">
+    <div class="ppv1-details__left">
+      <h2 class="ppv1-section-heading">ALL DETAILS</h2>
+      {%- if product.description != blank -%}
+        <div class="ppv1-description Rte">{{ product.description }}</div>
+      {%- endif -%}
+      <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
+         target="_blank"
+         rel="noopener"
+         class="ppv1-btn ppv1-btn--tertiary">CHAT TO OUR TEAM</a>
+    </div>
+
+    <div class="ppv1-details__right">
+      <div class="ppv1-accordion">
+
+        {%- comment -%} Accordion: Product Details {%- endcomment -%}
+        <div class="ppv1-accordion__item">
+          <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
+            <span>Product Details</span>
+            <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
+          </button>
+          <div class="ppv1-accordion__body">
+            <div class="ppv1-accordion__content">
+              <dl class="ppv1-detail-list">
+                {%- if product.vendor != blank -%}
+                  <dt>Brand</dt><dd>{{ product.vendor }}</dd>
+                {%- endif -%}
+                {%- for tag in product.tags -%}
+                  {%- if tag contains ': ' -%}
+                    {%- assign tag_parts = tag | split: ': ' -%}
+                    <dt>{{ tag_parts[0] }}</dt><dd>{{ tag_parts[1] }}</dd>
+                  {%- endif -%}
+                {%- endfor -%}
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} Accordion: Delivery {%- endcomment -%}
+        {%- assign delivery_block = blank -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'content' and block.settings.title contains 'Delivery' -%}
+            {%- assign delivery_block = block -%}
+          {%- endif -%}
+        {%- endfor -%}
+        <div class="ppv1-accordion__item">
+          <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
+            <span>Delivery</span>
+            <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
+          </button>
+          <div class="ppv1-accordion__body">
+            <div class="ppv1-accordion__content">
+              {%- if delivery_block != blank -%}
+                <div class="Rte">{{ delivery_block.settings.content }}</div>
+              {%- else -%}
+                <p>DHL delivery within 1–2 working days. For local pick up in London please contact us directly. Free shipping. You will receive your receipt via email.</p>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} Accordion: Payment Methods {%- endcomment -%}
+        {%- assign payment_block = blank -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'content' and block.settings.title contains 'Payment' -%}
+            {%- assign payment_block = block -%}
+          {%- endif -%}
+        {%- endfor -%}
+        <div class="ppv1-accordion__item">
+          <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
+            <span>Payment Methods</span>
+            <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
+          </button>
+          <div class="ppv1-accordion__body">
+            <div class="ppv1-accordion__content">
+              {%- if payment_block != blank -%}
+                <div class="Rte">{{ payment_block.settings.content }}</div>
+              {%- else -%}
+                <p>We accept Visa, Mastercard, Maestro, American Express, Apple Pay &amp; PayPal. For WeChat Pay or Alipay, please contact us directly.</p>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%}----------------------------------------------------
+  4. DISCOVER THE STORY SECTION
+  ----------------------------------------------------{%- endcomment -%}
+
+  {%- assign story_media = product.media[1] -%}
+  {%- if story_media == blank or story_media.media_type != 'image' -%}
+    {%- assign story_media = product.media[0] -%}
+  {%- endif -%}
+
+  <div class="ppv1-story">
+    <div class="ppv1-story__image">
+      {%- if story_media and story_media.media_type == 'image' -%}
+        {%- assign story_url = story_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+        <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
+             data-src="{{ story_url }}"
+             data-widths="[600, 800, 1000]"
+             data-sizes="auto"
+             alt="{{ story_media.alt | default: product.title | escape }}">
+        <span class="Image__Loader"></span>
+      {%- endif -%}
+    </div>
+    <div class="ppv1-story__content">
+      <h2 class="ppv1-section-heading">DISCOVER THE STORY</h2>
+      {%- if product.description != blank -%}
+        <div class="ppv1-story__text">{{ product.description | strip_html | truncatewords: 70 }}</div>
+      {%- endif -%}
+      <a href="{{ product.url }}" class="ppv1-btn ppv1-btn--tertiary">READ MORE</a>
+    </div>
+  </div>
+
 </section>
 
 {%- comment -%}
 --------------------------------------------------------------------------------------------------------------------
 PHOTO SWIPE
-
-This is the root container for the zoom functionality. Must not be removed, as order element is important.
 --------------------------------------------------------------------------------------------------------------------
 {%- endcomment -%}
 
 {%- if section.settings.enable_image_zoom -%}
   <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-    <!-- Background of PhotoSwipe -->
     <div class="pswp__bg"></div>
-
-    <!-- Slides wrapper with overflow:hidden. -->
     <div class="pswp__scroll-wrap">
-
-      <!-- Container that holds slides. Do not remove as content is dynamically added -->
       <div class="pswp__container">
         <div class="pswp__item"></div>
         <div class="pswp__item"></div>
         <div class="pswp__item"></div>
       </div>
-
-      <!-- Main UI bar -->
       <div class="pswp__ui pswp__ui--hidden">
         <button class="pswp__button pswp__button--prev RoundButton" data-animate-left title="{{ 'product.slideshow.previous' | t }}">{% render 'icon' with 'arrow-left' %}</button>
         <button class="pswp__button pswp__button--close RoundButton RoundButton--large" data-animate-bottom title="{{ 'product.slideshow.close' | t }}">{% render 'icon' with 'close' %}</button>
@@ -475,6 +284,527 @@ This is the root container for the zoom functionality. Must not be removed, as o
 <script>
   window.ShopifyXR=window.ShopifyXR||function(){(ShopifyXR.q=ShopifyXR.q||[]).push(arguments)};
   ShopifyXR('addModels', {{ product.media | where: 'media_type', 'model' | json }});
+</script>
+
+<style>
+/* =====================================================
+   PRODUCT PAGE V1 — SCOPED STYLES
+   ===================================================== */
+
+.product-page-v1 {
+  font-family: 'Jost', sans-serif;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+/* ---- HERO ---- */
+.ppv1-hero {
+  display: flex;
+  min-height: 640px;
+}
+
+.ppv1-hero__gallery {
+  flex: 0 0 60%;
+  position: relative;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+.ppv1-hero__main-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ppv1-hero__info {
+  flex: 0 0 40%;
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid #e5e5e5;
+}
+
+.ppv1-brand {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  color: #9a9a9a;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.ppv1-title {
+  font-family: 'Jost', sans-serif;
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  line-height: 1.3;
+  margin: 0 0 24px;
+}
+
+/* Metadata key/value grid */
+.ppv1-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 20px;
+  margin: 0 0 24px;
+}
+
+.ppv1-meta__key {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  white-space: nowrap;
+}
+
+.ppv1-meta__val {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.ppv1-divider {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 0 0 24px;
+}
+
+.ppv1-price {
+  font-family: 'Jost', sans-serif;
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  color: #1a1a1a;
+  margin-bottom: 28px;
+}
+
+/* Buttons */
+.ppv1-cta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ppv1-btn {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.ppv1-btn--primary {
+  background: #8B7355;
+  color: #ffffff;
+  border: 1px solid #8B7355;
+}
+
+.ppv1-btn--primary:hover {
+  background: #7a6245;
+  border-color: #7a6245;
+}
+
+.ppv1-btn--primary:disabled {
+  background: #cccccc;
+  border-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.ppv1-btn--secondary {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+}
+
+.ppv1-btn--secondary:hover {
+  background: #f5f5f5;
+}
+
+.ppv1-btn--tertiary {
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #e5e5e5;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  padding: 12px 20px;
+  margin-top: 24px;
+  align-self: flex-start;
+}
+
+.ppv1-btn--tertiary:hover {
+  border-color: #1a1a1a;
+}
+
+/* ---- CAROUSEL STRIP ---- */
+.ppv1-strip {
+  position: relative;
+  background: #f5f5f5;
+  border-top: 1px solid #e5e5e5;
+}
+
+.ppv1-strip__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ppv1-strip__track::-webkit-scrollbar {
+  display: none;
+}
+
+.ppv1-strip__slide {
+  flex: 0 0 calc(100% / 3);
+  scroll-snap-align: start;
+  overflow: hidden;
+  position: relative;
+}
+
+.ppv1-strip__img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.ppv1-strip__slide:hover .ppv1-strip__img {
+  transform: scale(1.03);
+}
+
+.ppv1-strip__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #e5e5e5;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  color: #1a1a1a;
+  transition: background 0.2s ease;
+}
+
+.ppv1-strip__arrow:hover {
+  background: #ffffff;
+}
+
+.ppv1-strip__arrow--prev {
+  left: 16px;
+}
+
+.ppv1-strip__arrow--next {
+  right: 16px;
+}
+
+/* ---- ALL DETAILS ---- */
+.ppv1-details {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 40px;
+  display: flex;
+  gap: 80px;
+  align-items: flex-start;
+}
+
+.ppv1-details__left {
+  flex: 0 0 38%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ppv1-details__right {
+  flex: 1;
+  border-left: 1px solid #e5e5e5;
+  padding-left: 80px;
+}
+
+.ppv1-section-heading {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  margin: 0 0 28px;
+}
+
+.ppv1-description {
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.8;
+  color: #444444;
+  margin-bottom: 0;
+}
+
+/* Accordion */
+.ppv1-accordion__item {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.ppv1-accordion__trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-align: left;
+}
+
+.ppv1-accordion__trigger:hover {
+  color: #8B7355;
+}
+
+.ppv1-accordion__icon {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.ppv1-accordion__item.is-open .ppv1-accordion__icon {
+  transform: rotate(45deg);
+}
+
+.ppv1-accordion__body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.ppv1-accordion__item.is-open .ppv1-accordion__body {
+  max-height: 600px;
+}
+
+.ppv1-accordion__content {
+  padding-bottom: 20px;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.8;
+  color: #444444;
+}
+
+.ppv1-accordion__content p {
+  margin: 0 0 8px;
+}
+
+.ppv1-accordion__content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Product details key/value list in accordion */
+.ppv1-detail-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 24px;
+  margin: 0;
+}
+
+.ppv1-detail-list dt {
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #9a9a9a;
+  font-size: 11px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ppv1-detail-list dd {
+  font-size: 13px;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* ---- DISCOVER THE STORY ---- */
+.ppv1-story {
+  display: flex;
+  min-height: 540px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.ppv1-story__image {
+  flex: 0 0 50%;
+  position: relative;
+  background: #f0ebe3;
+  overflow: hidden;
+}
+
+.ppv1-story__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ppv1-story__content {
+  flex: 0 0 50%;
+  background: #F5F0E8;
+  padding: 80px 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ppv1-story__text {
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.9;
+  color: #444444;
+  margin-bottom: 0;
+}
+
+/* ---- MOBILE ---- */
+@media screen and (max-width: 900px) {
+  .ppv1-hero {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .ppv1-hero__gallery {
+    flex: none;
+    height: 65vw;
+    min-height: 320px;
+  }
+
+  .ppv1-hero__info {
+    flex: none;
+    padding: 36px 24px 48px;
+    border-left: none;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .ppv1-title {
+    font-size: 18px;
+  }
+
+  .ppv1-cta-row {
+    flex-direction: column;
+  }
+
+  .ppv1-btn {
+    width: 100%;
+  }
+
+  .ppv1-strip__slide {
+    flex: 0 0 82%;
+  }
+
+  .ppv1-strip__img {
+    height: 240px;
+  }
+
+  .ppv1-details {
+    flex-direction: column;
+    padding: 48px 24px;
+    gap: 48px;
+  }
+
+  .ppv1-details__left {
+    flex: none;
+  }
+
+  .ppv1-details__right {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 48px;
+    width: 100%;
+  }
+
+  .ppv1-story {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .ppv1-story__image {
+    flex: none;
+    height: 70vw;
+    min-height: 300px;
+  }
+
+  .ppv1-story__content {
+    flex: none;
+    padding: 48px 24px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  // Accordion
+  document.querySelectorAll('.ppv1-accordion__trigger').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = this.closest('.ppv1-accordion__item');
+      var isOpen = item.classList.toggle('is-open');
+      this.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
+
+  // Carousel strip arrows
+  var track = document.getElementById('ppv1-track');
+  var prevBtn = document.getElementById('ppv1-prev');
+  var nextBtn = document.getElementById('ppv1-next');
+
+  if (track && prevBtn && nextBtn) {
+    function getSlideWidth() {
+      var slide = track.querySelector('.ppv1-strip__slide');
+      return slide ? slide.offsetWidth : track.offsetWidth / 3;
+    }
+    prevBtn.addEventListener('click', function() {
+      track.scrollBy({ left: -getSlideWidth(), behavior: 'smooth' });
+    });
+    nextBtn.addEventListener('click', function() {
+      track.scrollBy({ left: getSlideWidth(), behavior: 'smooth' });
+    });
+  }
+})();
 </script>
 
 {% schema %}
@@ -540,7 +870,7 @@ This is the root container for the zoom functionality. Must not be removed, as o
           "id": "show_color_swatch",
           "label": "Show color swatch",
           "default": false,
-          "info": "Some colors appear white? [Learn more](http://support.maestrooo.com/article/80-product-uploading-custom-color-for-color-swatch)."
+          "info": "Some colors appear white? [Learn more](http://support.maestrooo.com/article/80-product-upgrading-custom-color-for-color-swatch)."
         },
         {
           "type": "checkbox",
