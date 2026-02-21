@@ -1,67 +1,95 @@
 {%- comment -%}
   Product Story Section
-  Standalone section rendered below the product details.
-  - For regular products: shows a configurable image/text/CTA panel
-  - For products tagged 'Médor' (or 'medor'): overrides URL and text with
-    Médor-specific settings configured here in the theme editor
+  - Checks if the product has any of the 9 known bag tags.
+  - If a tag matches and an article is configured → show the section with that article's image/URL/excerpt.
+  - If a tag matches but no article is configured → hide the section entirely.
+  - If no matching tag → show the section with the general settings below.
 {%- endcomment -%}
 
-{%- assign ps_is_medor = false -%}
+{%- assign ps_tagged = false -%}
+{%- assign ps_tag_article = blank -%}
+
 {%- for tag in product.tags -%}
   {%- assign ps_tag_lower = tag | downcase -%}
-  {%- if ps_tag_lower == 'medor' or ps_tag_lower == 'médor' -%}
-    {%- assign ps_is_medor = true -%}
-    {%- break -%}
+  {%- if ps_tag_lower == 'birkin' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.birkin_article -%}
+  {%- elsif ps_tag_lower == 'kelly' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.kelly_article -%}
+  {%- elsif ps_tag_lower == 'garden party' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.garden_party_article -%}
+  {%- elsif ps_tag_lower == 'picotin' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.picotin_article -%}
+  {%- elsif ps_tag_lower == 'herbag' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.herbag_article -%}
+  {%- elsif ps_tag_lower == 'medor' or ps_tag_lower == 'médor' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.medor_article -%}
+  {%- elsif ps_tag_lower == 'evelyne' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.evelyne_article -%}
+  {%- elsif ps_tag_lower == 'tablier' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.tablier_article -%}
+  {%- elsif ps_tag_lower == 'bolide' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.bolide_article -%}
   {%- endif -%}
+  {%- if ps_tagged -%}{%- break -%}{%- endif -%}
 {%- endfor -%}
 
-{%- comment -%} Story image: section image picker → second product image → first product image {%- endcomment -%}
-{%- if section.settings.image != blank -%}
+{%- comment -%} Tagged product with no article configured — hide the whole section {%- endcomment -%}
+{%- if ps_tagged and ps_tag_article == blank -%}
+  {%- comment -%} Render nothing {%- endcomment -%}
+{%- else -%}
+
+{%- comment -%} Story image: article image → section image picker → second product image → first product image {%- endcomment -%}
+{%- assign ps_use_picker = false -%}
+{%- if ps_tag_article != blank and ps_tag_article.image != blank -%}
+  {%- assign ps_use_picker = true -%}
+  {%- assign ps_picker_img = ps_tag_article.image -%}
+{%- elsif section.settings.image != blank -%}
   {%- assign ps_use_picker = true -%}
   {%- assign ps_picker_img = section.settings.image -%}
 {%- else -%}
-  {%- assign ps_use_picker = false -%}
   {%- assign ps_media = product.media[1] -%}
   {%- if ps_media == blank or ps_media.media_type != 'image' -%}
     {%- assign ps_media = product.media[0] -%}
   {%- endif -%}
 {%- endif -%}
 
-{%- comment -%} Story text: section richtext → product description truncated {%- endcomment -%}
-{%- if section.settings.text != blank -%}
+{%- comment -%} Story text {%- endcomment -%}
+{%- assign ps_text_html = blank -%}
+{%- assign ps_text_plain = blank -%}
+{%- if ps_tag_article != blank -%}
+  {%- if section.settings.medor_article_text != blank and ps_tag_article == section.settings.medor_article -%}
+    {%- assign ps_text_plain = section.settings.medor_article_text -%}
+  {%- elsif ps_tag_article.excerpt != blank -%}
+    {%- assign ps_text_plain = ps_tag_article.excerpt | strip_html | truncatewords: 40 -%}
+  {%- endif -%}
+{%- elsif section.settings.text != blank -%}
   {%- assign ps_text_html = section.settings.text -%}
 {%- elsif product.description != blank -%}
   {%- assign ps_text_plain = product.description | strip_html | truncatewords: 70 -%}
 {%- endif -%}
 
-{%- comment -%} Button defaults {%- endcomment -%}
+{%- comment -%} Button {%- endcomment -%}
 {%- assign ps_btn_label = 'READ MORE' -%}
-{%- assign ps_btn_url = product.url -%}
-{%- if section.settings.button_text != blank -%}
-  {%- assign ps_btn_label = section.settings.button_text -%}
-{%- endif -%}
-{%- if section.settings.button_url != blank -%}
-  {%- assign ps_btn_url = section.settings.button_url -%}
-{%- endif -%}
-
-{%- comment -%} Médor override {%- endcomment -%}
-{%- assign ps_medor_article = section.settings.medor_article -%}
 {%- assign ps_img_link = '' -%}
-{%- if ps_is_medor and ps_medor_article != blank -%}
-  {%- assign ps_btn_url = ps_medor_article.url -%}
-  {%- assign ps_btn_label = 'READ MORE' -%}
-  {%- assign ps_text_html = blank -%}
-  {%- if section.settings.medor_article_text != blank -%}
-    {%- assign ps_text_plain = section.settings.medor_article_text -%}
-  {%- elsif ps_medor_article.excerpt != blank -%}
-    {%- assign ps_text_plain = ps_medor_article.excerpt | strip_html | truncatewords: 40 -%}
-  {%- else -%}
-    {%- assign ps_text_plain = blank -%}
+{%- if ps_tag_article != blank -%}
+  {%- assign ps_btn_url = ps_tag_article.url -%}
+  {%- assign ps_img_link = ps_tag_article.url -%}
+{%- else -%}
+  {%- assign ps_btn_url = product.url -%}
+  {%- if section.settings.button_text != blank -%}
+    {%- assign ps_btn_label = section.settings.button_text -%}
   {%- endif -%}
-  {%- assign ps_img_link = ps_medor_article.url -%}
-  {%- if ps_medor_article.image != blank -%}
-    {%- assign ps_use_picker = true -%}
-    {%- assign ps_picker_img = ps_medor_article.image -%}
+  {%- if section.settings.button_url != blank -%}
+    {%- assign ps_btn_url = section.settings.button_url -%}
   {%- endif -%}
 {%- endif -%}
 
@@ -102,10 +130,14 @@
   </div>
 </div>
 
+{%- endif -%}
+
 <style>
 .ps-story {
   min-height: 540px;
   font-family: 'Jost', sans-serif;
+  padding-left: 35px;
+  padding-right: 35px;
 }
 
 .ps-story__cols {
@@ -198,6 +230,8 @@
 @media screen and (max-width: 900px) {
   .ps-story {
     min-height: auto;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .ps-story__cols {
@@ -229,7 +263,11 @@
   "settings": [
     {
       "type": "header",
-      "content": "Story Panel"
+      "content": "Default Story Panel"
+    },
+    {
+      "type": "paragraph",
+      "content": "Used for products with none of the bag tags below."
     },
     {
       "type": "image_picker",
@@ -257,23 +295,99 @@
     },
     {
       "type": "header",
-      "content": "Médor Story Override"
+      "content": "Birkin"
     },
     {
-      "type": "paragraph",
-      "content": "These settings apply automatically to any product tagged 'Médor'. They override the general settings above for those products only."
+      "type": "article",
+      "id": "birkin_article",
+      "label": "Birkin blog article",
+      "info": "Applied to products tagged 'Birkin'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Kelly"
+    },
+    {
+      "type": "article",
+      "id": "kelly_article",
+      "label": "Kelly blog article",
+      "info": "Applied to products tagged 'Kelly'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Garden Party"
+    },
+    {
+      "type": "article",
+      "id": "garden_party_article",
+      "label": "Garden Party blog article",
+      "info": "Applied to products tagged 'Garden Party'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Picotin"
+    },
+    {
+      "type": "article",
+      "id": "picotin_article",
+      "label": "Picotin blog article",
+      "info": "Applied to products tagged 'Picotin'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Herbag"
+    },
+    {
+      "type": "article",
+      "id": "herbag_article",
+      "label": "Herbag blog article",
+      "info": "Applied to products tagged 'Herbag'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Médor"
     },
     {
       "type": "article",
       "id": "medor_article",
       "label": "Médor blog article",
-      "info": "Pick the article — its image, URL, and excerpt are used automatically"
+      "info": "Applied to products tagged 'Médor' or 'medor'. Leave blank to hide the section for those products."
     },
     {
       "type": "textarea",
       "id": "medor_article_text",
       "label": "Médor story excerpt (optional override)",
-      "info": "Override the article excerpt. Leave blank to use the article's own excerpt."
+      "info": "Override the article excerpt for Médor products only. Leave blank to use the article's own excerpt."
+    },
+    {
+      "type": "header",
+      "content": "Evelyne"
+    },
+    {
+      "type": "article",
+      "id": "evelyne_article",
+      "label": "Evelyne blog article",
+      "info": "Applied to products tagged 'Evelyne'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Tablier"
+    },
+    {
+      "type": "article",
+      "id": "tablier_article",
+      "label": "Tablier blog article",
+      "info": "Applied to products tagged 'Tablier'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Bolide"
+    },
+    {
+      "type": "article",
+      "id": "bolide_article",
+      "label": "Bolide blog article",
+      "info": "Applied to products tagged 'Bolide'. Leave blank to hide the section for those products."
     }
   ],
   "presets": [
