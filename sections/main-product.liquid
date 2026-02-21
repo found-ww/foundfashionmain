@@ -32,17 +32,13 @@
   })();
 </script>
 
-{%- comment -%} Resolve metafields — strip array brackets if metafield is list type {%- endcomment -%}
-{%- assign ppv1_mat = product.metafields.custom['clothing-material'] -%}
-{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.main_material -%}{%- endif -%}
-{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.material -%}{%- endif -%}
-{%- if ppv1_mat contains '[' -%}{%- assign ppv1_mat = ppv1_mat | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
-{%- assign ppv1_stamp = product.metafields.custom.bag_stamp -%}
-{%- if ppv1_stamp contains '[' -%}{%- assign ppv1_stamp = ppv1_stamp | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
-{%- assign ppv1_condition = product.metafields.custom.condition -%}
-{%- if ppv1_condition contains '[' -%}{%- assign ppv1_condition = ppv1_condition | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
-{%- assign ppv1_location = product.metafields.custom.location -%}
-{%- if ppv1_location contains '[' -%}{%- assign ppv1_location = ppv1_location | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
+{%- comment -%} Resolve metafields — append '' forces string conversion before stripping array brackets {%- endcomment -%}
+{%- assign ppv1_mat = product.metafields.custom['clothing-material'] | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.main_material | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
+{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.material | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
+{%- assign ppv1_stamp = product.metafields.custom.bag_stamp | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_condition = product.metafields.custom.condition | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_location = product.metafields.custom.location | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
 
 <section class="Product product-page-v1" data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
 
@@ -113,7 +109,10 @@
             <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled>SOLD OUT</button>
           {%- endif -%}
         {%- endform -%}
-        
+        <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
+           target="_blank"
+           rel="noopener"
+           class="ppv1-offer-btn ppv1-btn ppv1-btn--secondary">MAKE AN OFFER</a>
       </div>
     </div>
   </div>
@@ -250,6 +249,27 @@
   4. DISCOVER THE STORY SECTION (configurable via "Discover the Story" block)
   ----------------------------------------------------{%- endcomment -%}
 
+  {%- comment -%} Detect Medor tag — find matching blog article for story override {%- endcomment -%}
+  {%- assign ppv1_is_medor = false -%}
+  {%- for tag in product.tags -%}
+    {%- if tag == 'Medor' or tag == 'medor' or tag == 'Médor' -%}
+      {%- assign ppv1_is_medor = true -%}
+      {%- break -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign ppv1_medor_article = nil -%}
+  {%- if ppv1_is_medor -%}
+    {%- for blog in blogs -%}
+      {%- for article in blog.articles -%}
+        {%- if article.title contains 'Médor' or article.title contains 'Medor' -%}
+          {%- assign ppv1_medor_article = article -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if ppv1_medor_article != nil -%}{%- break -%}{%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+
   {%- assign story_block = section.blocks | where: 'type', 'discover_story' | first -%}
 
   {%- comment -%} Story image: block override → second product image → first product image {%- endcomment -%}
@@ -278,9 +298,20 @@
     {%- if story_block.settings.button_url != blank -%}{%- assign story_btn_url = story_block.settings.button_url -%}{%- endif -%}
   {%- endif -%}
 
+  {%- comment -%} Medor override: use blog article URL, excerpt, and image link {%- endcomment -%}
+  {%- assign ppv1_story_img_link = '' -%}
+  {%- if ppv1_is_medor and ppv1_medor_article != nil -%}
+    {%- assign story_btn_url = ppv1_medor_article.url -%}
+    {%- assign story_btn_label = 'READ MORE' -%}
+    {%- assign story_text_html = blank -%}
+    {%- assign story_text_plain = ppv1_medor_article.excerpt_or_content | strip_html | truncatewords: 60 -%}
+    {%- assign ppv1_story_img_link = ppv1_medor_article.url -%}
+  {%- endif -%}
+
   <div class="ppv1-story" {% if story_block != blank %}{{ story_block.shopify_attributes }}{% endif %}>
     <div class="ppv1-story__cols">
       <div class="ppv1-story__image">
+        {%- if ppv1_story_img_link != '' -%}<a href="{{ ppv1_story_img_link }}" class="ppv1-story__img-link">{%- endif -%}
         {%- if story_use_picker -%}
           {%- assign story_picker_url = story_picker_img | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
           <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
@@ -298,6 +329,7 @@
                alt="{{ story_media.alt | default: product.title | escape }}">
           <span class="Image__Loader"></span>
         {%- endif -%}
+        {%- if ppv1_story_img_link != '' -%}</a>{%- endif -%}
       </div>
       <div class="ppv1-story__content">
         <h2 class="ppv1-story__heading">DISCOVER THE STORY</h2>
@@ -510,8 +542,9 @@
   white-space: nowrap;
   padding: 14px 24px;
   border-radius: 0;
-  flex-shrink: 0;
+  flex: 1;
   text-decoration: none;
+  text-align: center;
 }
 
 /* ---- CAROUSEL STRIP ---- */
@@ -528,7 +561,6 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   gap: 20px;
-  padding: 0 10px;
 }
 
 .ppv1-strip__track::-webkit-scrollbar {
@@ -558,13 +590,12 @@
 /* 10) Arrows flush to edges; 11) Transparent bg, subtle arrow */
 .ppv1-strip__arrow {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
   z-index: 2;
   background: rgba(167, 167, 167, 0.10);
   border: none;
   width: 44px;
-  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -589,12 +620,14 @@
 /* ---- ALL DETAILS ---- */
 .ppv1-details {
   padding: 80px 44px;
+  background: #F8F8F8;
 }
 
-/* Heading in its own centred div above the two columns */
+/* Heading in its own centred div above the two columns, aligned with cols max-width */
 .ppv1-details__header {
   text-align: center;
-  margin-bottom: 52px;
+  margin: 0 auto 52px;
+  max-width: 1200px;
 }
 
 .ppv1-details__heading {
@@ -743,6 +776,15 @@
   position: relative;
   background: #f0ebe3;
   overflow: hidden;
+}
+
+.ppv1-story__img-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: block;
 }
 
 .ppv1-story__img {
