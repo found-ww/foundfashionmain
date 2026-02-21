@@ -252,7 +252,8 @@
   {%- comment -%} Detect Medor tag — use section settings for story override {%- endcomment -%}
   {%- assign ppv1_is_medor = false -%}
   {%- for tag in product.tags -%}
-    {%- if tag downcase == 'medor' or tag downcase == 'médor' -%}
+    {%- assign ppv1_tag_lower = tag | downcase -%}
+    {%- if ppv1_tag_lower == 'medor' or ppv1_tag_lower == 'médor' -%}
       {%- assign ppv1_is_medor = true -%}
       {%- break -%}
     {%- endif -%}
