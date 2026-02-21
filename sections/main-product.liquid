@@ -32,9 +32,17 @@
   })();
 </script>
 
+{%- comment -%} Resolve metafields for hero metadata {%- endcomment -%}
+{%- assign ppv1_mat = product.metafields.custom['clothing-material'] -%}
+{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.main_material -%}{%- endif -%}
+{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.material -%}{%- endif -%}
+{%- assign ppv1_stamp = product.metafields.custom.bag_stamp -%}
+{%- assign ppv1_condition = product.metafields.custom.condition -%}
+{%- assign ppv1_location = product.metafields.custom.location -%}
+
 <section class="Product product-page-v1" data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
 
-  {%- comment -%} Hidden product data for theme JS (variant switching, ajax cart) {%- endcomment -%}
+  {%- comment -%} Hidden product form for theme JS / Offerly app compatibility {%- endcomment -%}
   {%- form 'product', product, class: 'ProductForm', style: 'display:none' -%}
     {%- render 'product-data', product: product -%}
     <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
@@ -58,50 +66,49 @@
     </div>
 
     <div class="ppv1-hero__info">
-      {%- if product.vendor != blank -%}
-        <span class="ppv1-brand">{{ product.vendor | upcase }}</span>
-      {%- endif -%}
 
-      <h1 class="ppv1-title">{{ product.title }}</h1>
-
-      {%- comment -%} Metadata from product tags in "Key: Value" format {%- endcomment -%}
-      {%- assign has_meta_tags = false -%}
-      {%- for tag in product.tags -%}
-        {%- if tag contains ': ' -%}
-          {%- assign has_meta_tags = true -%}
-        {%- endif -%}
-      {%- endfor -%}
-
-      {%- if has_meta_tags -%}
-        <dl class="ppv1-meta">
-          {%- for tag in product.tags -%}
-            {%- if tag contains ': ' -%}
-              {%- assign tag_parts = tag | split: ': ' -%}
-              <dt class="ppv1-meta__key">{{ tag_parts[0] }}</dt>
-              <dd class="ppv1-meta__val">{{ tag_parts[1] }}</dd>
-            {%- endif -%}
-          {%- endfor -%}
-        </dl>
-      {%- endif -%}
-
+      <h1 class="ppv1-title Heading u-h2">{{ product.title }}</h1>
       <hr class="ppv1-divider">
 
-      <div class="ppv1-price">{{ product.selected_or_first_available_variant.price | money }}</div>
+      {%- assign ppv1_has_meta = false -%}
+      {%- if ppv1_mat != blank or ppv1_stamp != blank or ppv1_condition != blank or ppv1_location != blank -%}
+        {%- assign ppv1_has_meta = true -%}
+      {%- endif -%}
+
+      {%- if ppv1_has_meta -%}
+        <dl class="ppv1-meta">
+          {%- if ppv1_mat != blank -%}
+            <dt class="ppv1-meta__key">Material</dt>
+            <dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>
+          {%- endif -%}
+          {%- if ppv1_stamp != blank -%}
+            <dt class="ppv1-meta__key">Stamp</dt>
+            <dd class="ppv1-meta__val">{{ ppv1_stamp }}</dd>
+          {%- endif -%}
+          {%- if ppv1_condition != blank -%}
+            <dt class="ppv1-meta__key">Condition</dt>
+            <dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>
+          {%- endif -%}
+          {%- if ppv1_location != blank -%}
+            <dt class="ppv1-meta__key">Location</dt>
+            <dd class="ppv1-meta__val">{{ ppv1_location }}</dd>
+          {%- endif -%}
+        </dl>
+        <hr class="ppv1-divider">
+      {%- endif -%}
 
       {%- form 'product', product, class: 'ppv1-form' -%}
         <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
         <div class="ppv1-cta-row">
           {%- if product.selected_or_first_available_variant.available -%}
             <button type="submit" class="ppv1-btn ppv1-btn--primary" data-action="add-to-cart">
-              ADD TO CART &mdash; {{ product.selected_or_first_available_variant.price | money }}
+              ADD TO CART &bull; {{ product.selected_or_first_available_variant.price | money }}
             </button>
           {%- else -%}
             <button type="button" class="ppv1-btn ppv1-btn--primary" disabled>SOLD OUT</button>
           {%- endif -%}
-          <a href="https://wa.me/85293476168?text={{ 'Hello, I would like to make an offer on the ' | append: product.title | append: '.' | url_encode }}"
-             target="_blank"
-             rel="noopener"
-             class="ppv1-btn ppv1-btn--secondary">MAKE AN OFFER</a>
+          {%- comment -%} Offerly Make An Offer app injects its button here {%- endcomment -%}
+          <div class="ppv1-offer-slot"></div>
         </div>
       {%- endform -%}
     </div>
@@ -138,89 +145,97 @@
   ----------------------------------------------------{%- endcomment -%}
 
   <div class="ppv1-details">
-    <div class="ppv1-details__left">
-      <h2 class="ppv1-section-heading">ALL DETAILS</h2>
-      {%- if product.description != blank -%}
-        <div class="ppv1-description Rte">{{ product.description }}</div>
-      {%- endif -%}
-      <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
-         target="_blank"
-         rel="noopener"
-         class="ppv1-btn ppv1-btn--tertiary">CHAT TO OUR TEAM</a>
-    </div>
+    <h2 class="ppv1-details__heading">ALL DETAILS</h2>
+    <div class="ppv1-details__cols">
+      <div class="ppv1-details__left">
+        {%- if product.description != blank -%}
+          <div class="ppv1-description Rte">{{ product.description }}</div>
+        {%- endif -%}
+        <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
+           target="_blank"
+           rel="noopener"
+           class="ppv1-btn ppv1-btn--tertiary">CHAT TO OUR TEAM</a>
+      </div>
 
-    <div class="ppv1-details__right">
-      <div class="ppv1-accordion">
+      <div class="ppv1-details__right">
+        <div class="ppv1-accordion">
 
-        {%- comment -%} Accordion: Product Details {%- endcomment -%}
-        <div class="ppv1-accordion__item">
-          <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
-            <span>Product Details</span>
-            <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
-          </button>
-          <div class="ppv1-accordion__body">
-            <div class="ppv1-accordion__content">
-              <dl class="ppv1-detail-list">
-                {%- if product.vendor != blank -%}
-                  <dt>Brand</dt><dd>{{ product.vendor }}</dd>
-                {%- endif -%}
-                {%- for tag in product.tags -%}
-                  {%- if tag contains ': ' -%}
-                    {%- assign tag_parts = tag | split: ': ' -%}
-                    <dt>{{ tag_parts[0] }}</dt><dd>{{ tag_parts[1] }}</dd>
+          {%- comment -%} Accordion: Product Details {%- endcomment -%}
+          <div class="ppv1-accordion__item ppv1-accordion__item--first">
+            <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
+              <span>Product Details</span>
+              <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ppv1-accordion__body">
+              <div class="ppv1-accordion__content">
+                <dl class="ppv1-detail-list">
+                  {%- if product.vendor != blank -%}
+                    <dt>Brand</dt><dd>{{ product.vendor }}</dd>
                   {%- endif -%}
-                {%- endfor -%}
-              </dl>
+                  {%- if ppv1_mat != blank -%}
+                    <dt>Material</dt><dd>{{ ppv1_mat }}</dd>
+                  {%- endif -%}
+                  {%- if ppv1_stamp != blank -%}
+                    <dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>
+                  {%- endif -%}
+                  {%- if ppv1_condition != blank -%}
+                    <dt>Condition</dt><dd>{{ ppv1_condition }}</dd>
+                  {%- endif -%}
+                  {%- if ppv1_location != blank -%}
+                    <dt>Location</dt><dd>{{ ppv1_location }}</dd>
+                  {%- endif -%}
+                </dl>
+              </div>
             </div>
           </div>
-        </div>
 
-        {%- comment -%} Accordion: Delivery {%- endcomment -%}
-        {%- assign delivery_block = blank -%}
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'content' and block.settings.title contains 'Delivery' -%}
-            {%- assign delivery_block = block -%}
-          {%- endif -%}
-        {%- endfor -%}
-        <div class="ppv1-accordion__item">
-          <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
-            <span>Delivery</span>
-            <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
-          </button>
-          <div class="ppv1-accordion__body">
-            <div class="ppv1-accordion__content">
-              {%- if delivery_block != blank -%}
-                <div class="Rte">{{ delivery_block.settings.content }}</div>
-              {%- else -%}
-                <p>DHL delivery within 1–2 working days. For local pick up in London please contact us directly. Free shipping. You will receive your receipt via email.</p>
-              {%- endif -%}
+          {%- comment -%} Accordion: Delivery {%- endcomment -%}
+          {%- assign delivery_block = blank -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'content' and block.settings.title contains 'Delivery' -%}
+              {%- assign delivery_block = block -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <div class="ppv1-accordion__item">
+            <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
+              <span>Delivery</span>
+              <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ppv1-accordion__body">
+              <div class="ppv1-accordion__content">
+                {%- if delivery_block != blank -%}
+                  <div class="Rte">{{ delivery_block.settings.content }}</div>
+                {%- else -%}
+                  <p>DHL delivery within 1–2 working days. For local pick up in London please contact us directly. Free shipping. You will receive your receipt via email.</p>
+                {%- endif -%}
+              </div>
             </div>
           </div>
-        </div>
 
-        {%- comment -%} Accordion: Payment Methods {%- endcomment -%}
-        {%- assign payment_block = blank -%}
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'content' and block.settings.title contains 'Payment' -%}
-            {%- assign payment_block = block -%}
-          {%- endif -%}
-        {%- endfor -%}
-        <div class="ppv1-accordion__item">
-          <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
-            <span>Payment Methods</span>
-            <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
-          </button>
-          <div class="ppv1-accordion__body">
-            <div class="ppv1-accordion__content">
-              {%- if payment_block != blank -%}
-                <div class="Rte">{{ payment_block.settings.content }}</div>
-              {%- else -%}
-                <p>We accept Visa, Mastercard, Maestro, American Express, Apple Pay &amp; PayPal. For WeChat Pay or Alipay, please contact us directly.</p>
-              {%- endif -%}
+          {%- comment -%} Accordion: Payment Methods {%- endcomment -%}
+          {%- assign payment_block = blank -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'content' and block.settings.title contains 'Payment' -%}
+              {%- assign payment_block = block -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <div class="ppv1-accordion__item">
+            <button class="ppv1-accordion__trigger" type="button" aria-expanded="false">
+              <span>Payment Methods</span>
+              <span class="ppv1-accordion__icon" aria-hidden="true">+</span>
+            </button>
+            <div class="ppv1-accordion__body">
+              <div class="ppv1-accordion__content">
+                {%- if payment_block != blank -%}
+                  <div class="Rte">{{ payment_block.settings.content }}</div>
+                {%- else -%}
+                  <p>We accept Visa, Mastercard, Maestro, American Express, Apple Pay &amp; PayPal. For WeChat Pay or Alipay, please contact us directly.</p>
+                {%- endif -%}
+              </div>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   </div>
@@ -235,33 +250,29 @@
   {%- endif -%}
 
   <div class="ppv1-story">
-    <div class="ppv1-story__image">
-      {%- if story_media and story_media.media_type == 'image' -%}
-        {%- assign story_url = story_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-        <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
-             data-src="{{ story_url }}"
-             data-widths="[600, 800, 1000]"
-             data-sizes="auto"
-             alt="{{ story_media.alt | default: product.title | escape }}">
-        <span class="Image__Loader"></span>
-      {%- endif -%}
-    </div>
-    <div class="ppv1-story__content">
-      <h2 class="ppv1-section-heading">DISCOVER THE STORY</h2>
-      {%- if product.description != blank -%}
-        <div class="ppv1-story__text">{{ product.description | strip_html | truncatewords: 70 }}</div>
-      {%- endif -%}
-      <a href="{{ product.url }}" class="ppv1-btn ppv1-btn--tertiary">READ MORE</a>
+    <h2 class="ppv1-story__heading">DISCOVER THE STORY</h2>
+    <div class="ppv1-story__cols">
+      <div class="ppv1-story__image">
+        {%- if story_media and story_media.media_type == 'image' -%}
+          {%- assign story_url = story_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+          <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
+               data-src="{{ story_url }}"
+               data-widths="[600, 800, 1000]"
+               data-sizes="auto"
+               alt="{{ story_media.alt | default: product.title | escape }}">
+          <span class="Image__Loader"></span>
+        {%- endif -%}
+      </div>
+      <div class="ppv1-story__content">
+        {%- if product.description != blank -%}
+          <div class="ppv1-story__text">{{ product.description | strip_html | truncatewords: 70 }}</div>
+        {%- endif -%}
+        <a href="{{ product.url }}" class="ppv1-btn ppv1-btn--tertiary ppv1-btn--centered">READ MORE</a>
+      </div>
     </div>
   </div>
 
 </section>
-
-{%- comment -%}
---------------------------------------------------------------------------------------------------------------------
-PHOTO SWIPE
---------------------------------------------------------------------------------------------------------------------
-{%- endcomment -%}
 
 {%- if section.settings.enable_image_zoom -%}
   <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
@@ -303,8 +314,9 @@ PHOTO SWIPE
   min-height: 640px;
 }
 
+/* 0) Image column 40% smaller: 60% → 36% */
 .ppv1-hero__gallery {
-  flex: 0 0 60%;
+  flex: 0 0 36%;
   position: relative;
   background: #f5f5f5;
   overflow: hidden;
@@ -320,43 +332,35 @@ PHOTO SWIPE
   display: block;
 }
 
+/* Info panel fills remaining space; +10% horizontal padding: 48 → 53px */
 .ppv1-hero__info {
-  flex: 0 0 40%;
-  padding: 64px 48px;
+  flex: 1;
+  padding: 64px 53px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-left: 1px solid #e5e5e5;
 }
 
-.ppv1-brand {
-  font-family: 'Jost', sans-serif;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  color: #9a9a9a;
-  text-transform: uppercase;
-  display: block;
-  margin-bottom: 10px;
-}
-
+/* 2) Title uses theme heading font via Heading/u-h2 classes */
 .ppv1-title {
-  font-family: 'Jost', sans-serif;
-  font-size: 22px;
-  font-weight: 300;
-  letter-spacing: 0.1em;
+  margin: 0 0 0;
+  line-height: 1.25;
   text-transform: uppercase;
-  color: #1a1a1a;
-  line-height: 1.3;
-  margin: 0 0 24px;
+  letter-spacing: 0.08em;
+}
+
+.ppv1-divider {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 20px 0;
 }
 
 /* Metadata key/value grid */
 .ppv1-meta {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 6px 20px;
-  margin: 0 0 24px;
+  gap: 7px 20px;
+  margin: 0;
 }
 
 .ppv1-meta__key {
@@ -367,6 +371,7 @@ PHOTO SWIPE
   text-transform: uppercase;
   color: #9a9a9a;
   white-space: nowrap;
+  line-height: 1.6;
 }
 
 .ppv1-meta__val {
@@ -376,21 +381,7 @@ PHOTO SWIPE
   letter-spacing: 0.04em;
   color: #1a1a1a;
   margin: 0;
-}
-
-.ppv1-divider {
-  border: none;
-  border-top: 1px solid #e5e5e5;
-  margin: 0 0 24px;
-}
-
-.ppv1-price {
-  font-family: 'Jost', sans-serif;
-  font-size: 20px;
-  font-weight: 300;
-  letter-spacing: 0.06em;
-  color: #1a1a1a;
-  margin-bottom: 28px;
+  line-height: 1.6;
 }
 
 /* Buttons */
@@ -398,6 +389,7 @@ PHOTO SWIPE
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .ppv1-btn {
@@ -415,12 +407,13 @@ PHOTO SWIPE
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   white-space: nowrap;
+  border: 1px solid transparent;
 }
 
 .ppv1-btn--primary {
   background: #8B7355;
   color: #ffffff;
-  border: 1px solid #8B7355;
+  border-color: #8B7355;
 }
 
 .ppv1-btn--primary:hover {
@@ -437,7 +430,7 @@ PHOTO SWIPE
 .ppv1-btn--secondary {
   background: #ffffff;
   color: #1a1a1a;
-  border: 1px solid #1a1a1a;
+  border-color: #1a1a1a;
 }
 
 .ppv1-btn--secondary:hover {
@@ -447,7 +440,7 @@ PHOTO SWIPE
 .ppv1-btn--tertiary {
   background: #ffffff;
   color: #1a1a1a;
-  border: 1px solid #e5e5e5;
+  border-color: #e5e5e5;
   font-size: 10px;
   letter-spacing: 0.16em;
   padding: 12px 20px;
@@ -459,11 +452,43 @@ PHOTO SWIPE
   border-color: #1a1a1a;
 }
 
+.ppv1-btn--centered {
+  align-self: center;
+  margin-top: 24px;
+}
+
+/* Offerly button slot — inherits flex row from ppv1-cta-row */
+.ppv1-offer-slot {
+  display: contents;
+}
+
+/* Style any button Offerly injects inside ppv1-cta-row */
+.ppv1-cta-row button:not([type="submit"]),
+.ppv1-cta-row a:not([type="submit"]) {
+  font-family: 'Jost', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  padding: 14px 24px !important;
+  border-radius: 0 !important;
+  border: 1px solid #1a1a1a !important;
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
 /* ---- CAROUSEL STRIP ---- */
+/* 7) Gap between hero and carousel */
 .ppv1-strip {
   position: relative;
   background: #f5f5f5;
-  border-top: 1px solid #e5e5e5;
+  margin-top: 40px;
 }
 
 .ppv1-strip__track {
@@ -472,6 +497,9 @@ PHOTO SWIPE
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* 9) 10px gap between slides */
+  gap: 10px;
+  padding: 0 10px;
 }
 
 .ppv1-strip__track::-webkit-scrollbar {
@@ -479,15 +507,16 @@ PHOTO SWIPE
 }
 
 .ppv1-strip__slide {
-  flex: 0 0 calc(100% / 3);
+  flex: 0 0 calc((100% - 40px) / 3);
   scroll-snap-align: start;
   overflow: hidden;
   position: relative;
 }
 
+/* 8) Taller carousel images */
 .ppv1-strip__img {
   width: 100%;
-  height: 300px;
+  height: 430px;
   object-fit: cover;
   display: block;
   transition: transform 0.4s ease;
@@ -497,44 +526,61 @@ PHOTO SWIPE
   transform: scale(1.03);
 }
 
+/* 10) Arrows flush to edges; 11) Transparent bg, subtle arrow */
 .ppv1-strip__arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  background: rgba(255,255,255,0.9);
-  border: 1px solid #e5e5e5;
-  width: 40px;
-  height: 40px;
+  background: rgba(167, 167, 167, 0.10);
+  border: none;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 16px;
-  color: #1a1a1a;
+  font-size: 18px;
+  color: rgba(62, 62, 62, 0.80);
   transition: background 0.2s ease;
 }
 
 .ppv1-strip__arrow:hover {
-  background: #ffffff;
+  background: rgba(167, 167, 167, 0.20);
 }
 
 .ppv1-strip__arrow--prev {
-  left: 16px;
+  left: 0;
 }
 
 .ppv1-strip__arrow--next {
-  right: 16px;
+  right: 0;
 }
 
 /* ---- ALL DETAILS ---- */
+/* +10% horizontal padding: 40 → 44px */
 .ppv1-details {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 80px 40px;
+  padding: 80px 44px;
+}
+
+/* 12) Heading centred above, larger */
+.ppv1-details__heading {
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 0 0 52px;
+}
+
+.ppv1-details__cols {
   display: flex;
   gap: 80px;
   align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .ppv1-details__left {
@@ -545,18 +591,6 @@ PHOTO SWIPE
 
 .ppv1-details__right {
   flex: 1;
-  border-left: 1px solid #e5e5e5;
-  padding-left: 80px;
-}
-
-.ppv1-section-heading {
-  font-family: 'Jost', sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #1a1a1a;
-  margin: 0 0 28px;
 }
 
 .ppv1-description {
@@ -571,6 +605,11 @@ PHOTO SWIPE
 /* Accordion */
 .ppv1-accordion__item {
   border-bottom: 1px solid #e5e5e5;
+}
+
+/* 13) Line above first accordion item */
+.ppv1-accordion__item--first {
+  border-top: 1px solid #e5e5e5;
 }
 
 .ppv1-accordion__trigger {
@@ -635,7 +674,6 @@ PHOTO SWIPE
   margin-bottom: 0;
 }
 
-/* Product details key/value list in accordion */
 .ppv1-detail-list {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -660,9 +698,25 @@ PHOTO SWIPE
 
 /* ---- DISCOVER THE STORY ---- */
 .ppv1-story {
-  display: flex;
   min-height: 540px;
-  border-top: 1px solid #e5e5e5;
+}
+
+/* 15) Heading above + centered */
+.ppv1-story__heading {
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-align: center;
+  padding: 60px 44px 40px;
+  margin: 0;
+}
+
+.ppv1-story__cols {
+  display: flex;
+  min-height: 480px;
 }
 
 .ppv1-story__image {
@@ -682,21 +736,25 @@ PHOTO SWIPE
   display: block;
 }
 
+/* 18) Beige tint at 15% */
 .ppv1-story__content {
   flex: 0 0 50%;
-  background: #F5F0E8;
-  padding: 80px 60px;
+  background: rgba(215, 182, 161, 0.15);
+  padding: 60px 66px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 
+/* 16) Story text centered */
 .ppv1-story__text {
   font-family: 'Jost', sans-serif;
   font-size: 14px;
   font-weight: 300;
   line-height: 1.9;
   color: #444444;
+  text-align: center;
   margin-bottom: 0;
 }
 
@@ -710,14 +768,12 @@ PHOTO SWIPE
   .ppv1-hero__gallery {
     flex: none;
     height: 65vw;
-    min-height: 320px;
+    min-height: 300px;
   }
 
   .ppv1-hero__info {
     flex: none;
     padding: 36px 24px 48px;
-    border-left: none;
-    border-top: 1px solid #e5e5e5;
   }
 
   .ppv1-title {
@@ -732,17 +788,28 @@ PHOTO SWIPE
     width: 100%;
   }
 
+  .ppv1-strip {
+    margin-top: 24px;
+  }
+
   .ppv1-strip__slide {
-    flex: 0 0 82%;
+    flex: 0 0 calc(82% - 5px);
   }
 
   .ppv1-strip__img {
-    height: 240px;
+    height: 300px;
   }
 
   .ppv1-details {
-    flex-direction: column;
     padding: 48px 24px;
+  }
+
+  .ppv1-details__heading {
+    font-size: 14px;
+  }
+
+  .ppv1-details__cols {
+    flex-direction: column;
     gap: 48px;
   }
 
@@ -751,14 +818,15 @@ PHOTO SWIPE
   }
 
   .ppv1-details__right {
-    border-left: none;
-    padding-left: 0;
-    border-top: 1px solid #e5e5e5;
-    padding-top: 48px;
     width: 100%;
   }
 
-  .ppv1-story {
+  .ppv1-story__heading {
+    font-size: 14px;
+    padding: 40px 24px 28px;
+  }
+
+  .ppv1-story__cols {
     flex-direction: column;
     min-height: auto;
   }
@@ -766,24 +834,37 @@ PHOTO SWIPE
   .ppv1-story__image {
     flex: none;
     height: 70vw;
-    min-height: 300px;
+    min-height: 280px;
   }
 
   .ppv1-story__content {
     flex: none;
-    padding: 48px 24px;
+    padding: 40px 24px;
   }
 }
 </style>
 
 <script>
 (function() {
-  // Accordion
-  document.querySelectorAll('.ppv1-accordion__trigger').forEach(function(btn) {
+  // Accordion — only one open at a time (item 14)
+  var triggers = document.querySelectorAll('.ppv1-accordion__trigger');
+  triggers.forEach(function(btn) {
     btn.addEventListener('click', function() {
       var item = this.closest('.ppv1-accordion__item');
-      var isOpen = item.classList.toggle('is-open');
-      this.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      var isOpen = item.classList.contains('is-open');
+
+      // Close all
+      triggers.forEach(function(otherBtn) {
+        var otherItem = otherBtn.closest('.ppv1-accordion__item');
+        otherItem.classList.remove('is-open');
+        otherBtn.setAttribute('aria-expanded', 'false');
+      });
+
+      // Toggle clicked one
+      if (!isOpen) {
+        item.classList.add('is-open');
+        this.setAttribute('aria-expanded', 'true');
+      }
     });
   });
 
@@ -795,7 +876,7 @@ PHOTO SWIPE
   if (track && prevBtn && nextBtn) {
     function getSlideWidth() {
       var slide = track.querySelector('.ppv1-strip__slide');
-      return slide ? slide.offsetWidth : track.offsetWidth / 3;
+      return slide ? slide.offsetWidth + 10 : track.offsetWidth / 3;
     }
     prevBtn.addEventListener('click', function() {
       track.scrollBy({ left: -getSlideWidth(), behavior: 'smooth' });
