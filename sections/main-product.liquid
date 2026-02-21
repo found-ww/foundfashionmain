@@ -286,16 +286,17 @@
     {%- if story_block.settings.button_url != blank -%}{%- assign story_btn_url = story_block.settings.button_url -%}{%- endif -%}
   {%- endif -%}
 
-  {%- comment -%} Medor override: use section settings configured once in the theme editor {%- endcomment -%}
+  {%- comment -%} Medor override: read from the "Médor Story" block configured in the theme editor {%- endcomment -%}
+  {%- assign ppv1_medor_block = section.blocks | where: 'type', 'medor_story' | first -%}
   {%- assign ppv1_story_img_link = '' -%}
-  {%- if ppv1_is_medor and section.settings.medor_article_url != blank -%}
-    {%- assign story_btn_url = section.settings.medor_article_url -%}
+  {%- if ppv1_is_medor and ppv1_medor_block != blank and ppv1_medor_block.settings.article_url != blank -%}
+    {%- assign story_btn_url = ppv1_medor_block.settings.article_url -%}
     {%- assign story_btn_label = 'READ MORE' -%}
     {%- assign story_text_html = blank -%}
-    {%- if section.settings.medor_article_text != blank -%}
-      {%- assign story_text_plain = section.settings.medor_article_text -%}
+    {%- if ppv1_medor_block.settings.article_text != blank -%}
+      {%- assign story_text_plain = ppv1_medor_block.settings.article_text -%}
     {%- endif -%}
-    {%- assign ppv1_story_img_link = section.settings.medor_article_url -%}
+    {%- assign ppv1_story_img_link = ppv1_medor_block.settings.article_url -%}
   {%- endif -%}
 
   <div class="ppv1-story" {% if story_block != blank %}{{ story_block.shopify_attributes }}{% endif %}>
@@ -1218,28 +1219,31 @@
           "info": "Leave blank to link to the product page"
         }
       ]
+    },
+    {
+      "name": "Médor Story",
+      "type": "medor_story",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Applied automatically to products tagged 'Médor'. Configure the story panel for all Médor products here."
+        },
+        {
+          "type": "url",
+          "id": "article_url",
+          "label": "Blog article URL"
+        },
+        {
+          "type": "textarea",
+          "id": "article_text",
+          "label": "Story excerpt",
+          "info": "Short text shown in the story panel. Leave blank to show no text."
+        }
+      ]
     }
   ],
   "settings": [
-    {
-      "type": "header",
-      "content": "Médor story"
-    },
-    {
-      "type": "paragraph",
-      "content": "Products tagged 'Medor' or 'Médor' will automatically use these settings for the Discover the Story section."
-    },
-    {
-      "type": "url",
-      "id": "medor_article_url",
-      "label": "Médor blog article URL"
-    },
-    {
-      "type": "textarea",
-      "id": "medor_article_text",
-      "label": "Médor story excerpt",
-      "info": "Short text shown in the story section. Leave blank to show no text."
-    },
     {
       "type": "header",
       "content": "Media"

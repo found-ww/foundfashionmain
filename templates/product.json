@@ -62,14 +62,27 @@
           "type": "content",
           "settings": {
             "title": "Payment Methods",
-            "content": "<p>We accept a variety of payment methods: </p><p>Visa®, MasterCard®, Maestro®, American Express®, Apple Pay & Paypal. </p><p></p><p>If you would like to pay using WeChat Pay or Alipay, please contact us directly. </p>",
+            "content": "<p>We accept a variety of payment methods: </p><p>Visa®, MasterCard®, Maestro®, American Express®, Apple Pay & Paypal. </p><p></p><p>If you would like to pay using WeChat Pay or Alipay, please contact us directly. </p>",
             "page": ""
           }
         },
         "4713cc93-86de-47a6-9299-d8fae42c1826": {
           "type": "text",
           "settings": {
-            "text": "We are not affiliated with the brands we sell. Please note that all of our items are pre-owned and sold on behalf of private individual sellers. All our items come with an authenticity guarantee. All sales are final. All international purchases are sent duties unpaid."
+            "text": "We are not affiliated with the brands we sell. Please note that all of our items are pre-owned and sold on behalf of private individual sellers. All our items come with an authenticity guarantee. All sales are final. All international purchases are sent duties unpaid."
+          }
+        },
+        "discover_story": {
+          "type": "discover_story",
+          "settings": {
+            "button_text": "READ MORE"
+          }
+        },
+        "medor_story": {
+          "type": "medor_story",
+          "settings": {
+            "article_url": "",
+            "article_text": ""
           }
         }
       },
@@ -82,7 +95,9 @@
         "86a664d4-2a74-4773-8017-c63f34abbd4c",
         "liquid_yAifwc",
         "af68c7c0-1c34-4eb6-90cd-9737ba4d52b5",
-        "4713cc93-86de-47a6-9299-d8fae42c1826"
+        "4713cc93-86de-47a6-9299-d8fae42c1826",
+        "discover_story",
+        "medor_story"
       ],
       "settings": {
         "image_size": "medium",
