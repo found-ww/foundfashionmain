@@ -32,18 +32,17 @@
   })();
 </script>
 
-{%- comment -%} Resolve metafields for hero metadata {%- endcomment -%}
+{%- comment -%} Resolve metafields — strip array brackets if metafield is list type {%- endcomment -%}
 {%- assign ppv1_mat = product.metafields.custom['clothing-material'] -%}
 {%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.main_material -%}{%- endif -%}
 {%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.material -%}{%- endif -%}
+{%- if ppv1_mat contains '[' -%}{%- assign ppv1_mat = ppv1_mat | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
 {%- assign ppv1_stamp = product.metafields.custom.bag_stamp -%}
+{%- if ppv1_stamp contains '[' -%}{%- assign ppv1_stamp = ppv1_stamp | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
 {%- assign ppv1_condition = product.metafields.custom.condition -%}
+{%- if ppv1_condition contains '[' -%}{%- assign ppv1_condition = ppv1_condition | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
 {%- assign ppv1_location = product.metafields.custom.location -%}
-{%- assign ppv1_dimensions = product.metafields.custom.dimensions -%}
-{%- assign ppv1_colors = product.metafields.custom.colors -%}
-{%- assign ppv1_model = product.metafields.custom.model -%}
-{%- assign ppv1_straplength = product.metafields.custom.strap_length -%}
-{%- assign ppv1_otherdetails = product.metafields.custom.other_details -%}
+{%- if ppv1_location contains '[' -%}{%- assign ppv1_location = ppv1_location | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
 
 <section class="Product product-page-v1" data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
 
@@ -102,20 +101,23 @@
         <hr class="ppv1-divider">
       {%- endif -%}
 
-      {%- form 'product', product, class: 'ppv1-form' -%}
-        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
-        <div class="ppv1-cta-row">
+      {%- comment -%} CTA row: form transparent to flex layout so both buttons sit side by side {%- endcomment -%}
+      <div class="ppv1-cta-row">
+        {%- form 'product', product, class: 'ppv1-form' -%}
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
           {%- if product.selected_or_first_available_variant.available -%}
-            <button type="submit" class="ppv1-btn ppv1-btn--primary" data-action="add-to-cart">
+            <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart">
               ADD TO CART &bull; {{ product.selected_or_first_available_variant.price | money }}
             </button>
           {%- else -%}
-            <button type="button" class="ppv1-btn ppv1-btn--primary" disabled>SOLD OUT</button>
+            <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled>SOLD OUT</button>
           {%- endif -%}
-          {%- comment -%} Offerly Make An Offer app injects its button here {%- endcomment -%}
-          <div class="ppv1-offer-slot"></div>
-        </div>
-      {%- endform -%}
+        {%- endform -%}
+        <a href="https://wa.me/85293476168?text={{ 'Hello, I would like to make an offer on the ' | append: product.title | append: '.' | url_encode }}"
+           target="_blank"
+           rel="noopener"
+           class="Button Button--secondary ppv1-offer-btn">MAKE AN OFFER</a>
+      </div>
     </div>
   </div>
 
@@ -150,7 +152,9 @@
   ----------------------------------------------------{%- endcomment -%}
 
   <div class="ppv1-details">
-    <h2 class="ppv1-details__heading">ALL DETAILS</h2>
+    <div class="ppv1-details__header">
+      <h2 class="ppv1-details__heading">ALL DETAILS</h2>
+    </div>
     <div class="ppv1-details__cols">
       <div class="ppv1-details__left">
         {%- if product.description != blank -%}
@@ -178,28 +182,16 @@
                     <dt>Brand</dt><dd>{{ product.vendor }}</dd>
                   {%- endif -%}
                   {%- if ppv1_mat != blank -%}
-                    <dt>Model</dt><dd>{{ ppv1_model }}</dd>
-                  {%- endif -%}
-                  {%- if ppv1_colors != blank -%}
-                    <dt>Colour</dt><dd>{{ ppv1_colors }}</dd>
-                  {%- endif -%}
-                  {%- if ppv1_mat != blank -%}
                     <dt>Material</dt><dd>{{ ppv1_mat }}</dd>
                   {%- endif -%}
                   {%- if ppv1_stamp != blank -%}
                     <dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>
                   {%- endif -%}
-                  {%- if ppv1_dimensions != blank -%}
-                    <dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>
-                  {%- endif -%}      
-                  {%- if ppv1_straplength != blank -%}
-                    <dt>Strap Length</dt><dd>{{ ppv1_straplength }}</dd>
-                  {%- endif -%}   
-                  {%- if ppv1_otherdetails != blank -%}
-                    <dt>Other Details</dt><dd>{{ ppv1_otherdetails }}</dd>
-                  {%- endif -%}                                                   
                   {%- if ppv1_condition != blank -%}
                     <dt>Condition</dt><dd>{{ ppv1_condition }}</dd>
+                  {%- endif -%}
+                  {%- if ppv1_location != blank -%}
+                    <dt>Location</dt><dd>{{ ppv1_location }}</dd>
                   {%- endif -%}
                 </dl>
               </div>
@@ -258,19 +250,49 @@
   </div>
 
   {%- comment -%}----------------------------------------------------
-  4. DISCOVER THE STORY SECTION
+  4. DISCOVER THE STORY SECTION (configurable via "Discover the Story" block)
   ----------------------------------------------------{%- endcomment -%}
 
-  {%- assign story_media = product.media[1] -%}
-  {%- if story_media == blank or story_media.media_type != 'image' -%}
-    {%- assign story_media = product.media[0] -%}
+  {%- assign story_block = section.blocks | where: 'type', 'discover_story' | first -%}
+
+  {%- comment -%} Story image: block override → second product image → first product image {%- endcomment -%}
+  {%- if story_block != blank and story_block.settings.image != blank -%}
+    {%- assign story_use_picker = true -%}
+    {%- assign story_picker_img = story_block.settings.image -%}
+  {%- else -%}
+    {%- assign story_use_picker = false -%}
+    {%- assign story_media = product.media[1] -%}
+    {%- if story_media == blank or story_media.media_type != 'image' -%}
+      {%- assign story_media = product.media[0] -%}
+    {%- endif -%}
   {%- endif -%}
 
-  <div class="ppv1-story">
-    <h2 class="ppv1-story__heading">DISCOVER THE STORY</h2>
+  {%- comment -%} Story text: block richtext → product description truncated {%- endcomment -%}
+  {%- if story_block != blank and story_block.settings.text != blank -%}
+    {%- assign story_text_html = story_block.settings.text -%}
+  {%- elsif product.description != blank -%}
+    {%- assign story_text_plain = product.description | strip_html | truncatewords: 70 -%}
+  {%- endif -%}
+
+  {%- assign story_btn_label = 'READ MORE' -%}
+  {%- assign story_btn_url = product.url -%}
+  {%- if story_block != blank -%}
+    {%- if story_block.settings.button_text != blank -%}{%- assign story_btn_label = story_block.settings.button_text -%}{%- endif -%}
+    {%- if story_block.settings.button_url != blank -%}{%- assign story_btn_url = story_block.settings.button_url -%}{%- endif -%}
+  {%- endif -%}
+
+  <div class="ppv1-story" {% if story_block != blank %}{{ story_block.shopify_attributes }}{% endif %}>
     <div class="ppv1-story__cols">
       <div class="ppv1-story__image">
-        {%- if story_media and story_media.media_type == 'image' -%}
+        {%- if story_use_picker -%}
+          {%- assign story_picker_url = story_picker_img | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+          <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
+               data-src="{{ story_picker_url }}"
+               data-widths="[600, 800, 1000]"
+               data-sizes="auto"
+               alt="{{ story_picker_img.alt | default: product.title | escape }}">
+          <span class="Image__Loader"></span>
+        {%- elsif story_media and story_media.media_type == 'image' -%}
           {%- assign story_url = story_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
           <img class="ppv1-story__img Image--lazyLoad Image--fadeIn"
                data-src="{{ story_url }}"
@@ -281,10 +303,13 @@
         {%- endif -%}
       </div>
       <div class="ppv1-story__content">
-        {%- if product.description != blank -%}
-          <div class="ppv1-story__text">{{ product.description | strip_html | truncatewords: 70 }}</div>
+        <h2 class="ppv1-story__heading">DISCOVER THE STORY</h2>
+        {%- if story_text_html != blank -%}
+          <div class="ppv1-story__text Rte">{{ story_text_html }}</div>
+        {%- elsif story_text_plain != blank -%}
+          <div class="ppv1-story__text">{{ story_text_plain }}</div>
         {%- endif -%}
-        <a href="{{ product.url }}" class="ppv1-btn ppv1-btn--tertiary ppv1-btn--centered">READ MORE</a>
+        <a href="{{ story_btn_url }}" class="ppv1-btn ppv1-btn--tertiary ppv1-btn--centered">{{ story_btn_label }}</a>
       </div>
     </div>
   </div>
@@ -323,9 +348,6 @@
   font-family: 'Jost', sans-serif;
   color: #1a1a1a;
   background: #ffffff;
-  padding-top: 30px;
-  padding-left:30px;
-  padding-right:30px;
 }
 
 /* ---- HERO ---- */
@@ -334,9 +356,9 @@
   min-height: 640px;
 }
 
-
+/* 0) Image column 40% smaller: 60% → 36% */
 .ppv1-hero__gallery {
-  flex: 0 0 50%;
+  flex: 0 0 36%;
   position: relative;
   background: #f5f5f5;
   overflow: hidden;
@@ -386,10 +408,10 @@
 .ppv1-meta__key {
   font-family: 'Jost', sans-serif;
   font-size: 11px;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #9a9a9a;
+  color: #1a1a1a;
   white-space: nowrap;
   line-height: 1.6;
 }
@@ -399,17 +421,22 @@
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.04em;
-  color: #1a1a1a;
+  color: #9a9a9a;
   margin: 0;
   line-height: 1.6;
 }
 
-/* Buttons */
+/* CTA row — always side by side */
 .ppv1-cta-row {
   display: flex;
   gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+/* Form transparent to flex — button participates directly in the row */
+.ppv1-form {
+  display: contents;
 }
 
 .ppv1-btn {
@@ -477,37 +504,25 @@
   margin-top: 24px;
 }
 
-/* Offerly button slot — inherits flex row from ppv1-cta-row */
-.ppv1-offer-slot {
-  display: contents;
-}
-
-/* Style any button Offerly injects inside ppv1-cta-row */
-.ppv1-cta-row button:not([type="submit"]),
-.ppv1-cta-row a:not([type="submit"]) {
-  font-family: 'Jost', sans-serif !important;
-  font-size: 11px !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.18em !important;
-  text-transform: uppercase !important;
-  padding: 14px 24px !important;
-  border-radius: 0 !important;
-  border: 1px solid #1a1a1a !important;
-  background: #ffffff !important;
-  color: #1a1a1a !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  white-space: nowrap !important;
-  text-decoration: none !important;
+/* ATC and offer buttons sizing */
+.ppv1-atc-btn,
+.ppv1-offer-btn {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 14px 24px;
+  border-radius: 0;
+  flex-shrink: 0;
+  text-decoration: none;
 }
 
 /* ---- CAROUSEL STRIP ---- */
 /* 7) Gap between hero and carousel */
 .ppv1-strip {
   position: relative;
-  background: #FFFFFF;
+  background: #f5f5f5;
   margin-top: 40px;
 }
 
@@ -518,7 +533,7 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   /* 9) 10px gap between slides */
-  gap: 25px;
+  gap: 10px;
   padding: 0 10px;
 }
 
@@ -578,12 +593,16 @@
 }
 
 /* ---- ALL DETAILS ---- */
-/* +10% horizontal padding: 40 → 44px */
 .ppv1-details {
   padding: 80px 44px;
 }
 
-/* 12) Heading centred above, larger */
+/* Heading in its own centred div above the two columns */
+.ppv1-details__header {
+  text-align: center;
+  margin-bottom: 52px;
+}
+
 .ppv1-details__heading {
   font-family: 'Jost', sans-serif;
   font-size: 16px;
@@ -591,8 +610,7 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #1a1a1a;
-  text-align: center;
-  margin: 0 0 52px;
+  margin: 0;
 }
 
 .ppv1-details__cols {
@@ -651,7 +669,7 @@
 }
 
 .ppv1-accordion__trigger:hover {
-  color: #8B7355;
+  color: #888888;
 }
 
 .ppv1-accordion__icon {
@@ -721,22 +739,9 @@
   min-height: 540px;
 }
 
-/* 15) Heading above + centered */
-.ppv1-story__heading {
-  font-family: 'Jost', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #1a1a1a;
-  text-align: center;
-  padding: 60px 44px 40px;
-  margin: 0;
-}
-
 .ppv1-story__cols {
   display: flex;
-  min-height: 480px;
+  min-height: 540px;
 }
 
 .ppv1-story__image {
@@ -756,7 +761,18 @@
   display: block;
 }
 
-/* 18) Beige tint at 15% */
+/* Heading inside right column, centred */
+.ppv1-story__heading {
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  text-align: center;
+  margin: 0 0 32px;
+}
+
 .ppv1-story__content {
   flex: 0 0 50%;
   background: rgba(215, 182, 161, 0.15);
@@ -767,7 +783,6 @@
   align-items: center;
 }
 
-/* 16) Story text centered */
 .ppv1-story__text {
   font-family: 'Jost', sans-serif;
   font-size: 14px;
@@ -843,7 +858,7 @@
 
   .ppv1-story__heading {
     font-size: 14px;
-    padding: 40px 24px 28px;
+    margin-bottom: 20px;
   }
 
   .ppv1-story__cols {
@@ -1144,6 +1159,37 @@
           "id": "title",
           "label": "Heading",
           "default": "Buy it with"
+        }
+      ]
+    },
+    {
+      "name": "Discover the Story",
+      "type": "discover_story",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Story image",
+          "info": "Leave blank to use the second product image"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Story text",
+          "info": "Leave blank to use a truncated product description"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button label",
+          "default": "READ MORE"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Button link",
+          "info": "Leave blank to link to the product page"
         }
       ]
     }

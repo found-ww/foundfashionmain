@@ -1,5 +1,4 @@
 {%- assign hand_picked_count = 0 -%}
-
 {%- for block in section.blocks -%}
   {%- if block.settings.product != blank -%}
     {%- assign hand_picked_count = hand_picked_count | plus: 1 -%}
@@ -12,7 +11,7 @@
   "pageDots": false,
   "wrapAround": false,
   "contain": true,
-  "cellAlign": "center",
+  "cellAlign": "left",
   "watchCSS": true,
   "dragThreshold": 8,
   "groupCells": true,
@@ -20,12 +19,11 @@
 }
 {%- endcapture -%}
 
-{%- comment -%} Gather same-collection products when no hand-picked set {%- endcomment -%}
-{%- assign ppv1_rec_products = '' -%}
-{%- assign ppv1_rec_count = 0 -%}
-{%- if hand_picked_count == 0 -%}
-  {%- assign ppv1_collection = product.collections.first -%}
-{%- endif -%}
+{%- comment -%}
+  Same-collection fallback: use first collection the product belongs to,
+  excluding the current product.
+{%- endcomment -%}
+{%- assign ppv1_same_col = product.collections.first -%}
 
 <section class="Section Section--spacingNormal" data-section-id="{{ section.id }}" data-section-type="product-recommendations">
   {%- if section.settings.heading != blank -%}
@@ -38,42 +36,42 @@
 
   <div class="ProductRecommendations">
     {%- if hand_picked_count > 0 -%}
+
       <div class="ProductListWrapper">
         <div class="ProductList ProductList--carousel Carousel" data-flickity-config='{{ flickity_options }}'>
           {%- for block in section.blocks -%}
-            {%- assign rec_product = block.settings.product -%}
-            {%- if rec_product != blank -%}
+            {%- assign rec_p = block.settings.product -%}
+            {%- if rec_p != blank -%}
               <div class="Carousel__Cell">
-                {% render 'product-item', product: rec_product, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true %}
+                {% render 'product-item', product: rec_p, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true %}
               </div>
             {%- endif -%}
           {%- endfor -%}
         </div>
       </div>
 
-    {%- elsif ppv1_collection != blank -%}
-      {%- comment -%} Show up to 8 products from the same collection, excluding current product {%- endcomment -%}
-      {%- assign ppv1_rec_items = '' -%}
-      {%- assign ppv1_rec_count = 0 -%}
-      {%- for col_product in ppv1_collection.products limit: 20 -%}
-        {%- unless col_product.id == product.id -%}
-          {%- if ppv1_rec_count < 8 -%}
-            {%- assign ppv1_rec_count = ppv1_rec_count | plus: 1 -%}
+    {%- elsif ppv1_same_col != blank -%}
+
+      {%- assign ppv1_rendered = 0 -%}
+      {%- for col_p in ppv1_same_col.products limit: 20 -%}
+        {%- unless col_p.id == product.id -%}
+          {%- if ppv1_rendered < 8 -%}
+            {%- assign ppv1_rendered = ppv1_rendered | plus: 1 -%}
           {%- endif -%}
         {%- endunless -%}
       {%- endfor -%}
 
-      {%- if ppv1_rec_count > 0 -%}
+      {%- if ppv1_rendered > 0 -%}
         <div class="ProductListWrapper">
           <div class="ProductList ProductList--carousel Carousel" data-flickity-config='{{ flickity_options }}'>
-            {%- assign rendered = 0 -%}
-            {%- for col_product in ppv1_collection.products limit: 20 -%}
-              {%- unless col_product.id == product.id -%}
-                {%- if rendered < 8 -%}
+            {%- assign ppv1_show = 0 -%}
+            {%- for col_p in ppv1_same_col.products limit: 20 -%}
+              {%- unless col_p.id == product.id -%}
+                {%- if ppv1_show < 8 -%}
                   <div class="Carousel__Cell">
-                    {% render 'product-item', product: col_product, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true %}
+                    {% render 'product-item', product: col_p, show_product_info: section.settings.show_product_info, show_vendor: section.settings.show_vendor, show_color_swatch: section.settings.show_color_swatch, show_labels: true %}
                   </div>
-                  {%- assign rendered = rendered | plus: 1 -%}
+                  {%- assign ppv1_show = ppv1_show | plus: 1 -%}
                 {%- endif -%}
               {%- endunless -%}
             {%- endfor -%}
