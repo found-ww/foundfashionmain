@@ -45,17 +45,24 @@
 {%- endif -%}
 
 {%- comment -%} Médor override {%- endcomment -%}
+{%- assign ps_medor_article = section.settings.medor_article -%}
 {%- assign ps_img_link = '' -%}
-{%- if ps_is_medor and section.settings.medor_article_url != blank -%}
-  {%- assign ps_btn_url = section.settings.medor_article_url -%}
+{%- if ps_is_medor and ps_medor_article != blank -%}
+  {%- assign ps_btn_url = ps_medor_article.url -%}
   {%- assign ps_btn_label = 'READ MORE' -%}
   {%- assign ps_text_html = blank -%}
   {%- if section.settings.medor_article_text != blank -%}
     {%- assign ps_text_plain = section.settings.medor_article_text -%}
+  {%- elsif ps_medor_article.excerpt != blank -%}
+    {%- assign ps_text_plain = ps_medor_article.excerpt | strip_html | truncatewords: 40 -%}
   {%- else -%}
     {%- assign ps_text_plain = blank -%}
   {%- endif -%}
-  {%- assign ps_img_link = section.settings.medor_article_url -%}
+  {%- assign ps_img_link = ps_medor_article.url -%}
+  {%- if ps_medor_article.image != blank -%}
+    {%- assign ps_use_picker = true -%}
+    {%- assign ps_picker_img = ps_medor_article.image -%}
+  {%- endif -%}
 {%- endif -%}
 
 <div class="ps-story" {{ section.shopify_attributes }}>
@@ -257,16 +264,16 @@
       "content": "These settings apply automatically to any product tagged 'Médor'. They override the general settings above for those products only."
     },
     {
-      "type": "text",
-      "id": "medor_article_url",
-      "label": "Médor article URL",
-      "info": "Paste the full URL to the Discover The Médor blog article"
+      "type": "article",
+      "id": "medor_article",
+      "label": "Médor blog article",
+      "info": "Pick the article — its image, URL, and excerpt are used automatically"
     },
     {
       "type": "textarea",
       "id": "medor_article_text",
-      "label": "Médor story excerpt",
-      "info": "Short text shown for Médor products. Leave blank to show no text."
+      "label": "Médor story excerpt (optional override)",
+      "info": "Override the article excerpt. Leave blank to use the article's own excerpt."
     }
   ],
   "presets": [
