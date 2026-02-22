@@ -1,50 +1,94 @@
-<section class="ppv1-recs-section"
-         data-product-id="{{ product.id }}"
-         data-section-id="{{ section.id }}"
-         data-section-type="product-recommendations">
+{%- comment -%}
+  YOU MAY LIKE
+  Finds the product's segment by looking for a "Collection:X" tag,
+  e.g. "Collection:Bags", "Collection:Clothing".
+  Uses collections["x"] to get real products from that segment.
+  Falls back to the product's first collection if no Collection: tag is found.
+  Hides itself if fewer than 1 other product is available.
+{%- endcomment -%}
 
-  {%- if recommendations.performed? and recommendations.products_count > 0 -%}
+{%- assign ps_rec_col = blank -%}
+{%- assign ps_rec_label = blank -%}
 
-    {%- if section.settings.heading != blank -%}
-      <h2 class="ppv1-recs__heading">{{ section.settings.heading | escape }}</h2>
-    {%- endif -%}
-
-    <div class="ppv1-recs__track-wrap">
-      <div class="ppv1-recs__track">
-        {%- for rec in recommendations.products -%}
-          <a href="{{ rec.url }}" class="ppv1-recs__card">
-            <div class="ppv1-recs__img-wrap">
-              {%- if rec.featured_image -%}
-                <img class="ppv1-recs__img"
-                     src="{{ rec.featured_image | img_url: '400x' }}"
-                     alt="{{ rec.featured_image.alt | default: rec.title | escape }}"
-                     loading="lazy">
-              {%- else -%}
-                <div class="ppv1-recs__img ppv1-recs__img--placeholder"></div>
-              {%- endif -%}
-            </div>
-            <div class="ppv1-recs__info">
-              <p class="ppv1-recs__title">{{ rec.title | escape }}</p>
-              <p class="ppv1-recs__price">{{ rec.price | money }}</p>
-            </div>
-          </a>
-        {%- endfor -%}
-      </div>
-    </div>
-
+{%- comment -%} Step 1: find a Collection: tag {%- endcomment -%}
+{%- for tag in product.tags -%}
+  {%- if tag contains 'Collection:' -%}
+    {%- assign ps_rec_label = tag | split: ':' | last | strip -%}
+    {%- assign ps_rec_handle = ps_rec_label | downcase | replace: ' ', '-' -%}
+    {%- assign ps_rec_col = collections[ps_rec_handle] -%}
+    {%- if ps_rec_col != blank -%}{%- break -%}{%- endif -%}
   {%- endif -%}
+{%- endfor -%}
+
+{%- comment -%} Step 2: fall back to first collection {%- endcomment -%}
+{%- if ps_rec_col == blank -%}
+  {%- assign ps_rec_col = product.collections.first -%}
+{%- endif -%}
+
+{%- comment -%} Step 3: count available products (excluding current) {%- endcomment -%}
+{%- assign ps_rec_count = 0 -%}
+{%- if ps_rec_col != blank -%}
+  {%- for p in ps_rec_col.products limit: 20 -%}
+    {%- unless p.id == product.id -%}
+      {%- if ps_rec_count < 4 -%}
+        {%- assign ps_rec_count = ps_rec_count | plus: 1 -%}
+      {%- endif -%}
+    {%- endunless -%}
+  {%- endfor -%}
+{%- endif -%}
+
+{%- if ps_rec_count > 0 -%}
+
+<section class="ppv1-recs-section" data-section-type="product-recommendations">
+
+  {%- if section.settings.heading != blank -%}
+    <h2 class="ppv1-recs__heading">{{ section.settings.heading | escape }}</h2>
+  {%- endif -%}
+
+  <div class="ppv1-recs__track-wrap">
+    <div class="ppv1-recs__track">
+      {%- assign ps_rec_shown = 0 -%}
+      {%- for p in ps_rec_col.products limit: 20 -%}
+        {%- unless p.id == product.id -%}
+          {%- if ps_rec_shown < 4 -%}
+            <a href="{{ p.url }}" class="ppv1-recs__card">
+              <div class="ppv1-recs__img-wrap">
+                {%- if p.featured_image -%}
+                  {%- assign rec_img_url = p.featured_image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                  <img class="ppv1-recs__img Image--lazyLoad Image--fadeIn"
+                       data-src="{{ rec_img_url }}"
+                       data-widths="[400, 600]"
+                       data-sizes="auto"
+                       alt="{{ p.featured_image.alt | default: p.title | escape }}">
+                  <span class="Image__Loader"></span>
+                {%- else -%}
+                  <div class="ppv1-recs__img--placeholder"></div>
+                {%- endif -%}
+              </div>
+              <div class="ppv1-recs__info">
+                <p class="ppv1-recs__title">{{ p.title | escape }}</p>
+                <p class="ppv1-recs__price">{{ p.price | money }}</p>
+              </div>
+            </a>
+            {%- assign ps_rec_shown = ps_rec_shown | plus: 1 -%}
+          {%- endif -%}
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+  </div>
 
 </section>
 
+{%- endif -%}
+
 <style>
 .ppv1-recs-section {
-  padding: 60px 35px 40px;
+  padding: 60px 35px 48px;
   background: #ffffff;
   font-family: 'Jost', sans-serif;
 }
 
 .ppv1-recs__heading {
-  font-family: 'Jost', sans-serif;
   font-size: 16px;
   font-weight: 400;
   letter-spacing: 0.22em;
@@ -59,21 +103,12 @@
 }
 
 .ppv1-recs__track {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.ppv1-recs__track::-webkit-scrollbar {
-  display: none;
 }
 
 .ppv1-recs__card {
-  flex: 0 0 calc((100% - 60px) / 4);
-  scroll-snap-align: start;
   text-decoration: none;
   color: inherit;
   display: block;
@@ -84,9 +119,13 @@
   overflow: hidden;
   background: #f5f5f5;
   margin-bottom: 12px;
+  position: relative;
 }
 
 .ppv1-recs__img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -99,13 +138,13 @@
 }
 
 .ppv1-recs__img--placeholder {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   background: #ece9e4;
 }
 
 .ppv1-recs__info {
-  padding: 0 4px;
+  padding: 0 2px;
 }
 
 .ppv1-recs__title {
@@ -128,53 +167,19 @@
 
 @media screen and (max-width: 900px) {
   .ppv1-recs-section {
-    padding: 40px 0 32px;
-  }
-
-  .ppv1-recs__heading {
-    padding: 0 24px;
+    padding: 40px 24px 32px;
   }
 
   .ppv1-recs__track {
-    padding: 0 24px;
-  }
-
-  .ppv1-recs__card {
-    flex: 0 0 58%;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 </style>
 
-<script>
-  (function () {
-    var sec = document.querySelector('.ppv1-recs-section');
-    if (!sec) return;
-
-    var productId = sec.dataset.productId;
-    var sectionId = sec.dataset.sectionId;
-
-    if (!productId || !sectionId) return;
-
-    var url = '/recommendations/products?section_id=' + sectionId
-            + '&product_id=' + productId
-            + '&limit=8';
-
-    fetch(url)
-      .then(function (r) { return r.text(); })
-      .then(function (html) {
-        var doc = new DOMParser().parseFromString(html, 'text/html');
-        var updated = doc.querySelector('.ppv1-recs-section');
-        if (updated && updated.querySelector('.ppv1-recs__card')) {
-          sec.innerHTML = updated.innerHTML;
-        }
-      })
-      .catch(function () {});
-  })();
-</script>
-
 {% schema %}
 {
-  "name": "Product recommendations",
+  "name": "YOU MAY LIKE",
   "class": "",
   "templates": ["product"],
   "settings": [
@@ -183,21 +188,12 @@
       "id": "heading",
       "label": "Heading",
       "default": "YOU MAY LIKE"
-    },
-    {
-      "type": "range",
-      "id": "limit",
-      "label": "Number of products",
-      "min": 2,
-      "max": 8,
-      "step": 1,
-      "default": 8
     }
   ],
   "presets": [
     {
       "category": "Product",
-      "name": "Product recommendations"
+      "name": "YOU MAY LIKE"
     }
   ]
 }

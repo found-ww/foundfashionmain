@@ -102,10 +102,7 @@
     "product-recommendations": {
       "type": "product-recommendations",
       "settings": {
-        "heading": "YOU MAY LIKE",
-        "show_product_info": true,
-        "show_vendor": false,
-        "show_color_swatch": false
+        "heading": "YOU MAY LIKE"
       }
     },
     "recently-viewed-products": {

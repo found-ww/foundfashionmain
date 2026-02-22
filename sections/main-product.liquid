@@ -97,12 +97,22 @@
         <hr class="ppv1-divider">
       {%- endif -%}
 
-      {%- comment -%} CTA row: Offerly Make an Offer only {%- endcomment -%}
+      {%- comment -%} CTA row: Add to cart + Chat to our team {%- endcomment -%}
       <div class="ppv1-cta-row">
+        {%- form 'product', product, class: 'ppv1-form' -%}
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
+          {%- if product.selected_or_first_available_variant.available -%}
+            <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart">
+              ADD TO CART &bull; {{ product.selected_or_first_available_variant.price | money }}
+            </button>
+          {%- else -%}
+            <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled>SOLD OUT</button>
+          {%- endif -%}
+        {%- endform -%}
         <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
            target="_blank"
            rel="noopener"
-           class="ppv1-offer-btn ppv1-btn ppv1-btn--secondary">MAKE AN OFFER</a>
+           class="ppv1-offer-btn ppv1-btn ppv1-btn--secondary">CHAT TO OUR TEAM</a>
       </div>
     </div>
   </div>
@@ -399,13 +409,35 @@
 }
 
 .ppv1-btn--secondary {
+  position: relative;
+  overflow: hidden;
   background: #ffffff;
   color: #1a1a1a;
   border-color: #1a1a1a;
+  transition: color 0.3s ease, border-color 0.2s ease;
+}
+
+.ppv1-btn--secondary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #1a1a1a;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: 0;
+}
+
+.ppv1-btn--secondary:hover::before {
+  transform: translateY(0);
 }
 
 .ppv1-btn--secondary:hover {
-  background: #f5f5f5;
+  color: #ffffff;
+}
+
+.ppv1-btn--secondary > * {
+  position: relative;
+  z-index: 1;
 }
 
 .ppv1-btn--tertiary {
@@ -428,6 +460,7 @@
   margin-top: 24px;
 }
 
+.ppv1-atc-btn,
 .ppv1-offer-btn {
   font-family: 'Jost', sans-serif;
   font-size: 11px;
@@ -509,11 +542,11 @@
 }
 
 .ppv1-strip__arrow--prev {
-  left: 0;
+  left: 44px;
 }
 
 .ppv1-strip__arrow--next {
-  right: 0;
+  right: 44px;
 }
 
 /* ---- ALL DETAILS ---- */
