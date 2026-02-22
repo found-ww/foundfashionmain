@@ -97,7 +97,7 @@
         <hr class="ppv1-divider">
       {%- endif -%}
 
-      {%- comment -%} CTA row: Add to cart + Chat to our team {%- endcomment -%}
+      {%- comment -%} CTA row: Add to cart only — Offerly injects its button automatically {%- endcomment -%}
       <div class="ppv1-cta-row">
         {%- form 'product', product, class: 'ppv1-form' -%}
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
@@ -109,10 +109,6 @@
             <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled>SOLD OUT</button>
           {%- endif -%}
         {%- endform -%}
-        <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
-           target="_blank"
-           rel="noopener"
-           class="ppv1-offer-btn ppv1-btn ppv1-btn--secondary">CHAT TO OUR TEAM</a>
       </div>
     </div>
   </div>
@@ -159,7 +155,7 @@
         <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
            target="_blank"
            rel="noopener"
-           class="ppv1-btn ppv1-btn--tertiary">CHAT TO OUR TEAM</a>
+           class="ppv1-btn ppv1-btn--chat">CHAT TO OUR TEAM</a>
       </div>
 
       <div class="ppv1-details__right">
@@ -449,6 +445,39 @@
   padding: 12px 20px;
   margin-top: 24px;
   align-self: flex-start;
+}
+
+/* Chat To Our Team — horizontal slide fill */
+.ppv1-btn--chat {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  padding: 12px 20px;
+  margin-top: 24px;
+  align-self: flex-start;
+  transition: color 0.3s ease;
+}
+
+.ppv1-btn--chat::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #1a1a1a;
+  transform: translateX(-100%);
+  transition: transform 0.35s ease;
+  z-index: 0;
+}
+
+.ppv1-btn--chat:hover::before {
+  transform: translateX(0);
+}
+
+.ppv1-btn--chat:hover {
+  color: #ffffff;
 }
 
 .ppv1-btn--tertiary:hover {

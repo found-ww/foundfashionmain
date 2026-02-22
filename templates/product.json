@@ -99,8 +99,8 @@
         "medor_article_text": ""
       }
     },
-    "product-recommendations": {
-      "type": "product-recommendations",
+    "you-may-like": {
+      "type": "you-may-like",
       "settings": {
         "heading": "YOU MAY LIKE"
       }
@@ -127,7 +127,7 @@
   "order": [
     "main",
     "product-story",
-    "product-recommendations",
+    "you-may-like",
     "recently-viewed-products",
     "social_widget_46989"
   ]
