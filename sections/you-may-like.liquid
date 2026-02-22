@@ -103,7 +103,7 @@
 }
 
 .yml-card__img-wrap {
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background: #f5f5f5;
   position: relative;
@@ -155,12 +155,31 @@
 
 @media screen and (max-width: 900px) {
   .yml-section {
-    padding: 40px 24px 36px;
+    padding: 40px 0 36px;
+  }
+
+  .yml-heading {
+    padding: 0 24px;
   }
 
   .yml-grid {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     gap: 12px;
+    padding: 0 24px;
+  }
+
+  .yml-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .yml-card {
+    flex: 0 0 58%;
+    scroll-snap-align: start;
   }
 }
 </style>

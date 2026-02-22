@@ -155,7 +155,7 @@
         <a href="https://wa.me/85293476168?text={{ 'Hello, I am interested in the ' | append: product.title | append: '!' | url_encode }}"
            target="_blank"
            rel="noopener"
-           class="ppv1-btn ppv1-btn--chat">CHAT TO OUR TEAM</a>
+           class="ppv1-btn ppv1-btn--chat"><span>CHAT TO OUR TEAM</span></a>
       </div>
 
       <div class="ppv1-details__right">
@@ -480,6 +480,11 @@
   color: #ffffff;
 }
 
+.ppv1-btn--chat span {
+  position: relative;
+  z-index: 1;
+}
+
 .ppv1-btn--tertiary:hover {
   border-color: #1a1a1a;
 }
@@ -580,7 +585,7 @@
 
 /* ---- ALL DETAILS ---- */
 .ppv1-details {
-  padding: 80px 79px;
+  padding: 80px 35px;
   background: #F8F8F8;
   margin-top: 20px;
   margin-left: -35px;
