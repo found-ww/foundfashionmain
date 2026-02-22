@@ -1,13 +1,3 @@
-{%- comment -%}
-  YOU MAY LIKE — standalone section, no Shopify recommendations API.
-
-  Tag logic (checked in order):
-    1. Product has a tag matching "Collection:X" (e.g. "Collection:Bags", "Collection:Clothing")
-       → look up collections["x"] and show up to 4 products from it.
-    2. No Collection: tag → fall back to product.collections.first.
-    3. Fewer than 1 other product found → section renders nothing.
-{%- endcomment -%}
-
 {%- assign yml_col = blank -%}
 
 {%- for tag in product.tags -%}
@@ -75,7 +65,7 @@
 
 <style>
 .yml-section {
-  padding: 60px 35px 52px;
+  padding: 60px 45px 52px;
   background: #ffffff;
   font-family: 'Jost', sans-serif;
 }
