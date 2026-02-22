@@ -485,6 +485,73 @@
   z-index: 1;
 }
 
+/* ---- MAKE AN OFFER app button (v7) ---- */
+/* Targets the injected button regardless of which class variant the app uses.
+   If none of these apply, inspect the button in browser devtools and add the exact class. */
+.mao-button,
+.mao_button,
+button[class*="mao-"],
+button[class*="make-an-offer"],
+#mao-widget button,
+#mao_widget button,
+[id*="make-an-offer"] button,
+[class*="make_an_offer"] button {
+  position: relative !important;
+  overflow: hidden !important;
+  font-family: 'Jost', sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  padding: 14px 24px !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  border: 1px solid #1a1a1a !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  transition: color 0.3s ease !important;
+}
+
+.mao-button::before,
+.mao_button::before,
+button[class*="mao-"]::before,
+button[class*="make-an-offer"]::before,
+#mao-widget button::before,
+#mao_widget button::before,
+[id*="make-an-offer"] button::before,
+[class*="make_an_offer"] button::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: #1a1a1a !important;
+  transform: translateY(100%) !important;
+  transition: transform 0.3s ease !important;
+  z-index: 0 !important;
+}
+
+.mao-button:hover::before,
+.mao_button:hover::before,
+button[class*="mao-"]:hover::before,
+button[class*="make-an-offer"]:hover::before,
+#mao-widget button:hover::before,
+#mao_widget button:hover::before,
+[id*="make-an-offer"] button:hover::before,
+[class*="make_an_offer"] button:hover::before {
+  transform: translateY(0) !important;
+}
+
+.mao-button:hover,
+.mao_button:hover,
+button[class*="mao-"]:hover,
+button[class*="make-an-offer"]:hover,
+#mao-widget button:hover,
+#mao_widget button:hover,
+[id*="make-an-offer"] button:hover,
+[class*="make_an_offer"] button:hover {
+  color: #ffffff !important;
+}
+
 .ppv1-btn--tertiary:hover {
   border-color: #1a1a1a;
 }
