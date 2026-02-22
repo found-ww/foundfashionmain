@@ -95,8 +95,19 @@
     "product-story": {
       "type": "product-story",
       "settings": {
+        "text": "",
         "button_text": "READ MORE",
-        "medor_article_text": ""
+        "button_url": "",
+        "birkin_article": "",
+        "kelly_article": "",
+        "garden_party_article": "",
+        "picotin_article": "",
+        "herbag_article": "",
+        "medor_article": "news/discover-the-medor",
+        "medor_article_text": "",
+        "evelyne_article": "",
+        "tablier_article": "",
+        "bolide_article": ""
       }
     },
     "you-may-like": {
