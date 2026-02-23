@@ -1,31 +1,8 @@
 <style>
-  /* Split row: navigable link + separate toggle icon for parent nav items */
-  .Collapsible__SplitRow {
-    display: flex;
-    align-items: center;
-    padding: 0;
-  }
-  .Collapsible__SplitLink {
-    flex: 1;
-    display: block;
-    padding: 13px 0;
-    text-decoration: none;
-  }
-  .Collapsible__Button--icon {
-    display: inline-flex !important;
-    width: auto !important;
-    padding: 13px 0 13px 16px !important;
-    background: none !important;
-    border: none !important;
-    cursor: pointer !important;
-    position: relative !important;
-  }
-  /* Visibility fix: the inner toggle button isn't a direct sibling of .Collapsible__Inner,
-     so the default [aria-expanded=true] + .Collapsible__Inner selector doesn't match.
-     Use :has() to show the inner content when the icon button is expanded. */
-  .Collapsible__SplitRow:has(.Collapsible__Button--icon[aria-expanded=true]) + .Collapsible__Inner {
-    visibility: visible;
-    transition: height 0.35s ease-in-out;
+  /* Sub-list shown flat (always visible) under a parent nav link */
+  .SidebarMenu__SubList {
+    padding-left: 12px;
+    margin-bottom: 8px;
   }
 </style>
 {%- assign main_menu_handle = section.settings.primary_menu | default: 'main-menu' -%}
@@ -52,28 +29,18 @@
                   <div class="Collapsible__Inner">
                     <div class="Collapsible__Content">
                       {%- for sub_link in link.links -%}
-                        <div class="Collapsible">
-                          {%- if sub_link.links != blank -%}
-                            <div class="Collapsible__SplitRow Heading Text--subdued u-h7">
-                              <a href="{{ sub_link.url }}" class="Collapsible__SplitLink Link Link--primary">{{- sub_link.title | escape -}}</a>
-                              <button class="Collapsible__Button Collapsible__Button--icon" data-action="toggle-collapsible" aria-expanded="false" aria-label="{{ sub_link.title | escape }}"><span class="Collapsible__Plus"></span></button>
-                            </div>
-
-                            <div class="Collapsible__Inner">
-                              <div class="Collapsible__Content">
-                                <ul class="Linklist Linklist--bordered Linklist--spacingLoose">
-                                  {%- for sub_sub_link in sub_link.links -%}
-                                    <li class="Linklist__Item">
-                                      <a href="{{ sub_sub_link.url }}" class="Text--subdued Link Link--primary">{{ sub_sub_link.title | escape }}</a>
-                                    </li>
-                                  {%- endfor -%}
-                                </ul>
-                              </div>
-                            </div>
-                          {%- else -%}
-                            <a href="{{ sub_link.url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">{{ sub_link.title | escape }}</a>
-                          {%- endif -%}
-                        </div>
+                        {%- if sub_link.links != blank -%}
+                          <a href="{{ sub_link.url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">{{- sub_link.title | escape -}}</a>
+                          <ul class="Linklist Linklist--bordered Linklist--spacingLoose SidebarMenu__SubList">
+                            {%- for sub_sub_link in sub_link.links -%}
+                              <li class="Linklist__Item">
+                                <a href="{{ sub_sub_link.url }}" class="Text--subdued Link Link--primary">{{ sub_sub_link.title | escape }}</a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- else -%}
+                          <a href="{{ sub_link.url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">{{ sub_link.title | escape }}</a>
+                        {%- endif -%}
                       {%- endfor -%}
                     </div>
                   </div>
