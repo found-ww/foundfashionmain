@@ -1,3 +1,33 @@
+<style>
+  /* Split row: navigable link + separate toggle icon for parent nav items */
+  .Collapsible__SplitRow {
+    display: flex;
+    align-items: center;
+    padding: 0;
+  }
+  .Collapsible__SplitLink {
+    flex: 1;
+    display: block;
+    padding: 13px 0;
+    text-decoration: none;
+  }
+  .Collapsible__Button--icon {
+    display: inline-flex !important;
+    width: auto !important;
+    padding: 13px 0 13px 16px !important;
+    background: none !important;
+    border: none !important;
+    cursor: pointer !important;
+    position: relative !important;
+  }
+  /* Visibility fix: the inner toggle button isn't a direct sibling of .Collapsible__Inner,
+     so the default [aria-expanded=true] + .Collapsible__Inner selector doesn't match.
+     Use :has() to show the inner content when the icon button is expanded. */
+  .Collapsible__SplitRow:has(.Collapsible__Button--icon[aria-expanded=true]) + .Collapsible__Inner {
+    visibility: visible;
+    transition: height 0.35s ease-in-out;
+  }
+</style>
 {%- assign main_menu_handle = section.settings.primary_menu | default: 'main-menu' -%}
 {%- assign main_menu = linklists[main_menu_handle] -%}
 
@@ -24,9 +54,10 @@
                       {%- for sub_link in link.links -%}
                         <div class="Collapsible">
                           {%- if sub_link.links != blank -%}
-                            <button class="Collapsible__Button Heading Text--subdued Link--primary u-h7" data-action="toggle-collapsible" {% if sub_link.links != blank %}aria-expanded="false"{% endif %}>
-                              {{- sub_link.title | escape -}} <span class="Collapsible__Plus"></span>
-                            </button>
+                            <div class="Collapsible__SplitRow Heading Text--subdued u-h7">
+                              <a href="{{ sub_link.url }}" class="Collapsible__SplitLink Link Link--primary">{{- sub_link.title | escape -}}</a>
+                              <button class="Collapsible__Button Collapsible__Button--icon" data-action="toggle-collapsible" aria-expanded="false" aria-label="{{ sub_link.title | escape }}"><span class="Collapsible__Plus"></span></button>
+                            </div>
 
                             <div class="Collapsible__Inner">
                               <div class="Collapsible__Content">
