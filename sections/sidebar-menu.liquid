@@ -1,10 +1,3 @@
-<style>
-  /* Sub-list shown flat (always visible) under a parent nav link */
-  .SidebarMenu__SubList {
-    padding-left: 12px;
-    margin-bottom: 8px;
-  }
-</style>
 {%- assign main_menu_handle = section.settings.primary_menu | default: 'main-menu' -%}
 {%- assign main_menu = linklists[main_menu_handle] -%}
 
@@ -28,20 +21,24 @@
 
                   <div class="Collapsible__Inner">
                     <div class="Collapsible__Content">
-                      {%- for sub_link in link.links -%}
-                        {%- if sub_link.links != blank -%}
-                          <a href="{{ sub_link.url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">{{- sub_link.title | escape -}}</a>
-                          <ul class="Linklist Linklist--bordered Linklist--spacingLoose SidebarMenu__SubList">
+                      <ul class="Linklist Linklist--bordered Linklist--spacingLoose">
+                        {%- for sub_link in link.links -%}
+                          {%- if sub_link.links != blank -%}
+                            <li class="Linklist__Item">
+                              <a href="{{ sub_link.url }}" class="Text--subdued Link Link--primary">{{- sub_link.title | escape -}}</a>
+                            </li>
                             {%- for sub_sub_link in sub_link.links -%}
                               <li class="Linklist__Item">
                                 <a href="{{ sub_sub_link.url }}" class="Text--subdued Link Link--primary">{{ sub_sub_link.title | escape }}</a>
                               </li>
                             {%- endfor -%}
-                          </ul>
-                        {%- else -%}
-                          <a href="{{ sub_link.url }}" class="Collapsible__Button Heading Text--subdued Link Link--primary u-h7">{{ sub_link.title | escape }}</a>
-                        {%- endif -%}
-                      {%- endfor -%}
+                          {%- else -%}
+                            <li class="Linklist__Item">
+                              <a href="{{ sub_link.url }}" class="Text--subdued Link Link--primary">{{ sub_link.title | escape }}</a>
+                            </li>
+                          {%- endif -%}
+                        {%- endfor -%}
+                      </ul>
                     </div>
                   </div>
                 {%- else -%}
