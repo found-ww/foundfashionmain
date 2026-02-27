@@ -1,0 +1,201 @@
+/* ============================================================
+   FoundFashion — Immersive Homepage Enhancements
+   Apple-inspired scroll animations, typography & micro-interactions
+   ============================================================ */
+
+
+/* ----------------------------------------------------------
+   1. SCROLL FADE-IN ANIMATIONS
+   ---------------------------------------------------------- */
+
+.ff-fade-in {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ff-fade-in.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Staggered delays for grid children */
+.ff-fade-in.ff-delay-1 { transition-delay: 0.08s; }
+.ff-fade-in.ff-delay-2 { transition-delay: 0.16s; }
+.ff-fade-in.ff-delay-3 { transition-delay: 0.24s; }
+.ff-fade-in.ff-delay-4 { transition-delay: 0.32s; }
+
+/* Slide in from left for text-with-image content */
+.ff-fade-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ff-fade-left.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Slide in from right */
+.ff-fade-right {
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ff-fade-right.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+
+/* ----------------------------------------------------------
+   2. APPLE-STYLE TYPOGRAPHY
+   ---------------------------------------------------------- */
+
+/* Large, cinematic headings that scale with the viewport */
+.SectionHeader__Heading.u-h1,
+.SectionHeader__Heading.Heading.u-h1 {
+  font-size: clamp(1.8rem, 4.5vw, 4rem);
+  letter-spacing: -0.025em;
+  line-height: 1.06;
+}
+
+/* Refined sub-headings — spaced, small, uppercase */
+.SectionHeader__SubHeading,
+.SectionHeader__SubHeading.Heading.u-h6 {
+  letter-spacing: 0.18em;
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
+/* Slide hero headings — extra large */
+.Slideshow .SectionHeader__Heading.u-h1 {
+  font-size: clamp(2.2rem, 6vw, 5.5rem);
+  letter-spacing: -0.035em;
+  line-height: 1.0;
+}
+
+/* More breathing room in section descriptions */
+.SectionHeader__Description {
+  max-width: 540px;
+  line-height: 1.7;
+  opacity: 0.85;
+}
+
+
+/* ----------------------------------------------------------
+   3. DARK SECTION ALTERNATION
+   ---------------------------------------------------------- */
+
+/* Timeline — deep black */
+.shopify-section--timeline {
+  background-color: #0a0a0a;
+}
+
+/* Featured Product — very dark charcoal */
+#shopify-section-1662709575234c8c58 {
+  background-color: #111111;
+}
+
+/* Ensure text is white inside dark sections */
+.shopify-section--timeline .SectionHeader__Heading,
+.shopify-section--timeline .SectionHeader__SubHeading,
+.shopify-section--timeline .Rte,
+.shopify-section--timeline p,
+#shopify-section-1662709575234c8c58 .SectionHeader__Heading,
+#shopify-section-1662709575234c8c58 .SectionHeader__SubHeading,
+#shopify-section-1662709575234c8c58 .Rte,
+#shopify-section-1662709575234c8c58 p,
+#shopify-section-1662709575234c8c58 .ProductMeta__Title,
+#shopify-section-1662709575234c8c58 .ProductMeta__Price {
+  color: #ffffff;
+}
+
+#shopify-section-1662709575234c8c58 .ProductMeta__Price {
+  color: #e0e0e0;
+}
+
+
+/* ----------------------------------------------------------
+   4. PRODUCT CARD HOVER LIFT
+   ---------------------------------------------------------- */
+
+.ProductItem {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+/* Only apply hover lift on devices that support hover (not touch) */
+@media (hover: hover) and (pointer: fine) {
+  .ProductItem:hover {
+    transform: translateY(-6px);
+  }
+}
+
+/* Subtle image scale on hover */
+.ProductItem .AspectRatio {
+  overflow: hidden;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ProductItem:hover .Image--lazyLoaded,
+  .ProductItem:hover .ProductItem__Image {
+    transform: scale(1.04);
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+.ProductItem .Image--lazyLoaded,
+.ProductItem .ProductItem__Image {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+
+/* ----------------------------------------------------------
+   5. HERO PARALLAX SUPPORT
+   Overflow clipping so the taller parallax image doesn't bleed out
+   ---------------------------------------------------------- */
+
+.Slideshow--fullscreen .Slideshow__ImageContainer {
+  overflow: hidden;
+}
+
+/* Give the parallax image room to move without showing a gap */
+.Slideshow--fullscreen .Slideshow__Image {
+  height: 115%;
+  top: -7.5%;
+  position: relative;
+  will-change: transform;
+}
+
+
+/* ----------------------------------------------------------
+   6. GENERAL POLISH
+   ---------------------------------------------------------- */
+
+/* Smoother section transitions — soft divider lines instead of hard edges */
+.shopify-section {
+  transition: background-color 0.3s ease;
+}
+
+/* Blog article cards — lift on hover */
+@media (hover: hover) and (pointer: fine) {
+  .ArticleItem {
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .ArticleItem:hover {
+    transform: translateY(-5px);
+  }
+}
+
+/* Timeline nav labels — more refined */
+.Timeline__NavLabel {
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+}
