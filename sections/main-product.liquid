@@ -1079,8 +1079,8 @@ button[class*="make-an-offer"]:hover,
         closeOnVerticalDrag: true,
         pinchToClose: true,
         clickToCloseNonZoomable: false,
-        getDoubleTapZoom: function(isMouseClick) { return isMouseClick ? 2 : 1.66; },
-        maxSpreadZoom: 3,
+        getDoubleTapZoom: function() { return 1.5; },
+        maxSpreadZoom: 1.5,
         bgOpacity: 0.92,
         // Zoom-from-thumbnail animation: open from the clicked element's position
         getThumbBoundsFn: function() {
@@ -1106,11 +1106,10 @@ button[class*="make-an-offer"]:hover,
         var now = Date.now();
         if (now - _pswpLastZoom < 400) return;
         _pswpLastZoom = now;
-        _pswpZoomStep = (_pswpZoomStep + 1) % 3;
+        _pswpZoomStep = (_pswpZoomStep + 1) % 2;
         var center = { x: cx || window.innerWidth / 2, y: cy || window.innerHeight / 2 };
-        if (_pswpZoomStep === 1)      pswp.zoomTo(2, center, 333);
-        else if (_pswpZoomStep === 2) pswp.zoomTo(3, center, 333);
-        else                          pswp.close();
+        if (_pswpZoomStep === 1) pswp.zoomTo(1.5, center, 333);
+        else                     pswp.close();
       }
 
       // Desktop: native click event on scroll wrap
