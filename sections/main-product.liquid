@@ -1050,14 +1050,16 @@ button[class*="make-an-offer"]:hover,
       return heroSlides.map(function(slide) {
         var img = slide.querySelector('img');
         var rawSrc = img ? img.getAttribute('data-src') : '';
-        // Replace the lazy-load width placeholder with a large size for lightbox
+        // Replace the lazy-load {width} placeholder with a large size for lightbox
         var src = rawSrc ? rawSrc.replace('{width}', '1600') : '';
-        var msrc = img ? (img.currentSrc || img.src || src) : src;
-        var w = parseInt(slide.getAttribute('data-pswp-w')) || 1600;
-        var h = parseInt(slide.getAttribute('data-pswp-h')) || 1600;
-        // Scale dimensions to the requested width (maintain aspect ratio)
+        // Use the already-loaded thumbnail as the low-res placeholder (msrc)
+        var loadedSrc = img ? (img.currentSrc || img.src) : '';
+        var msrc = (loadedSrc && loadedSrc.indexOf('{width}') === -1) ? loadedSrc : src;
+        var w = parseInt(slide.getAttribute('data-pswp-w')) || 0;
+        var h = parseInt(slide.getAttribute('data-pswp-h')) || 0;
+        // Scale dimensions to match the 1600px-wide URL we request
         if (w > 1600) { h = Math.round(h * 1600 / w); w = 1600; }
-        // Use alt text as caption; skip if it's just the generic product title
+        if (!w || !h) { w = 1600; h = 1600; }
         var alt = img ? (img.getAttribute('alt') || '') : '';
         return { src: src, msrc: msrc, w: w, h: h, title: alt };
       });
@@ -1066,39 +1068,63 @@ button[class*="make-an-offer"]:hover,
     function openLightbox(index, triggerEl) {
       var pswpEl = document.querySelector('.pswp');
       if (!pswpEl || typeof PhotoSwipe === 'undefined') return;
-      var pswp = new PhotoSwipe(pswpEl, false, buildItems(), {
+
+      var items = buildItems();
+
+      var pswp = new PhotoSwipe(pswpEl, false, items, {
         index: index,
-        showHideOpacity: true,
-        showAnimationDuration: 300,
-        // Loop so prev/next arrows always work at the first and last image
+        showHideOpacity: false,
+        showAnimationDuration: 333,
         loop: true,
         history: false,
-        // Natural close gestures
         closeOnVerticalDrag: true,
         pinchToClose: true,
-        // Single-click on image (at default zoom) closes the lightbox
         clickToCloseNonZoomable: true,
-        // Image always fits fully within the viewport (never cropped)
-        scaleMode: 'fit',
-        // Double-tap / double-click zoom levels
-        getDoubleTapZoom: function(isMouseClick, item) {
-          return isMouseClick ? 2 : 1.66;
-        },
+        getDoubleTapZoom: function(isMouseClick) { return isMouseClick ? 2 : 1.66; },
         maxSpreadZoom: 3,
-        // Show image counter (e.g. "2 / 5")
-        counterEl: true,
-        timeToIdle: 3000,
-        timeToIdleOutside: 1500,
         bgOpacity: 0.92,
-        // Zoom-from-thumbnail opening/closing animation
+        // Zoom-from-thumbnail animation: open from the clicked element's position
         getThumbBoundsFn: function() {
           if (!triggerEl) return null;
           var rect = triggerEl.getBoundingClientRect();
+          if (!rect.width || !rect.height) return null;
           var scrollY = window.pageYOffset || document.documentElement.scrollTop;
           return { x: rect.left, y: rect.top + scrollY, w: rect.width };
         }
       });
       pswp.init();
+
+      // ---- Wire up UI manually (we pass false for the UI class) ----
+      var uiEl    = pswpEl.querySelector('.pswp__ui');
+      var counter = pswpEl.querySelector('.pswp__counter');
+      var btnClose = pswpEl.querySelector('.pswp__button--close');
+      var btnPrev  = pswpEl.querySelector('.pswp__button--prev');
+      var btnNext  = pswpEl.querySelector('.pswp__button--next');
+
+      function updateCounter() {
+        if (counter) counter.textContent = (pswp.getCurrentIndex() + 1) + ' / ' + items.length;
+      }
+
+      // Show controls once the opening animation ends
+      pswp.listen('initialZoomInEnd', function() {
+        if (uiEl) uiEl.classList.remove('pswp__ui--hidden');
+        updateCounter();
+      });
+
+      // Keep counter in sync as the user swipes
+      pswp.listen('afterChange', function() { updateCounter(); });
+
+      // Button clicks — use .onclick so re-opening replaces rather than stacks handlers
+      if (btnClose) btnClose.onclick = function() { pswp.close(); };
+      if (btnPrev)  btnPrev.onclick  = function() { pswp.prev(); };
+      if (btnNext)  btnNext.onclick  = function() { pswp.next(); };
+
+      // Clean up on close so buttons don't fire after destroy
+      pswp.listen('destroy', function() {
+        if (btnClose) btnClose.onclick = null;
+        if (btnPrev)  btnPrev.onclick  = null;
+        if (btnNext)  btnNext.onclick  = null;
+      });
     }
 
     // Hero gallery: each slide opens at its index
