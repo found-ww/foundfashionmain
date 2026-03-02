@@ -271,7 +271,6 @@
       <button class="pswp__button pswp__button--prev RoundButton" data-animate-left title="{{ 'product.slideshow.previous' | t }}">{% render 'icon' with 'arrow-left' %}</button>
       <button class="pswp__button pswp__button--close RoundButton RoundButton--large" data-animate-bottom title="{{ 'product.slideshow.close' | t }}">{% render 'icon' with 'close' %}</button>
       <button class="pswp__button pswp__button--next RoundButton" data-animate-right title="{{ 'product.slideshow.next' | t }}">{% render 'icon' with 'arrow-right' %}</button>
-      <div class="pswp__counter"></div>
       <div class="pswp__caption">
         <div class="pswp__caption__center"></div>
       </div>
@@ -879,6 +878,12 @@ button[class*="make-an-offer"]:hover,
   display: none;
 }
 
+/* ---- LIGHTBOX BEHAVIOUR ---- */
+.pswp__img { cursor: zoom-in; }
+.pswp--zoomed .pswp__img { cursor: zoom-out; }
+.pswp__ui { transition: opacity 0.4s ease; }
+.pswp__ui--idle { opacity: 0 !important; pointer-events: none; }
+
 /* ---- MOBILE ---- */
 @media screen and (max-width: 900px) {
   .product-page-v1 {
@@ -1079,8 +1084,8 @@ button[class*="make-an-offer"]:hover,
         closeOnVerticalDrag: true,
         pinchToClose: true,
         clickToCloseNonZoomable: false,
-        getDoubleTapZoom: function() { return 1.5; },
-        maxSpreadZoom: 1.5,
+        getDoubleTapZoom: function() { return 1.25; },
+        maxSpreadZoom: 1.25,
         bgOpacity: 0.92,
         // Zoom-from-thumbnail animation: open from the clicked element's position
         getThumbBoundsFn: function() {
@@ -1108,51 +1113,76 @@ button[class*="make-an-offer"]:hover,
         _pswpLastZoom = now;
         _pswpZoomStep = (_pswpZoomStep + 1) % 2;
         var center = { x: cx || window.innerWidth / 2, y: cy || window.innerHeight / 2 };
-        if (_pswpZoomStep === 1) pswp.zoomTo(1.5, center, 333);
-        else                     pswp.close();
+        if (_pswpZoomStep === 1) {
+          pswp.zoomTo(1.25, center, 333);
+          pswpEl.classList.add('pswp--zoomed');
+        } else {
+          pswp.close();
+        }
       }
 
       // Desktop: native click event on scroll wrap
       function _pswpOnClick(e) {
         if (e.target && e.target.closest && e.target.closest('.pswp__ui')) return;
+        // Clicking the dark overlay (not the image itself) always closes
+        var onImage = e.target && e.target.classList && e.target.classList.contains('pswp__img');
+        if (!onImage) { pswp.close(); return; }
         _doZoomStep(e.clientX, e.clientY);
       }
       if (_pswpScrollWrap) _pswpScrollWrap.addEventListener('click', _pswpOnClick);
 
       // Mobile: PhotoSwipe tap (fires after 300ms delay for non-drag touches)
-      pswp.listen('tap', function() { _doZoomStep(0, 0); });
+      pswp.listen('tap', function(e) {
+        var onImage = e.target && e.target.classList && e.target.classList.contains('pswp__img');
+        if (!onImage) { pswp.close(); return; }
+        _doZoomStep(0, 0);
+      });
 
       // ---- Wire up UI manually (we pass false for the UI class) ----
       var uiEl    = pswpEl.querySelector('.pswp__ui');
-      var counter = pswpEl.querySelector('.pswp__counter');
       var btnClose = pswpEl.querySelector('.pswp__button--close');
       var btnPrev  = pswpEl.querySelector('.pswp__button--prev');
       var btnNext  = pswpEl.querySelector('.pswp__button--next');
 
-      function updateCounter() {
-        if (counter) counter.textContent = (pswp.getCurrentIndex() + 1) + ' / ' + items.length;
+      // ---- Idle fade: hide controls after 3s of no interaction ----
+      var _idleTimer = null;
+      function _showControls() {
+        if (uiEl) uiEl.classList.remove('pswp__ui--idle');
+        clearTimeout(_idleTimer);
+        _idleTimer = setTimeout(function() {
+          if (uiEl) uiEl.classList.add('pswp__ui--idle');
+        }, 3000);
       }
+      pswpEl.addEventListener('mousemove', _showControls);
+      pswpEl.addEventListener('touchstart', _showControls);
 
-      // Show controls once the opening animation ends
+      // Show controls once the opening animation ends; start idle timer
       pswp.listen('initialZoomInEnd', function() {
         if (uiEl) uiEl.classList.remove('pswp__ui--hidden');
-        updateCounter();
+        _showControls();
       });
 
-      // Keep counter in sync as the user swipes; reset zoom step on slide change
-      pswp.listen('afterChange', function() { updateCounter(); _pswpZoomStep = 0; });
+      // Reset zoom step and cursor class on slide change
+      pswp.listen('afterChange', function() {
+        _pswpZoomStep = 0;
+        pswpEl.classList.remove('pswp--zoomed');
+      });
 
       // Button clicks — use .onclick so re-opening replaces rather than stacks handlers
       if (btnClose) btnClose.onclick = function() { pswp.close(); };
       if (btnPrev)  btnPrev.onclick  = function() { pswp.prev(); };
       if (btnNext)  btnNext.onclick  = function() { pswp.next(); };
 
-      // Clean up on close so buttons / click handler don't fire after destroy
+      // Clean up on close
       pswp.listen('destroy', function() {
         if (btnClose) btnClose.onclick = null;
         if (btnPrev)  btnPrev.onclick  = null;
         if (btnNext)  btnNext.onclick  = null;
         if (_pswpScrollWrap) _pswpScrollWrap.removeEventListener('click', _pswpOnClick);
+        clearTimeout(_idleTimer);
+        pswpEl.removeEventListener('mousemove', _showControls);
+        pswpEl.removeEventListener('touchstart', _showControls);
+        pswpEl.classList.remove('pswp--zoomed');
       });
     }
 
@@ -1173,6 +1203,29 @@ button[class*="make-an-offer"]:hover,
       slide.addEventListener('click', function() {
         openLightbox(parseInt(slide.getAttribute('data-pswp-index')), slide);
       });
+    });
+
+    // ---- Hover prefetch: load full-res before the lightbox opens ----
+    function prefetch(src) {
+      var img = new Image();
+      img.src = src;
+    }
+    heroSlides.forEach(function(slide) {
+      slide.addEventListener('mouseenter', function() {
+        var src = slide.getAttribute('data-pswp-src');
+        if (src && !slide._pswpPrefetched) { slide._pswpPrefetched = true; prefetch(src); }
+      }, { once: true });
+    });
+    stripSlides.forEach(function(slide) {
+      slide.addEventListener('mouseenter', function() {
+        var idx = parseInt(slide.getAttribute('data-pswp-index'));
+        var heroSlide = heroSlides[idx];
+        if (heroSlide && !heroSlide._pswpPrefetched) {
+          heroSlide._pswpPrefetched = true;
+          var src = heroSlide.getAttribute('data-pswp-src');
+          if (src) prefetch(src);
+        }
+      }, { once: true });
     });
   })();
 
