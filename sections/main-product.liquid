@@ -1078,7 +1078,7 @@ button[class*="make-an-offer"]:hover,
         history: false,
         closeOnVerticalDrag: true,
         pinchToClose: true,
-        clickToCloseNonZoomable: true,
+        clickToCloseNonZoomable: false,
         getDoubleTapZoom: function(isMouseClick) { return isMouseClick ? 2 : 1.66; },
         maxSpreadZoom: 3,
         bgOpacity: 0.92,
@@ -1092,6 +1092,20 @@ button[class*="make-an-offer"]:hover,
         }
       });
       pswp.init();
+
+      // ---- Click / tap to cycle zoom: fit → 2× → 3× → close ----
+      pswp.listen('tap', function() {
+        var fitZoom = pswp.currItem.initialZoomLevel;
+        var cur     = pswp.getZoomLevel();
+        var center  = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        if (cur <= fitZoom + 0.05) {
+          pswp.zoomTo(2, center, 333);
+        } else if (cur < 2.9) {
+          pswp.zoomTo(3, center, 333);
+        } else {
+          pswp.close();
+        }
+      });
 
       // ---- Wire up UI manually (we pass false for the UI class) ----
       var uiEl    = pswpEl.querySelector('.pswp__ui');
