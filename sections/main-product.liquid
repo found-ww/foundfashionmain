@@ -1094,18 +1094,34 @@ button[class*="make-an-offer"]:hover,
       pswp.init();
 
       // ---- Click / tap to cycle zoom: fit → 2× → 3× → close ----
-      pswp.listen('tap', function() {
-        var fitZoom = pswp.currItem.initialZoomLevel;
-        var cur     = pswp.getZoomLevel();
-        var center  = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-        if (cur <= fitZoom + 0.05) {
-          pswp.zoomTo(2, center, 333);
-        } else if (cur < 2.9) {
-          pswp.zoomTo(3, center, 333);
-        } else {
-          pswp.close();
-        }
-      });
+      // State-based so we don't rely on getZoomLevel() being accurate after programmatic zoom.
+      // Native 'click' is used for desktop (reliable even when image is pannable at 2×).
+      // PhotoSwipe 'tap' covers mobile touches (where click may be suppressed by preventDefault).
+      // Both share _doZoomStep() with a 400ms dedup to prevent double-firing.
+      var _pswpZoomStep = 0;
+      var _pswpLastZoom = 0;
+      var _pswpScrollWrap = pswpEl.querySelector('.pswp__scroll-wrap');
+
+      function _doZoomStep(cx, cy) {
+        var now = Date.now();
+        if (now - _pswpLastZoom < 400) return;
+        _pswpLastZoom = now;
+        _pswpZoomStep = (_pswpZoomStep + 1) % 3;
+        var center = { x: cx || window.innerWidth / 2, y: cy || window.innerHeight / 2 };
+        if (_pswpZoomStep === 1)      pswp.zoomTo(2, center, 333);
+        else if (_pswpZoomStep === 2) pswp.zoomTo(3, center, 333);
+        else                          pswp.close();
+      }
+
+      // Desktop: native click event on scroll wrap
+      function _pswpOnClick(e) {
+        if (e.target && e.target.closest && e.target.closest('.pswp__ui')) return;
+        _doZoomStep(e.clientX, e.clientY);
+      }
+      if (_pswpScrollWrap) _pswpScrollWrap.addEventListener('click', _pswpOnClick);
+
+      // Mobile: PhotoSwipe tap (fires after 300ms delay for non-drag touches)
+      pswp.listen('tap', function() { _doZoomStep(0, 0); });
 
       // ---- Wire up UI manually (we pass false for the UI class) ----
       var uiEl    = pswpEl.querySelector('.pswp__ui');
@@ -1124,19 +1140,20 @@ button[class*="make-an-offer"]:hover,
         updateCounter();
       });
 
-      // Keep counter in sync as the user swipes
-      pswp.listen('afterChange', function() { updateCounter(); });
+      // Keep counter in sync as the user swipes; reset zoom step on slide change
+      pswp.listen('afterChange', function() { updateCounter(); _pswpZoomStep = 0; });
 
       // Button clicks — use .onclick so re-opening replaces rather than stacks handlers
       if (btnClose) btnClose.onclick = function() { pswp.close(); };
       if (btnPrev)  btnPrev.onclick  = function() { pswp.prev(); };
       if (btnNext)  btnNext.onclick  = function() { pswp.next(); };
 
-      // Clean up on close so buttons don't fire after destroy
+      // Clean up on close so buttons / click handler don't fire after destroy
       pswp.listen('destroy', function() {
         if (btnClose) btnClose.onclick = null;
         if (btnPrev)  btnPrev.onclick  = null;
         if (btnNext)  btnNext.onclick  = null;
+        if (_pswpScrollWrap) _pswpScrollWrap.removeEventListener('click', _pswpOnClick);
       });
     }
 
