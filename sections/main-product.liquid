@@ -1156,6 +1156,25 @@ button[class*="make-an-offer"]:hover,
       pswpEl.addEventListener('mousemove', _showControls);
       pswpEl.addEventListener('touchstart', _showControls);
 
+      // ---- Hover-to-pan: move cursor to look around when zoomed ----
+      var _panRaf = null;
+      function _onHoverPan(e) {
+        if (!_pswpZoomStep) return;
+        var mx = e.clientX, my = e.clientY;
+        if (_panRaf) return;
+        _panRaf = requestAnimationFrame(function() {
+          _panRaf = null;
+          var zoom = 1.25;
+          var vw = pswp.viewportSize.x;
+          var vh = pswp.viewportSize.y;
+          var ox = Math.max(0, pswp.currItem.w * zoom - vw);
+          var oy = Math.max(0, pswp.currItem.h * zoom - vh);
+          if (!ox && !oy) return;
+          pswp.applyZoomPan(zoom, ox / 2 - (mx / vw) * ox, oy / 2 - (my / vh) * oy);
+        });
+      }
+      pswpEl.addEventListener('mousemove', _onHoverPan);
+
       // Show controls once the opening animation ends; start idle timer
       pswp.listen('initialZoomInEnd', function() {
         if (uiEl) uiEl.classList.remove('pswp__ui--hidden');
@@ -1180,7 +1199,9 @@ button[class*="make-an-offer"]:hover,
         if (btnNext)  btnNext.onclick  = null;
         if (_pswpScrollWrap) _pswpScrollWrap.removeEventListener('click', _pswpOnClick);
         clearTimeout(_idleTimer);
+        if (_panRaf) { cancelAnimationFrame(_panRaf); _panRaf = null; }
         pswpEl.removeEventListener('mousemove', _showControls);
+        pswpEl.removeEventListener('mousemove', _onHoverPan);
         pswpEl.removeEventListener('touchstart', _showControls);
         pswpEl.classList.remove('pswp--zoomed');
       });
