@@ -298,7 +298,7 @@
                             <li class="Linklist__Item">
                               <input class="Linklist__Checkbox u-visually-hidden" id="{{ filter_value_id | escape }}" type="checkbox" name="{{ filter_value.param_name }}" value="{{ filter_value.value }}" {% if filter_value.active %}checked{% endif %}>
                               <label for="{{ filter_value_id | escape }}" class="Text--subdued Link Link--primary">
-                                {{- filter_value.label }} ({{ filter_value.count -}})
+                                {{- filter_value.label -}}
                               </label>
                             </li>
                           {%- endunless -%}
