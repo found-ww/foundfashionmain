@@ -60,7 +60,7 @@
       {%- for media in product.media -%}
         {%- if media.media_type == 'image' -%}
           {%- assign hero_slide_url = media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-          <div class="ppv1-hero__slide">
+          <div class="ppv1-hero__slide" data-pswp-w="{{ media.width }}" data-pswp-h="{{ media.height }}">
             <img class="ppv1-hero__slide-img Image--lazyLoad Image--fadeIn"
                  data-src="{{ hero_slide_url }}"
                  data-widths="[600, 800, 1000, 1200]"
@@ -138,7 +138,7 @@
         {%- for media in product.media offset: 1 -%}
           {%- if media.media_type == 'image' -%}
             {%- assign strip_url = media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-            <div class="ppv1-strip__slide">
+            <div class="ppv1-strip__slide" data-pswp-index="{{ forloop.index }}">
               <img class="ppv1-strip__img Image--lazyLoad Image--fadeIn"
                    data-src="{{ strip_url }}"
                    data-widths="[400, 600, 800]"
@@ -259,23 +259,21 @@
 
 </section>
 
-{%- if section.settings.enable_image_zoom -%}
-  <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="pswp__bg"></div>
-    <div class="pswp__scroll-wrap">
-      <div class="pswp__container">
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-        <div class="pswp__item"></div>
-      </div>
-      <div class="pswp__ui pswp__ui--hidden">
-        <button class="pswp__button pswp__button--prev RoundButton" data-animate-left title="{{ 'product.slideshow.previous' | t }}">{% render 'icon' with 'arrow-left' %}</button>
-        <button class="pswp__button pswp__button--close RoundButton RoundButton--large" data-animate-bottom title="{{ 'product.slideshow.close' | t }}">{% render 'icon' with 'close' %}</button>
-        <button class="pswp__button pswp__button--next RoundButton" data-animate-right title="{{ 'product.slideshow.next' | t }}">{% render 'icon' with 'arrow-right' %}</button>
-      </div>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="pswp__bg"></div>
+  <div class="pswp__scroll-wrap">
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    <div class="pswp__ui pswp__ui--hidden">
+      <button class="pswp__button pswp__button--prev RoundButton" data-animate-left title="{{ 'product.slideshow.previous' | t }}">{% render 'icon' with 'arrow-left' %}</button>
+      <button class="pswp__button pswp__button--close RoundButton RoundButton--large" data-animate-bottom title="{{ 'product.slideshow.close' | t }}">{% render 'icon' with 'close' %}</button>
+      <button class="pswp__button pswp__button--next RoundButton" data-animate-right title="{{ 'product.slideshow.next' | t }}">{% render 'icon' with 'arrow-right' %}</button>
     </div>
   </div>
-{%- endif -%}
+</div>
 
 <script>
   window.ShopifyXR=window.ShopifyXR||function(){(ShopifyXR.q=ShopifyXR.q||[]).push(arguments)};
@@ -311,6 +309,11 @@
   position: relative;
   background: #f5f5f5;
   overflow: hidden;
+  cursor: zoom-in;
+}
+
+.ppv1-strip__slide {
+  cursor: zoom-in;
 }
 
 /* Desktop: only first slide visible, fills gallery */
@@ -1005,6 +1008,58 @@ button[class*="make-an-offer"]:hover,
       });
     }, { passive: true });
   }
+
+  // ---- LIGHTBOX: Hero gallery + carousel strip ----
+  (function() {
+    var heroSlides = Array.from(document.querySelectorAll('.ppv1-hero__slide'));
+    var stripSlides = Array.from(document.querySelectorAll('.ppv1-strip__slide'));
+    if (!heroSlides.length) return;
+
+    function buildItems() {
+      return heroSlides.map(function(slide) {
+        var img = slide.querySelector('img');
+        var rawSrc = img ? img.getAttribute('data-src') : '';
+        // Replace the lazy-load width placeholder with a large size for lightbox
+        var src = rawSrc ? rawSrc.replace('{width}', '1600') : '';
+        var msrc = img ? (img.currentSrc || img.src || src) : src;
+        var w = parseInt(slide.getAttribute('data-pswp-w')) || 1600;
+        var h = parseInt(slide.getAttribute('data-pswp-h')) || 1600;
+        // Scale dimensions to the requested width (maintain aspect ratio)
+        if (w > 1600) { h = Math.round(h * 1600 / w); w = 1600; }
+        return { src: src, msrc: msrc, w: w, h: h };
+      });
+    }
+
+    function openLightbox(index) {
+      var pswpEl = document.querySelector('.pswp');
+      if (!pswpEl || typeof PhotoSwipe === 'undefined') return;
+      var pswp = new PhotoSwipe(pswpEl, false, buildItems(), {
+        index: index,
+        showHideOpacity: true,
+        showAnimationDuration: 300,
+        loop: false,
+        history: false,
+        closeOnVerticalDrag: false,
+        pinchToClose: false,
+        scaleMode: 'zoom',
+        getDoubleTapZoom: function(isMouseClick) { return isMouseClick ? 2 : 1.5; },
+        maxSpreadZoom: 3
+      });
+      pswp.init();
+    }
+
+    // Hero gallery: each slide opens at its index
+    heroSlides.forEach(function(slide, i) {
+      slide.addEventListener('click', function() { openLightbox(i); });
+    });
+
+    // Strip: each slide maps to its position in the full image set (strip uses offset:1)
+    stripSlides.forEach(function(slide) {
+      slide.addEventListener('click', function() {
+        openLightbox(parseInt(slide.getAttribute('data-pswp-index')));
+      });
+    });
+  })();
 
   // Carousel strip arrows
   var track = document.getElementById('ppv1-track');
