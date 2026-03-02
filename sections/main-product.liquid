@@ -60,7 +60,7 @@
       {%- for media in product.media -%}
         {%- if media.media_type == 'image' -%}
           {%- assign hero_slide_url = media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-          <div class="ppv1-hero__slide" data-pswp-w="{{ media.width }}" data-pswp-h="{{ media.height }}">
+          <div class="ppv1-hero__slide" data-pswp-src="{{ media | img_url: '1600x' }}" data-pswp-w="{{ media.width }}" data-pswp-h="{{ media.height }}">
             <img class="ppv1-hero__slide-img Image--lazyLoad Image--fadeIn"
                  data-src="{{ hero_slide_url }}"
                  data-widths="[600, 800, 1000, 1200]"
@@ -1049,15 +1049,14 @@ button[class*="make-an-offer"]:hover,
     function buildItems() {
       return heroSlides.map(function(slide) {
         var img = slide.querySelector('img');
-        var rawSrc = img ? img.getAttribute('data-src') : '';
-        // Replace the lazy-load {width} placeholder with a large size for lightbox
-        var src = rawSrc ? rawSrc.replace('{width}', '1600') : '';
-        // Use the already-loaded thumbnail as the low-res placeholder (msrc)
+        // Use the Liquid-generated 1600px URL (reliable, no JS string manipulation)
+        var src = slide.getAttribute('data-pswp-src') || '';
+        // Use the already-loaded thumbnail as the low-res placeholder shown during load
         var loadedSrc = img ? (img.currentSrc || img.src) : '';
-        var msrc = (loadedSrc && loadedSrc.indexOf('{width}') === -1) ? loadedSrc : src;
+        var msrc = loadedSrc || src;
         var w = parseInt(slide.getAttribute('data-pswp-w')) || 0;
         var h = parseInt(slide.getAttribute('data-pswp-h')) || 0;
-        // Scale dimensions to match the 1600px-wide URL we request
+        // Scale dimensions to match the 1600px-wide URL
         if (w > 1600) { h = Math.round(h * 1600 / w); w = 1600; }
         if (!w || !h) { w = 1600; h = 1600; }
         var alt = img ? (img.getAttribute('alt') || '') : '';
@@ -1127,10 +1126,17 @@ button[class*="make-an-offer"]:hover,
       });
     }
 
-    // Hero gallery: each slide opens at its index
-    heroSlides.forEach(function(slide, i) {
-      slide.addEventListener('click', function() { openLightbox(i, slide); });
-    });
+    // Hero gallery: single click on the container works on both desktop (index 0)
+    // and mobile (derive current slide from scroll position)
+    var heroGalleryEl = document.querySelector('.ppv1-hero__gallery');
+    if (heroGalleryEl) {
+      heroGalleryEl.addEventListener('click', function() {
+        var idx = heroGalleryEl.offsetWidth > 0
+          ? Math.round(heroGalleryEl.scrollLeft / heroGalleryEl.offsetWidth)
+          : 0;
+        openLightbox(idx, heroGalleryEl);
+      });
+    }
 
     // Strip: each slide maps to its position in the full image set (strip uses offset:1)
     stripSlides.forEach(function(slide) {
