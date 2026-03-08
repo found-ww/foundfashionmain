@@ -195,21 +195,7 @@
   .ShareButtons__Item--x:hover { color: #ffffff; background: #000000; border-color: #000000; outline: 1.5px solid #000000; }
   .ShareButtons__Item--instagram:hover { background: #e1306c; color: #ffffff; border-color: #e1306c; outline: 1.5px solid #e1306c; }
 
-  /* ---- Hybrid layout: full-width hero image, narrow reading column ---- */
-
-  /* Hero image: tall and truly edge-to-edge */
-  .Article__ImageWrapper {
-    height: 56vw;
-    min-height: 260px;
-    max-height: 680px;
-  }
-
-  /* Remove the overlap so image and text are cleanly separated */
-  .Article__ImageWrapper + .Article__Wrapper {
-    margin-top: 0 !important;
-  }
-
-  /* Text column: readable width, no bottom gap */
+  /* ---- Wider article content, no bottom gap after share buttons ---- */
   .Article__Wrapper {
     max-width: 720px;
     margin-bottom: 0;
@@ -223,7 +209,7 @@
 
   @media screen and (min-width: 1008px) {
     .Article__Wrapper {
-      max-width: 800px;
+      max-width: 960px;
       margin-bottom: 0;
     }
   }
