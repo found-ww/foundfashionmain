@@ -36,18 +36,6 @@
         "show_color_swatch": false
       }
     },
-    "16598666576ec4209d": {
-      "type": "newsletter",
-      "disabled": true,
-      "settings": {
-        "section_size": "small",
-        "text_color": "#ffffff",
-        "button_color": "#000000",
-        "subheading": "SIGN UP TODAY",
-        "title": "MONTHLY GIVEAWAY",
-        "content": "<p>We love to give to our community. Every month we choose an item to giveaway to one of our subscribers. Sign up now and you'll be entered every month. </p>"
-      }
-    },
     "1659866813e9a12b4f": {
       "type": "blog-posts",
       "blocks": {
@@ -68,25 +56,12 @@
         "button_link": "",
         "button_text": "View all articles"
       }
-    },
-    "1659866753c7cddd46": {
-      "type": "shop-now",
-      "settings": {
-        "title": "SHOP JEWELLERY",
-        "collection": "jewelry",
-        "grid_items_count": 6,
-        "show_product_info": true,
-        "show_vendor": false,
-        "show_color_swatch": false
-      }
     }
   },
   "order": [
     "main",
     "article-comments",
     "shop-now",
-    "16598666576ec4209d",
-    "1659866813e9a12b4f",
-    "1659866753c7cddd46"
+    "1659866813e9a12b4f"
   ]
 }
