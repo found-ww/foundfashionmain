@@ -275,7 +275,9 @@ HEADER CONTENT
                         {%- comment -%} Right section: 4-card strip (articles for blog, products for collection) {%- endcomment -%}
                         <div class="FoundStrip">
                           {%- if mega_blog != blank -%}
-                            {%- for article in mega_blog.articles limit: 4 -%}
+                            {%- for article in mega_blog.articles limit: 3 -%}
+                              {%- assign _word_count = article.content | strip_html | split: ' ' | size -%}
+                              {%- assign _read_min = _word_count | divided_by: 200 | at_least: 1 -%}
                               <a href="{{ article.url }}" class="FoundStrip__Card">
                                 <div class="FoundStrip__ImageWrap">
                                   {%- if article.image -%}
@@ -288,7 +290,7 @@ HEADER CONTENT
                                   {%- endif -%}
                                 </div>
                                 <div class="FoundStrip__Info">
-                                  <span class="FoundStrip__Brand">{{ article.published_at | date: '%b %d, %Y' }}</span>
+                                  <span class="FoundStrip__Brand">{{ _read_min }} min read</span>
                                   <span class="FoundStrip__Name">{{ article.title | escape }}</span>
                                 </div>
                               </a>
