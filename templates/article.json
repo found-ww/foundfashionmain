@@ -38,34 +38,12 @@
         "show_vendor": false,
         "show_color_swatch": false
       }
-    },
-    "1659866813e9a12b4f": {
-      "type": "blog-posts",
-      "blocks": {
-        "165986681366023b88-0": {
-          "type": "blog",
-          "settings": {
-            "blog": "news"
-          }
-        }
-      },
-      "block_order": [
-        "165986681366023b88-0"
-      ],
-      "settings": {
-        "subheading": "",
-        "title": "Blog posts",
-        "show_category": false,
-        "button_link": "",
-        "button_text": "View all articles"
-      }
     }
   },
   "order": [
     "main",
     "article-comments",
     "article-html-embed",
-    "shop-now",
-    "1659866813e9a12b4f"
+    "shop-now"
   ]
 }
