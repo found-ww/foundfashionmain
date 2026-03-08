@@ -42,10 +42,8 @@
   {%- if ps_tagged -%}{%- break -%}{%- endif -%}
 {%- endfor -%}
 
-{%- comment -%} Tagged product with no article configured — hide the whole section {%- endcomment -%}
-{%- if ps_tagged and ps_tag_article == blank -%}
-  {%- comment -%} Render nothing {%- endcomment -%}
-{%- else -%}
+{%- comment -%} Only render when a known bag tag has a configured article {%- endcomment -%}
+{%- if ps_tagged and ps_tag_article != blank -%}
 
 {%- comment -%} Story image: article image → section image picker → second product image → first product image {%- endcomment -%}
 {%- assign ps_use_picker = false -%}

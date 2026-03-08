@@ -145,6 +145,12 @@
               "push_2_subheading": "SHOP NOW",
               "push_2_url": "shopify://products/hermes-faubourg-polka-watch-rose-gold-diamonds-mini-model"
             }
+          },
+          "d7c9e1a2-3b45-4f67-89ab-cdef01234567": {
+            "type": "mega_menu",
+            "settings": {
+              "navigation_mega_menu": "Magazine"
+            }
           }
         },
         "block_order": [
@@ -152,7 +158,8 @@
           "20520488-1990-40cc-ac89-4e0febd86477",
           "a2d476ca-9809-457c-8083-8bf001520e49",
           "1616e741-29c5-4f5b-a7b1-f9fd7ecee07b",
-          "4051feff-1400-4a5a-a827-cc72726b9880"
+          "4051feff-1400-4a5a-a827-cc72726b9880",
+          "d7c9e1a2-3b45-4f67-89ab-cdef01234567"
         ],
         "custom_css": [],
         "settings": {
