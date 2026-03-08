@@ -21,6 +21,10 @@
         "show_prev_next": false
       }
     },
+    "article-comments": {
+      "type": "article-comments",
+      "settings": {}
+    },
     "shop-now": {
       "type": "shop-now",
       "settings": {
@@ -79,6 +83,7 @@
   },
   "order": [
     "main",
+    "article-comments",
     "shop-now",
     "16598666576ec4209d",
     "1659866813e9a12b4f",

@@ -13,10 +13,35 @@
 
   {%- comment -%}
   ─────────────────────────────────────────────────────────────────────────────
-  TIMELINE STRIP
-  Edit the cards below to update the timeline.
-  Each card needs class="card above" (content above line) or "card below"
-  (content below line) or "card center" (no image, centred on line).
+  TIMELINE
+  Edit the timeline by pasting .entry divs into the "Timeline content" field
+  in the theme customiser, or directly in sections/blog-timeline.liquid.
+
+  Each entry can be:
+    class="entry full"   — centred text, no image
+    class="entry left"   — text on left, image on right
+    class="entry right"  — image on left, text on right
+
+  Structure of a full entry:
+    <div class="entry full">
+      <div class="text">
+        <span class="year">YEAR</span>
+        <div class="title">Milestone title</div>
+        <p class="desc">Description text.</p>
+      </div>
+    </div>
+
+  Structure of a left/right entry:
+    <div class="entry left">
+      <div class="text">
+        <span class="year">YEAR</span>
+        <div class="title">Milestone title</div>
+        <p class="desc">Description text.</p>
+      </div>
+      <div class="visual">
+        <img src="..." alt="...">
+      </div>
+    </div>
   ─────────────────────────────────────────────────────────────────────────────
   {%- endcomment -%}
 
@@ -26,24 +51,21 @@
         <h2 class="BlogTimeline__Heading">{{ section.settings.timeline_heading }}</h2>
       {%- endif -%}
 
-      <div class="BlogTimeline__ScrollOuter">
-        <div class="BlogTimeline__Strip strip">
-
-          {%- comment -%} ── PASTE / EDIT YOUR TIMELINE CARDS HERE ── {%- endcomment -%}
+      <div class="BlogTimeline__Wrap">
+        <div class="BlogTimeline__Timeline timeline">
+          <div class="spine"></div>
 
           {%- assign timeline_content = section.settings.timeline_html -%}
           {%- if timeline_content != blank -%}
             {{ timeline_content }}
           {%- else -%}
-            {%- comment -%} Default example cards shown when no custom HTML is set {%- endcomment -%}
-            <div class="card center">
-              <div class="top">
+            {%- comment -%} Default example card shown when no custom HTML is set {%- endcomment -%}
+            <div class="entry full">
+              <div class="text">
                 <span class="year">YEAR</span>
                 <div class="title">Your milestone title</div>
-                <p class="desc">Edit the timeline HTML in the Timeline Content field in the theme customizer, or directly in sections/blog-timeline.liquid.</p>
+                <p class="desc">Edit the timeline by pasting entry HTML into the Timeline Content field in the theme customiser, or directly in sections/blog-timeline.liquid.</p>
               </div>
-              <div class="dot"></div>
-              <div class="bottom"></div>
             </div>
           {%- endif -%}
 
@@ -76,9 +98,9 @@
 </div>
 
 <style>
-  /* ── Timeline scroll container ── */
+  /* ── Section wrapper ── */
   .BlogTimeline__Section {
-    padding: 60px 0 40px;
+    padding: 60px 0 72px;
     border-top: 1px solid #e8e8e8;
   }
 
@@ -90,133 +112,177 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: #7a7468;
-    margin-bottom: 40px;
+    margin-bottom: 56px;
   }
 
-  .BlogTimeline__ScrollOuter {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    /* Hide scrollbar — visible on hover */
-    scrollbar-width: thin;
-    scrollbar-color: #d0ccc5 transparent;
+  .BlogTimeline__Wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
   }
 
-  .BlogTimeline__ScrollOuter::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .BlogTimeline__ScrollOuter::-webkit-scrollbar-thumb {
-    background: #d0ccc5;
-    border-radius: 2px;
-  }
-
-  /* ── Timeline strip (from user example) ── */
-  .BlogTimeline__Strip.strip {
-    display: flex;
-    align-items: stretch;
-    min-width: max-content;
-    padding: 0 64px;
+  /* ── Vertical timeline container ── */
+  .BlogTimeline__Timeline.timeline {
+    max-width: 900px;
+    margin: 0 auto;
     position: relative;
   }
 
-  .BlogTimeline__Strip.strip::before {
-    content: '';
+  /* ── Centre spine ── */
+  .BlogTimeline__Timeline .spine {
     position: absolute;
-    top: 50%; left: 0; right: 0;
-    height: 1px;
-    background: #e0ddd6;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #ececec;
+    transform: translateX(-50%);
     pointer-events: none;
-    z-index: 0;
   }
 
-  .BlogTimeline__Strip .card {
-    width: 220px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
+  /* ── Entry (row) ── */
+  .BlogTimeline__Timeline .entry {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 72px;
+    margin-bottom: 52px;
     position: relative;
-    z-index: 1;
-    padding: 0 16px;
     opacity: 0;
-    animation: blogTimelineIn .5s ease forwards;
+    animation: btlRise 0.55s ease forwards;
   }
 
-  .BlogTimeline__Strip .card:nth-child(1){animation-delay:0s}
-  .BlogTimeline__Strip .card:nth-child(2){animation-delay:.08s}
-  .BlogTimeline__Strip .card:nth-child(3){animation-delay:.16s}
-  .BlogTimeline__Strip .card:nth-child(4){animation-delay:.24s}
-  .BlogTimeline__Strip .card:nth-child(5){animation-delay:.32s}
-  .BlogTimeline__Strip .card:nth-child(6){animation-delay:.40s}
-  .BlogTimeline__Strip .card:nth-child(7){animation-delay:.48s}
-  .BlogTimeline__Strip .card:nth-child(8){animation-delay:.56s}
-  .BlogTimeline__Strip .card:nth-child(9){animation-delay:.64s}
-  .BlogTimeline__Strip .card:nth-child(10){animation-delay:.72s}
+  /* Staggered fade-in */
+  .BlogTimeline__Timeline .entry:nth-child(1) { animation-delay: 0s; }
+  .BlogTimeline__Timeline .entry:nth-child(2) { animation-delay: 0.1s; }
+  .BlogTimeline__Timeline .entry:nth-child(3) { animation-delay: 0.2s; }
+  .BlogTimeline__Timeline .entry:nth-child(4) { animation-delay: 0.3s; }
+  .BlogTimeline__Timeline .entry:nth-child(5) { animation-delay: 0.4s; }
+  .BlogTimeline__Timeline .entry:nth-child(6) { animation-delay: 0.5s; }
+  .BlogTimeline__Timeline .entry:nth-child(7) { animation-delay: 0.6s; }
+  .BlogTimeline__Timeline .entry:nth-child(8) { animation-delay: 0.7s; }
+  .BlogTimeline__Timeline .entry:nth-child(9) { animation-delay: 0.8s; }
+  .BlogTimeline__Timeline .entry:nth-child(10) { animation-delay: 0.9s; }
 
-  @keyframes blogTimelineIn {
-    from { opacity: 0; transform: translateY(6px); }
+  @keyframes btlRise {
+    from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .BlogTimeline__Strip .dot {
-    width: 8px; height: 8px; border-radius: 50%;
+  /* ── Dot on the spine ── */
+  .BlogTimeline__Timeline .entry::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 22px;
+    transform: translateX(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
     background: #190D04;
-    flex-shrink: 0;
-    margin: 0 auto;
-    position: relative; z-index: 2;
+    z-index: 2;
   }
 
-  /* Above: image+text sit above line, year below */
-  .BlogTimeline__Strip .card.above .top {
-    display: flex; flex-direction: column;
-    flex: 1;
-    padding-bottom: 20px;
-    justify-content: flex-end;
-  }
-  .BlogTimeline__Strip .card.above .bottom {
-    padding-top: 16px;
-  }
-
-  /* Below: year sits above line, image+text below */
-  .BlogTimeline__Strip .card.below .top {
-    padding-bottom: 16px;
-    display: flex; align-items: flex-end;
+  /* ── Full (centred, no image) ── */
+  .BlogTimeline__Timeline .entry.full {
+    display: flex;
     justify-content: center;
   }
-  .BlogTimeline__Strip .card.below .bottom {
-    padding-top: 20px;
-    flex: 1;
-  }
-
-  /* Center: text only, centred on line */
-  .BlogTimeline__Strip .card.center .top {
-    display: flex; flex-direction: column;
-    flex: 1; padding-bottom: 20px;
-    justify-content: flex-end;
-    align-items: center; text-align: center;
-  }
-  .BlogTimeline__Strip .card.center .bottom {
-    padding-top: 16px;
+  .BlogTimeline__Timeline .entry.full .text {
     text-align: center;
+    max-width: 480px;
   }
 
-  .BlogTimeline__Strip img {
-    width: 100%; display: block; mix-blend-mode: multiply;
+  /* ── Left (text left, image right) ── */
+  .BlogTimeline__Timeline .entry.left .text {
+    grid-column: 1;
+    text-align: right;
+    padding-right: 44px;
+  }
+  .BlogTimeline__Timeline .entry.left .visual {
+    grid-column: 2;
+    padding-left: 44px;
   }
 
-  .BlogTimeline__Strip .year {
-    font-size: 10px; font-weight: 500;
-    letter-spacing: 3.5px; color: #190D04;
-    text-transform: uppercase; margin-bottom: 6px;
+  /* ── Right (image left, text right) ── */
+  .BlogTimeline__Timeline .entry.right .text {
+    grid-column: 2;
+    text-align: left;
+    padding-left: 44px;
+    order: 2;
+  }
+  .BlogTimeline__Timeline .entry.right .visual {
+    grid-column: 1;
+    padding-right: 44px;
+    order: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* ── Images ── */
+  .BlogTimeline__Timeline .visual img {
     display: block;
+    mix-blend-mode: multiply;
+    max-width: 300px;
+    width: 100%;
   }
 
-  .BlogTimeline__Strip .title {
-    font-size: 12px; font-weight: 500;
-    color: #190D04; line-height: 1.4; margin-bottom: 6px;
+  /* ── Text elements ── */
+  .BlogTimeline__Timeline .year {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #190D04;
+    margin-bottom: 8px;
   }
 
-  .BlogTimeline__Strip .desc {
-    font-size: 11.5px; line-height: 1.65; color: #6e6e6e;
+  .BlogTimeline__Timeline .title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #190D04;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .BlogTimeline__Timeline .desc {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: #6e6e6e;
+  }
+
+  /* ── Mobile: single column ── */
+  @media screen and (max-width: 767px) {
+    .BlogTimeline__Timeline .spine { display: none; }
+
+    .BlogTimeline__Timeline .entry,
+    .BlogTimeline__Timeline .entry.left,
+    .BlogTimeline__Timeline .entry.right {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .BlogTimeline__Timeline .entry::before { left: 0; transform: none; }
+
+    .BlogTimeline__Timeline .entry.left .text,
+    .BlogTimeline__Timeline .entry.right .text {
+      text-align: left;
+      padding: 0;
+      order: 1;
+    }
+
+    .BlogTimeline__Timeline .entry.left .visual,
+    .BlogTimeline__Timeline .entry.right .visual {
+      padding: 0;
+      order: 2;
+      justify-content: flex-start;
+    }
+
+    .BlogTimeline__Timeline .visual img {
+      max-width: 100%;
+    }
   }
 </style>
 
@@ -243,8 +309,8 @@
     {
       "type": "html",
       "id": "timeline_html",
-      "label": "Timeline content (HTML cards)",
-      "info": "Paste your timeline card HTML here. Use class=\"card above\", \"card below\", or \"card center\". See sections/blog-timeline.liquid for examples."
+      "label": "Timeline content (entry HTML)",
+      "info": "Paste your .entry divs here. Use class=\"entry full\", \"entry left\", or \"entry right\". For image-heavy timelines, edit sections/blog-timeline.liquid directly."
     },
     {
       "type": "header",
