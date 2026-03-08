@@ -38,24 +38,36 @@
 {%- assign ppv1_colour = '' -%}
 {%- assign _cp_mf = _mf.shopify['color-pattern'] -%}
 {%- if _cp_mf != blank -%}
-  {%- assign _cp_vals = _cp_mf.value -%}
-  {%- assign _cp_size = _cp_vals.size -%}
-  {%- if _cp_size == 1 -%}
-    {%- assign ppv1_colour = _cp_vals[0].label -%}
-  {%- elsif _cp_size == 2 -%}
-    {%- assign ppv1_colour = _cp_vals[0].label | append: ' & ' | append: _cp_vals[1].label -%}
+  {%- assign _cp_val = _cp_mf.value -%}
+  {%- comment -%} Single metaobject_reference: .value IS the metaobject {%- endcomment -%}
+  {%- assign _cp_single_lbl = _cp_val.label | strip -%}
+  {%- if _cp_single_lbl != blank -%}
+    {%- assign ppv1_colour = _cp_single_lbl -%}
   {%- else -%}
-    {%- assign _cp_str = '' -%}
-    {%- for _ci in _cp_vals -%}
-      {%- if forloop.first -%}
-        {%- assign _cp_str = _ci.label -%}
-      {%- elsif forloop.last -%}
-        {%- assign _cp_str = _cp_str | append: ' & ' | append: _ci.label -%}
-      {%- else -%}
-        {%- assign _cp_str = _cp_str | append: ', ' | append: _ci.label -%}
-      {%- endif -%}
+    {%- comment -%} list.metaobject_reference: .value is an array {%- endcomment -%}
+    {%- assign _cp_parts = '' -%}
+    {%- assign _cp_count = 0 -%}
+    {%- for _ci in _cp_val -%}
+      {%- assign _ci_lbl = _ci.label | strip -%}
+      {%- if _ci_lbl == blank -%}{%- continue -%}{%- endif -%}
+      {%- if _cp_count > 0 -%}{%- assign _cp_parts = _cp_parts | append: '~~~' -%}{%- endif -%}
+      {%- assign _cp_parts = _cp_parts | append: _ci_lbl -%}
+      {%- assign _cp_count = _cp_count | plus: 1 -%}
     {%- endfor -%}
-    {%- assign ppv1_colour = _cp_str -%}
+    {%- if _cp_count > 0 -%}
+      {%- assign _cp_arr = _cp_parts | split: '~~~' -%}
+      {%- assign _cp_str = '' -%}
+      {%- for _cl in _cp_arr -%}
+        {%- if forloop.first -%}
+          {%- assign _cp_str = _cl -%}
+        {%- elsif forloop.last -%}
+          {%- assign _cp_str = _cp_str | append: ' & ' | append: _cl -%}
+        {%- else -%}
+          {%- assign _cp_str = _cp_str | append: ', ' | append: _cl -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- assign ppv1_colour = _cp_str -%}
+    {%- endif -%}
   {%- endif -%}
 {%- endif -%}
 {%- assign ppv1_mat       = _mf.custom.main_material        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
