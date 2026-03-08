@@ -32,13 +32,88 @@
   })();
 </script>
 
-{%- comment -%} Resolve metafields — append '' forces string conversion before stripping array brackets {%- endcomment -%}
-{%- assign ppv1_mat = product.metafields.custom['clothing-material'] | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
-{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.main_material | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
-{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = product.metafields.custom.material | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
-{%- assign ppv1_stamp = product.metafields.custom.bag_stamp | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
-{%- assign ppv1_condition = product.metafields.custom.condition | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
-{%- assign ppv1_location = product.metafields.custom.location | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} ─── Resolve metafields ─── {%- endcomment -%}
+{%- assign _mf = product.metafields -%}
+{%- comment -%} Shared {%- endcomment -%}
+{%- assign ppv1_colour    = _mf.shopify['color-pattern']   | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_mat       = _mf.custom.main_material        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- if ppv1_mat == blank -%}{%- assign ppv1_mat = _mf.custom.material | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
+{%- assign ppv1_hardware  = _mf.custom.hardware_material    | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_stamp     = _mf.custom.bag_stamp            | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_condition = _mf.custom.condition            | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_location  = _mf.custom.location             | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_brand     = _mf.custom.brand_name           | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_model     = _mf.custom.model                | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_dimensions= _mf.custom.dimensions           | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_other     = _mf.custom.other_details        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} Sizes {%- endcomment -%}
+{%- assign ppv1_clothing_size  = _mf.custom.clothing_size   | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_eu_size        = _mf.custom.eu_size         | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_uk_size        = _mf.custom.uk_size         | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_bracelet_size  = _mf.custom.bracelet_size   | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_bracelet_width = _mf.custom.bracelet_width  | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_ring_size      = _mf.custom.ring_size       | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_belt_size      = _mf.custom.belt_size       | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_belt_width     = _mf.custom.belt_width      | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_wrist_size     = _mf.custom.wrist_size      | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_case_width     = _mf.custom.case_width      | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} Bags {%- endcomment -%}
+{%- assign ppv1_strap_length = _mf.custom.strap_length      | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_handle_drop  = _mf.custom.handle_drop       | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_charm_type   = _mf.custom.charm_type        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} Jewellery {%- endcomment -%}
+{%- assign ppv1_diamonds     = _mf.custom.diamonds          | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_chain_length = _mf.custom.chain_length      | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} Clothing / scarf {%- endcomment -%}
+{%- assign ppv1_back_length    = _mf.custom.back_length     | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_year           = _mf.custom.year            | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_designer       = _mf.custom.designer        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_scarf_designer = _mf.custom.scarf_designer  | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} Homeware {%- endcomment -%}
+{%- assign ppv1_capacity       = _mf.custom.capacity        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_weight         = _mf.custom.weight          | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_sound_features = _mf.custom.sound_features  | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} Shoes {%- endcomment -%}
+{%- assign ppv1_sole_material = _mf.custom.sole_material    | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_heel_height   = _mf.custom.heel_sole_height | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- comment -%} Watches {%- endcomment -%}
+{%- assign ppv1_face_material = _mf.custom.face_material    | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_strap_material= _mf.custom.strap_material   | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_dial          = _mf.custom.dial_face        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_movement      = _mf.custom.movement         | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_reference     = _mf.custom.reference        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+
+{%- comment -%} ─── Detect product category from tags ─── {%- endcomment -%}
+{%- assign ppv1_cat = 'other' -%}
+{%- for _tag in product.tags -%}
+  {%- assign _tl = _tag | downcase -%}
+  {%- if _tl == 'category:bags' or _tl == 'category:small leather goods' -%}
+    {%- assign ppv1_cat = 'bags' -%}
+  {%- elsif _tl == 'category:bag charm' -%}
+    {%- assign ppv1_cat = 'charm' -%}
+  {%- elsif _tl == 'category:clothingmen' or _tl == 'category:clothingwomen' -%}
+    {%- assign ppv1_cat = 'clothing' -%}
+  {%- elsif _tl == 'category:shoesmen' or _tl == 'category:shoeswomen' -%}
+    {%- assign ppv1_cat = 'shoes' -%}
+  {%- elsif _tl == 'category:scarf' or _tl == 'category:twilly' -%}
+    {%- assign ppv1_cat = 'scarf' -%}
+  {%- elsif _tl == 'category:belts' -%}
+    {%- assign ppv1_cat = 'belts' -%}
+  {%- elsif _tl == 'category:bracelet' -%}
+    {%- assign ppv1_cat = 'bracelet' -%}
+  {%- elsif _tl == 'section:homeware' -%}
+    {%- assign ppv1_cat = 'homeware' -%}
+  {%- elsif _tl == 'category:rings' -%}
+    {%- assign ppv1_cat = 'rings' -%}
+  {%- elsif _tl == 'category:necklace' -%}
+    {%- assign ppv1_cat = 'necklace' -%}
+  {%- elsif _tl == 'category:earrings' -%}
+    {%- assign ppv1_cat = 'earrings' -%}
+  {%- elsif _tl == 'category:watches' -%}
+    {%- assign ppv1_cat = 'watches' -%}
+  {%- endif -%}
+  {%- if ppv1_cat != 'other' -%}{%- break -%}{%- endif -%}
+{%- endfor -%}
 
 <section class="Product product-page-v1" data-section-id="{{ section.id }}" data-section-type="product" data-section-settings='{{ section_settings }}'>
 
@@ -84,30 +159,74 @@
       <h1 class="ppv1-title Heading u-h2">{{ product.title }}</h1>
       <hr class="ppv1-divider">
 
-      {%- assign ppv1_has_meta = false -%}
-      {%- if ppv1_mat != blank or ppv1_stamp != blank or ppv1_condition != blank or ppv1_location != blank -%}
-        {%- assign ppv1_has_meta = true -%}
-      {%- endif -%}
-
-      {%- if ppv1_has_meta -%}
-        <dl class="ppv1-meta">
-          {%- if ppv1_mat != blank -%}
-            <dt class="ppv1-meta__key">Material</dt>
-            <dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>
-          {%- endif -%}
-          {%- if ppv1_stamp != blank -%}
-            <dt class="ppv1-meta__key">Stamp</dt>
-            <dd class="ppv1-meta__val">{{ ppv1_stamp }}</dd>
-          {%- endif -%}
-          {%- if ppv1_condition != blank -%}
-            <dt class="ppv1-meta__key">Condition</dt>
-            <dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>
-          {%- endif -%}
-          {%- if ppv1_location != blank -%}
-            <dt class="ppv1-meta__key">Location</dt>
-            <dd class="ppv1-meta__val">{{ ppv1_location }}</dd>
-          {%- endif -%}
-        </dl>
+      {%- comment -%} ─── Hero meta: category-specific fields ─── {%- endcomment -%}
+      {%- capture ppv1_hero_rows -%}
+        {%- if ppv1_cat == 'bags' or ppv1_cat == 'charm' -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_hardware != blank -%}<dt class="ppv1-meta__key">Hardware</dt><dd class="ppv1-meta__val">{{ ppv1_hardware }}</dd>{%- endif -%}
+          {%- if ppv1_stamp != blank -%}<dt class="ppv1-meta__key">Stamp</dt><dd class="ppv1-meta__val">{{ ppv1_stamp }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'clothing' -%}
+          {%- if ppv1_clothing_size != blank -%}<dt class="ppv1-meta__key">Size</dt><dd class="ppv1-meta__val">{{ ppv1_clothing_size }}</dd>{%- endif -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'shoes' -%}
+          {%- if ppv1_eu_size != blank -%}<dt class="ppv1-meta__key">Size</dt><dd class="ppv1-meta__val">{{ ppv1_eu_size }}</dd>{%- endif -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'scarf' -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'belts' -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_hardware != blank -%}<dt class="ppv1-meta__key">Hardware</dt><dd class="ppv1-meta__val">{{ ppv1_hardware }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'bracelet' or ppv1_cat == 'homeware' -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_hardware != blank -%}<dt class="ppv1-meta__key">Hardware</dt><dd class="ppv1-meta__val">{{ ppv1_hardware }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_bracelet_size != blank -%}<dt class="ppv1-meta__key">Size</dt><dd class="ppv1-meta__val">{{ ppv1_bracelet_size }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'rings' -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_hardware != blank -%}<dt class="ppv1-meta__key">Hardware</dt><dd class="ppv1-meta__val">{{ ppv1_hardware }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_ring_size != blank -%}<dt class="ppv1-meta__key">Size</dt><dd class="ppv1-meta__val">{{ ppv1_ring_size }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'necklace' or ppv1_cat == 'earrings' -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_hardware != blank -%}<dt class="ppv1-meta__key">Hardware</dt><dd class="ppv1-meta__val">{{ ppv1_hardware }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- elsif ppv1_cat == 'watches' -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_face_material != blank -%}<dt class="ppv1-meta__key">Case Material</dt><dd class="ppv1-meta__val">{{ ppv1_face_material }}</dd>{%- endif -%}
+          {%- if ppv1_strap_material != blank -%}<dt class="ppv1-meta__key">Strap Material</dt><dd class="ppv1-meta__val">{{ ppv1_strap_material }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- else -%}
+          {%- if ppv1_colour != blank -%}<dt class="ppv1-meta__key">Colour</dt><dd class="ppv1-meta__val">{{ ppv1_colour }}</dd>{%- endif -%}
+          {%- if ppv1_mat != blank -%}<dt class="ppv1-meta__key">Material</dt><dd class="ppv1-meta__val">{{ ppv1_mat }}</dd>{%- endif -%}
+          {%- if ppv1_stamp != blank -%}<dt class="ppv1-meta__key">Stamp</dt><dd class="ppv1-meta__val">{{ ppv1_stamp }}</dd>{%- endif -%}
+          {%- if ppv1_condition != blank -%}<dt class="ppv1-meta__key">Condition</dt><dd class="ppv1-meta__val">{{ ppv1_condition }}</dd>{%- endif -%}
+          {%- if ppv1_location != blank -%}<dt class="ppv1-meta__key">Location</dt><dd class="ppv1-meta__val">{{ ppv1_location }}</dd>{%- endif -%}
+        {%- endif -%}
+      {%- endcapture -%}
+      {%- if ppv1_hero_rows != blank -%}
+        <dl class="ppv1-meta">{{ ppv1_hero_rows }}</dl>
         <hr class="ppv1-divider">
       {%- endif -%}
 
@@ -185,20 +304,133 @@
             <div class="ppv1-accordion__body">
               <div class="ppv1-accordion__content">
                 <dl class="ppv1-detail-list">
-                  {%- if product.vendor != blank -%}
-                    <dt>Brand</dt><dd>{{ product.vendor }}</dd>
+                  {%- assign _ppv1_bd = ppv1_brand | default: product.vendor -%}
+                  {%- if _ppv1_bd != blank -%}
+                    <dt>Brand</dt><dd>{{ _ppv1_bd }}</dd>
                   {%- endif -%}
-                  {%- if ppv1_mat != blank -%}
-                    <dt>Material</dt><dd>{{ ppv1_mat }}</dd>
-                  {%- endif -%}
-                  {%- if ppv1_stamp != blank -%}
-                    <dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>
-                  {%- endif -%}
-                  {%- if ppv1_condition != blank -%}
-                    <dt>Condition</dt><dd>{{ ppv1_condition }}</dd>
-                  {%- endif -%}
-                  {%- if ppv1_location != blank -%}
-                    <dt>Location</dt><dd>{{ ppv1_location }}</dd>
+                  {%- if ppv1_cat == 'bags' -%}
+                    {%- if ppv1_model != blank -%}<dt>Model</dt><dd>{{ ppv1_model }}</dd>{%- endif -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_stamp != blank -%}<dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>{%- endif -%}
+                    {%- if ppv1_strap_length != blank -%}<dt>Strap Length</dt><dd>{{ ppv1_strap_length }}</dd>{%- endif -%}
+                    {%- if ppv1_handle_drop != blank -%}<dt>Handle Drop</dt><dd>{{ ppv1_handle_drop }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'charm' -%}
+                    {%- if ppv1_charm_type != blank -%}<dt>Charm Family</dt><dd>{{ ppv1_charm_type }}</dd>{%- endif -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_strap_length != blank -%}<dt>Strap Length</dt><dd>{{ ppv1_strap_length }}</dd>{%- endif -%}
+                    {%- if ppv1_stamp != blank -%}<dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'clothing' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_clothing_size != blank -%}<dt>Size</dt><dd>{{ ppv1_clothing_size }}</dd>{%- endif -%}
+                    {%- if ppv1_back_length != blank -%}<dt>Back Length</dt><dd>{{ ppv1_back_length }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'homeware' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_designer != blank -%}<dt>Designer</dt><dd>{{ ppv1_designer }}</dd>{%- endif -%}
+                    {%- if ppv1_capacity != blank -%}<dt>Capacity</dt><dd>{{ ppv1_capacity }}</dd>{%- endif -%}
+                    {%- if ppv1_weight != blank -%}<dt>Weight</dt><dd>{{ ppv1_weight }}</dd>{%- endif -%}
+                    {%- if ppv1_sound_features != blank -%}<dt>Sound & Features</dt><dd>{{ ppv1_sound_features }}</dd>{%- endif -%}
+                    {%- if ppv1_bracelet_size != blank -%}<dt>Size</dt><dd>{{ ppv1_bracelet_size }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'shoes' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_sole_material != blank -%}<dt>Sole Material</dt><dd>{{ ppv1_sole_material }}</dd>{%- endif -%}
+                    {%- if ppv1_eu_size != blank -%}<dt>EU Size</dt><dd>{{ ppv1_eu_size }}</dd>{%- endif -%}
+                    {%- if ppv1_uk_size != blank -%}<dt>UK Size</dt><dd>{{ ppv1_uk_size }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_heel_height != blank -%}<dt>Heel Height</dt><dd>{{ ppv1_heel_height }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'scarf' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_scarf_designer != blank -%}<dt>Designer</dt><dd>{{ ppv1_scarf_designer }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'belts' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_belt_size != blank -%}<dt>Size</dt><dd>{{ ppv1_belt_size }}</dd>{%- endif -%}
+                    {%- if ppv1_belt_width != blank -%}<dt>Width</dt><dd>{{ ppv1_belt_width }}</dd>{%- endif -%}
+                    {%- if ppv1_stamp != blank -%}<dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'bracelet' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_bracelet_size != blank -%}<dt>Size</dt><dd>{{ ppv1_bracelet_size }}</dd>{%- endif -%}
+                    {%- if ppv1_wrist_size != blank -%}<dt>Wrist Size</dt><dd>{{ ppv1_wrist_size }}</dd>{%- endif -%}
+                    {%- if ppv1_bracelet_width != blank -%}<dt>Width</dt><dd>{{ ppv1_bracelet_width }}</dd>{%- endif -%}
+                    {%- if ppv1_diamonds != blank -%}<dt>Diamonds</dt><dd>{{ ppv1_diamonds }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'rings' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_ring_size != blank -%}<dt>Size</dt><dd>{{ ppv1_ring_size }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_diamonds != blank -%}<dt>Diamonds</dt><dd>{{ ppv1_diamonds }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'necklace' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_chain_length != blank -%}<dt>Chain Length</dt><dd>{{ ppv1_chain_length }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_diamonds != blank -%}<dt>Diamonds</dt><dd>{{ ppv1_diamonds }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'earrings' -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_diamonds != blank -%}<dt>Diamonds</dt><dd>{{ ppv1_diamonds }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                  {%- elsif ppv1_cat == 'watches' -%}
+                    {%- if ppv1_year != blank -%}<dt>Year</dt><dd>{{ ppv1_year }}</dd>{%- endif -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_hardware != blank -%}<dt>Hardware</dt><dd>{{ ppv1_hardware }}</dd>{%- endif -%}
+                    {%- if ppv1_face_material != blank -%}<dt>Case Material</dt><dd>{{ ppv1_face_material }}</dd>{%- endif -%}
+                    {%- if ppv1_strap_material != blank -%}<dt>Strap Material</dt><dd>{{ ppv1_strap_material }}</dd>{%- endif -%}
+                    {%- if ppv1_dial != blank -%}<dt>Dial</dt><dd>{{ ppv1_dial }}</dd>{%- endif -%}
+                    {%- if ppv1_case_width != blank -%}<dt>Case Width</dt><dd>{{ ppv1_case_width }}</dd>{%- endif -%}
+                    {%- if ppv1_wrist_size != blank -%}<dt>Wrist Size</dt><dd>{{ ppv1_wrist_size }}</dd>{%- endif -%}
+                    {%- if ppv1_dimensions != blank -%}<dt>Dimensions</dt><dd>{{ ppv1_dimensions }}</dd>{%- endif -%}
+                    {%- if ppv1_diamonds != blank -%}<dt>Diamonds</dt><dd>{{ ppv1_diamonds }}</dd>{%- endif -%}
+                    {%- if ppv1_movement != blank -%}<dt>Movement</dt><dd>{{ ppv1_movement }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
+                    {%- if ppv1_reference != blank -%}<dt>Reference</dt><dd>{{ ppv1_reference }}</dd>{%- endif -%}
+                  {%- else -%}
+                    {%- if ppv1_mat != blank -%}<dt>Material</dt><dd>{{ ppv1_mat }}</dd>{%- endif -%}
+                    {%- if ppv1_stamp != blank -%}<dt>Stamp</dt><dd>{{ ppv1_stamp }}</dd>{%- endif -%}
+                    {%- if ppv1_condition != blank -%}<dt>Condition</dt><dd>{{ ppv1_condition }}</dd>{%- endif -%}
+                    {%- if ppv1_location != blank -%}<dt>Location</dt><dd>{{ ppv1_location }}</dd>{%- endif -%}
+                    {%- if ppv1_other != blank -%}<dt>Other Details</dt><dd>{{ ppv1_other }}</dd>{%- endif -%}
                   {%- endif -%}
                 </dl>
               </div>
