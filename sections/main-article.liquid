@@ -19,9 +19,12 @@
           <span class="ArticleToolbar__ShareLabel Heading Text--subdued u-h8">{{ 'blog.article.share' | t }}</span>
 
           <div class="HorizontalList">
+            {%- if settings.social_instagram_link != blank -%}
+              <a class="HorizontalList__Item Text--subdued Link" href="{{ settings.social_instagram_link }}" target="_blank" rel="noopener">{%- render 'icon' with 'instagram' -%}</a>
+            {%- endif -%}
+            <a class="HorizontalList__Item Text--subdued Link" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener">{%- render 'icon' with 'whatsapp' -%}</a>
             <a class="HorizontalList__Item Text--subdued Link" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'facebook' -%}</a>
-            <a class="HorizontalList__Item Text--subdued Link" href="https://twitter.com/share?{% if twitter_text != blank %}text={{twitter_text}}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'twitter' -%}</a>
-            <a class="HorizontalList__Item Text--subdued Link" href="https://pinterest.com/pin/create/button/?url={{ share_url }}{% if pinterest_image != blank %}&media={{ pinterest_image }}{% endif %}&description={{ pinterest_description }}" target="_blank" rel="noopener">{%- render 'icon' with 'pinterest' -%}</a>
+            <a class="HorizontalList__Item Text--subdued Link" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'x' -%}</a>
           </div>
         </div>
       {%- endif -%}
@@ -86,9 +89,12 @@
 
         {%- if section.settings.show_share_buttons -%}
           <div class="Article__ShareButtons ShareButtons">
+            {%- if settings.social_instagram_link != blank -%}
+              <a class="ShareButtons__Item ShareButtons__Item--instagram" href="{{ settings.social_instagram_link }}" target="_blank" rel="noopener">{%- render 'icon' with 'instagram' -%}</a>
+            {%- endif -%}
+            <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener">{%- render 'icon' with 'whatsapp' -%}</a>
             <a class="ShareButtons__Item ShareButtons__Item--facebook" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'facebook' -%}</a>
-            <a class="ShareButtons__Item ShareButtons__Item--twitter" href="https://twitter.com/share?{% if twitter_text != blank %}text={{twitter_text}}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'twitter' -%}</a>
-            <a class="ShareButtons__Item ShareButtons__Item--pinterest" href="https://pinterest.com/pin/create/button/?url={{ share_url }}{% if pinterest_image != blank %}&media={{ pinterest_image }}{% endif %}&description={{ pinterest_description }}" target="_blank" rel="noopener">{%- render 'icon' with 'pinterest' -%}</a>
+            <a class="ShareButtons__Item ShareButtons__Item--x" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'x' -%}</a>
           </div>
         {%- endif -%}
       {%- endcapture -%}
@@ -274,6 +280,17 @@
   .ArticleRelated__Heading {
     text-align: center;
     margin-bottom: 40px;
+  }
+
+  /* ---- Wider article content ---- */
+  .Article__Wrapper {
+    max-width: 720px;
+  }
+
+  @media screen and (min-width: 1008px) {
+    .Article__Wrapper {
+      max-width: 960px;
+    }
   }
 
   /* ---- New badge ---- */

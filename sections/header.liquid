@@ -235,31 +235,65 @@ HEADER CONTENT
                     {%- endif -%}
                     {%- assign mega_collection = collections[mega_collection_handle] -%}
 
+                    {%- assign mega_blog_handle = '' -%}
+                    {%- if link.url contains '/blogs/' -%}
+                      {%- assign mega_blog_handle = link.url | split: '/blogs/' | last | split: '?' | first | split: '/' | first -%}
+                    {%- endif -%}
+                    {%- assign mega_blog = blogs[mega_blog_handle] -%}
+
                     <div class="MegaMenu FoundMegaMenu" aria-hidden="true" {{ block.shopify_attributes }}>
                       <div class="FoundMegaMenu__Inner">
 
                         {%- comment -%} Left column: nav links {%- endcomment -%}
                         <div class="FoundMegaMenu__Nav">
-                          <span class="FoundMegaMenu__NavLabel">Shop {{ link.title }}</span>
-                          <ul class="FoundMegaMenu__NavList">
-                            {%- for sub_link in link.links -%}
-                              {%- if sub_link.links != blank -%}
-                                <li class="FoundMegaMenu__NavItem">
-                                  <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
-                                </li>
-                                {%- for sub_sub_link in sub_link.links -%}
+                          {%- if mega_blog != blank -%}
+                            <span class="FoundMegaMenu__NavLabel">{{ mega_blog.title | upcase }}</span>
+                            <ul class="FoundMegaMenu__NavList">
+                              <li class="FoundMegaMenu__NavItem">
+                                <a href="{{ link.url }}" class="FoundMegaMenu__NavLink">VIEW ALL</a>
+                              </li>
+                            </ul>
+                          {%- else -%}
+                            <span class="FoundMegaMenu__NavLabel">Shop {{ link.title }}</span>
+                            <ul class="FoundMegaMenu__NavList">
+                              {%- for sub_link in link.links -%}
+                                {%- if sub_link.links != blank -%}
                                   <li class="FoundMegaMenu__NavItem">
-                                    <a href="{{ sub_sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_sub_link.title | upcase }}</a>
+                                    <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
                                   </li>
-                                {%- endfor -%}
-                              {%- endif -%}
-                            {%- endfor -%}
-                          </ul>
+                                  {%- for sub_sub_link in sub_link.links -%}
+                                    <li class="FoundMegaMenu__NavItem">
+                                      <a href="{{ sub_sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_sub_link.title | upcase }}</a>
+                                    </li>
+                                  {%- endfor -%}
+                                {%- endif -%}
+                              {%- endfor -%}
+                            </ul>
+                          {%- endif -%}
                         </div>
 
-                        {%- comment -%} Right section: 4-card product strip (always rendered for full-width layout) {%- endcomment -%}
+                        {%- comment -%} Right section: 4-card strip (articles for blog, products for collection) {%- endcomment -%}
                         <div class="FoundStrip">
-                          {%- if mega_collection != blank -%}
+                          {%- if mega_blog != blank -%}
+                            {%- for article in mega_blog.articles limit: 4 -%}
+                              <a href="{{ article.url }}" class="FoundStrip__Card">
+                                <div class="FoundStrip__ImageWrap">
+                                  {%- if article.image -%}
+                                    {%- assign image_url = article.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                                    <img class="FoundStrip__Img Image--lazyLoad Image--fadeIn"
+                                         data-src="{{ image_url }}"
+                                         data-widths="[300, 400, 600]"
+                                         data-sizes="auto"
+                                         alt="{{ article.image.alt | default: article.title | escape }}">
+                                  {%- endif -%}
+                                </div>
+                                <div class="FoundStrip__Info">
+                                  <span class="FoundStrip__Brand">{{ article.published_at | date: '%b %d, %Y' }}</span>
+                                  <span class="FoundStrip__Name">{{ article.title | escape }}</span>
+                                </div>
+                              </a>
+                            {%- endfor -%}
+                          {%- elsif mega_collection != blank -%}
                             {%- assign rendered_count = 0 -%}
                             {%- for product in mega_collection.products limit: 20 -%}
                               {%- if product.available and rendered_count < 4 -%}
