@@ -55,16 +55,29 @@
         <div class="BlogTimeline__Timeline timeline">
           <div class="spine"></div>
 
+          {%- comment -%}
+          ═══════════════════════════════════════════════════════════════
+          HARDCODED TIMELINE — paste your .entry divs between the capture
+          tags below. This takes priority over the customiser setting.
+          Leave empty to fall back to the customiser "Timeline content" field.
+          ═══════════════════════════════════════════════════════════════
+          {%- endcomment -%}
+          {%- capture hardcoded_timeline -%}
+
+          {%- endcapture -%}
+
           {%- assign timeline_content = section.settings.timeline_html -%}
-          {%- if timeline_content != blank -%}
+          {%- if hardcoded_timeline != blank -%}
+            {{ hardcoded_timeline }}
+          {%- elsif timeline_content != blank -%}
             {{ timeline_content }}
           {%- else -%}
-            {%- comment -%} Default example card shown when no custom HTML is set {%- endcomment -%}
+            {%- comment -%} Default example card shown when no content is set {%- endcomment -%}
             <div class="entry full">
               <div class="text">
                 <span class="year">YEAR</span>
                 <div class="title">Your milestone title</div>
-                <p class="desc">Edit the timeline by pasting entry HTML into the Timeline Content field in the theme customiser, or directly in sections/blog-timeline.liquid.</p>
+                <p class="desc">Paste your timeline entries between the capture tags in sections/blog-timeline.liquid, or use the "Timeline content" field in the theme customiser.</p>
               </div>
             </div>
           {%- endif -%}

@@ -1,3 +1,11 @@
+<style>
+  /* Remove the top margin — the section itself provides spacing */
+  .ArticleCommentsSection .Article__Comments,
+  .ArticleCommentsSection .Article__CommentFormWrapper {
+    margin-top: 0;
+  }
+</style>
+
 <div class="ArticleCommentsSection" data-section-id="{{ section.id }}" data-section-type="article-comments">
   <div class="Article__Wrapper">
     {%- if blog.comments_enabled? -%}
