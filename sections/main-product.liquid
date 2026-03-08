@@ -35,7 +35,29 @@
 {%- comment -%} ─── Resolve metafields ─── {%- endcomment -%}
 {%- assign _mf = product.metafields -%}
 {%- comment -%} Shared {%- endcomment -%}
-{%- assign ppv1_colour    = _mf.shopify['color-pattern']   | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
+{%- assign ppv1_colour = '' -%}
+{%- assign _cp_mf = _mf.shopify['color-pattern'] -%}
+{%- if _cp_mf != blank -%}
+  {%- assign _cp_vals = _cp_mf.value -%}
+  {%- assign _cp_size = _cp_vals.size -%}
+  {%- if _cp_size == 1 -%}
+    {%- assign ppv1_colour = _cp_vals[0].label -%}
+  {%- elsif _cp_size == 2 -%}
+    {%- assign ppv1_colour = _cp_vals[0].label | append: ' & ' | append: _cp_vals[1].label -%}
+  {%- else -%}
+    {%- assign _cp_str = '' -%}
+    {%- for _ci in _cp_vals -%}
+      {%- if forloop.first -%}
+        {%- assign _cp_str = _ci.label -%}
+      {%- elsif forloop.last -%}
+        {%- assign _cp_str = _cp_str | append: ' & ' | append: _ci.label -%}
+      {%- else -%}
+        {%- assign _cp_str = _cp_str | append: ', ' | append: _ci.label -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- assign ppv1_colour = _cp_str -%}
+  {%- endif -%}
+{%- endif -%}
 {%- assign ppv1_mat       = _mf.custom.main_material        | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
 {%- if ppv1_mat == blank -%}{%- assign ppv1_mat = _mf.custom.material | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}{%- endif -%}
 {%- assign ppv1_hardware  = _mf.custom.hardware_material    | append: '' | remove: '["' | remove: '"]' | remove: '[' | remove: ']' | remove: '"' | strip -%}
