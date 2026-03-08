@@ -174,10 +174,7 @@
               <label class="Form__FloatingLabel">{{ 'blog.comments.name_placeholder' | t }}</label>
             </div>
 
-            <div class="Form__Item">
-              <input type="email" class="Form__Input" name="comment[email]" placeholder="{{ 'blog.comments.email_placeholder' | t }}" aria-label="{{ 'blog.comments.email_placeholder' | t }}" value="{{ form.email | escape | default: customer.email }}" required="required">
-              <label class="Form__FloatingLabel">{{ 'blog.comments.email_placeholder' | t }}</label>
-            </div>
+            <input type="hidden" name="comment[email]" value="{{ form.email | escape | default: customer.email | default: 'anonymous@found.fashion' }}">
           </div>
 
           <div class="Form__Item">
@@ -281,6 +278,10 @@
     text-align: center;
     margin-bottom: 40px;
   }
+
+  /* ---- Share button hover colours ---- */
+  .ShareButtons__Item--whatsapp:hover { color: #25D366; }
+  .ShareButtons__Item--x:hover { color: #ffffff; background: #000000; border-radius: 4px; padding: 3px; }
 
   /* ---- Wider article content ---- */
   .Article__Wrapper {
