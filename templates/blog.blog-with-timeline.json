@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "main": {
+      "type": "blog-timeline",
+      "settings": {
+        "show_timeline": true,
+        "timeline_heading": "Our Story",
+        "timeline_html": "",
+        "show_articles": true
+      }
+    }
+  },
+  "order": ["main"]
+}
