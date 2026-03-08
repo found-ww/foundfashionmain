@@ -24,6 +24,10 @@
       "type": "article-comments",
       "settings": {}
     },
+    "article-html-embed": {
+      "type": "article-html-embed",
+      "settings": {}
+    },
     "shop-now": {
       "type": "shop-now",
       "settings": {
@@ -39,6 +43,7 @@
   "order": [
     "main",
     "article-comments",
+    "article-html-embed",
     "shop-now"
   ]
 }

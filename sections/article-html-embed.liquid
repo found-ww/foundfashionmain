@@ -1,0 +1,24 @@
+{%- comment -%}
+═══════════════════════════════════════════════════════════════════
+HTML EMBED SECTION
+Paste your <style> block + body HTML between the two capture tags.
+Do NOT include <!DOCTYPE>, <html>, <head>, or <body> wrappers.
+═══════════════════════════════════════════════════════════════════
+{%- endcomment -%}
+
+{%- capture embed_html -%}
+
+{%- endcapture -%}
+
+{%- if embed_html != blank -%}
+  <div class="ArticleHtmlEmbed" data-section-id="{{ section.id }}" data-section-type="article-html-embed">
+    {{- embed_html -}}
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "HTML embed",
+  "settings": []
+}
+{% endschema %}
