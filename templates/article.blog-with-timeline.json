@@ -11,6 +11,7 @@
   "sections": {
     "main": {
       "type": "main-article",
+      "custom_css": [],
       "settings": {
         "show_article_image": true,
         "show_date": false,
@@ -36,7 +37,6 @@
       "disabled": true,
       "settings": {
         "section_size": "small",
-        "image": "shopify://shop_images/Green_Light_Green_Monotone_Human_Resources_Resume_Website_1366_x_768_px.png",
         "text_color": "#ffffff",
         "button_color": "#000000",
         "subheading": "SIGN UP TODAY",
