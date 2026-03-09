@@ -1,23 +1,96 @@
 <style>
-  /* Remove the top margin — the section itself provides spacing */
   .ArticleCommentsSection .Article__Comments,
-  .ArticleCommentsSection .Article__CommentFormWrapper {
-    margin-top: 0;
-  }
-  /* Light grey border around each comment */
+  .ArticleCommentsSection .Article__CommentFormWrapper { margin-top: 0; }
+
+  /* Comment card */
   .ArticleCommentsSection .ArticleComment {
     border: 1px solid #e8e8e8;
     padding: 24px;
     margin-bottom: 12px;
   }
+
+  /* Footer: meta left, actions right */
+  .ArticleComment__Footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .ArticleComment__Actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Vote buttons */
+  .ArticleComment__Votes { display: flex; align-items: center; gap: 6px; }
+  .ArticleComment__VoteBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: 1px solid #e8e8e8;
+    padding: 5px 10px;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    color: #999;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    font-family: inherit;
+  }
+  .ArticleComment__VoteBtn:hover { border-color: #1c1c1c; color: #1c1c1c; }
+  .ArticleComment__VoteBtn--active { border-color: #1c1c1c; color: #1c1c1c; background: #f5f5f5; }
+
+  /* Reply button */
+  .ArticleComment__ReplyBtn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #999;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .ArticleComment__ReplyBtn:hover { color: #1c1c1c; }
+
+  /* Reply indicator banner */
+  .Article__ReplyIndicator {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    background: #f5f5f5;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666;
+  }
+  .Article__ReplyIndicator__Cancel {
+    background: none;
+    border: none;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    font-family: inherit;
+  }
+  .Article__ReplyIndicator__Cancel:hover { color: #1c1c1c; }
 </style>
 
 <div class="ArticleCommentsSection" data-section-id="{{ section.id }}" data-section-type="article-comments">
   <div class="Article__Wrapper">
     {%- if blog.comments_enabled? -%}
+
       <div class="Article__CommentFormWrapper">
         <span class="Anchor" id="comment_form"></span>
-
         <h2 class="Heading u-h1">{{ 'blog.comments.form_title' | t }}</h2>
 
         {%- form 'new_comment', article, class: 'Article__CommentForm Form', id: '' -%}
@@ -47,18 +120,19 @@
 
           <div class="Form__Group">
             <div class="Form__Item">
-              <input type="text" class="Form__Input" name="comment[author]" placeholder="{{ 'blog.comments.name_placeholder' | t }}" aria-label="{{ 'blog.comments.name_placeholder' | t }}" value="{{ form.author | escape | default: customer.name }}" required="required">
+              <input type="text" class="Form__Input" name="comment[author]" placeholder="{{ 'blog.comments.name_placeholder' | t }}" aria-label="{{ 'blog.comments.name_placeholder' | t }}" value="{{ form.author | escape | default: customer.first_name }}" required="required">
               <label class="Form__FloatingLabel">{{ 'blog.comments.name_placeholder' | t }}</label>
             </div>
-
             <input type="hidden" name="comment[email]" value="{{ form.email | escape | default: customer.email | default: 'anonymous@found.fashion' }}">
           </div>
 
-          <div class="Form__Item">
-            <textarea name="comment[body]" rows="6" class="Form__Textarea" placeholder="{{ 'blog.comments.comment_placeholder' | t }}" aria-label="{{ 'blog.comments.comment_placeholder' | t }}" required="required">
-              {{- form.body -}}
-            </textarea>
+          <div class="Article__ReplyIndicator" id="article-reply-indicator">
+            <span id="article-reply-to-name"></span>
+            <button type="button" class="Article__ReplyIndicator__Cancel" id="article-reply-cancel" aria-label="Cancel reply">&times;</button>
+          </div>
 
+          <div class="Form__Item">
+            <textarea name="comment[body]" rows="6" class="Form__Textarea" id="article-comment-body" placeholder="{{ 'blog.comments.comment_placeholder' | t }}" aria-label="{{ 'blog.comments.comment_placeholder' | t }}" required="required">{{- form.body -}}</textarea>
             <label class="Form__FloatingLabel">{{ 'blog.comments.comment_placeholder' | t }}</label>
           </div>
 
@@ -73,20 +147,37 @@
       {%- if article.comments_count > 0 -%}
         <div class="Article__Comments">
           <span class="Anchor" id="comments"></span>
-
           <h2 class="Heading u-h1">Comments</h2>
 
           <div class="Article__CommentList">
             {%- paginate article.comments by 25 -%}
               {%- for comment in article.comments -%}
-                <div class="ArticleComment">
+                <div class="ArticleComment" id="comment-{{ comment.id }}">
                   <div class="ArticleComment__Body Rte">
                     {{ comment.content }}
                   </div>
-
-                  <div class="ArticleComment__Meta Heading Text--subdued u-h8">
-                    <span class="ArticleComment__Author">{{ comment.author }}</span>
-                    <span class="ArticleComment__Date">{{ comment.created_at | date: format: 'month_day_year' }}</span>
+                  <div class="ArticleComment__Footer">
+                    <div class="ArticleComment__Meta Heading Text--subdued u-h8">
+                      <span class="ArticleComment__Author">{{ comment.author }}</span>
+                      <span class="ArticleComment__Date">{{ comment.created_at | date: format: 'month_day_year' }}</span>
+                    </div>
+                    <div class="ArticleComment__Actions">
+                      <div class="ArticleComment__Votes">
+                        <button class="ArticleComment__VoteBtn" data-comment-id="{{ comment.id }}" data-vote="up" type="button" aria-label="Upvote">
+                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2,8 6,4 10,8"/></svg>
+                          <span class="ArticleComment__VoteCount">0</span>
+                        </button>
+                        <button class="ArticleComment__VoteBtn" data-comment-id="{{ comment.id }}" data-vote="down" type="button" aria-label="Downvote">
+                          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2,4 6,8 10,4"/></svg>
+                          <span class="ArticleComment__VoteCount">0</span>
+                        </button>
+                      </div>
+                      {%- if customer -%}
+                        <button class="ArticleComment__ReplyBtn" type="button" data-reply-to="{{ comment.author | split: ' ' | first | escape }}">Reply</button>
+                      {%- else -%}
+                        <a class="ArticleComment__ReplyBtn" href="/account/login?return_url={{ request.path | url_encode }}">Reply</a>
+                      {%- endif -%}
+                    </div>
                   </div>
                 </div>
               {%- endfor -%}
@@ -96,9 +187,89 @@
           </div>
         </div>
       {%- endif -%}
+
     {%- endif -%}
   </div>
 </div>
+
+<script>
+  (function() {
+    var VOTE_KEY = 'ff_cvotes';
+
+    function getVoteData() {
+      try { return JSON.parse(localStorage.getItem(VOTE_KEY) || '{}'); } catch(e) { return {}; }
+    }
+    function saveVoteData(d) {
+      try { localStorage.setItem(VOTE_KEY, JSON.stringify(d)); } catch(e) {}
+    }
+
+    /* ---- Initialise vote counts from localStorage ---- */
+    var voteData = getVoteData();
+    document.querySelectorAll('.ArticleComment__VoteBtn').forEach(function(btn) {
+      var cid   = btn.getAttribute('data-comment-id');
+      var type  = btn.getAttribute('data-vote');
+      var cdata = voteData[cid] || { up: 0, down: 0, userVote: null };
+      var countEl = btn.querySelector('.ArticleComment__VoteCount');
+      if (countEl) countEl.textContent = cdata[type] || 0;
+      if (cdata.userVote === type) btn.classList.add('ArticleComment__VoteBtn--active');
+
+      btn.addEventListener('click', function() {
+        var data  = getVoteData();
+        if (!data[cid]) data[cid] = { up: 0, down: 0, userVote: null };
+        var prev  = data[cid].userVote;
+
+        if (prev === type) {
+          /* Toggle off */
+          data[cid][type] = Math.max(0, (data[cid][type] || 0) - 1);
+          data[cid].userVote = null;
+        } else {
+          /* Remove previous vote */
+          if (prev) {
+            data[cid][prev] = Math.max(0, (data[cid][prev] || 0) - 1);
+            var prevBtn = document.querySelector('.ArticleComment__VoteBtn[data-comment-id="' + cid + '"][data-vote="' + prev + '"]');
+            if (prevBtn) {
+              prevBtn.classList.remove('ArticleComment__VoteBtn--active');
+              var prevCount = prevBtn.querySelector('.ArticleComment__VoteCount');
+              if (prevCount) prevCount.textContent = data[cid][prev];
+            }
+          }
+          /* Add new vote */
+          data[cid][type] = (data[cid][type] || 0) + 1;
+          data[cid].userVote = type;
+        }
+
+        saveVoteData(data);
+        if (countEl) countEl.textContent = data[cid][type];
+        btn.classList.toggle('ArticleComment__VoteBtn--active', data[cid].userVote === type);
+      });
+    });
+
+    /* ---- Reply buttons ---- */
+    var indicator   = document.getElementById('article-reply-indicator');
+    var replyToName = document.getElementById('article-reply-to-name');
+    var cancelBtn   = document.getElementById('article-reply-cancel');
+    var formAnchor  = document.getElementById('comment_form');
+    var textarea    = document.getElementById('article-comment-body');
+
+    document.querySelectorAll('.ArticleComment__ReplyBtn[data-reply-to]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var name = btn.getAttribute('data-reply-to');
+        if (textarea) textarea.value = '@' + name + ': ';
+        if (replyToName) replyToName.textContent = 'Replying to @' + name;
+        if (indicator)  indicator.style.display = 'flex';
+        if (formAnchor) formAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(function() { if (textarea) { textarea.focus(); textarea.setSelectionRange(textarea.value.length, textarea.value.length); } }, 400);
+      });
+    });
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function() {
+        if (indicator) indicator.style.display = 'none';
+        if (textarea)  textarea.value = '';
+      });
+    }
+  })();
+</script>
 
 {% schema %}
 {
