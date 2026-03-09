@@ -88,11 +88,20 @@
         {%- endif -%}
 
         {%- if section.settings.show_share_buttons -%}
-          <div class="Article__ShareButtons ShareButtons">
-            <a class="ShareButtons__Item ShareButtons__Item--instagram" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener">{%- render 'icon' with 'instagram' -%}</a>
-            <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener">{%- render 'icon' with 'whatsapp' -%}</a>
-            <a class="ShareButtons__Item ShareButtons__Item--facebook" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'facebook' -%}</a>
-            <a class="ShareButtons__Item ShareButtons__Item--x" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'x' -%}</a>
+          <div class="Article__ShareSection">
+            <p class="Article__ShareCaption">Share this story</p>
+            <div class="Article__ShareRow">
+              <button class="Article__CopyLinkBtn" id="article-copy-link" type="button" data-url="{{ share_url | escape }}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+                <span id="article-copy-label">Copy link</span>
+              </button>
+              <div class="Article__ShareIcons">
+                <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-share-btn>{%- render 'icon' with 'whatsapp' -%}</a>
+                <a class="ShareButtons__Item ShareButtons__Item--facebook" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" data-share-btn>{%- render 'icon' with 'facebook' -%}</a>
+                <a class="ShareButtons__Item ShareButtons__Item--x" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" data-share-btn>{%- render 'icon' with 'x' -%}</a>
+              </div>
+            </div>
+            <p class="Article__ShareCount"><span id="article-share-count">0</span> shares</p>
           </div>
         {%- endif -%}
       {%- endcapture -%}
@@ -138,10 +147,7 @@
 
 <style>
   /* ---- Pin ArticleToolbar to the true left viewport edge ---- */
-  .ArticleToolbar {
-    left: 0;
-    right: 0;
-  }
+  .ArticleToolbar { left: 0; right: 0; }
 
   /* ---- Reading progress bar ---- */
   .Article__ProgressBar {
@@ -156,68 +162,217 @@
     transition: width 0.1s linear;
   }
 
-  /* ---- Related articles ---- */
-  .ArticleRelated {
-    padding: 60px 0;
-    border-top: 1px solid #e8e8e8;
-  }
-  .ArticleRelated__Heading {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-
   /* ---- Share button hover colours ---- */
   .ShareButtons__Item--whatsapp:hover { background: #25D366; color: #ffffff; border-color: #25D366; outline: 1.5px solid #25D366; }
   .ShareButtons__Item--x:hover { color: #ffffff; background: #000000; border-color: #000000; outline: 1.5px solid #000000; }
   .ShareButtons__Item--instagram:hover { background: #e1306c; color: #ffffff; border-color: #e1306c; outline: 1.5px solid #e1306c; }
 
-  /* ---- Wider article content, no bottom gap after share buttons ---- */
-  .Article__Wrapper {
-    max-width: 720px;
-    margin-bottom: 0;
-  }
-
-  @media screen and (min-width: 641px) {
-    .Article__Wrapper {
-      margin-bottom: 0;
-    }
-  }
-
-  @media screen and (min-width: 1008px) {
-    .Article__Wrapper {
-      max-width: 960px;
-      margin-bottom: 0;
-    }
-  }
+  /* ---- Wider article content ---- */
+  .Article__Wrapper { max-width: 720px; margin-bottom: 0; }
+  @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
+  @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: 960px; margin-bottom: 0; } }
 
   /* ---- New badge ---- */
   .ArticleItem__ImageWrapper { position: relative; }
   .ArticleItem__NewBadge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: #1c1c1c;
-    color: #fff;
-    font-size: 10px;
-    letter-spacing: 0.15em;
+    position: absolute; top: 12px; left: 12px;
+    background: #1c1c1c; color: #fff;
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 5px 10px; z-index: 1; pointer-events: none;
+  }
+
+  /* ---- Share This Story section ---- */
+  .Article__ShareSection {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid #e8e8e8;
+    text-align: center;
+  }
+  .Article__ShareCaption {
+    font-size: 11px;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    padding: 5px 10px;
-    z-index: 1;
-    pointer-events: none;
+    color: #999;
+    margin-bottom: 20px;
+  }
+  .Article__ShareRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .Article__CopyLinkBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid #1c1c1c;
+    background: transparent;
+    color: #1c1c1c;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-family: inherit;
+  }
+  .Article__CopyLinkBtn:hover,
+  .Article__CopyLinkBtn--copied { background: #1c1c1c; color: #fff; }
+  .Article__ShareIcons { display: flex; align-items: center; gap: 8px; }
+  .Article__ShareCount {
+    margin-top: 16px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #bbb;
+  }
+
+  /* ---- Pull quote / blockquote ---- */
+  .Article__Body blockquote {
+    margin: 56px auto;
+    max-width: 680px;
+    padding: 36px 0;
+    border-top: 1px solid #1c1c1c;
+    border-bottom: 1px solid #1c1c1c;
+    text-align: center;
+  }
+  .Article__Body blockquote::before {
+    content: '\201C';
+    display: block;
+    font-size: 72px;
+    line-height: 0.5;
+    margin-bottom: 20px;
+    color: #1c1c1c;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: normal;
+    opacity: 0.3;
+  }
+  .Article__Body blockquote,
+  .Article__Body blockquote p {
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-style: italic;
+    line-height: 1.65;
+    color: #1c1c1c;
+    letter-spacing: 0.01em;
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+
+  /* ---- Parallax image wrapper ---- */
+  .Article__ParallaxWrap {
+    overflow: hidden;
+    display: block;
+    line-height: 0;
+  }
+  .Article__ParallaxWrap img {
+    width: 100%;
+    display: block;
+    will-change: transform;
   }
 </style>
 
 <script>
   (function() {
-    var bar = document.getElementById('article-progress-bar');
-    if (!bar) return;
-    function update() {
-      var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.width = (docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0) + '%';
+
+    /* ---- Progress bar: tracks article content, not full page ---- */
+    var bar     = document.getElementById('article-progress-bar');
+    var content = document.querySelector('.Article__Content');
+    if (bar) {
+      function updateBar() {
+        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        var pct = 0;
+        if (content) {
+          var contentTop = content.getBoundingClientRect().top + scrollTop;
+          var scrollable = content.offsetHeight - window.innerHeight;
+          if (scrollable > 0) {
+            pct = Math.min(100, Math.max(0, (scrollTop - contentTop) / scrollable * 100));
+          } else {
+            pct = scrollTop >= contentTop ? 100 : 0;
+          }
+        } else {
+          var docH = document.documentElement.scrollHeight - window.innerHeight;
+          pct = docH > 0 ? Math.min(100, (scrollTop / docH) * 100) : 0;
+        }
+        bar.style.width = pct + '%';
+      }
+      window.addEventListener('scroll', updateBar, { passive: true });
+      updateBar();
     }
-    window.addEventListener('scroll', update, { passive: true });
-    update();
+
+    /* ---- Share count (localStorage per article URL) ---- */
+    var SHARE_KEY  = 'ff_shares';
+    var articleUrl = window.location.pathname;
+    function getCount() {
+      try { return (JSON.parse(localStorage.getItem(SHARE_KEY) || '{}')[articleUrl]) || 0; } catch(e) { return 0; }
+    }
+    function incrementCount() {
+      try {
+        var data = JSON.parse(localStorage.getItem(SHARE_KEY) || '{}');
+        data[articleUrl] = (data[articleUrl] || 0) + 1;
+        localStorage.setItem(SHARE_KEY, JSON.stringify(data));
+        return data[articleUrl];
+      } catch(e) { return 0; }
+    }
+    function updateCountEl(n) {
+      var el = document.getElementById('article-share-count');
+      if (el) el.textContent = n;
+    }
+    updateCountEl(getCount());
+    document.querySelectorAll('[data-share-btn]').forEach(function(btn) {
+      btn.addEventListener('click', function() { updateCountEl(incrementCount()); });
+    });
+
+    /* ---- Copy link button ---- */
+    var copyBtn   = document.getElementById('article-copy-link');
+    var copyLabel = document.getElementById('article-copy-label');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function() {
+        var url = copyBtn.getAttribute('data-url') || window.location.href;
+        function onCopied() {
+          copyLabel.textContent = 'Copied!';
+          copyBtn.classList.add('Article__CopyLinkBtn--copied');
+          updateCountEl(incrementCount());
+          setTimeout(function() {
+            copyLabel.textContent = 'Copy link';
+            copyBtn.classList.remove('Article__CopyLinkBtn--copied');
+          }, 2000);
+        }
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(onCopied);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = url; ta.style.cssText = 'position:fixed;opacity:0';
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+          document.body.removeChild(ta); onCopied();
+        }
+      });
+    }
+
+    /* ---- Parallax images ---- */
+    var bodyEl = document.querySelector('.Article__Body');
+    if (bodyEl) {
+      bodyEl.querySelectorAll('img').forEach(function(img) {
+        if (img.closest('.Article__ParallaxWrap')) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'Article__ParallaxWrap';
+        img.parentNode.insertBefore(wrap, img);
+        wrap.appendChild(img);
+      });
+      var wraps = bodyEl.querySelectorAll('.Article__ParallaxWrap');
+      function updateParallax() {
+        var viewH = window.innerHeight;
+        wraps.forEach(function(wrap) {
+          var rect = wrap.getBoundingClientRect();
+          if (rect.bottom < -100 || rect.top > viewH + 100) return;
+          var progress = (viewH / 2 - (rect.top + rect.height / 2)) / viewH;
+          var img = wrap.querySelector('img');
+          if (img) img.style.transform = 'translateY(' + (progress * 35) + 'px) scale(1.07)';
+        });
+      }
+      window.addEventListener('scroll', updateParallax, { passive: true });
+      updateParallax();
+    }
+
   })();
 </script>
 
