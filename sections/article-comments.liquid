@@ -4,6 +4,12 @@
   .ArticleCommentsSection .Article__CommentFormWrapper {
     margin-top: 0;
   }
+  /* Light grey border around each comment */
+  .ArticleCommentsSection .ArticleComment {
+    border: 1px solid #e8e8e8;
+    padding: 24px;
+    margin-bottom: 12px;
+  }
 </style>
 
 <div class="ArticleCommentsSection" data-section-id="{{ section.id }}" data-section-type="article-comments">
@@ -68,7 +74,7 @@
         <div class="Article__Comments">
           <span class="Anchor" id="comments"></span>
 
-          <h2 class="Heading u-h1">{{ 'blog.article.comments_count' | t: count: article.comments_count }}</h2>
+          <h2 class="Heading u-h1">Comments</h2>
 
           <div class="Article__CommentList">
             {%- paginate article.comments by 25 -%}

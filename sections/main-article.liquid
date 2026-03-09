@@ -89,7 +89,10 @@
 
         {%- if section.settings.show_share_buttons -%}
           <div class="Article__ShareSection">
-            <p class="Article__ShareCaption">Share this story</p>
+            <div class="Article__ShareHeader">
+              <span class="Article__ShareCaption">Share this story</span>
+              <span class="Article__ShareCount"><span id="article-share-count">0</span> shares</span>
+            </div>
             <div class="Article__ShareRow">
               <a class="ShareButtons__Item ShareButtons__Item--instagram" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on Instagram">{%- render 'icon' with 'instagram' -%}</a>
               <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on WhatsApp">{%- render 'icon' with 'whatsapp' -%}</a>
@@ -99,7 +102,6 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
                 <span id="article-copy-label">Copy link</span>
               </button>
-              <span class="Article__ShareCount"><span id="article-share-count">0</span> shares</span>
             </div>
           </div>
         {%- endif -%}
@@ -197,12 +199,32 @@
     height: 1px;
     background: #e8e8e8;
   }
-  .Article__ShareCaption {
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #999;
+  .Article__ShareHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 14px;
+  }
+  /* Caption styled like a share button — same border/height */
+  .Article__ShareCaption {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid #1c1c1c;
+    box-sizing: border-box;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    white-space: nowrap;
+  }
+  .Article__ShareCount {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #bbb;
+    white-space: nowrap;
   }
   .Article__ShareRow {
     display: flex;
@@ -236,14 +258,6 @@
   }
   .Article__CopyLinkBtn:hover,
   .Article__CopyLinkBtn--copied { background: #1c1c1c; color: #fff; }
-  .Article__ShareCount {
-    margin-left: auto;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #bbb;
-    white-space: nowrap;
-  }
 
   /* ---- Pull quote / blockquote ---- */
   .Article__Body blockquote {
