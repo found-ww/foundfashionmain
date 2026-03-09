@@ -2,6 +2,11 @@
   .ArticleCommentsSection .Article__Comments,
   .ArticleCommentsSection .Article__CommentFormWrapper { margin-top: 0; }
 
+  /* Reduce gap between Post Comment button and Comments heading */
+  .ArticleCommentsSection .Article__CommentFormWrapper { margin-bottom: 8px !important; }
+  .ArticleCommentsSection .Article__Comments { margin-top: 8px !important; }
+  .ArticleCommentsSection .Form__Submit { margin-bottom: 0; }
+
   /* Comment card */
   .ArticleCommentsSection .ArticleComment {
     border: 1px solid #e8e8e8;
@@ -18,11 +23,7 @@
     flex-wrap: wrap;
     gap: 12px;
   }
-  .ArticleComment__Actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
+  .ArticleComment__Actions { display: flex; align-items: center; gap: 12px; }
 
   /* Vote buttons */
   .ArticleComment__Votes { display: flex; align-items: center; gap: 6px; }
@@ -83,7 +84,76 @@
     font-family: inherit;
   }
   .Article__ReplyIndicator__Cancel:hover { color: #1c1c1c; }
+
+  /* Login modal */
+  .ArticleLoginModal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ArticleLoginModal__Overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .ArticleLoginModal__Box {
+    position: relative;
+    background: #fff;
+    padding: 48px 40px 40px;
+    max-width: 360px;
+    width: calc(100% - 40px);
+    text-align: center;
+    z-index: 1;
+  }
+  .ArticleLoginModal__Close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+  }
+  .ArticleLoginModal__Close:hover { color: #1c1c1c; }
+  .ArticleLoginModal__Title {
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    margin-bottom: 10px;
+  }
+  .ArticleLoginModal__Subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .ArticleLoginModal__Btn {
+    display: inline-block;
+    min-width: 140px;
+  }
 </style>
+
+{%- comment -%} Login modal (rendered once, shown on demand) {%- endcomment -%}
+<div class="ArticleLoginModal" id="article-login-modal" style="display:none" aria-modal="true" role="dialog">
+  <div class="ArticleLoginModal__Overlay" id="article-login-overlay"></div>
+  <div class="ArticleLoginModal__Box">
+    <button class="ArticleLoginModal__Close" id="article-login-close" type="button" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><line x1="2" y1="2" x2="14" y2="14"/><line x1="14" y1="2" x2="2" y2="14"/></svg>
+    </button>
+    <p class="ArticleLoginModal__Title">Login to reply</p>
+    <p class="ArticleLoginModal__Subtitle">You need to be logged in to reply to a comment.</p>
+    <a class="ArticleLoginModal__Btn Button Button--primary" href="/account/login?return_url={{ request.path | url_encode }}">Login</a>
+  </div>
+</div>
 
 <div class="ArticleCommentsSection" data-section-id="{{ section.id }}" data-section-type="article-comments">
   <div class="Article__Wrapper">
@@ -175,7 +245,7 @@
                       {%- if customer -%}
                         <button class="ArticleComment__ReplyBtn" type="button" data-reply-to="{{ comment.author | split: ' ' | first | escape }}">Reply</button>
                       {%- else -%}
-                        <a class="ArticleComment__ReplyBtn" href="/account/login?return_url={{ request.path | url_encode }}">Reply</a>
+                        <button class="ArticleComment__ReplyBtn ArticleComment__ReplyBtn--needs-login" type="button">Reply</button>
                       {%- endif -%}
                     </div>
                   </div>
@@ -203,48 +273,43 @@
       try { localStorage.setItem(VOTE_KEY, JSON.stringify(d)); } catch(e) {}
     }
 
-    /* ---- Initialise vote counts from localStorage ---- */
+    /* ---- Vote counts ---- */
     var voteData = getVoteData();
     document.querySelectorAll('.ArticleComment__VoteBtn').forEach(function(btn) {
-      var cid   = btn.getAttribute('data-comment-id');
-      var type  = btn.getAttribute('data-vote');
-      var cdata = voteData[cid] || { up: 0, down: 0, userVote: null };
+      var cid    = btn.getAttribute('data-comment-id');
+      var type   = btn.getAttribute('data-vote');
+      var cdata  = voteData[cid] || { up: 0, down: 0, userVote: null };
       var countEl = btn.querySelector('.ArticleComment__VoteCount');
       if (countEl) countEl.textContent = cdata[type] || 0;
       if (cdata.userVote === type) btn.classList.add('ArticleComment__VoteBtn--active');
 
       btn.addEventListener('click', function() {
-        var data  = getVoteData();
+        var data = getVoteData();
         if (!data[cid]) data[cid] = { up: 0, down: 0, userVote: null };
-        var prev  = data[cid].userVote;
-
+        var prev = data[cid].userVote;
         if (prev === type) {
-          /* Toggle off */
           data[cid][type] = Math.max(0, (data[cid][type] || 0) - 1);
           data[cid].userVote = null;
         } else {
-          /* Remove previous vote */
           if (prev) {
             data[cid][prev] = Math.max(0, (data[cid][prev] || 0) - 1);
             var prevBtn = document.querySelector('.ArticleComment__VoteBtn[data-comment-id="' + cid + '"][data-vote="' + prev + '"]');
             if (prevBtn) {
               prevBtn.classList.remove('ArticleComment__VoteBtn--active');
-              var prevCount = prevBtn.querySelector('.ArticleComment__VoteCount');
-              if (prevCount) prevCount.textContent = data[cid][prev];
+              var pc = prevBtn.querySelector('.ArticleComment__VoteCount');
+              if (pc) pc.textContent = data[cid][prev];
             }
           }
-          /* Add new vote */
           data[cid][type] = (data[cid][type] || 0) + 1;
           data[cid].userVote = type;
         }
-
         saveVoteData(data);
         if (countEl) countEl.textContent = data[cid][type];
         btn.classList.toggle('ArticleComment__VoteBtn--active', data[cid].userVote === type);
       });
     });
 
-    /* ---- Reply buttons ---- */
+    /* ---- Reply (logged in) ---- */
     var indicator   = document.getElementById('article-reply-indicator');
     var replyToName = document.getElementById('article-reply-to-name');
     var cancelBtn   = document.getElementById('article-reply-cancel');
@@ -258,7 +323,9 @@
         if (replyToName) replyToName.textContent = 'Replying to @' + name;
         if (indicator)  indicator.style.display = 'flex';
         if (formAnchor) formAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        setTimeout(function() { if (textarea) { textarea.focus(); textarea.setSelectionRange(textarea.value.length, textarea.value.length); } }, 400);
+        setTimeout(function() {
+          if (textarea) { textarea.focus(); textarea.setSelectionRange(textarea.value.length, textarea.value.length); }
+        }, 400);
       });
     });
 
@@ -268,6 +335,21 @@
         if (textarea)  textarea.value = '';
       });
     }
+
+    /* ---- Login modal (not-logged-in reply) ---- */
+    var modal    = document.getElementById('article-login-modal');
+    var overlay  = document.getElementById('article-login-overlay');
+    var closeBtn = document.getElementById('article-login-close');
+
+    function openModal()  { if (modal) modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    function closeModal() { if (modal) modal.style.display = 'none';  document.body.style.overflow = ''; }
+
+    document.querySelectorAll('.ArticleComment__ReplyBtn--needs-login').forEach(function(btn) {
+      btn.addEventListener('click', openModal);
+    });
+    if (overlay)  overlay.addEventListener('click', closeModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
   })();
 </script>
 
