@@ -140,6 +140,42 @@
     display: inline-block;
     min-width: 140px;
   }
+
+  /* Comments header with sort */
+  .Article__CommentsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .Article__CommentsHeader .Heading { margin-bottom: 0; }
+  .Article__SortWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+  .Article__SortSelect {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #fff;
+    border: 1px solid #e5e0da;
+    padding: 7px 28px 7px 12px;
+    font-family: inherit;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .Article__SortSelect:hover { border-color: #b5ada5; color: #1c1c1c; }
+  .Article__SortArrow {
+    position: absolute;
+    right: 10px;
+    pointer-events: none;
+    color: #b5ada5;
+  }
 </style>
 
 {%- comment -%} Login modal (rendered once, shown on demand) {%- endcomment -%}
@@ -217,12 +253,23 @@
       {%- if article.comments_count > 0 -%}
         <div class="Article__Comments">
           <span class="Anchor" id="comments"></span>
-          <h2 class="Heading u-h1">Comments</h2>
 
-          <div class="Article__CommentList">
+          <div class="Article__CommentsHeader">
+            <h2 class="Heading u-h1">Comments</h2>
+            <div class="Article__SortWrap">
+              <select class="Article__SortSelect" id="article-comment-sort" aria-label="Sort comments">
+                <option value="top">Top rated</option>
+                <option value="recent">Most recent</option>
+                <option value="oldest">Oldest first</option>
+              </select>
+              <svg class="Article__SortArrow" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="2,3 5,7 8,3"/></svg>
+            </div>
+          </div>
+
+          <div class="Article__CommentList" id="article-comment-list">
             {%- paginate article.comments by 25 -%}
               {%- for comment in article.comments -%}
-                <div class="ArticleComment" id="comment-{{ comment.id }}">
+                <div class="ArticleComment" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}" data-timestamp="{{ comment.created_at | date: '%s' }}">
                   <div class="ArticleComment__Body Rte">
                     {{ comment.content }}
                   </div>
@@ -334,6 +381,34 @@
         if (indicator) indicator.style.display = 'none';
         if (textarea)  textarea.value = '';
       });
+    }
+
+    /* ---- Sort comments ---- */
+    var sortSelect = document.getElementById('article-comment-sort');
+    var commentList = document.getElementById('article-comment-list');
+
+    function getNetVotes(cid) {
+      var d = getVoteData()[cid];
+      return d ? (d.up || 0) - (d.down || 0) : 0;
+    }
+
+    function sortComments(mode) {
+      if (!commentList) return;
+      var cards = Array.prototype.slice.call(commentList.querySelectorAll('.ArticleComment'));
+      cards.sort(function(a, b) {
+        if (mode === 'top') {
+          return getNetVotes(b.getAttribute('data-comment-id')) - getNetVotes(a.getAttribute('data-comment-id'));
+        } else if (mode === 'recent') {
+          return parseInt(b.getAttribute('data-timestamp'), 10) - parseInt(a.getAttribute('data-timestamp'), 10);
+        } else { /* oldest */
+          return parseInt(a.getAttribute('data-timestamp'), 10) - parseInt(b.getAttribute('data-timestamp'), 10);
+        }
+      });
+      cards.forEach(function(card) { commentList.appendChild(card); });
+    }
+
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function() { sortComments(this.value); });
     }
 
     /* ---- Login modal (not-logged-in reply) ---- */
