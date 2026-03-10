@@ -25,6 +25,40 @@
   }
   .ArticleComment__Actions { display: flex; align-items: center; gap: 12px; }
 
+  /* Section headings: Leave a comment + Comments */
+  .ArticleCommentsSection .Heading.u-h1 {
+    font-size: 12px !important;
+    letter-spacing: 0.2em !important;
+    font-weight: 400 !important;
+    text-transform: uppercase;
+  }
+
+  /* Comment body text */
+  .ArticleComment__Body.Rte,
+  .ArticleComment__Body.Rte p {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  /* Comment meta: name · date */
+  .ArticleComment__Meta {
+    font-size: 10px !important;
+    letter-spacing: 0.12em !important;
+  }
+
+  /* Form inputs */
+  .ArticleCommentsSection .Form__Input,
+  .ArticleCommentsSection .Form__Textarea {
+    font-size: 16px;
+  }
+
+  /* Post comment button */
+  .ArticleCommentsSection .Form__Submit {
+    font-size: 11px !important;
+    letter-spacing: 0.14em !important;
+    font-weight: 500 !important;
+  }
+
   /* Vote buttons */
   .ArticleComment__Votes { display: flex; align-items: center; gap: 6px; }
   .ArticleComment__VoteBtn {
@@ -50,7 +84,7 @@
     border: none;
     padding: 0;
     font-size: 11px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #9a8f86;
     cursor: pointer;
