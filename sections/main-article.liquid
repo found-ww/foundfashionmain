@@ -184,25 +184,16 @@
 
   /* ---- Share This Story section ---- */
   .Article__ShareSection {
-    position: relative;
     margin-top: 48px;
     padding-top: 24px;
-  }
-  /* Full-width rule across the entire article wrapper */
-  .Article__ShareSection::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100vw;
-    height: 1px;
-    background: #e5e0da;
+    border-top: 1px solid #e5e0da;
   }
   .Article__ShareHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100%;
     margin-bottom: 14px;
   }
   .Article__ShareCaption {
