@@ -3,7 +3,12 @@
   shop-login-button,
   .shop-login-button,
   #shop-js-login,
-  .shopify-identity-wallet-button-container { display: none !important; }
+  .shopify-identity-wallet-button-container,
+  .p-shop-login,
+  [class*="p-shop-login"],
+  button:has(.p-shop-login),
+  button:has([class*="p-shop"]),
+  div:has(> button > [class*="p-shop"]) { display: none !important; }
 
   .AuthPage {
     display: flex;
