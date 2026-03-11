@@ -366,8 +366,6 @@
   <div class="ContactPage__Form">
     <div class="ContactPage__FormInner">
 
-      <h1 class="ContactForm__Title">{{ page.title }}</h1>
-
       {%- form 'contact', class: 'ContactForm' -%}
 
         {%- if form.posted_successfully? -%}
@@ -383,6 +381,8 @@
           </div>
 
         {%- else -%}
+
+          <h1 class="ContactForm__Title">{{ page.title }}</h1>
 
           {%- if form.errors -%}
             <div class="ContactForm__Alert ContactForm__Alert--error">
