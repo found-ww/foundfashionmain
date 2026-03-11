@@ -4,6 +4,64 @@
 {%- assign pinterest_description = article.description | strip_html | truncatewords: 15 | url_param_escape -%}
 {%- assign pinterest_image = article.image | img_url: '750x' | prepend: 'https:' -%}
 
+<style>
+  .ppv1-breadcrumb {
+    padding: 14px 24px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    border-bottom: 1px solid #ede8e2;
+  }
+  .ppv1-breadcrumb__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .ppv1-breadcrumb__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ppv1-breadcrumb__item + .ppv1-breadcrumb__item::before {
+    content: '/';
+    color: #c8c0b8;
+  }
+  .ppv1-breadcrumb__link {
+    color: #9a8f86;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .ppv1-breadcrumb__link:hover { color: #1c1c1c; }
+  .ppv1-breadcrumb__current { color: #1c1c1c; }
+</style>
+
+<nav class="ppv1-breadcrumb" aria-label="Breadcrumb">
+  <ol class="ppv1-breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+    <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a class="ppv1-breadcrumb__link" href="{{ routes.root_url }}" itemprop="item">
+        <span itemprop="name">{{ 'general.breadcrumb.home' | t }}</span>
+      </a>
+      <meta itemprop="position" content="1">
+    </li>
+    <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a class="ppv1-breadcrumb__link" href="{{ blog.url }}" itemprop="item">
+        <span itemprop="name">{{ blog.title }}</span>
+      </a>
+      <meta itemprop="position" content="2">
+    </li>
+    <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <span class="ppv1-breadcrumb__current" itemprop="name">{{ article.title }}</span>
+      <meta itemprop="item" content="{{ shop.url }}{{ article.url }}">
+      <meta itemprop="position" content="3">
+    </li>
+  </ol>
+</nav>
+
 <article class="Article" data-section-id="{{ section.id }}" data-section-type="article">
   <div class="Article__ProgressBar" id="article-progress-bar"></div>
 
@@ -48,11 +106,16 @@
   </aside>
 
   {%- if article.image and section.settings.show_article_image -%}
-    <div class="Article__ImageWrapper" style="background-image: url({{ article.image | img_url: '1x1' }})">
-      <div class="Article__Image Image--lazyLoad Image--fadeIn"
-           data-optimumx="1.4"
-           data-bgset="{{ article.image | img_url: '400x' }} 400w, {{ article.image | img_url: '600x' }} 600w, {{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1400x' }} 1400w, {{ article.image | img_url: '1600x' }} 1600w">
-      </div>
+    <div class="Article__ImageWrapper">
+      <img class="Article__Image"
+           src="{{ article.image | img_url: '1200x' }}"
+           srcset="{{ article.image | img_url: '400x' }} 400w, {{ article.image | img_url: '600x' }} 600w, {{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1400x' }} 1400w, {{ article.image | img_url: '1600x' }} 1600w"
+           sizes="100vw"
+           width="{{ article.image.width }}"
+           height="{{ article.image.height }}"
+           loading="eager"
+           fetchpriority="high"
+           alt="{{ article.image.alt | default: article.title | escape }}">
     </div>
   {%- endif -%}
 

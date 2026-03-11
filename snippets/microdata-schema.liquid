@@ -307,27 +307,29 @@ or change the format of some info
 {%- elsif request.page_type == 'article' -%}
   {%- capture main_entity_microdata -%}
     "@type": "BlogPosting",
-    "mainEntityOfPage": "{{ article.url }}",
+    "mainEntityOfPage": "{{ shop.url }}{{ article.url }}",
     "articleSection": {{ blog.title | json }},
     "keywords": "{{ article.tags | join: ', ' }}",
     "headline": {{ article.title | json }},
     "description": {{ article.excerpt_or_content | strip_html | truncatewords: 25 | json }},
+    "wordCount": {{ article.content | strip_html | split: ' ' | size }},
     "dateCreated": "{{ article.created_at | date: '%Y-%m-%dT%T' }}",
     "datePublished": "{{ article.published_at | date: '%Y-%m-%dT%T' }}",
-    "dateModified": "{{ article.published_at | date: '%Y-%m-%dT%T' }}",
+    "dateModified": "{{ article.updated_at | default: article.published_at | date: '%Y-%m-%dT%T' }}",
+    {%- if article.image -%}
     "image": {
       "@type": "ImageObject",
       "url": "https:{{ article.image | img_url: '1024x' }}",
-      "image": "https:{{ article.image | img_url: '1024x' }}",
-      "name": {{ article.image.alt | json }},
+      "name": {{ article.image.alt | default: article.title | json }},
       "width": "1024",
       "height": "1024"
     },
+    {%- endif -%}
+    {%- assign _author_name = article.user.first_name | append: ' ' | append: article.user.last_name | strip -%}
+    {%- if _author_name == blank -%}{%- assign _author_name = article.author -%}{%- endif -%}
     "author": {
       "@type": "Person",
-      "name": "{{ article.user.first_name | escape }} {{ article.user.last_name | escape }}",
-      "givenName": {{ article.user.first_name | json }},
-      "familyName": {{ article.user.last_name | json }}
+      "name": {{ _author_name | json }}
     },
     "publisher": {
       "@type": "Organization",
@@ -400,7 +402,7 @@ or change the format of some info
         }, {
           "@type": "ListItem",
           "position": 3,
-          "name": {{ blog.title | json }},
+          "name": {{ article.title | json }},
           "item": "{{ shop.url }}{{ article.url }}"
         }
     {%- elsif request.page_type == 'page' -%}

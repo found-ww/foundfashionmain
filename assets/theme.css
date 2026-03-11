@@ -6088,20 +6088,11 @@ body:not(.features--show-image-zooming) .Image--lazyLoaded.Image--zoomOut {
 }
 
 .Article__Image {
-  position: relative;
-  height: 100%;
+  display: block;
   width: 100%;
-  background-size: cover;
-  background-position: center;
-}
-
-@supports (--css: variables) {
-  .Article__Image {
-    height: calc(100% + 0px);
-    height: calc(100% + var(--announcement-bar-height, 0px));
-    top: calc(-1 * 0px);
-    top: calc(-1 * var(--announcement-bar-height, 0px));
-  }
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .Article__Wrapper {

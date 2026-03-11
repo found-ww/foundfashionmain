@@ -64,6 +64,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     {%- if request.page_type == 'product' and product.featured_media -%}
       <link rel="preload" as="image" href="{{ product.featured_media | img_url: '800x' }}" fetchpriority="high">
     {%- endif -%}
+    {%- if request.page_type == 'article' and article.image -%}
+      <link rel="preload" as="image" href="{{ article.image | img_url: '1200x' }}" fetchpriority="high">
+    {%- endif -%}
 
     {%- if settings.favicon -%}
       <link rel="shortcut icon" href="{{ settings.favicon | img_url: '96x' }}" type="image/png">
