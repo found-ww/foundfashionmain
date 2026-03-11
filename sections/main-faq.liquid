@@ -38,6 +38,17 @@
   </div>
 {%- endcapture -%}
 
+<style>
+  [data-section-id="{{ section.id }}"] .PageLayout__Section--secondary {
+    max-width: 140px !important;
+    min-width: 140px !important;
+    flex-basis: 140px !important;
+  }
+  [data-section-id="{{ section.id }}"] .PageLayout__Section + .PageLayout__Section {
+    margin-left: 40px !important;
+  }
+</style>
+
 <section data-section-type="faq" data-section-id="{{ section.id }}">
   <div class="Container">
     <div class="PageContent {% unless has_section_separator %}PageContent--narrow{% endunless %}">
