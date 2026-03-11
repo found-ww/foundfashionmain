@@ -61,6 +61,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <link rel="canonical" href="{{ canonical_url }}">
 
+    {%- if request.page_type == 'product' and product.featured_media -%}
+      <link rel="preload" as="image" href="{{ product.featured_media | img_url: '800x' }}" fetchpriority="high">
+    {%- endif -%}
+
     {%- if settings.favicon -%}
       <link rel="shortcut icon" href="{{ settings.favicon | img_url: '96x' }}" type="image/png">
     {%- endif -%}
