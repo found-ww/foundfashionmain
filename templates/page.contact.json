@@ -22,6 +22,9 @@
         "press_email": "press@found-fashion.com",
         "whatsapp": "+85264954710",
         "hours": "Monday – Friday, 9am – 5.30pm",
+        "instagram_url": "",
+        "tiktok_url": "",
+        "facebook_url": "",
         "response_note": "We typically respond within 24 hours."
       }
     },
@@ -73,6 +76,7 @@
         "collection_An8QKe",
         "collection_mTrjEE"
       ],
+      "disabled": true,
       "name": "Collection list",
       "settings": {
         "image_size": "small",
