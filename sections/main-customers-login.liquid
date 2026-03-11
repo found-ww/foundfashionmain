@@ -1,108 +1,268 @@
-<section data-section-id="login" data-section-type="login">
-  <div class="Container">
-    <div class="PageContent PageContent--fitScreen PageContent--extraNarrow">
-      {%- assign is_recover_active = false -%}
+<style>
+  .AuthPage {
+    display: flex;
+    min-height: 100vh;
+  }
 
+  /* Left: editorial image panel */
+  .AuthPage__Image {
+    display: none;
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .AuthPage__Image--placeholder {
+    background-color: #e8e3de;
+  }
+  @media screen and (min-width: 768px) {
+    .AuthPage__Image { display: block; }
+  }
+
+  /* Right: form panel */
+  .AuthPage__FormSide {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 48px;
+    background: #faf8f6;
+  }
+  @media screen and (max-width: 767px) {
+    .AuthPage__FormSide { padding: 60px 24px; }
+  }
+
+  .AuthPage__FormInner {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  /* Form styles */
+  .AuthForm__Tagline {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 20px;
+  }
+  .AuthForm__Title {
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    margin-bottom: 32px;
+  }
+  .AuthForm__Field {
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .AuthForm__Input {
+    width: 100%;
+    border: 1px solid #e0dbd5;
+    border-radius: 0;
+    background: #fff;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #3d3530;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    display: block;
+    box-sizing: border-box;
+  }
+  .AuthForm__Input:focus { border-color: #9a8f86; }
+  .AuthForm__Input::placeholder { color: #b5ada5; }
+  .AuthForm__ForgotLink {
+    display: block;
+    margin-top: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s;
+    text-align: left;
+  }
+  .AuthForm__ForgotLink:hover { color: #1c1c1c; }
+  .AuthForm__Submit {
+    width: 100%;
+    background: #1c1c1c;
+    color: #fff;
+    border: none;
+    padding: 16px 24px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-bottom: 24px;
+    transition: background 0.2s;
+  }
+  .AuthForm__Submit:hover { background: #3d3530; }
+  .AuthForm__Switch {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: #9a8f86;
+    text-align: center;
+  }
+  .AuthForm__SwitchLink {
+    color: #1c1c1c;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
+    transition: color 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+  }
+  .AuthForm__SwitchLink:hover { color: #7a6f66; }
+  .AuthForm__Alert--error {
+    background: #fdf0f0;
+    border: 1px solid #e5c5c5;
+    color: #9a4040;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .AuthForm__Alert--success {
+    background: #f0f5f0;
+    border: 1px solid #c5d5c5;
+    color: #3a6040;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .AuthForm__Subtitle {
+    font-size: 13px;
+    color: #9a8f86;
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+</style>
+
+<section class="AuthPage" data-section-id="{{ section.id }}" data-section-type="login">
+
+  {%- if section.settings.image -%}
+    <div class="AuthPage__Image" style="background-image: url({{ section.settings.image | img_url: '1200x' }})"></div>
+  {%- else -%}
+    <div class="AuthPage__Image AuthPage__Image--placeholder"></div>
+  {%- endif -%}
+
+  <div class="AuthPage__FormSide">
+    <div class="AuthPage__FormInner">
+
+      {%- assign is_recover_active = false -%}
       {%- form 'recover_customer_password' -%}
         {%- if form.errors or form.posted_successfully? -%}
           {%- assign is_recover_active = true -%}
         {%- endif -%}
       {%- endform -%}
 
-      {%- comment -%}
-        --------------------------------------------------------------------------------------------------------------------
-        CUSTOMER LOGIN FORM
-        --------------------------------------------------------------------------------------------------------------------
-      {%- endcomment -%}
-
       {%- if is_recover_active -%}
-        {%- assign login_default_visibility = 'display: none' -%}
+        {%- assign login_visibility = 'display: none' -%}
+        {%- assign recover_visibility = 'display: block' -%}
       {%- else -%}
-        {%- assign login_default_visibility = 'display: block' -%}
+        {%- assign login_visibility = 'display: block' -%}
+        {%- assign recover_visibility = 'display: none' -%}
       {%- endif -%}
 
-      {%- form 'customer_login', name: 'login', class: 'Form Form--spacingTight', id: 'customer_login', style: login_default_visibility -%}
-        <header class="Form__Header">
-          <h1 class="Form__Title Heading u-h1">{{ 'customer.login.title' | t }}</h1>
-          <p class="Form__Legend">{{ 'customer.login.description' | t }}</p>
-        </header>
-
-        {%- if form.errors -%}
-          <p class="Form__Alert Alert Alert--error">
-            {{- form.errors.messages['form'] -}}
-          </p>
+      {%- comment -%} LOGIN FORM {%- endcomment -%}
+      {%- form 'customer_login', name: 'login', class: 'AuthForm', id: 'customer_login', style: login_visibility -%}
+        {%- if section.settings.tagline != blank -%}
+          <p class="AuthForm__Tagline">{{ section.settings.tagline }}</p>
         {%- endif -%}
 
-        <div class="Form__Item">
-          <input type="email" class="Form__Input" name="customer[email]" required="required" placeholder="{{ 'customer.login.email' | t }}" aria-label="{{ 'customer.login.email' | t }}" autofocus>
-          <label class="Form__FloatingLabel">{{ 'customer.login.email' | t }}</label>
-        </div>
-
-        <div class="Form__Item">
-          <input type="password" class="Form__Input" name="customer[password]" required="required" placeholder="{{ 'customer.login.password' | t }}" aria-label="{{ 'customer.login.password' | t }}">
-          <label class="Form__FloatingLabel">{{ 'customer.login.password' | t }}</label>
-          <button type="button" class="Form__ItemHelp Link Link--primary" data-action="toggle-recover-form">{{ 'customer.login.forgot' | t }}</button>
-        </div>
-
-        <button type="submit" class="Form__Submit Button Button--primary Button--full">{{ 'customer.login.submit' | t }}</button>
-
-        <div class="Form__Hint Form__Hint--center">
-          <span class="Text--subdued">{{ 'customer.login.register_label' | t }}</span>
-          <a href="{{ routes.account_register_url }}" class="Link Link--secondary">{{ 'customer.login.register_link' | t }}</a>
-        </div>
-      {%- endform -%}
-
-      {%- comment -%}
-        --------------------------------------------------------------------------------------------------------------------
-        CUSTOMER RECOVERY FORM
-        --------------------------------------------------------------------------------------------------------------------
-      {%- endcomment -%}
-
-      {%- if is_recover_active -%}
-        {%- assign recover_default_visibility = 'display: block' -%}
-      {%- else -%}
-        {%- assign recover_default_visibility = 'display: none' -%}
-      {%- endif -%}
-
-      {%- form 'recover_customer_password', name: 'recover', class: 'Form Form--spacingTight', id: 'recover_customer_password', style: recover_default_visibility -%}
-        <header class="Form__Header">
-          <h1 class="Form__Title Heading u-h1">{{ 'customer.recover_password.title' | t }}</h1>
-
-          {%- unless form.posted_successfully? -%}
-            <p class="Form__Legend">{{ 'customer.recover_password.description' | t }}</p>
-          {%- endunless -%}
-        </header>
+        <h1 class="AuthForm__Title">{{ 'customer.login.title' | t }}</h1>
 
         {%- if form.errors -%}
-          <p class="Form__Alert Alert Alert--error">
-            {{- form.errors.messages['form'] -}}
-          </p>
+          <p class="AuthForm__Alert AuthForm__Alert--error">{{ form.errors.messages['form'] }}</p>
+        {%- endif -%}
+
+        <div class="AuthForm__Field">
+          <input type="email" class="AuthForm__Input" name="customer[email]" required="required"
+            placeholder="{{ 'customer.login.email' | t }}"
+            aria-label="{{ 'customer.login.email' | t }}" autofocus>
+        </div>
+
+        <div class="AuthForm__Field">
+          <input type="password" class="AuthForm__Input" name="customer[password]" required="required"
+            placeholder="{{ 'customer.login.password' | t }}"
+            aria-label="{{ 'customer.login.password' | t }}">
+          <button type="button" class="AuthForm__ForgotLink" data-action="toggle-recover-form">
+            {{ 'customer.login.forgot' | t }}
+          </button>
+        </div>
+
+        <button type="submit" class="AuthForm__Submit">{{ 'customer.login.submit' | t }}</button>
+
+        <p class="AuthForm__Switch">
+          {{ 'customer.login.register_label' | t }}&nbsp;
+          <a href="{{ routes.account_register_url }}" class="AuthForm__SwitchLink">{{ 'customer.login.register_link' | t }}</a>
+        </p>
+      {%- endform -%}
+
+      {%- comment -%} RECOVER PASSWORD FORM {%- endcomment -%}
+      {%- form 'recover_customer_password', name: 'recover', class: 'AuthForm', id: 'recover_customer_password', style: recover_visibility -%}
+        <h1 class="AuthForm__Title">{{ 'customer.recover_password.title' | t }}</h1>
+
+        {%- unless form.posted_successfully? -%}
+          <p class="AuthForm__Subtitle">{{ 'customer.recover_password.description' | t }}</p>
+        {%- endunless -%}
+
+        {%- if form.errors -%}
+          <p class="AuthForm__Alert AuthForm__Alert--error">{{ form.errors.messages['form'] }}</p>
         {%- endif -%}
 
         {%- if form.posted_successfully? -%}
-          <p class="Form__Alert Alert Alert--success">
-            {{- 'customer.recover_password.success' | t -}}
-          </p>
+          <p class="AuthForm__Alert AuthForm__Alert--success">{{ 'customer.recover_password.success' | t }}</p>
         {%- endif -%}
 
-        <div class="Form__Item">
-          <input type="email" class="Form__Input" name="email" required="required" placeholder="{{ 'customer.recover_password.email' | t }}" aria-label="{{ 'customer.recover_password.email' | t }}" autofocus>
-          <label class="Form__FloatingLabel">{{ 'customer.recover_password.email' | t }}</label>
+        <div class="AuthForm__Field">
+          <input type="email" class="AuthForm__Input" name="email" required="required"
+            placeholder="{{ 'customer.recover_password.email' | t }}"
+            aria-label="{{ 'customer.recover_password.email' | t }}" autofocus>
         </div>
 
-        <button type="submit" class="Form__Submit Button Button--primary Button--full">{{ 'customer.recover_password.submit' | t }}</button>
+        <button type="submit" class="AuthForm__Submit">{{ 'customer.recover_password.submit' | t }}</button>
 
-        <div class="Form__Hint Form__Hint--center">
-          <span class="Text--subdued">{{ 'customer.recover_password.login_label' | t }}</span>
-          <button type="button" class="Link Link--secondary" data-action="toggle-recover-form">{{ 'customer.recover_password.login_link' | t }}</button>
-        </div>
+        <p class="AuthForm__Switch">
+          {{ 'customer.recover_password.login_label' | t }}&nbsp;
+          <button type="button" class="AuthForm__SwitchLink" data-action="toggle-recover-form">{{ 'customer.recover_password.login_link' | t }}</button>
+        </p>
       {%- endform -%}
+
     </div>
   </div>
+
 </section>
 
 {% schema %}
 {
-  "name": "Customer login"
+  "name": "Customer login",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Editorial image"
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline above title",
+      "default": "Welcome back"
+    }
+  ]
 }
 {% endschema %}

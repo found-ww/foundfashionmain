@@ -1,66 +1,273 @@
-<section data-section-id="reset-password" data-section-type="reset-password">
-  <div class="Container">
-    <div class="PageContent PageContent--fitScreen PageContent--extraNarrow">
-      {%- form 'create_customer', name: 'create_customer', class: 'Form Form--spacingTight', id: 'create_customer' -%}
-        <header class="Form__Header">
-          <h1 class="Form__Title Heading u-h1">{{ 'customer.register.title' | t }}</h1>
-          <p class="Form__Legend">{{ 'customer.register.description' | t }}</p>
-        </header>
+<style>
+  /* AuthPage styles shared with login — see main-customers-login.liquid */
+  .AuthPage {
+    display: flex;
+    min-height: 100vh;
+  }
+  .AuthPage__Image {
+    display: none;
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+  }
+  .AuthPage__Image--placeholder { background-color: #e8e3de; }
+  @media screen and (min-width: 768px) {
+    .AuthPage__Image { display: block; }
+  }
+  .AuthPage__FormSide {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 48px;
+    background: #faf8f6;
+  }
+  @media screen and (max-width: 767px) {
+    .AuthPage__FormSide { padding: 60px 24px; }
+  }
+  .AuthPage__FormInner {
+    width: 100%;
+    max-width: 380px;
+  }
+  .AuthForm__Tagline {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 20px;
+  }
+  .AuthForm__Title {
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    margin-bottom: 8px;
+  }
+  .AuthForm__Subtitle {
+    font-size: 13px;
+    color: #9a8f86;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .AuthForm__Field {
+    margin-bottom: 16px;
+  }
+  .AuthForm__Input {
+    width: 100%;
+    border: 1px solid #e0dbd5;
+    border-radius: 0;
+    background: #fff;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #3d3530;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    display: block;
+    box-sizing: border-box;
+  }
+  .AuthForm__Input:focus { border-color: #9a8f86; }
+  .AuthForm__Input::placeholder { color: #b5ada5; }
+  .AuthForm__Submit {
+    width: 100%;
+    background: #1c1c1c;
+    color: #fff;
+    border: none;
+    padding: 16px 24px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 8px;
+    margin-bottom: 24px;
+    transition: background 0.2s;
+  }
+  .AuthForm__Submit:hover { background: #3d3530; }
+  .AuthForm__Switch {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: #9a8f86;
+    text-align: center;
+  }
+  .AuthForm__SwitchLink {
+    color: #1c1c1c;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
+    transition: color 0.15s;
+  }
+  .AuthForm__SwitchLink:hover { color: #7a6f66; }
+  .AuthForm__Alert--error {
+    background: #fdf0f0;
+    border: 1px solid #e5c5c5;
+    color: #9a4040;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .AuthForm__Perks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .AuthForm__Perk {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #9a8f86;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .AuthForm__Perk::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: #b5ada5;
+    flex-shrink: 0;
+  }
+</style>
 
+<section class="AuthPage" data-section-id="{{ section.id }}" data-section-type="register">
+
+  {%- if section.settings.image -%}
+    <div class="AuthPage__Image" style="background-image: url({{ section.settings.image | img_url: '1200x' }})"></div>
+  {%- else -%}
+    <div class="AuthPage__Image AuthPage__Image--placeholder"></div>
+  {%- endif -%}
+
+  <div class="AuthPage__FormSide">
+    <div class="AuthPage__FormInner">
+
+      {%- if section.settings.tagline != blank -%}
+        <p class="AuthForm__Tagline">{{ section.settings.tagline }}</p>
+      {%- endif -%}
+
+      <h1 class="AuthForm__Title">{{ 'customer.register.title' | t }}</h1>
+
+      {%- if section.settings.description != blank -%}
+        <p class="AuthForm__Subtitle">{{ section.settings.description }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.show_perks -%}
+        <div class="AuthForm__Perks">
+          {%- if section.settings.perk_1 != blank -%}<span class="AuthForm__Perk">{{ section.settings.perk_1 }}</span>{%- endif -%}
+          {%- if section.settings.perk_2 != blank -%}<span class="AuthForm__Perk">{{ section.settings.perk_2 }}</span>{%- endif -%}
+          {%- if section.settings.perk_3 != blank -%}<span class="AuthForm__Perk">{{ section.settings.perk_3 }}</span>{%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- form 'create_customer', name: 'create_customer', class: 'AuthForm', id: 'create_customer' -%}
         {%- if form.errors -%}
-          <div class="Form__Alert Alert Alert--error">
-            <ul class="Alert__ErrorList">
-              {%- for field in form.errors -%}
-                {%- if field == 'form' -%}
-                  <li class="Alert__ErrorItem">{{ form.errors.messages[field] }}</li>
-                {%- else -%}
-                  <li class="Alert__ErrorItem"><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</li>
-                {%- endif -%}
-              {%- endfor -%}
-            </ul>
+          <div class="AuthForm__Alert AuthForm__Alert--error">
+            {%- for field in form.errors -%}
+              {%- if field == 'form' -%}
+                <p>{{ form.errors.messages[field] }}</p>
+              {%- else -%}
+                <p><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</p>
+              {%- endif -%}
+            {%- endfor -%}
           </div>
         {%- endif -%}
 
         {%- if request.locale.iso_code == 'ja' -%}
-          <div class="Form__Item">
-            <input type="text" class="Form__Input" name="customer[last_name]" aria-label="{{ 'customer.register.last_name' | t }}" placeholder="{{ 'customer.register.last_name' | t }}">
-            <label class="Form__FloatingLabel">{{ 'customer.register.last_name' | t }}</label>
+          <div class="AuthForm__Field">
+            <input type="text" class="AuthForm__Input" name="customer[last_name]"
+              placeholder="{{ 'customer.register.last_name' | t }}"
+              aria-label="{{ 'customer.register.last_name' | t }}">
           </div>
-
-          <div class="Form__Item">
-            <input type="text" class="Form__Input" name="customer[first_name]" aria-label="{{ 'customer.register.first_name' | t }}" placeholder="{{ 'customer.register.first_name' | t }}" autofocus>
-            <label class="Form__FloatingLabel">{{ 'customer.register.first_name' | t }}</label>
+          <div class="AuthForm__Field">
+            <input type="text" class="AuthForm__Input" name="customer[first_name]"
+              placeholder="{{ 'customer.register.first_name' | t }}"
+              aria-label="{{ 'customer.register.first_name' | t }}" autofocus>
           </div>
         {%- else -%}
-          <div class="Form__Item">
-            <input type="text" class="Form__Input" name="customer[first_name]" aria-label="{{ 'customer.register.first_name' | t }}" placeholder="{{ 'customer.register.first_name' | t }}" autofocus>
-            <label class="Form__FloatingLabel">{{ 'customer.register.first_name' | t }}</label>
+          <div class="AuthForm__Field">
+            <input type="text" class="AuthForm__Input" name="customer[first_name]"
+              placeholder="{{ 'customer.register.first_name' | t }}"
+              aria-label="{{ 'customer.register.first_name' | t }}" autofocus>
           </div>
-
-          <div class="Form__Item">
-            <input type="text" class="Form__Input" name="customer[last_name]" aria-label="{{ 'customer.register.last_name' | t }}" placeholder="{{ 'customer.register.last_name' | t }}">
-            <label class="Form__FloatingLabel">{{ 'customer.register.last_name' | t }}</label>
+          <div class="AuthForm__Field">
+            <input type="text" class="AuthForm__Input" name="customer[last_name]"
+              placeholder="{{ 'customer.register.last_name' | t }}"
+              aria-label="{{ 'customer.register.last_name' | t }}">
           </div>
         {%- endif -%}
 
-        <div class="Form__Item">
-          <input type="email" class="Form__Input" name="customer[email]" aria-label="{{ 'customer.register.email' | t }}" placeholder="{{ 'customer.register.email' | t }}" required="required">
-          <label class="Form__FloatingLabel">{{ 'customer.register.email' | t }}</label>
+        <div class="AuthForm__Field">
+          <input type="email" class="AuthForm__Input" name="customer[email]"
+            placeholder="{{ 'customer.register.email' | t }}"
+            aria-label="{{ 'customer.register.email' | t }}" required="required">
         </div>
 
-        <div class="Form__Item">
-          <input type="password" class="Form__Input" name="customer[password]" aria-label="{{ 'customer.register.password' | t }}" placeholder="{{ 'customer.register.password' | t }}" required="required">
-          <label class="Form__FloatingLabel">{{ 'customer.register.password' | t }}</label>
+        <div class="AuthForm__Field">
+          <input type="password" class="AuthForm__Input" name="customer[password]"
+            placeholder="{{ 'customer.register.password' | t }}"
+            aria-label="{{ 'customer.register.password' | t }}" required="required">
         </div>
 
-        <button type="submit" class="Form__Submit Button Button--primary Button--full">{{ 'customer.register.submit' | t }}</button>
+        <button type="submit" class="AuthForm__Submit">{{ 'customer.register.submit' | t }}</button>
+
+        <p class="AuthForm__Switch">
+          Already have an account?&nbsp;
+          <a href="{{ routes.account_login_url }}" class="AuthForm__SwitchLink">Sign in</a>
+        </p>
       {%- endform -%}
+
     </div>
   </div>
+
 </section>
 
 {% schema %}
 {
-  "name": "Customer register"
+  "name": "Customer register",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Editorial image"
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline above title",
+      "default": "Join Found Fashion"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description below title",
+      "default": "Create an account to save your orders and stay up to date."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_perks",
+      "label": "Show member perks",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "perk_1",
+      "label": "Perk 1",
+      "default": "Order history & tracking"
+    },
+    {
+      "type": "text",
+      "id": "perk_2",
+      "label": "Perk 2",
+      "default": "Save your addresses"
+    },
+    {
+      "type": "text",
+      "id": "perk_3",
+      "label": "Perk 3",
+      "default": "Early access to new arrivals"
+    }
+  ]
 }
 {% endschema %}
