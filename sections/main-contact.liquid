@@ -1,102 +1,513 @@
-<div class="Container">
-  <header class="PageHeader">
-    <div class="SectionHeader SectionHeader--center">
-      <h1 class="SectionHeader__Heading Heading u-h1">{{ page.title }}</h1>
+<style>
+  .ContactPage {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Left: info panel ── */
+  .ContactPage__Info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 48px;
+    background-color: #ede8e2;
+    background-size: cover;
+    background-position: center;
+  }
+  .ContactPage__InfoInner {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  /* ── Right: form panel ── */
+  .ContactPage__Form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 48px;
+    background: #faf8f6;
+  }
+  .ContactPage__FormInner {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  @media screen and (max-width: 767px) {
+    .ContactPage { flex-direction: column; }
+    .ContactPage__Info,
+    .ContactPage__Form { padding: 60px 24px; }
+    .ContactPage__InfoInner { max-width: 100%; }
+  }
+
+  /* ── Info typography ── */
+  .ContactInfo__Tagline {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 20px;
+  }
+  .ContactInfo__Heading {
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    margin-bottom: 12px;
+  }
+  .ContactInfo__Description {
+    font-size: 13px;
+    color: #6b6259;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
+  .ContactInfo__Groups {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .ContactInfo__Label {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 5px;
+  }
+  .ContactInfo__Value {
+    font-size: 13px;
+    color: #1c1c1c;
+    line-height: 1.65;
+  }
+  .ContactInfo__Value a {
+    color: #1c1c1c;
+    text-decoration: none;
+    border-bottom: 1px solid #c8c0b8;
+    padding-bottom: 1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .ContactInfo__Value a:hover {
+    color: #7a6f66;
+    border-color: transparent;
+  }
+  .ContactInfo__Divider {
+    width: 32px;
+    height: 1px;
+    background: #c8c0b8;
+    margin: 8px 0 32px;
+  }
+
+  /* ── Form typography ── */
+  .ContactForm__Title {
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    margin-bottom: 32px;
+  }
+  .ContactForm__Field {
+    margin-bottom: 16px;
+  }
+  .ContactForm__Input,
+  .ContactForm__Textarea,
+  .ContactForm__Select {
+    width: 100%;
+    border: 1px solid #e0dbd5;
+    border-radius: 0;
+    background: #fff;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #3d3530;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    display: block;
+    box-sizing: border-box;
+    appearance: none;
+  }
+  .ContactForm__Textarea {
+    resize: vertical;
+    min-height: 140px;
+  }
+  .ContactForm__Input:focus,
+  .ContactForm__Textarea:focus,
+  .ContactForm__Select:focus { border-color: #9a8f86; }
+  .ContactForm__Input::placeholder,
+  .ContactForm__Textarea::placeholder { color: #b5ada5; }
+  .ContactForm__Submit {
+    width: 100%;
+    background: #1c1c1c;
+    color: #fff;
+    border: none;
+    padding: 16px 24px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .ContactForm__Submit:hover { background: #3d3530; }
+  .ContactForm__Note {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: #9a8f86;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .ContactForm__Alert--success {
+    background: #f0f5f0;
+    border: 1px solid #c5d5c5;
+    color: #3a6040;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  .ContactForm__Alert--error {
+    background: #fdf0f0;
+    border: 1px solid #e5c5c5;
+    color: #9a4040;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+</style>
+
+<section class="ContactPage" data-section-id="{{ section.id }}" data-section-type="contact">
+
+  {%- comment -%} LEFT: Info panel {%- endcomment -%}
+  <div class="ContactPage__Info"
+    {%- if section.settings.image -%}
+      style="background-image: url({{ section.settings.image | img_url: '1200x' }}); background-color: #ede8e2;"
+    {%- endif -%}
+  >
+    <div class="ContactPage__InfoInner">
+
+      {%- if section.settings.tagline != blank -%}
+        <p class="ContactInfo__Tagline">{{ section.settings.tagline }}</p>
+      {%- endif -%}
+
+      <h2 class="ContactInfo__Heading">{{ section.settings.heading | default: 'Get in touch' }}</h2>
+      <div class="ContactInfo__Divider"></div>
+
+      {%- if section.settings.description != blank -%}
+        <p class="ContactInfo__Description">{{ section.settings.description }}</p>
+      {%- endif -%}
+
+      <div class="ContactInfo__Groups">
+
+        {%- if section.settings.london_address != blank -%}
+          <div>
+            <p class="ContactInfo__Label">London</p>
+            <p class="ContactInfo__Value">{{ section.settings.london_address | newline_to_br }}</p>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.hk_address != blank -%}
+          <div>
+            <p class="ContactInfo__Label">Hong Kong</p>
+            <p class="ContactInfo__Value">{{ section.settings.hk_address | newline_to_br }}</p>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.email != blank or section.settings.press_email != blank -%}
+          <div>
+            <p class="ContactInfo__Label">Email</p>
+            <p class="ContactInfo__Value">
+              {%- if section.settings.email != blank -%}
+                <a href="mailto:{{ section.settings.email }}">{{ section.settings.email }}</a>
+              {%- endif -%}
+              {%- if section.settings.email != blank and section.settings.press_email != blank -%}<br>{%- endif -%}
+              {%- if section.settings.press_email != blank -%}
+                Press: <a href="mailto:{{ section.settings.press_email }}">{{ section.settings.press_email }}</a>
+              {%- endif -%}
+            </p>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.whatsapp != blank -%}
+          {%- assign wa_number = section.settings.whatsapp | remove: '+' | remove: ' ' | remove: '-' -%}
+          <div>
+            <p class="ContactInfo__Label">WhatsApp</p>
+            <p class="ContactInfo__Value">
+              <a href="https://wa.me/{{ wa_number }}">{{ section.settings.whatsapp }}</a>
+            </p>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.hours != blank -%}
+          <div>
+            <p class="ContactInfo__Label">Hours</p>
+            <p class="ContactInfo__Value">{{ section.settings.hours }}</p>
+          </div>
+        {%- endif -%}
+
+      </div>
     </div>
-  </header>
+  </div>
 
-  <div class="PageContent PageContent--narrow">
-    <div class="Rte">
-      {{- page.content -}}
+  {%- comment -%} RIGHT: Form panel {%- endcomment -%}
+  <div class="ContactPage__Form">
+    <div class="ContactPage__FormInner">
 
-      {%- form 'contact', class: 'Form Form--spacingTight' -%}
+      <h1 class="ContactForm__Title">{{ page.title }}</h1>
+
+      {%- form 'contact', class: 'ContactForm' -%}
+
         {%- if form.posted_successfully? -%}
-          <p class="Alert Alert--success">{{ 'contact.form.successfully_sent' | t }}</p>
+          <p class="ContactForm__Alert ContactForm__Alert--success">{{ 'contact.form.successfully_sent' | t }}</p>
         {%- endif -%}
 
         {%- if form.errors -%}
-          <div class="Form__Alert Alert Alert--error">
-            <ul class="Alert__ErrorList">
-              {%- for field in form.errors -%}
-                {%- if field == 'form' -%}
-                  <li class="Alert__ErrorItem">{{ form.errors.messages[field] }}</li>
-                {%- else -%}
-                  <li class="Alert__ErrorItem"><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</li>
-                {%- endif -%}
-              {%- endfor -%}
-            </ul>
+          <div class="ContactForm__Alert ContactForm__Alert--error">
+            {%- for field in form.errors -%}
+              {%- if field == 'form' -%}
+                <p>{{ form.errors.messages[field] }}</p>
+              {%- else -%}
+                <p><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</p>
+              {%- endif -%}
+            {%- endfor -%}
           </div>
         {%- endif -%}
 
-        <div class="Form__Group">
-          <div class="Form__Item">
-            <input type="text" class="Form__Input" name="contact[name]" aria-label="{{ 'contact.form.name' | t }}" placeholder="{{ 'contact.form.name' | t }}" required {% if customer %}value="{{ customer.name }}"{% endif %}>
-            <label class="Form__FloatingLabel">{{ 'contact.form.name' | t }}</label>
-          </div>
+        <div class="ContactForm__Field">
+          <input type="text" class="ContactForm__Input" name="contact[name]"
+            placeholder="{{ 'contact.form.name' | t }}"
+            aria-label="{{ 'contact.form.name' | t }}"
+            required
+            {% if customer %}value="{{ customer.name }}"{% endif %}>
+        </div>
 
-          <div class="Form__Item">
-            <input type="email" class="Form__Input" name="contact[email]" aria-label="{{ 'contact.form.email' | t }}" placeholder="{{ 'contact.form.email' | t }}" required {% if customer %}value="{{ customer.email }}"{% endif %}>
-            <label class="Form__FloatingLabel">{{ 'contact.form.email' | t }}</label>
-          </div>
+        <div class="ContactForm__Field">
+          <input type="email" class="ContactForm__Input" name="contact[email]"
+            placeholder="{{ 'contact.form.email' | t }}"
+            aria-label="{{ 'contact.form.email' | t }}"
+            required
+            {% if customer %}value="{{ customer.email }}"{% endif %}>
         </div>
 
         {%- for block in section.blocks -%}
           {%- assign field_title = block.settings.title -%}
-
           {%- if field_title == blank -%}
             {%- capture field_title -%}Custom field {% increment custom_field %}{%- endcapture -%}
           {%- endif -%}
-
           {%- if block.type == 'text' -%}
-            <div class="Form__Item">
+            <div class="ContactForm__Field">
               {%- if block.settings.use_long_text -%}
-                <textarea name="contact[{{ field_title | escape }}]" cols="30" rows="10" class="Form__Textarea" aria-label="{{ block.settings.title | escape }}" placeholder="{{ block.settings.title | escape }}" {% if block.settings.is_required %}required{% endif %}></textarea>
-                <label class="Form__FloatingLabel">{{ block.settings.title | escape }}</label>
+                <textarea name="contact[{{ field_title | escape }}]" class="ContactForm__Textarea"
+                  aria-label="{{ field_title | escape }}" placeholder="{{ field_title | escape }}"
+                  {% if block.settings.is_required %}required{% endif %}></textarea>
               {%- else -%}
-                <input type="text" class="Form__Input" name="contact[{{ field_title | escape }}]" aria-label="{{ block.settings.title | escape }}" placeholder="{{ block.settings.title | escape }}" {% if block.settings.is_required %}required{% endif %}>
-                <label class="Form__FloatingLabel">{{ block.settings.title | escape }}</label>
+                <input type="text" class="ContactForm__Input" name="contact[{{ field_title | escape }}]"
+                  aria-label="{{ field_title | escape }}" placeholder="{{ field_title | escape }}"
+                  {% if block.settings.is_required %}required{% endif %}>
               {%- endif -%}
             </div>
           {%- elsif block.type == 'dropdown' -%}
             {%- assign values = block.settings.values | split: ',' -%}
-
-            {%- if values == empty -%}
-              {%- continue -%}
-            {%- endif -%}
-
-            <div class="Form__Item">
-              <div class="Form__Select Select Select--primary">
-                {%- render 'icon' with 'select-arrow' -%}
-
-                <select name="contact[{{ field_title | escape }}]" title="{{ block.settings.title | escape }}" required>
-                  <option value="" disabled selected>{{ block.settings.title | escape }}</option>
-
-                  {%- for value in values -%}
-                    {%- assign trim_value = value | strip -%}
-
-                    <option value="{{ trim_value | escape }}">{{ trim_value | escape }}</option>
-                  {%- endfor -%}
-                </select>
-              </div>
+            {%- if values == empty -%}{%- continue -%}{%- endif -%}
+            <div class="ContactForm__Field">
+              <select name="contact[{{ field_title | escape }}]" class="ContactForm__Select" required>
+                <option value="" disabled selected>{{ field_title | escape }}</option>
+                {%- for value in values -%}
+                  {%- assign trim_value = value | strip -%}
+                  <option value="{{ trim_value | escape }}">{{ trim_value | escape }}</option>
+                {%- endfor -%}
+              </select>
             </div>
           {%- endif -%}
         {%- endfor -%}
 
-        <div class="Form__Item">
-          <textarea name="contact[body]" cols="30" rows="10" class="Form__Textarea" aria-label="{{ 'contact.form.message' | t }}" placeholder="{{ 'contact.form.message' | t }}" required></textarea>
-          <label class="Form__FloatingLabel">{{ 'contact.form.message' | t }}</label>
+        <div class="ContactForm__Field">
+          <textarea name="contact[body]" class="ContactForm__Textarea"
+            aria-label="{{ 'contact.form.message' | t }}"
+            placeholder="{{ 'contact.form.message' | t }}"
+            required></textarea>
         </div>
 
-        <button type="submit" class="Form__Submit Button Button--primary Button--full">{{ 'contact.form.submit' | t }}</button>
+        <button type="submit" class="ContactForm__Submit">{{ 'contact.form.submit' | t }}</button>
+
+        {%- if section.settings.response_note != blank -%}
+          <p class="ContactForm__Note">{{ section.settings.response_note }}</p>
+        {%- endif -%}
+
       {%- endform -%}
+
     </div>
   </div>
-</div>
+
+</section>
+
+{%- comment -%} ContactPage + Organization schema {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": {{ page.title | json }},
+  "url": "{{ shop.url }}{{ page.url }}",
+  {%- if section.settings.description != blank -%}
+  "description": {{ section.settings.description | json }},
+  {%- endif -%}
+  "mainEntity": {
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    "url": {{ shop.url | json }},
+    {%- if section.settings.email != blank -%}
+    "email": {{ section.settings.email | json }},
+    {%- endif -%}
+    {%- if section.settings.whatsapp != blank -%}
+    "telephone": {{ section.settings.whatsapp | json }},
+    {%- endif -%}
+    "contactPoint": [
+      {%- assign _cp_sep = '' -%}
+      {%- if section.settings.email != blank -%}
+        {{ _cp_sep }}{
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": {{ section.settings.email | json }}
+          {%- if section.settings.hours != blank -%},"hoursAvailable": {{ section.settings.hours | json }}{%- endif -%}
+        }
+        {%- assign _cp_sep = ',' -%}
+      {%- endif -%}
+      {%- if section.settings.whatsapp != blank -%}
+        {{ _cp_sep }}{
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "telephone": {{ section.settings.whatsapp | json }},
+          "contactOption": "https://schema.org/TollFree"
+        }
+        {%- assign _cp_sep = ',' -%}
+      {%- endif -%}
+      {%- if section.settings.press_email != blank -%}
+        {{ _cp_sep }}{
+          "@type": "ContactPoint",
+          "contactType": "press",
+          "email": {{ section.settings.press_email | json }}
+        }
+      {%- endif -%}
+    ],
+    "address": [
+      {%- assign _addr_sep = '' -%}
+      {%- if section.settings.london_address != blank -%}
+        {{ _addr_sep }}{
+          "@type": "PostalAddress",
+          "streetAddress": {{ section.settings.london_address | newline_to_br | strip_html | json }},
+          "addressLocality": "London",
+          "postalCode": {{ section.settings.london_postcode | json }},
+          "addressCountry": "GB"
+        }
+        {%- assign _addr_sep = ',' -%}
+      {%- endif -%}
+      {%- if section.settings.hk_address != blank -%}
+        {{ _addr_sep }}{
+          "@type": "PostalAddress",
+          "streetAddress": {{ section.settings.hk_address | newline_to_br | strip_html | json }},
+          "addressLocality": "Sheung Wan",
+          "addressRegion": "Hong Kong",
+          "addressCountry": "HK"
+        }
+      {%- endif -%}
+    ]
+  }
+}
+</script>
 
 {% schema %}
 {
   "name": "Contact page",
-  "settings": [],
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Editorial image (left panel)"
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Found Fashion"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Get in touch"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "We're here to help with any enquiries about our pieces, authenticity, sizing, or sourcing."
+    },
+    {
+      "type": "header",
+      "content": "London office"
+    },
+    {
+      "type": "textarea",
+      "id": "london_address",
+      "label": "Address (display)",
+      "default": "2 Principal Place\nLondon, EC2A"
+    },
+    {
+      "type": "text",
+      "id": "london_postcode",
+      "label": "Postcode (for schema)",
+      "default": "EC2A"
+    },
+    {
+      "type": "header",
+      "content": "Hong Kong office"
+    },
+    {
+      "type": "textarea",
+      "id": "hk_address",
+      "label": "Address (display)",
+      "default": "The Found Collective Group\n4\/F 299QRC, 299 Queen's Road Central\nSheung Wan, Hong Kong"
+    },
+    {
+      "type": "header",
+      "content": "Contact details"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email",
+      "default": "contact@found-fashion.com"
+    },
+    {
+      "type": "text",
+      "id": "press_email",
+      "label": "Press email",
+      "default": "press@found-fashion.com"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp",
+      "label": "WhatsApp number (include country code)",
+      "default": "+85264954710"
+    },
+    {
+      "type": "text",
+      "id": "hours",
+      "label": "Hours",
+      "default": "Monday \u2013 Friday, 9am \u2013 5.30pm"
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "text",
+      "id": "response_note",
+      "label": "Response time note",
+      "default": "We typically respond within 24 hours."
+    }
+  ],
   "blocks": [
     {
       "type": "text",
@@ -105,7 +516,7 @@
         {
           "type": "text",
           "id": "title",
-          "label": "Name",
+          "label": "Label",
           "default": "Custom field"
         },
         {
@@ -129,15 +540,15 @@
         {
           "type": "text",
           "id": "title",
-          "label": "Name",
-          "default": "Custom field"
+          "label": "Label",
+          "default": "Please select"
         },
         {
           "type": "text",
           "id": "values",
-          "label": "Values",
-          "info": "Separate each value by a comma.",
-          "default": "value 1, value 2, value 3"
+          "label": "Options",
+          "info": "Separate each option with a comma.",
+          "default": "General enquiry, Buying, Selling, Press"
         }
       ]
     }
@@ -145,9 +556,10 @@
   "default": {
     "blocks": [
       {
-        "type": "text",
+        "type": "dropdown",
         "settings": {
-          "title": "Your phone (optional)"
+          "title": "Subject",
+          "values": "General enquiry, Buying, Selling, Press, Other"
         }
       }
     ]
