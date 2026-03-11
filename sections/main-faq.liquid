@@ -12,10 +12,10 @@
     {%- for block in section.blocks -%}
       {%- case block.type -%}
         {%- when 'separator' -%}
-          <h1 class="Faq__Section Heading u-h1" {{ block.shopify_attributes }}>
+          <h2 class="Faq__Section Heading u-h1" {{ block.shopify_attributes }}>
             <span class="Anchor" id="block-{{ block.id }}"></span>
             {{- block.settings.title | escape -}}
-          </h1>
+          </h2>
 
         {%- when 'question' -%}
           {%- if block.settings.title != blank and block.settings.answer != blank -%}
@@ -41,6 +41,17 @@
 <section data-section-type="faq" data-section-id="{{ section.id }}">
   <div class="Container">
     <div class="PageContent {% unless has_section_separator %}PageContent--narrow{% endunless %}">
+
+      {%- comment -%} Page header {%- endcomment -%}
+      <header class="SectionHeader SectionHeader--center" style="margin-bottom: 48px;">
+        <h1 class="SectionHeader__Heading Heading u-h1">{{ page.title }}</h1>
+        {%- if section.settings.description != blank -%}
+          <p class="SectionHeader__Description" style="margin-top: 16px; font-size: 14px; color: #9a8f86; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.7;">
+            {{ section.settings.description }}
+          </p>
+        {%- endif -%}
+      </header>
+
       {%- if has_section_separator -%}
         <div class="PageLayout">
           <div class="PageLayout__Section PageLayout__Section--secondary PageLayout__Section--sticky hidden-phone">
@@ -68,14 +79,107 @@
       {%- else -%}
         {{- faq_content -}}
       {%- endif -%}
+
+      {%- comment -%} Contact CTA {%- endcomment -%}
+      {%- if section.settings.cta_title != blank -%}
+        <div style="text-align: center; padding: 64px 24px 40px; border-top: 1px solid #ede8e2; margin-top: 48px;">
+          <p style="font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #9a8f86; margin-bottom: 12px;">{{ section.settings.cta_eyebrow }}</p>
+          <h2 style="font-size: 22px; letter-spacing: 0.06em; font-weight: 400; text-transform: uppercase; color: #1c1c1c; margin-bottom: 12px;">{{ section.settings.cta_title }}</h2>
+          {%- if section.settings.cta_subtitle != blank -%}
+            <p style="font-size: 14px; color: #9a8f86; margin-bottom: 28px; line-height: 1.6;">{{ section.settings.cta_subtitle }}</p>
+          {%- endif -%}
+          {%- if section.settings.cta_button_label != blank and section.settings.cta_button_url != blank -%}
+            <a href="{{ section.settings.cta_button_url }}"
+               style="display: inline-block; background: #1c1c1c; color: #fff; padding: 14px 32px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 500; text-decoration: none; transition: background 0.2s;"
+               onmouseover="this.style.background='#3d3530'" onmouseout="this.style.background='#1c1c1c'">
+              {{ section.settings.cta_button_label }}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
     </div>
   </div>
 </section>
 
+{%- comment -%} FAQPage schema {%- endcomment -%}
+{%- assign has_faq_questions = false -%}
+{%- for block in section.blocks -%}
+  {%- if block.type == 'question' and block.settings.title != blank and block.settings.answer != blank -%}
+    {%- assign has_faq_questions = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if has_faq_questions -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {%- assign _faq_sep = '' -%}
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'question' and block.settings.title != blank and block.settings.answer != blank -%}
+        {{ _faq_sep }}{
+          "@type": "Question",
+          "name": {{ block.settings.title | escape | json }},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {{ block.settings.answer | strip_html | json }}
+          }
+        }
+        {%- assign _faq_sep = ',' -%}
+      {%- endif -%}
+    {%- endfor -%}
+  ]
+}
+</script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "FAQ",
-  "settings": [],
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Intro text",
+      "default": "Below you'll find answers to our most common questions. If you need further help, our team is always happy to assist."
+    },
+    {
+      "type": "header",
+      "content": "Contact CTA"
+    },
+    {
+      "type": "text",
+      "id": "cta_eyebrow",
+      "label": "Eyebrow text",
+      "default": "Still have questions?"
+    },
+    {
+      "type": "text",
+      "id": "cta_title",
+      "label": "Heading",
+      "default": "We're here to help"
+    },
+    {
+      "type": "text",
+      "id": "cta_subtitle",
+      "label": "Subtitle",
+      "default": "Our team typically responds within 24 hours."
+    },
+    {
+      "type": "text",
+      "id": "cta_button_label",
+      "label": "Button label",
+      "default": "Contact us"
+    },
+    {
+      "type": "url",
+      "id": "cta_button_url",
+      "label": "Button URL"
+    }
+  ],
   "blocks": [
     {
       "type": "separator",
@@ -129,36 +233,9 @@
         }
       },
       {
-        "type": "question",
-        "settings": {
-          "title": "What shipping carriers do you use?",
-          "answer": "<p>We use all major carriers, and local courier partners. You’ll be asked to select a delivery method during checkout.</p>"
-        }
-      },
-      {
         "type": "separator",
         "settings": {
-          "title": "Product"
-        }
-      },
-      {
-        "type": "question",
-        "settings": {
-          "title": "Can I return my product?",
-          "answer": "<p>We always aim for make sure our customers love our products, but if you do need to return an order, we’re happy to help. Just email us directly and we’ll take you through the process.</p>"
-        }
-      },
-      {
-        "type": "question",
-        "settings": {
-          "title": "Can I get my product personalized?",
-          "answer": "<p>It depends on the creator and the product. All options are outlined on the product page, so look out for customization options there.</p>"
-        }
-      },
-      {
-        "type": "separator",
-        "settings": {
-          "title": "Other"
+          "title": "General"
         }
       },
       {
