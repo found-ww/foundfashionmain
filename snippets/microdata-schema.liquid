@@ -18,6 +18,56 @@ or change the format of some info
     {%- endif -%}
   {%- endif -%}
 
+  {%- comment -%} Resolve metafields for schema {%- endcomment -%}
+  {%- assign _mf = product.metafields -%}
+  {%- assign schema_brand = _mf.custom.brand_name | default: product.vendor -%}
+  {%- assign schema_condition_raw = _mf.custom.condition | downcase -%}
+  {%- assign schema_material = _mf.custom.main_material | default: _mf.custom.material -%}
+  {%- assign schema_colour = _mf.shopify['color-pattern'].value.label | default: _mf.shopify['color-pattern'].value -%}
+  {%- assign schema_model = _mf.custom.model -%}
+  {%- assign schema_year = _mf.custom.year -%}
+  {%- assign schema_dimensions = _mf.custom.dimensions -%}
+  {%- assign schema_hardware = _mf.custom.hardware_material -%}
+  {%- assign schema_stamp = _mf.custom.bag_stamp -%}
+  {%- assign schema_strap_length = _mf.custom.strap_length -%}
+  {%- assign schema_handle_drop = _mf.custom.handle_drop -%}
+  {%- assign schema_chain_length = _mf.custom.chain_length -%}
+  {%- assign schema_designer = _mf.custom.designer | default: _mf.custom.scarf_designer -%}
+  {%- assign schema_capacity = _mf.custom.capacity -%}
+  {%- assign schema_weight = _mf.custom.weight -%}
+  {%- assign schema_sole = _mf.custom.sole_material -%}
+  {%- assign schema_heel = _mf.custom.heel_sole_height -%}
+  {%- assign schema_face_mat = _mf.custom.face_material -%}
+  {%- assign schema_strap_mat = _mf.custom.strap_material -%}
+  {%- assign schema_dial = _mf.custom.dial_face -%}
+  {%- assign schema_movement = _mf.custom.movement -%}
+  {%- assign schema_reference = _mf.custom.reference -%}
+  {%- assign schema_case_width = _mf.custom.case_width -%}
+  {%- assign schema_diamonds = _mf.custom.diamonds -%}
+  {%- assign schema_back_length = _mf.custom.back_length -%}
+  {%- assign schema_sound = _mf.custom.sound_features -%}
+  {%- assign schema_clothing_size = _mf.custom.clothing_size -%}
+  {%- assign schema_eu_size = _mf.custom.eu_size -%}
+  {%- assign schema_uk_size = _mf.custom.uk_size -%}
+  {%- assign schema_belt_size = _mf.custom.belt_size -%}
+  {%- assign schema_belt_width = _mf.custom.belt_width -%}
+  {%- assign schema_ring_size = _mf.custom.ring_size -%}
+  {%- assign schema_bracelet_size = _mf.custom.bracelet_size -%}
+  {%- assign schema_bracelet_width = _mf.custom.bracelet_width -%}
+  {%- assign schema_wrist_size = _mf.custom.wrist_size -%}
+  {%- assign schema_charm_type = _mf.custom.charm_type -%}
+
+  {%- comment -%} Map condition text to schema.org URL {%- endcomment -%}
+  {%- if schema_condition_raw contains 'new' -%}
+    {%- assign schema_condition_url = 'https://schema.org/NewCondition' -%}
+  {%- elsif schema_condition_raw contains 'refurb' or schema_condition_raw contains 'renewed' -%}
+    {%- assign schema_condition_url = 'https://schema.org/RefurbishedCondition' -%}
+  {%- elsif schema_condition_raw contains 'damage' or schema_condition_raw contains 'worn' or schema_condition_raw contains 'fair' -%}
+    {%- assign schema_condition_url = 'https://schema.org/DamagedCondition' -%}
+  {%- else -%}
+    {%- assign schema_condition_url = 'https://schema.org/UsedCondition' -%}
+  {%- endif -%}
+
   {%- capture main_entity_microdata -%}
     "@type": "Product",
     "offers": [
@@ -29,10 +79,11 @@ or change the format of some info
           "price": {{ variant.price | divided_by: 100.0 | json }},
           "priceCurrency": {{ cart.currency.iso_code | json }},
           "priceValidUntil": "{{ 'now' | date: '%s' | plus: days_product_price_valid_until | date: '%Y-%m-%d'}}",
+          "itemCondition": {{ schema_condition_url | json }},
           {%- if variant.sku != blank -%}
             "sku": {{ variant.sku | json }},
           {%- endif -%}
-          "url": "{{ product.url }}?variant={{ variant.id }}"
+          "url": "{{ shop.url }}{{ product.url }}?variant={{ variant.id }}"
         }{% unless forloop.last %},{% endunless %}
       {%- endfor -%}
     ],
@@ -53,21 +104,165 @@ or change the format of some info
       "productId": {{ product.selected_or_first_available_variant.barcode | json }},
     {%- endif %}
     "brand": {
-      "name": {{ product.vendor | json }}
+      "@type": "Brand",
+      "name": {{ schema_brand | json }}
     },
     "name": {{ product.title | json }},
     "description": {{ product.description | strip_html | json }},
     "category": {{ product.type | json }},
-    "url": "{{ product.url }}",
+    "url": "{{ shop.url }}{{ product.url }}",
     "sku": {{ product.selected_or_first_available_variant.sku | json }},
-    "image": {
-      "@type": "ImageObject",
-      "url": "https:{{ product.featured_media | img_url: '1024x' }}",
-      "image": "https:{{ product.featured_media | img_url: '1024x' }}",
-      "name": {{ product.featured_media.alt | json }},
-      "width": "1024",
-      "height": "1024"
-    }
+    {%- if schema_colour != blank -%}
+      "color": {{ schema_colour | json }},
+    {%- endif -%}
+    {%- if schema_material != blank -%}
+      "material": {{ schema_material | json }},
+    {%- endif -%}
+    "image": [
+      {%- assign _img_sep = '' -%}
+      {%- for media in product.media -%}
+        {%- if media.media_type == 'image' -%}
+          {{ _img_sep }}{
+            "@type": "ImageObject",
+            "url": "https:{{ media | img_url: '1024x' }}",
+            "name": {{ media.alt | json }},
+            "width": "1024",
+            "height": "1024"
+          }
+          {%- assign _img_sep = ',' -%}
+        {%- endif -%}
+      {%- endfor -%}
+    ],
+    "additionalProperty": [
+      {%- assign _prop_sep = '' -%}
+      {%- if schema_model != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Model", "value": {{ schema_model | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_year != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Year", "value": {{ schema_year | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_dimensions != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Dimensions", "value": {{ schema_dimensions | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_hardware != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Hardware", "value": {{ schema_hardware | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_stamp != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Stamp", "value": {{ schema_stamp | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_designer != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Designer", "value": {{ schema_designer | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_strap_length != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Strap Length", "value": {{ schema_strap_length | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_handle_drop != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Handle Drop", "value": {{ schema_handle_drop | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_chain_length != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Chain Length", "value": {{ schema_chain_length | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_heel != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Heel Height", "value": {{ schema_heel | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_sole != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Sole Material", "value": {{ schema_sole | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_reference != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Reference", "value": {{ schema_reference | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_movement != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Movement", "value": {{ schema_movement | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_dial != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Dial", "value": {{ schema_dial | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_face_mat != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Case Material", "value": {{ schema_face_mat | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_strap_mat != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Strap Material", "value": {{ schema_strap_mat | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_case_width != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Case Width", "value": {{ schema_case_width | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_diamonds != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Diamonds", "value": {{ schema_diamonds | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_capacity != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Capacity", "value": {{ schema_capacity | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_weight != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Weight", "value": {{ schema_weight | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_back_length != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Back Length", "value": {{ schema_back_length | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_sound != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Sound Features", "value": {{ schema_sound | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_clothing_size != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Clothing Size", "value": {{ schema_clothing_size | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_eu_size != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "EU Size", "value": {{ schema_eu_size | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_uk_size != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "UK Size", "value": {{ schema_uk_size | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_belt_size != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Belt Size", "value": {{ schema_belt_size | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_belt_width != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Belt Width", "value": {{ schema_belt_width | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_ring_size != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Ring Size", "value": {{ schema_ring_size | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_bracelet_size != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Bracelet Size", "value": {{ schema_bracelet_size | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_bracelet_width != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Bracelet Width", "value": {{ schema_bracelet_width | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_wrist_size != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Wrist Size", "value": {{ schema_wrist_size | json }} }
+        {%- assign _prop_sep = ',' -%}
+      {%- endif -%}
+      {%- if schema_charm_type != blank -%}
+        {{ _prop_sep }}{ "@type": "PropertyValue", "name": "Charm Type", "value": {{ schema_charm_type | json }} }
+      {%- endif -%}
+    ]
   {%- endcapture -%}
 {%- elsif request.page_type == 'article' -%}
   {%- capture main_entity_microdata -%}
