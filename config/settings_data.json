@@ -149,7 +149,13 @@
           "d7c9e1a2-3b45-4f67-89ab-cdef01234567": {
             "type": "mega_menu",
             "settings": {
-              "navigation_mega_menu": "Magazine"
+              "navigation_mega_menu": "Magazine",
+              "push_1_heading": "Example heading",
+              "push_1_subheading": "Example sub-heading",
+              "push_1_url": "",
+              "push_2_heading": "Example heading",
+              "push_2_subheading": "Example sub-heading",
+              "push_2_url": ""
             }
           }
         },
@@ -280,6 +286,20 @@
         "type": "shopify://apps/ca-whatsapp-button/blocks/whatsapp_floating_widget/1779059c-3307-413f-8ccd-f5b78c49e230",
         "disabled": true,
         "settings": {}
+      },
+      "15683396631634586217": {
+        "type": "shopify://apps/inbox/blocks/chat/841fc607-4181-4ad1-842d-e24d7f8bad6b",
+        "disabled": false,
+        "settings": {
+          "button_color": "#806f64",
+          "secondary_color": "#FFFFFF",
+          "ternary_color": "#6A6A6A",
+          "button_icon": "chat_bubble",
+          "button_text": "message_us",
+          "button_horizontal_position": "bottom_right",
+          "button_vertical_position": "lowest",
+          "greeting_message": ""
+        }
       }
     }
   },
