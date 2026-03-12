@@ -237,11 +237,8 @@
           {%- assign hero_slide_url = media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
           <div class="ppv1-hero__slide" data-pswp-src="{{ media | img_url: '1600x' }}" data-pswp-w="{{ media.width }}" data-pswp-h="{{ media.height }}">
             {%- if forloop.first -%}
-              <img class="ppv1-hero__slide-img Image--fadeIn"
+              <img class="ppv1-hero__slide-img"
                    src="{{ media | img_url: '800x' }}"
-                   data-src="{{ hero_slide_url }}"
-                   data-widths="[600, 800, 1000, 1200]"
-                   data-sizes="auto"
                    width="{{ media.width }}"
                    height="{{ media.height }}"
                    loading="eager"

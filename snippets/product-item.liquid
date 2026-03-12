@@ -53,19 +53,6 @@
       </div>
     </a>
 
-    {%- unless use_horizontal -%}
-      <button
-        type="button"
-        class="swym-button swym-add-to-wishlist-view-product product_{{ product.id }}"
-        data-with-epi="true"
-        data-product-id="{{ product.id }}"
-        data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-        data-product-url="{{ shop.url }}{{ product.url }}"
-        aria-label="Add to Wishlist"
-        style="position:absolute;top:8px;right:8px;z-index:2;background:rgba(255,255,255,0.85);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;">
-      </button>
-    {%- endunless -%}
-
     {%- if show_labels -%}
       {%- capture product_labels -%}
         {%- for tag in product.tags -%}
