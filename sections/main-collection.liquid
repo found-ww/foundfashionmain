@@ -78,6 +78,23 @@
 {%- endcapture -%}
 
 <section data-section-id="{{ section.id }}" data-section-type="collection" data-section-settings='{{ section_settings }}'>
+
+  <nav class="Breadcrumb" aria-label="breadcrumb" style="padding: 10px 0 0; font-size: 0.8em; color: #888;">
+    <div class="Container">
+      <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;" itemscope itemtype="https://schema.org/BreadcrumbList">
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="{{ shop.url }}" itemprop="item" style="color: inherit; text-decoration: none;"><span itemprop="name">Home</span></a>
+          <meta itemprop="position" content="1">
+        </li>
+        <li aria-hidden="true" style="user-select: none;">/</li>
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span itemprop="name">{{ collection.title }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+      </ol>
+    </div>
+  </nav>
+
   {%- comment -%}
   --------------------------------------------------------------------------------------------------------------------
   COLLECTION INFO
