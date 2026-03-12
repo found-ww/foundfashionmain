@@ -29,9 +29,20 @@
 
                 <div class="Segment__Content">
                   <p>{{ 'customer.account.no_orders_content' | t }}</p>
+                  <div class="Segment__ButtonWrapper">
+                    <a href="/collections/new-arrivals" class="Button Button--primary">Shop New Arrivals</a>
+                  </div>
                 </div>
               </div>
             {%- else -%}
+              {%- assign total_spent = 0 -%}
+              {%- for o in customer.orders -%}
+                {%- assign total_spent = total_spent | plus: o.total_price -%}
+              {%- endfor -%}
+              <p class="Text--subdued Heading u-h7" style="margin-bottom:12px;">
+                {{ customer.orders_count }} {% if customer.orders_count == 1 %}order{% else %}orders{% endif %} &middot; {{ total_spent | money }} total spent
+              </p>
+
               {%- paginate customer.orders by 25 -%}
                 <div class="TableWrapper">
                   <table class="AccountTable Table Table--large">
@@ -47,11 +58,37 @@
 
                     <tbody class="Heading u-h7">
                     {%- for order in customer.orders -%}
+                      {%- assign fs = order.financial_status -%}
+                      {%- if fs == 'paid' or fs == 'authorized' -%}
+                        {%- assign fs_color = '#2d7a2d' -%}
+                      {%- elsif fs == 'pending' or fs == 'partially_paid' -%}
+                        {%- assign fs_color = '#b07d00' -%}
+                      {%- else -%}
+                        {%- assign fs_color = '#888888' -%}
+                      {%- endif -%}
+
+                      {%- assign fus = order.fulfillment_status -%}
+                      {%- if fus == 'fulfilled' -%}
+                        {%- assign fus_color = '#2d7a2d' -%}
+                      {%- elsif fus == 'partial' -%}
+                        {%- assign fus_color = '#b07d00' -%}
+                      {%- else -%}
+                        {%- assign fus_color = '#888888' -%}
+                      {%- endif -%}
+
                       <tr>
                         <td><a href="{{ order.customer_url }}" class="Link Link--underline">{{ order.name }}</a></td>
                         <td>{{ order.created_at | date: format: 'basic' }}</td>
-                        <td>{{ order.financial_status_label }}</td>
-                        <td>{{ order.fulfillment_status_label }}</td>
+                        <td>
+                          <span style="display:inline-block;padding:2px 9px;border-radius:10px;background:{{ fs_color }}18;color:{{ fs_color }};font-size:0.75em;font-weight:600;letter-spacing:0.03em;white-space:nowrap;">
+                            {{ order.financial_status_label }}
+                          </span>
+                        </td>
+                        <td>
+                          <span style="display:inline-block;padding:2px 9px;border-radius:10px;background:{{ fus_color }}18;color:{{ fus_color }};font-size:0.75em;font-weight:600;letter-spacing:0.03em;white-space:nowrap;">
+                            {{ order.fulfillment_status_label }}
+                          </span>
+                        </td>
                         <td class="Text--alignRight">{{ order.total_price | money }}</td>
                       </tr>
                     {%- endfor -%}
@@ -66,7 +103,7 @@
 
           {%- comment -%}
           --------------------------------------------------------------------------------------------------------------------
-          ADDRESS
+          ADDRESS + WISHLIST
           --------------------------------------------------------------------------------------------------------------------
           {%- endcomment -%}
 
@@ -93,6 +130,45 @@
                   </div>
                 </div>
               {%- endif -%}
+            </div>
+
+            <div class="Segment" style="margin-top:20px;">
+              <h2 class="Segment__Title Heading u-h7">My Wishlist</h2>
+              <div class="Segment__Content">
+                <p>Items you've saved while browsing.</p>
+                <div class="Segment__ButtonWrapper">
+                  <a href="/pages/wishlist" class="Button Button--primary">View Wishlist</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+          <div class="Segment">
+            <h2 class="Segment__Title Heading u-h7">Sell With Us</h2>
+            <div class="Segment__Content">
+              <p>Have a luxury item to sell? We market it to our global network of private buyers.</p>
+              <div class="Segment__ButtonWrapper">
+                <a href="/pages/sell-with-us" class="Button Button--secondary">Get a Quote</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="Segment">
+            <h2 class="Segment__Title Heading u-h7">Source a Piece</h2>
+            <div class="Segment__Content">
+              <p>Looking for something specific? Our team can source it through our global network.</p>
+              <div class="Segment__ButtonWrapper">
+                <a href="/pages/contact" class="Button Button--secondary">Get in Touch</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="Segment">
+            <h2 class="Segment__Title Heading u-h7">100% Authentic</h2>
+            <div class="Segment__Content">
+              <p>Every item from Found Fashion is guaranteed authentic, verified by our in-house experts before dispatch.</p>
             </div>
           </div>
         </div>
