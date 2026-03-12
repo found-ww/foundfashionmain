@@ -68,7 +68,11 @@
             {%- endif -%}
 
             {%- if block.settings.title != blank -%}
-              <h2 class="SectionHeader__Heading SectionHeader__Heading--emphasize Heading u-h1">{{ block.settings.title | escape }}</h2>
+              {%- if request.page_type == 'index' and forloop.first -%}
+                <h1 class="SectionHeader__Heading SectionHeader__Heading--emphasize Heading u-h1">{{ block.settings.title | escape }}</h1>
+              {%- else -%}
+                <h2 class="SectionHeader__Heading SectionHeader__Heading--emphasize Heading u-h1">{{ block.settings.title | escape }}</h2>
+              {%- endif -%}
             {%- endif -%}
 
             {%- if block.settings.button_1_text != blank and block.settings.button_2_text != blank -%}

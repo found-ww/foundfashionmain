@@ -53,6 +53,10 @@ Validate your Pinterest rich pins
 {%- else -%}
   <meta property="og:type" content="website">
   <meta property="og:title" content="{{ page_title | escape }}">
+  {%- if settings.logo -%}
+    <meta property="og:image" content="https:{{ settings.logo | img_url: 'master' }}">
+    <meta property="og:image:secure_url" content="https:{{ settings.logo | img_url: 'master' }}">
+  {%- endif -%}
 {%- endif -%}
 
 {%- if page_description -%}
