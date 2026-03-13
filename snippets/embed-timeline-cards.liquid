@@ -1,0 +1,130 @@
+{% comment %}
+  embed-timeline-cards.liquid
+  Parses a multi_line_text_field into a horizontal drag timeline.
+
+  Format — groups of 3 lines, up to 5 blocks:
+    Line 1: caption / year
+    Line 2: headline
+    Line 3: body copy
+    (blank line 1 of a group = stop rendering further blocks)
+
+  Usage: render 'embed-timeline-cards', content: string, id: string
+{% endcomment %}
+
+{%- assign _tc_id    = id | default: article.id -%}
+{%- assign _tc_lines = content | split: "\n" -%}
+
+{%- comment -%} Pre-count valid blocks so card numbering (01/03 etc.) is accurate {%- endcomment -%}
+{%- assign _tc_total = 0 -%}
+{%- for _i in (0..4) -%}
+  {%- assign _tc_i0    = _i | times: 3 -%}
+  {%- assign _tc_check = _tc_lines[_tc_i0] | strip | remove: "\r" -%}
+  {%- if _tc_check != blank -%}{%- assign _tc_total = _tc_total | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+
+{%- if _tc_total == 0 -%}{%- break -%}{%- endif -%}
+
+<div class="tc-embed">
+
+  <div class="TimelineCards__Block">
+
+    <div class="tc-prog"><div class="tc-prog-fill" id="tc-pf-{{ _tc_id }}"></div></div>
+
+    <div class="tc-track-wrap" id="tc-tw-{{ _tc_id }}">
+      <div class="tc-track" id="tc-track-{{ _tc_id }}">
+
+        {%- assign _tc_card_idx = 0 -%}
+        {%- for _i in (0..4) -%}
+          {%- assign _tc_i0   = _i | times: 3 -%}
+          {%- assign _tc_i1   = _tc_i0 | plus: 1 -%}
+          {%- assign _tc_i2   = _tc_i0 | plus: 2 -%}
+          {%- assign _tc_date = _tc_lines[_tc_i0] | strip | remove: "\r" -%}
+          {%- assign _tc_head = _tc_lines[_tc_i1] | strip | remove: "\r" -%}
+          {%- assign _tc_body = _tc_lines[_tc_i2] | strip | remove: "\r" -%}
+          {%- if _tc_date == blank -%}{%- break -%}{%- endif -%}
+          {%- assign _tc_card_idx = _tc_card_idx | plus: 1 -%}
+          {%- assign _tc_num   = _tc_card_idx | prepend: '0' | slice: -2, 2 -%}
+          {%- assign _tc_tot_s = _tc_total    | prepend: '0' | slice: -2, 2 -%}
+          <div class="tc-card">
+            <span class="tc-card-num">{{ _tc_num }} / {{ _tc_tot_s }}</span>
+            <div class="tc-card-date">{{ _tc_date }}</div>
+            <div class="tc-card-rule"></div>
+            {%- if _tc_head != blank -%}<h3 class="tc-card-h">{{ _tc_head }}</h3>{%- endif -%}
+            {%- if _tc_body != blank -%}<p class="tc-card-p">{{ _tc_body }}</p>{%- endif -%}
+          </div>
+        {%- endfor -%}
+
+      </div>
+    </div>
+
+    <div class="tc-foot">
+      {%- for _i in (0.._tc_total) -%}
+        {%- if _i < _tc_total -%}
+          <div class="tc-foot-dot{% if _i == 0 %} active{% endif %}" data-i="{{ _i }}"></div>
+        {%- endif -%}
+      {%- endfor -%}
+      <span class="tc-foot-hint">Drag to explore</span>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var tcId  = '{{ _tc_id }}';
+  var tw    = document.getElementById('tc-tw-'    + tcId);
+  var track = document.getElementById('tc-track-' + tcId);
+  var pf    = document.getElementById('tc-pf-'   + tcId);
+  if (!tw || !track) return;
+
+  var dots  = tw.closest('.TimelineCards__Block').querySelectorAll('.tc-foot-dot');
+  var cards = track.querySelectorAll('.tc-card');
+  var isDragging = false, startX = 0, tx = 0, animTx = 0, raf;
+
+  function lerp(a, b, n) { return a + (b - a) * n; }
+  function maxTx() { return -(track.scrollWidth - tw.clientWidth); }
+  function clamp(v) { return Math.max(maxTx(), Math.min(0, v)); }
+
+  function render() {
+    track.style.transform = 'translateX(' + animTx + 'px)';
+    var max = -maxTx();
+    pf.style.width = (max > 0 ? Math.min(100, (-animTx / max) * 100) : 0) + '%';
+    var cw  = cards[0] ? cards[0].offsetWidth : 1;
+    var idx = Math.round(-animTx / cw);
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+  }
+
+  function loop() {
+    animTx = lerp(animTx, tx, .1);
+    if (Math.abs(animTx - tx) > 0.1) { render(); raf = requestAnimationFrame(loop); }
+    else { animTx = tx; render(); }
+  }
+
+  tw.addEventListener('mousedown', function(e) {
+    isDragging = true; startX = e.pageX; cancelAnimationFrame(raf);
+  });
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    tx = clamp(tx + (e.pageX - startX)); startX = e.pageX; render();
+  });
+  window.addEventListener('mouseup', function() { isDragging = false; });
+
+  tw.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].pageX; cancelAnimationFrame(raf);
+  }, { passive: true });
+  tw.addEventListener('touchmove', function(e) {
+    tx = clamp(tx + (e.touches[0].pageX - startX)); startX = e.touches[0].pageX; render();
+  }, { passive: true });
+
+  dots.forEach(function(d) {
+    d.addEventListener('click', function() {
+      tx = clamp(-(cards[0] ? cards[0].offsetWidth * parseInt(d.dataset.i) : 0));
+      cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+    });
+  });
+
+  window.addEventListener('resize', function() { tx = clamp(tx); render(); });
+  render();
+})();
+</script>
