@@ -2,10 +2,11 @@
   embed-timeline-cards.liquid
   Parses a multi_line_text_field into a horizontal drag timeline.
 
-  Format — groups of 3 lines, up to 5 blocks:
+  Format — groups of 4 lines, up to 5 blocks:
     Line 1: caption / year
     Line 2: headline
     Line 3: body copy
+    Line 4: blank (separator)
     (blank line 1 of a group = stop rendering further blocks)
 
   Usage: render 'embed-timeline-cards', content: string, id: string
@@ -17,7 +18,7 @@
 {%- comment -%} Pre-count valid blocks so card numbering (01/03 etc.) is accurate {%- endcomment -%}
 {%- assign _tc_total = 0 -%}
 {%- for _i in (0..4) -%}
-  {%- assign _tc_i0    = _i | times: 3 -%}
+  {%- assign _tc_i0    = _i | times: 4 -%}
   {%- assign _tc_check = _tc_lines[_tc_i0] | strip | remove: "\r" -%}
   {%- if _tc_check != blank -%}{%- assign _tc_total = _tc_total | plus: 1 -%}{%- endif -%}
 {%- endfor -%}
@@ -35,7 +36,7 @@
 
         {%- assign _tc_card_idx = 0 -%}
         {%- for _i in (0..4) -%}
-          {%- assign _tc_i0   = _i | times: 3 -%}
+          {%- assign _tc_i0   = _i | times: 4 -%}
           {%- assign _tc_i1   = _tc_i0 | plus: 1 -%}
           {%- assign _tc_i2   = _tc_i0 | plus: 2 -%}
           {%- assign _tc_date = _tc_lines[_tc_i0] | strip | remove: "\r" -%}
