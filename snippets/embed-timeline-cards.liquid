@@ -1,6 +1,6 @@
 {% comment %}
   embed-timeline-cards.liquid
-  Format: groups of 4 lines (year / headline / body / blank), up to 5 blocks.
+  Format: groups of 3 lines (year / headline / body), up to 5 blocks. No blank lines needed.
 {% endcomment %}
 
 {%- assign _tc_id    = id | default: article.id -%}
@@ -9,7 +9,7 @@
 
 {%- assign _tc_total = 0 -%}
 {%- for _i in (0..4) -%}
-  {%- assign _tc_i0    = _i | times: 4 -%}
+  {%- assign _tc_i0    = _i | times: 3 -%}
   {%- assign _tc_check = _tc_lines[_tc_i0] | strip -%}
   {%- if _tc_check != blank -%}{%- assign _tc_total = _tc_total | plus: 1 -%}{%- endif -%}
 {%- endfor -%}
@@ -70,7 +70,7 @@
 
       {%- assign _tc_card_idx = 0 -%}
       {%- for _i in (0..4) -%}
-        {%- assign _tc_i0   = _i | times: 4 -%}
+        {%- assign _tc_i0   = _i | times: 3 -%}
         {%- assign _tc_i1   = _tc_i0 | plus: 1 -%}
         {%- assign _tc_i2   = _tc_i0 | plus: 2 -%}
         {%- assign _tc_date = _tc_lines[_tc_i0] | strip -%}
