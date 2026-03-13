@@ -112,8 +112,15 @@
   </aside>
 
   {%- if article.image and section.settings.show_article_image -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+
+    <div class="par-cursor-ring" id="par-cursor-ring"></div>
+    <div class="par-cursor-dot"  id="par-cursor-dot"></div>
+
     <div class="par-hero" id="par-hero">
-      <div class="par-layer par-image" id="par-img">
+      <div class="par-img-wrap" id="par-img">
         <img src="{{ article.image | img_url: '1600x' }}"
              srcset="{{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1600x' }} 1600w"
              sizes="100vw"
@@ -123,24 +130,36 @@
              fetchpriority="high"
              alt="{{ article.image.alt | default: article.title | escape }}">
       </div>
+      <div class="par-dark" id="par-dark"></div>
       {%- if par_word != blank -%}
-        <div class="par-layer par-word-wrap" id="par-word-el" aria-hidden="true">
-          <span class="par-word">{{ par_word }}</span>
+        <div class="par-ghost-layer" id="par-ghost-layer" aria-hidden="true">
+          <span class="par-ghost" id="par-ghost">{{ par_word }}</span>
         </div>
       {%- endif -%}
-      <div class="par-layer par-content" id="par-content">
-        <div class="par-kicker">
-          {%- if par_brand != blank -%}{{ par_brand }} &bull; {%- endif -%}
+      <div class="par-fg" id="par-fg">
+        <div class="par-rule"></div>
+        <p class="par-kicker">
+          {%- if par_brand != blank -%}{{ par_brand }} &nbsp;·&nbsp; {%- endif -%}
           {{ pub_year }}
+        </p>
+        <div class="par-title-wrap">
+          {%- assign title_words = article.title | split: ' ' -%}
+          {%- for word in title_words -%}
+            {%- assign tw_depth = forloop.index0 | times: 3 | plus: 2 -%}
+            <span class="par-title-word" data-depth="{{ tw_depth }}">{{ word }}</span>
+          {%- endfor -%}
         </div>
-        <h1 class="par-title">{{ article.title }}</h1>
-        {%- if par_sub != blank -%}
-          <p class="par-sub">{{ par_sub }}</p>
-        {%- endif -%}
-        <div class="par-footer">
+        <div class="par-foot">
           <span class="par-readtime">{{ read_minutes }} min read</span>
-          <a href="#article-body" class="par-cta">Start Reading</a>
+          <a class="par-cta" id="par-cta" href="#article-body">
+            Start reading
+            <svg viewBox="0 0 10 10" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h6M5 2l3 3-3 3"/></svg>
+          </a>
         </div>
+      </div>
+      <div class="par-scroll-hint" aria-hidden="true">
+        <span>Scroll</span>
+        <div class="par-scroll-line"></div>
       </div>
     </div>
   {%- endif -%}
@@ -384,109 +403,186 @@
     position: relative;
     width: 100%;
     height: 90vh;
-    min-height: 480px;
+    min-height: 580px;
     overflow: hidden;
-    background: #0f0d0b;
+    background: #12100e;
+    cursor: none;
   }
-  .par-layer {
+  .par-img-wrap {
     position: absolute;
-    inset: 0;
-    will-change: transform;
+    inset: -60px;
+    z-index: 0;
   }
-  .par-image img {
-    width: 100%;
-    height: 100%;
+  .par-img-wrap img {
+    width: 100%; height: 100%;
     object-fit: cover;
+    object-position: center 20%;
     display: block;
   }
-  .par-image::after {
-    content: '';
+  .par-dark {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.58) 100%);
+    z-index: 1;
+    background: rgba(18,16,14,0.82);
   }
-  .par-word-wrap {
+  .par-ghost-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    z-index: 1;
+    overflow: hidden;
+    will-change: transform;
   }
-  .par-word {
-    font-size: clamp(80px, 18vw, 220px);
-    font-weight: 800;
-    text-transform: uppercase;
+  .par-ghost {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(110px, 20vw, 220px);
+    font-weight: 300;
+    font-style: italic;
+    color: #fff;
+    opacity: 0.04;
     letter-spacing: -0.03em;
-    color: rgba(255,255,255,0.05);
-    line-height: 1;
-    user-select: none;
     white-space: nowrap;
+    user-select: none;
+    transition: letter-spacing 0.6s cubic-bezier(0.16,1,0.3,1);
   }
-  .par-content {
+  .par-fg {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 48px 48px 56px;
-    color: #fff;
-    z-index: 2;
+    padding: 0 3.5rem 3.5rem;
     pointer-events: none;
   }
-  .par-content .par-cta { pointer-events: auto; }
+  .par-rule {
+    width: 32px;
+    height: 0.5px;
+    background: rgba(255,255,255,0.38);
+    margin-bottom: 0.85rem;
+  }
   .par-kicker {
     font-size: 10px;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 14px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 1rem;
   }
-  .par-title {
-    font-size: clamp(2rem, 5vw, 4.5rem);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+  .par-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.04em;
+    margin-bottom: 2rem;
+  }
+  .par-title-word {
+    display: block;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
+    font-style: italic;
     color: #fff;
-    margin: 0 0 16px;
-    max-width: 720px;
+    line-height: 1.0;
+    letter-spacing: -0.01em;
+    font-size: clamp(26px, 3.6vw, 48px);
+    will-change: transform;
   }
-  .par-sub {
-    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
-    color: rgba(255,255,255,0.65);
-    max-width: 560px;
-    line-height: 1.6;
-    margin: 0 0 32px;
-  }
-  .par-footer {
+  .par-foot {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 1.75rem;
+    pointer-events: all;
   }
   .par-readtime {
     font-size: 10px;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.3);
   }
   .par-cta {
-    display: inline-block;
-    padding: 13px 32px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: #fff;
-    font-size: 10px;
-    letter-spacing: 0.16em;
+    font-size: 11px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
+    color: #fff;
     text-decoration: none;
-    transition: background 0.2s, border-color 0.2s;
-    backdrop-filter: blur(4px);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 26px;
+    border: 0.5px solid rgba(255,255,255,0.4);
+    border-radius: 2px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.3s, border-color 0.3s, gap 0.35s cubic-bezier(0.16,1,0.3,1);
   }
   .par-cta:hover {
-    background: rgba(255,255,255,0.2);
-    border-color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.13);
+    border-color: rgba(255,255,255,0.7);
+    gap: 20px;
+  }
+  .par-cta svg { flex-shrink: 0; }
+  .par-cursor-ring {
+    position: fixed;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(255,255,255,0.5);
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s cubic-bezier(0.16,1,0.3,1),
+                height 0.3s cubic-bezier(0.16,1,0.3,1),
+                border-color 0.3s,
+                opacity 0.3s;
+    opacity: 0;
+  }
+  .par-cursor-ring.visible { opacity: 1; }
+  .par-cursor-ring.hovering-cta { width: 70px; height: 70px; border-color: rgba(255,255,255,0.8); }
+  .par-cursor-dot {
+    position: fixed;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .par-cursor-dot.visible { opacity: 1; }
+  .par-scroll-hint {
+    position: absolute;
+    bottom: 3.5rem; right: 3.5rem;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    animation: par-bob 2.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes par-bob {
+    0%,100% { transform: translateY(0);   opacity: 0.28; }
+    50%      { transform: translateY(6px); opacity: 0.45; }
+  }
+  .par-scroll-hint span {
+    font-size: 9px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #fff;
+    writing-mode: vertical-rl;
+  }
+  .par-scroll-line {
+    width: 0.5px; height: 44px;
+    background: rgba(255,255,255,0.35);
   }
   @media screen and (max-width: 640px) {
-    .par-hero { height: 80vh; }
-    .par-content { padding: 24px 24px 40px; }
-    .par-title { font-size: clamp(1.8rem, 7vw, 3rem); }
+    .par-hero { height: 80vh; min-height: 440px; cursor: auto; }
+    .par-fg { padding: 0 24px 40px; }
+    .par-title-word { font-size: clamp(22px, 6.5vw, 34px); }
+    .par-cursor-ring, .par-cursor-dot { display: none; }
+    .par-scroll-hint { right: 1.5rem; bottom: 2rem; }
   }
 </style>
 
@@ -567,36 +663,111 @@
       });
     }
 
-    /* ---- Parallax hero cursor effect ---- */
-    var parHero = document.getElementById('par-hero');
-    if (parHero && window.matchMedia('(hover: hover)').matches) {
-      var parImg     = document.getElementById('par-img');
-      var parWordEl  = document.getElementById('par-word-el');
-      var parContent = document.getElementById('par-content');
-      var pmx = 0, pmy = 0, pcx = 0, pcy = 0;
-      function plerp(a, b, t) { return a + (b - a) * t; }
-      parHero.addEventListener('mousemove', function(e) {
-        var rect = parHero.getBoundingClientRect();
-        pmx = (e.clientX - rect.left) / rect.width - 0.5;
-        pmy = (e.clientY - rect.top) / rect.height - 0.5;
+    /* ---- Parallax hero ---- */
+    var parHero      = document.getElementById('par-hero');
+    var parDark      = document.getElementById('par-dark');
+    var parGhostWrap = document.getElementById('par-ghost-layer');
+    var parGhost     = document.getElementById('par-ghost');
+    var parWords     = document.querySelectorAll('.par-title-word');
+    var parCtaEl     = document.getElementById('par-cta');
+    var parRing      = document.getElementById('par-cursor-ring');
+    var parDotEl     = document.getElementById('par-cursor-dot');
+
+    if (parHero) {
+      var pMouse  = { x: window.innerWidth / 2,  y: window.innerHeight / 2 };
+      var pCur    = { x: window.innerWidth / 2,  y: window.innerHeight / 2 };
+      var pInside = false;
+      var pSpeed  = 0, pPrevX = pMouse.x, pPrevY = pMouse.y;
+      var SPOT_R  = 200;
+
+      var wT = [], wC = [];
+      parWords.forEach(function() { wT.push({x:0,y:0}); wC.push({x:0,y:0}); });
+      var gT = {x:0,y:0}, gC = {x:0,y:0};
+
+      function plerp(a, b, n) { return a + (b - a) * n; }
+      function pclamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+      document.addEventListener('mousemove', function(e) {
+        pSpeed  = Math.hypot(e.clientX - pPrevX, e.clientY - pPrevY);
+        pPrevX  = pMouse.x; pPrevY = pMouse.y;
+        pMouse.x = e.clientX; pMouse.y = e.clientY;
       });
+
+      if (window.matchMedia('(hover: hover)').matches) {
+        parHero.addEventListener('mouseenter', function() {
+          pInside = true;
+          if (parRing)  parRing.classList.add('visible');
+          if (parDotEl) parDotEl.classList.add('visible');
+        });
+        parHero.addEventListener('mouseleave', function() {
+          pInside = false;
+          if (parRing)  parRing.classList.remove('visible');
+          if (parDotEl) parDotEl.classList.remove('visible');
+          parWords.forEach(function(w, i) { wT[i].x = 0; wT[i].y = 0; });
+          gT.x = 0; gT.y = 0;
+          if (parDark) parDark.style.background = 'rgba(18,16,14,0.82)';
+        });
+        if (parCtaEl) {
+          parCtaEl.addEventListener('mouseenter', function() { if (parRing) parRing.classList.add('hovering-cta'); });
+          parCtaEl.addEventListener('mouseleave', function() { if (parRing) parRing.classList.remove('hovering-cta'); });
+        }
+      }
+
       (function ptick() {
-        pcx = plerp(pcx, pmx, 0.06);
-        pcy = plerp(pcy, pmy, 0.06);
-        if (parImg)     parImg.style.transform     = 'translate(' + (pcx * -18) + 'px,' + (pcy * -12) + 'px) scale(1.06)';
-        if (parWordEl)  parWordEl.style.transform  = 'translate(' + (pcx * 30)  + 'px,' + (pcy * 20)  + 'px)';
-        if (parContent) parContent.style.transform = 'translate(' + (pcx * 10)  + 'px,' + (pcy * 6)   + 'px)';
+        if (parRing) {
+          pCur.x = plerp(pCur.x, pMouse.x, 0.12);
+          pCur.y = plerp(pCur.y, pMouse.y, 0.12);
+          parRing.style.left = pCur.x + 'px';
+          parRing.style.top  = pCur.y + 'px';
+        }
+        if (parDotEl) {
+          parDotEl.style.left = pMouse.x + 'px';
+          parDotEl.style.top  = pMouse.y + 'px';
+        }
+
+        if (pInside) {
+          var r  = parHero.getBoundingClientRect();
+          var nx = (pMouse.x - r.left) / r.width  - 0.5;
+          var ny = (pMouse.y - r.top)  / r.height - 0.5;
+          var sx = pMouse.x - r.left;
+          var sy = pMouse.y - r.top;
+          var dynR = SPOT_R + pclamp(pSpeed * 1.2, 0, 80);
+          if (parDark) {
+            parDark.style.background =
+              'radial-gradient(circle ' + dynR + 'px at ' + sx + 'px ' + sy + 'px, ' +
+              'transparent 0%, rgba(18,16,14,0.25) 55%, rgba(18,16,14,0.82) 100%)';
+          }
+          parWords.forEach(function(word, i) {
+            var depth = parseFloat(word.getAttribute('data-depth'));
+            wT[i].x = nx * depth;
+            wT[i].y = ny * depth * 0.6;
+          });
+          gT.x = nx * -14;
+          gT.y = ny * -10;
+          if (parGhost) {
+            var extraLS = pclamp(pSpeed * 0.004, 0, 0.12);
+            parGhost.style.letterSpacing = (-0.03 + extraLS) + 'em';
+          }
+        }
+
+        parWords.forEach(function(word, i) {
+          wC[i].x = plerp(wC[i].x, wT[i].x, 0.07);
+          wC[i].y = plerp(wC[i].y, wT[i].y, 0.07);
+          word.style.transform = 'translate(' + wC[i].x + 'px,' + wC[i].y + 'px)';
+        });
+        gC.x = plerp(gC.x, gT.x, 0.05);
+        gC.y = plerp(gC.y, gT.y, 0.05);
+        if (parGhostWrap) parGhostWrap.style.transform = 'translate(' + gC.x + 'px,' + gC.y + 'px)';
+
         requestAnimationFrame(ptick);
       })();
-    }
 
-    /* ---- Smooth scroll for hero CTA ---- */
-    var parCta = document.querySelector('.par-cta[href="#article-body"]');
-    if (parCta) {
-      parCta.addEventListener('click', function(e) {
-        var target = document.getElementById('article-body');
-        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
-      });
+      if (parCtaEl) {
+        parCtaEl.addEventListener('click', function(e) {
+          var target = document.getElementById('article-body');
+          if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+        });
+      }
     }
 
     /* ---- Parallax images ---- */
