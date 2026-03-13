@@ -209,27 +209,27 @@
         </footer>
       {%- endif -%}
 
-      <nav class="ppv1-breadcrumb ppv1-breadcrumb--bottom" aria-label="Breadcrumb" style="border-top:1px solid #ede8e2;border-bottom:none;margin-top:24px;">
-        <ol class="ppv1-breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
-          <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a class="ppv1-breadcrumb__link" href="{{ routes.root_url }}" itemprop="item"><span itemprop="name">{{ 'general.breadcrumb.home' | t }}</span></a>
-            <meta itemprop="position" content="1">
-          </li>
-          <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a class="ppv1-breadcrumb__link" href="{{ blog.url }}" itemprop="item"><span itemprop="name">{{ blog.title }}</span></a>
-            <meta itemprop="position" content="2">
-          </li>
-          <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <span class="ppv1-breadcrumb__current" itemprop="name">{{ article.title }}</span>
-            <meta itemprop="item" content="{{ shop.url }}{{ article.url }}">
-            <meta itemprop="position" content="3">
-          </li>
-        </ol>
-      </nav>
     </div>
 
   </div>
 
+  <nav class="ppv1-breadcrumb ppv1-breadcrumb--bottom" aria-label="Breadcrumb" style="border-top:1px solid #ede8e2;border-bottom:none;">
+    <ol class="ppv1-breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+      <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a class="ppv1-breadcrumb__link" href="{{ routes.root_url }}" itemprop="item"><span itemprop="name">{{ 'general.breadcrumb.home' | t }}</span></a>
+        <meta itemprop="position" content="1">
+      </li>
+      <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a class="ppv1-breadcrumb__link" href="{{ blog.url }}" itemprop="item"><span itemprop="name">{{ blog.title }}</span></a>
+        <meta itemprop="position" content="2">
+      </li>
+      <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span class="ppv1-breadcrumb__current" itemprop="name">{{ article.title }}</span>
+        <meta itemprop="item" content="{{ shop.url }}{{ article.url }}">
+        <meta itemprop="position" content="3">
+      </li>
+    </ol>
+  </nav>
 
   {%- if section.settings.show_prev_next and blog.next_article or blog.previous_article -%}
     <aside class="ArticleNav">
