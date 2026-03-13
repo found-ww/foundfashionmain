@@ -630,16 +630,18 @@
     /* ---- Parallax hero ---- */
     var parHero  = document.getElementById('par-hero');
     var parDark  = document.getElementById('par-dark');
+    var parImg   = document.getElementById('par-img');
     var parCtaEl = document.getElementById('par-cta');
-    var parRing      = document.getElementById('par-cursor-ring');
-    var parDotEl     = document.getElementById('par-cursor-dot');
+    var parRing  = document.getElementById('par-cursor-ring');
+    var parDotEl = document.getElementById('par-cursor-dot');
 
     if (parHero) {
       var pMouse  = { x: window.innerWidth / 2,  y: window.innerHeight / 2 };
       var pCur    = { x: window.innerWidth / 2,  y: window.innerHeight / 2 };
       var pInside = false;
       var pSpeed  = 0, pPrevX = pMouse.x, pPrevY = pMouse.y;
-      var SPOT_R = 200;
+      var SPOT_R  = 200;
+      var imgT = {x:0,y:0}, imgC = {x:0,y:0};
 
       function plerp(a, b, n) { return a + (b - a) * n; }
       function pclamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -660,6 +662,7 @@
           pInside = false;
           if (parRing)  parRing.classList.remove('visible');
           if (parDotEl) parDotEl.classList.remove('visible');
+          imgT.x = 0; imgT.y = 0;
           if (parDark) parDark.style.background = 'rgba(18,16,14,0.42)';
         });
         if (parCtaEl) {
@@ -692,7 +695,13 @@
               'radial-gradient(circle ' + dynR + 'px at ' + sx + 'px ' + sy + 'px, ' +
               'transparent 0%, rgba(18,16,14,0.12) 55%, rgba(18,16,14,0.42) 100%)';
           }
+          imgT.x = nx * -22;
+          imgT.y = ny * -14;
         }
+
+        imgC.x = plerp(imgC.x, imgT.x, 0.06);
+        imgC.y = plerp(imgC.y, imgT.y, 0.06);
+        if (parImg) parImg.style.transform = 'translate(' + imgC.x + 'px,' + imgC.y + 'px) scale(1.08)';
 
         requestAnimationFrame(ptick);
       })();
