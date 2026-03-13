@@ -38,12 +38,17 @@
         "show_vendor": false,
         "show_color_swatch": false
       }
+    },
+    "article-breadcrumb-mobile": {
+      "type": "article-breadcrumb-mobile",
+      "settings": {}
     }
   },
   "order": [
     "main",
     "article-comments",
     "article-html-embed",
-    "shop-now"
+    "shop-now",
+    "article-breadcrumb-mobile"
   ]
 }
