@@ -127,11 +127,6 @@
              alt="{{ article.image.alt | default: article.title | escape }}">
       </div>
       <div class="par-dark" id="par-dark"></div>
-      {%- if par_word != blank -%}
-        <div class="par-ghost-layer" id="par-ghost-layer" aria-hidden="true">
-          <span class="par-ghost" id="par-ghost">{{ par_word }}</span>
-        </div>
-      {%- endif -%}
       <div class="par-fg" id="par-fg">
         <div class="par-rule"></div>
         <p class="par-kicker">
@@ -139,6 +134,9 @@
           {{ pub_year }}
         </p>
         <h1 class="par-title">{{ article.title }}</h1>
+        {%- if par_sub != blank -%}
+          <p class="par-sub">{{ par_sub }}</p>
+        {%- endif -%}
         <div class="par-foot">
           <span class="par-readtime">{{ read_minutes }} min read</span>
           <a class="par-cta" id="par-cta" href="#article-body">
@@ -415,28 +413,6 @@
     z-index: 1;
     background: rgba(18,16,14,0.42);
   }
-  .par-ghost-layer {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    overflow: hidden;
-    will-change: transform;
-  }
-  .par-ghost {
-    font-size: clamp(80px, 18vw, 220px);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: -0.03em;
-    color: rgba(255,255,255,0.05);
-    line-height: 1;
-    white-space: nowrap;
-    user-select: none;
-    transition: letter-spacing 0.6s cubic-bezier(0.16,1,0.3,1);
-  }
   .par-fg {
     position: absolute;
     inset: 0;
@@ -457,7 +433,7 @@
     font-size: 10px;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.72);
     margin-bottom: 1rem;
   }
   .par-title {
@@ -466,8 +442,15 @@
     line-height: 1.1;
     letter-spacing: -0.02em;
     color: #fff;
-    margin: 0 0 2rem;
+    margin: 0 0 1rem;
     max-width: 720px;
+  }
+  .par-sub {
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    color: rgba(255,255,255,0.6);
+    max-width: 560px;
+    line-height: 1.6;
+    margin: 0 0 2rem;
   }
   .par-foot {
     display: flex;
@@ -491,16 +474,16 @@
     align-items: center;
     gap: 12px;
     padding: 13px 26px;
-    border: 0.5px solid rgba(255,255,255,0.4);
+    border: 0.5px solid rgba(255,255,255,0.65);
     border-radius: 2px;
-    background: rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.14);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     transition: background 0.3s, border-color 0.3s, gap 0.35s cubic-bezier(0.16,1,0.3,1);
   }
   .par-cta:hover {
-    background: rgba(255,255,255,0.13);
-    border-color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.24);
+    border-color: rgba(255,255,255,0.9);
     gap: 20px;
   }
   .par-cta svg { flex-shrink: 0; }
@@ -544,19 +527,19 @@
     pointer-events: none;
   }
   @keyframes par-bob {
-    0%,100% { transform: translateY(0);   opacity: 0.28; }
-    50%      { transform: translateY(6px); opacity: 0.45; }
+    0%,100% { transform: translateY(0);   opacity: 0.55; }
+    50%      { transform: translateY(7px); opacity: 0.8; }
   }
   .par-scroll-hint span {
-    font-size: 9px;
-    letter-spacing: 0.24em;
+    font-size: 11px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #fff;
     writing-mode: vertical-rl;
   }
   .par-scroll-line {
-    width: 0.5px; height: 44px;
-    background: rgba(255,255,255,0.35);
+    width: 1px; height: 52px;
+    background: rgba(255,255,255,0.6);
   }
   @media screen and (max-width: 640px) {
     .par-hero { height: 80vh; min-height: 440px; cursor: auto; }
@@ -645,11 +628,9 @@
     }
 
     /* ---- Parallax hero ---- */
-    var parHero      = document.getElementById('par-hero');
-    var parDark      = document.getElementById('par-dark');
-    var parGhostWrap = document.getElementById('par-ghost-layer');
-    var parGhost     = document.getElementById('par-ghost');
-    var parCtaEl     = document.getElementById('par-cta');
+    var parHero  = document.getElementById('par-hero');
+    var parDark  = document.getElementById('par-dark');
+    var parCtaEl = document.getElementById('par-cta');
     var parRing      = document.getElementById('par-cursor-ring');
     var parDotEl     = document.getElementById('par-cursor-dot');
 
@@ -658,8 +639,7 @@
       var pCur    = { x: window.innerWidth / 2,  y: window.innerHeight / 2 };
       var pInside = false;
       var pSpeed  = 0, pPrevX = pMouse.x, pPrevY = pMouse.y;
-      var SPOT_R  = 200;
-      var gT = {x:0,y:0}, gC = {x:0,y:0};
+      var SPOT_R = 200;
 
       function plerp(a, b, n) { return a + (b - a) * n; }
       function pclamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
@@ -680,7 +660,6 @@
           pInside = false;
           if (parRing)  parRing.classList.remove('visible');
           if (parDotEl) parDotEl.classList.remove('visible');
-          gT.x = 0; gT.y = 0;
           if (parDark) parDark.style.background = 'rgba(18,16,14,0.42)';
         });
         if (parCtaEl) {
@@ -713,17 +692,7 @@
               'radial-gradient(circle ' + dynR + 'px at ' + sx + 'px ' + sy + 'px, ' +
               'transparent 0%, rgba(18,16,14,0.12) 55%, rgba(18,16,14,0.42) 100%)';
           }
-          gT.x = nx * -14;
-          gT.y = ny * -10;
-          if (parGhost) {
-            var extraLS = pclamp(pSpeed * 0.004, 0, 0.12);
-            parGhost.style.letterSpacing = (-0.03 + extraLS) + 'em';
-          }
         }
-
-        gC.x = plerp(gC.x, gT.x, 0.05);
-        gC.y = plerp(gC.y, gT.y, 0.05);
-        if (parGhostWrap) parGhostWrap.style.transform = 'translate(' + gC.x + 'px,' + gC.y + 'px)';
 
         requestAnimationFrame(ptick);
       })();
