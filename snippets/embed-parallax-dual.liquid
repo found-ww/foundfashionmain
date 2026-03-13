@@ -1,0 +1,37 @@
+{% comment %}
+  Parallax dual image embed — driven by article metafields.
+  Usage: render 'embed-parallax-dual', img_left: image_object, img_right: image_object
+  Triggered by [parallax] marker in article body.
+{% endcomment %}
+
+{%- assign epd_id = 'epd-' | append: img_left.id -%}
+
+<div class="epd" id="{{ epd_id }}" aria-hidden="false">
+  <div class="epd__grid">
+
+    <div class="epd__slot epd__slot--a">
+      <div class="epd__wrap">
+        <img
+          src="{{ img_left | img_url: '1200x' }}"
+          srcset="{{ img_left | img_url: '600x' }} 600w, {{ img_left | img_url: '1200x' }} 1200w"
+          sizes="(max-width: 640px) 100vw, 55vw"
+          alt="{{ img_left.alt | escape }}"
+          loading="lazy"
+          data-epd-img="{{ epd_id }}-a">
+      </div>
+    </div>
+
+    <div class="epd__slot epd__slot--b">
+      <div class="epd__wrap">
+        <img
+          src="{{ img_right | img_url: '1200x' }}"
+          srcset="{{ img_right | img_url: '600x' }} 600w, {{ img_right | img_url: '1200x' }} 1200w"
+          sizes="(max-width: 640px) 100vw, 40vw"
+          alt="{{ img_right.alt | escape }}"
+          loading="lazy"
+          data-epd-img="{{ epd_id }}-b">
+      </div>
+    </div>
+
+  </div>
+</div>
