@@ -174,7 +174,28 @@
       {%- endunless -%}
 
       <div class="Article__Body Rte">
-        {{ article.content }}
+        {%- comment -%} ── Embed marker replacement ── {%- endcomment -%}
+        {%- assign _img1 = article.metafields.custom.duel_parallax_img_1.value -%}
+        {%- assign _img2 = article.metafields.custom.duel_parallax_img_2.value -%}
+        {%- assign _quote = article.metafields.custom.large_quote.value -%}
+
+        {%- assign _content = article.content -%}
+
+        {%- if _img1 != blank and _img2 != blank -%}
+          {%- capture _pdi_html -%}{%- render 'embed-parallax-dual', img_left: _img1, img_right: _img2 -%}{%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[parallax]</p>', _pdi_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[parallax]</p>', '' -%}
+        {%- endif -%}
+
+        {%- if _quote != blank -%}
+          {%- capture _pq_html -%}{%- render 'embed-pull-quote', quote: _quote -%}{%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[quote]</p>', _pq_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[quote]</p>', '' -%}
+        {%- endif -%}
+
+        {{ _content }}
       </div>
 
       {%- capture article_footer -%}
@@ -522,6 +543,73 @@
     .par-scroll-hint { right: 1.5rem; bottom: 2rem; }
     .ppv1-breadcrumb { display: none; }
   }
+
+  /* ── Embed: Parallax Dual Image ── */
+  .epd {
+    margin: 3.5rem 0;
+    overflow: hidden;
+  }
+  .epd__grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    align-items: start;
+    gap: 20px;
+  }
+  .epd__slot--b { margin-top: 60px; }
+  .epd__wrap {
+    overflow: hidden;
+    line-height: 0;
+  }
+  .epd__wrap img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    transform: scale(1.08);
+    will-change: transform;
+  }
+  @media screen and (max-width: 640px) {
+    .epd__grid { grid-template-columns: 1fr; }
+    .epd__slot--b { margin-top: 0; }
+  }
+
+  /* ── Embed: Pull Quote ── */
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300&display=swap');
+  .epq {
+    margin: 3.5rem 0;
+    padding: 3rem 2.5rem 3.5rem;
+    background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+  }
+  .epq__mark {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 110px;
+    line-height: 0.55;
+    color: #111;
+    opacity: 0.12;
+    font-style: italic;
+    font-weight: 300;
+    display: block;
+    margin-bottom: 1.25rem;
+    user-select: none;
+  }
+  .epq__text {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(26px, 4vw, 50px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.25;
+    color: #111;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .epq__word {
+    display: inline-block;
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s;
+    cursor: default;
+  }
+  .epq__word:hover { transform: translateY(-5px); }
+  .epq__text:hover .epq__word:not(:hover) { opacity: 0.28; }
 </style>
 
 <script>
@@ -688,6 +776,45 @@
       updateParallax();
     }
 
+  })();
+
+  /* ── Embed: Parallax Dual Image init ── */
+  (function() {
+    function lerp(a,b,n){ return a+(b-a)*n; }
+    var pairs = {};
+    document.querySelectorAll('[data-epd-img]').forEach(function(img) {
+      var key = img.dataset.epdImg.replace(/-[ab]$/, '');
+      if (!pairs[key]) pairs[key] = {};
+      var side = img.dataset.epdImg.slice(-1); // 'a' or 'b'
+      pairs[key][side] = { el: img, cur: 0, tgt: 0 };
+    });
+    var keys = Object.keys(pairs);
+    if (!keys.length) return;
+    function tick() {
+      keys.forEach(function(k) {
+        ['a','b'].forEach(function(side) {
+          var s = pairs[k][side];
+          if (!s) return;
+          var rect = s.el.parentElement.getBoundingClientRect();
+          var prog = (window.innerHeight / 2 - (rect.top + rect.height / 2)) / window.innerHeight;
+          s.tgt = prog * rect.height * (side === 'a' ? -0.08 : 0.12);
+          s.cur = lerp(s.cur, s.tgt, 0.07);
+          s.el.style.transform = 'translateY(' + s.cur + 'px) scale(1.08)';
+        });
+      });
+      requestAnimationFrame(tick);
+    }
+    tick();
+  })();
+
+  /* ── Embed: Pull Quote word-hover init ── */
+  (function() {
+    document.querySelectorAll('[data-epq-id]').forEach(function(el) {
+      var words = el.textContent.trim().split(' ');
+      el.innerHTML = words.map(function(w) {
+        return '<span class="epq__word">' + w + '</span>';
+      }).join(' ');
+    });
   })();
 </script>
 

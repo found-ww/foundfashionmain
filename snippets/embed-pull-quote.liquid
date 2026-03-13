@@ -1,0 +1,12 @@
+{% comment %}
+  Pull quote embed — driven by article metafields.
+  Usage: render 'embed-pull-quote', quote: string
+  Triggered by [quote] marker in article body.
+{% endcomment %}
+
+{%- assign epq_id = 'epq-' | append: section.id -%}
+
+<div class="epq" id="{{ epq_id }}">
+  <span class="epq__mark" aria-hidden="true">&ldquo;</span>
+  <p class="epq__text" data-epq-id="{{ epq_id }}">{{ quote | escape }}</p>
+</div>
