@@ -410,7 +410,7 @@
     display: block;
     margin: 0 !important; /* override .Rte img margin so image sits flush inside the wrapper */
     will-change: transform;
-    transform: scale(1.15); /* pre-scale so overflow is clipped before JS kicks in */
+    transform: scale(1.12); /* pre-scale so overflow is clipped before JS kicks in */
     transform-origin: center center;
   }
 
@@ -756,7 +756,7 @@
       });
     }
 
-    /* ---- Parallax images ---- */
+    /* ---- Parallax images (Apple-style: continuous RAF + lerp) ---- */
     var bodyEl = document.querySelector('.Article__Body');
     if (bodyEl) {
       bodyEl.querySelectorAll('img').forEach(function(img) {
@@ -766,24 +766,28 @@
         img.parentNode.insertBefore(wrap, img);
         wrap.appendChild(img);
       });
-      var wraps = bodyEl.querySelectorAll('.Article__ParallaxWrap');
-      function updateParallax() {
-        var viewH = window.innerHeight;
-        wraps.forEach(function(wrap) {
-          var rect = wrap.getBoundingClientRect();
-          if (rect.bottom < -100 || rect.top > viewH + 100) return;
-          var progress = (viewH / 2 - (rect.top + rect.height / 2)) / viewH;
-          var img = wrap.querySelector('img');
-          if (img) {
-            /* cap translation to 7.5% of image height — matches scale(1.15) extra coverage */
-            var maxT = rect.height * 0.075;
-            var t = Math.max(-maxT, Math.min(maxT, progress * rect.height * 0.15));
-            img.style.transform = 'translateY(' + t + 'px) scale(1.15)';
-          }
+
+      var parItems = [];
+      bodyEl.querySelectorAll('.Article__ParallaxWrap').forEach(function(wrap) {
+        var img = wrap.querySelector('img');
+        if (img) parItems.push({ wrap: wrap, img: img, cur: 0, tgt: 0 });
+      });
+
+      function parTick() {
+        var vH = window.innerHeight;
+        parItems.forEach(function(item) {
+          var rect  = item.wrap.getBoundingClientRect();
+          var range = vH / 2 + rect.height / 2;
+          var prog  = (vH / 2 - (rect.top + rect.height / 2)) / range;
+          var maxT  = rect.height * 0.08;
+          item.tgt  = Math.max(-maxT, Math.min(maxT, prog * maxT * 1.6));
+          item.cur += (item.tgt - item.cur) * 0.06; /* lerp factor — lower = smoother/lazier */
+          item.img.style.transform = 'translateY(' + item.cur.toFixed(2) + 'px) scale(1.12)';
         });
+        requestAnimationFrame(parTick);
       }
-      window.addEventListener('scroll', updateParallax, { passive: true });
-      updateParallax();
+
+      parTick();
     }
 
   })();
