@@ -3,6 +3,12 @@
 {%- assign twitter_text = article.title -%}
 {%- assign pinterest_description = article.description | strip_html | truncatewords: 15 | url_param_escape -%}
 {%- assign pinterest_image = article.image | img_url: '750x' | prepend: 'https:' -%}
+{%- assign word_count = article.content | strip_html | split: ' ' | size -%}
+{%- assign read_minutes = word_count | divided_by: 200 | at_least: 1 -%}
+{%- assign par_word = article.metafields.custom.article_type.value -%}
+{%- assign par_brand = article.metafields.custom.brand.value -%}
+{%- assign par_sub = article.metafields.custom.hero_subtitle.value -%}
+{%- assign pub_year = article.published_at | date: '%Y' -%}
 
 <style>
   .ppv1-breadcrumb {
@@ -106,21 +112,42 @@
   </aside>
 
   {%- if article.image and section.settings.show_article_image -%}
-    <div class="Article__ImageWrapper">
-      <img class="Article__Image"
-           src="{{ article.image | img_url: '1200x' }}"
-           srcset="{{ article.image | img_url: '400x' }} 400w, {{ article.image | img_url: '600x' }} 600w, {{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1400x' }} 1400w, {{ article.image | img_url: '1600x' }} 1600w"
-           sizes="100vw"
-           width="{{ article.image.width }}"
-           height="{{ article.image.height }}"
-           loading="eager"
-           fetchpriority="high"
-           alt="{{ article.image.alt | default: article.title | escape }}">
+    <div class="par-hero" id="par-hero">
+      <div class="par-layer par-image" id="par-img">
+        <img src="{{ article.image | img_url: '1600x' }}"
+             srcset="{{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1600x' }} 1600w"
+             sizes="100vw"
+             width="{{ article.image.width }}"
+             height="{{ article.image.height }}"
+             loading="eager"
+             fetchpriority="high"
+             alt="{{ article.image.alt | default: article.title | escape }}">
+      </div>
+      {%- if par_word != blank -%}
+        <div class="par-layer par-word-wrap" id="par-word-el" aria-hidden="true">
+          <span class="par-word">{{ par_word }}</span>
+        </div>
+      {%- endif -%}
+      <div class="par-layer par-content" id="par-content">
+        <div class="par-kicker">
+          {%- if par_brand != blank -%}{{ par_brand }} &bull; {%- endif -%}
+          {{ pub_year }}
+        </div>
+        <h1 class="par-title">{{ article.title }}</h1>
+        {%- if par_sub != blank -%}
+          <p class="par-sub">{{ par_sub }}</p>
+        {%- endif -%}
+        <div class="par-footer">
+          <span class="par-readtime">{{ read_minutes }} min read</span>
+          <a href="#article-body" class="par-cta">Start Reading</a>
+        </div>
+      </div>
     </div>
   {%- endif -%}
 
-  <div class="Article__Wrapper">
+  <div id="article-body" class="Article__Wrapper">
     <div class="Article__Content">
+      {%- unless article.image and section.settings.show_article_image -%}
       <header class="Article__Header">
         {%- capture article_meta -%}
           {%- if section.settings.show_date -%}
@@ -140,6 +167,7 @@
 
         <h1 class="Article__Title Heading u-h1">{{ article.title }}</h1>
       </header>
+      {%- endunless -%}
 
       <div class="Article__Body Rte">
         {{ article.content }}
@@ -350,6 +378,116 @@
     display: block;
     will-change: transform;
   }
+
+  /* ---- Parallax hero ---- */
+  .par-hero {
+    position: relative;
+    width: 100%;
+    height: 90vh;
+    min-height: 480px;
+    overflow: hidden;
+    background: #0f0d0b;
+  }
+  .par-layer {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+  .par-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .par-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.58) 100%);
+  }
+  .par-word-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .par-word {
+    font-size: clamp(80px, 18vw, 220px);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    color: rgba(255,255,255,0.05);
+    line-height: 1;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .par-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 48px 48px 56px;
+    color: #fff;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .par-content .par-cta { pointer-events: auto; }
+  .par-kicker {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 14px;
+  }
+  .par-title {
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin: 0 0 16px;
+    max-width: 720px;
+  }
+  .par-sub {
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: rgba(255,255,255,0.65);
+    max-width: 560px;
+    line-height: 1.6;
+    margin: 0 0 32px;
+  }
+  .par-footer {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .par-readtime {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .par-cta {
+    display: inline-block;
+    padding: 13px 32px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .par-cta:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.55);
+  }
+  @media screen and (max-width: 640px) {
+    .par-hero { height: 80vh; }
+    .par-content { padding: 24px 24px 40px; }
+    .par-title { font-size: clamp(1.8rem, 7vw, 3rem); }
+  }
 </style>
 
 <script>
@@ -426,6 +564,38 @@
           document.body.appendChild(ta); ta.select(); document.execCommand('copy');
           document.body.removeChild(ta); onCopied();
         }
+      });
+    }
+
+    /* ---- Parallax hero cursor effect ---- */
+    var parHero = document.getElementById('par-hero');
+    if (parHero && window.matchMedia('(hover: hover)').matches) {
+      var parImg     = document.getElementById('par-img');
+      var parWordEl  = document.getElementById('par-word-el');
+      var parContent = document.getElementById('par-content');
+      var pmx = 0, pmy = 0, pcx = 0, pcy = 0;
+      function plerp(a, b, t) { return a + (b - a) * t; }
+      parHero.addEventListener('mousemove', function(e) {
+        var rect = parHero.getBoundingClientRect();
+        pmx = (e.clientX - rect.left) / rect.width - 0.5;
+        pmy = (e.clientY - rect.top) / rect.height - 0.5;
+      });
+      (function ptick() {
+        pcx = plerp(pcx, pmx, 0.06);
+        pcy = plerp(pcy, pmy, 0.06);
+        if (parImg)     parImg.style.transform     = 'translate(' + (pcx * -18) + 'px,' + (pcy * -12) + 'px) scale(1.06)';
+        if (parWordEl)  parWordEl.style.transform  = 'translate(' + (pcx * 30)  + 'px,' + (pcy * 20)  + 'px)';
+        if (parContent) parContent.style.transform = 'translate(' + (pcx * 10)  + 'px,' + (pcy * 6)   + 'px)';
+        requestAnimationFrame(ptick);
+      })();
+    }
+
+    /* ---- Smooth scroll for hero CTA ---- */
+    var parCta = document.querySelector('.par-cta[href="#article-body"]');
+    if (parCta) {
+      parCta.addEventListener('click', function(e) {
+        var target = document.getElementById('article-body');
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
       });
     }
 
