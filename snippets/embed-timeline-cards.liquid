@@ -4,8 +4,7 @@
 {% endcomment %}
 
 {%- assign _tc_id    = id | default: article.id -%}
-{%- assign _tc_clean = content | replace: "\r\n", "\n" | replace: "\r", "\n" -%}
-{%- assign _tc_lines = _tc_clean | split: "\n" -%}
+{%- assign _tc_lines = content | newline_to_br | split: '<br />' -%}
 
 {%- assign _tc_total = 0 -%}
 {%- for _i in (0..4) -%}
