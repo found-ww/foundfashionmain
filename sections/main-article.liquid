@@ -442,7 +442,7 @@
     max-width: 720px;
   }
   .par-sub {
-    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    font-size: clamp(1rem, 1.6vw, 1.2rem);
     color: rgba(255,255,255,0.6);
     max-width: 560px;
     line-height: 1.6;
@@ -630,7 +630,9 @@
         if (!target) return;
         e.preventDefault();
         var start    = window.pageYOffset;
-        var end      = target.getBoundingClientRect().top + start;
+        var toolbar  = document.querySelector('.ArticleToolbar');
+        var offset   = toolbar ? toolbar.offsetHeight + 16 : 16;
+        var end      = target.getBoundingClientRect().top + start - offset;
         var duration = 1400;
         var t0       = performance.now();
         function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
