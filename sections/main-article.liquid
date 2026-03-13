@@ -178,6 +178,7 @@
         {%- assign _img1 = article.metafields.custom.duel_parallax_img_1.value -%}
         {%- assign _img2 = article.metafields.custom.duel_parallax_img_2.value -%}
         {%- assign _quote = article.metafields.custom.large_quote.value -%}
+        {%- assign _largetext = article.metafields.custom.large_text.value -%}
 
         {%- assign _content = article.content -%}
 
@@ -193,6 +194,13 @@
           {%- assign _content = _content | replace: '<p>[quote]</p>', _pq_html -%}
         {%- else -%}
           {%- assign _content = _content | replace: '<p>[quote]</p>', '' -%}
+        {%- endif -%}
+
+        {%- if _largetext != blank -%}
+          {%- capture _lt_html -%}{%- render 'embed-large-text', text: _largetext -%}{%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[largeword]</p>', _lt_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[largeword]</p>', '' -%}
         {%- endif -%}
 
         {{ _content }}
