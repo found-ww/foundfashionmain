@@ -372,30 +372,30 @@
   .Article__Body blockquote {
     margin: 56px auto;
     max-width: 680px;
-    padding: 36px 0;
-    border-top: 1px solid #1c1c1c;
-    border-bottom: 1px solid #1c1c1c;
-    text-align: center;
+    padding: 0;
+    text-align: left;
   }
   .Article__Body blockquote::before {
     content: '\201C';
     display: block;
-    font-size: 72px;
+    font-size: clamp(100px, 14vw, 160px);
     line-height: 0.5;
-    margin-bottom: 20px;
-    color: #1c1c1c;
-    font-family: Georgia, 'Times New Roman', serif;
-    font-style: normal;
-    opacity: 0.3;
+    margin-bottom: 1rem;
+    color: #947b69;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-weight: 300;
+    opacity: 0.22;
   }
   .Article__Body blockquote,
   .Article__Body blockquote p {
-    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-size: clamp(1.4rem, 3vw, 2.4rem);
     font-style: italic;
-    line-height: 1.65;
-    color: #1c1c1c;
-    letter-spacing: 0.01em;
-    font-family: Georgia, 'Times New Roman', serif;
+    line-height: 1.3;
+    color: #12100e;
+    letter-spacing: -0.01em;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-weight: 300;
   }
 
   /* ---- Parallax image wrapper ---- */
@@ -581,41 +581,61 @@
   /* ── Embed: Pull Quote ── */
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300&display=swap');
   .epq {
-    margin: 3.5rem 0;
-    padding: 3rem 2.5rem 3.5rem;
-    background: #fff;
-    border: 0.5px solid rgba(0,0,0,0.08);
-    border-radius: 12px;
+    margin: 4rem 0;
+    padding: 2.5rem 0 3rem;
   }
   .epq__mark {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: 110px;
-    line-height: 0.55;
-    color: #111;
-    opacity: 0.12;
+    font-size: clamp(130px, 19vw, 200px);
+    line-height: 0.5;
+    color: #947b69;
     font-style: italic;
     font-weight: 300;
     display: block;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.1rem;
     user-select: none;
+    /* scroll-in start state */
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+  }
+  .epq__mark.epq--in {
+    opacity: 0.2;
+    transform: translateY(0);
   }
   .epq__text {
     font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: clamp(26px, 4vw, 50px);
+    font-size: clamp(28px, 4.5vw, 54px);
     font-weight: 300;
     font-style: italic;
-    line-height: 1.25;
-    color: #111;
+    line-height: 1.3;
+    color: #12100e;
     letter-spacing: -0.01em;
     margin: 0;
   }
   .epq__word {
     display: inline-block;
-    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.35s;
     cursor: default;
+    /* scroll-in start state */
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(10px);
+    transition:
+      opacity   .75s cubic-bezier(.16,1,.3,1),
+      filter    .75s cubic-bezier(.16,1,.3,1),
+      transform .75s cubic-bezier(.16,1,.3,1),
+      color     .3s  ease;
   }
-  .epq__word:hover { transform: translateY(-5px); }
-  .epq__text:hover .epq__word:not(:hover) { opacity: 0.28; }
+  .epq__word.epq--in {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  .epq__word.epq--in:hover {
+    transform: translateY(-5px);
+    color: #947b69;
+    filter: blur(0);
+  }
 </style>
 
 <script>
@@ -822,13 +842,27 @@
     tick();
   })();
 
-  /* ── Embed: Pull Quote word-hover init ── */
+  /* ── Embed: Pull Quote — scroll-in blur + stagger ── */
   (function() {
     document.querySelectorAll('[data-epq-id]').forEach(function(el) {
-      var words = el.textContent.trim().split(' ');
-      el.innerHTML = words.map(function(w) {
+      el.innerHTML = el.textContent.trim().split(' ').map(function(w) {
         return '<span class="epq__word">' + w + '</span>';
       }).join(' ');
+
+      var block    = el.closest('.epq');
+      var mark     = block && block.querySelector('.epq__mark');
+      var words    = el.querySelectorAll('.epq__word');
+      var fired    = false;
+
+      new IntersectionObserver(function(entries, obs) {
+        if (!entries[0].isIntersecting || fired) return;
+        fired = true;
+        obs.disconnect();
+        if (mark) mark.classList.add('epq--in');
+        words.forEach(function(w, i) {
+          setTimeout(function() { w.classList.add('epq--in'); }, 350 + i * 80);
+        });
+      }, { threshold: 0.25 }).observe(block || el);
     });
   })();
 </script>
