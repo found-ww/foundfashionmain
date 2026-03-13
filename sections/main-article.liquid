@@ -112,10 +112,6 @@
   </aside>
 
   {%- if article.image and section.settings.show_article_image -%}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
-
     <div class="par-cursor-ring" id="par-cursor-ring"></div>
     <div class="par-cursor-dot"  id="par-cursor-dot"></div>
 
@@ -142,21 +138,7 @@
           {%- if par_brand != blank -%}{{ par_brand }} &nbsp;·&nbsp; {%- endif -%}
           {{ pub_year }}
         </p>
-        <div class="par-title-wrap">
-          {%- assign title_words = article.title | split: ' ' -%}
-          {%- assign tw_chunk = '' -%}
-          {%- assign tw_line = 0 -%}
-          {%- for word in title_words -%}
-            {%- assign tw_chunk = tw_chunk | append: word | append: ' ' -%}
-            {%- assign tw_mod = forloop.index | modulo: 2 -%}
-            {%- if tw_mod == 0 or forloop.last -%}
-              {%- assign tw_depth = tw_line | times: 4 | plus: 2 -%}
-              <span class="par-title-word" data-depth="{{ tw_depth }}">{{ tw_chunk | strip }}</span>
-              {%- assign tw_chunk = '' -%}
-              {%- assign tw_line = tw_line | plus: 1 -%}
-            {%- endif -%}
-          {%- endfor -%}
-        </div>
+        <h1 class="par-title">{{ article.title }}</h1>
         <div class="par-foot">
           <span class="par-readtime">{{ read_minutes }} min read</span>
           <a class="par-cta" id="par-cta" href="#article-body">
@@ -431,7 +413,7 @@
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: rgba(18,16,14,0.82);
+    background: rgba(18,16,14,0.42);
   }
   .par-ghost-layer {
     position: absolute;
@@ -445,13 +427,12 @@
     will-change: transform;
   }
   .par-ghost {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-size: clamp(110px, 20vw, 220px);
-    font-weight: 300;
-    font-style: italic;
-    color: #fff;
-    opacity: 0.04;
+    font-size: clamp(80px, 18vw, 220px);
+    font-weight: 800;
+    text-transform: uppercase;
     letter-spacing: -0.03em;
+    color: rgba(255,255,255,0.05);
+    line-height: 1;
     white-space: nowrap;
     user-select: none;
     transition: letter-spacing 0.6s cubic-bezier(0.16,1,0.3,1);
@@ -479,22 +460,14 @@
     color: rgba(255,255,255,0.45);
     margin-bottom: 1rem;
   }
-  .par-title-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 0.04em;
-    margin-bottom: 2rem;
-  }
-  .par-title-word {
-    display: block;
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 300;
-    font-style: italic;
+  .par-title {
+    font-size: clamp(1.8rem, 3.8vw, 3.8rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
     color: #fff;
-    line-height: 1.0;
-    letter-spacing: -0.01em;
-    font-size: clamp(26px, 3.6vw, 48px);
-    will-change: transform;
+    margin: 0 0 2rem;
+    max-width: 720px;
   }
   .par-foot {
     display: flex;
@@ -588,7 +561,7 @@
   @media screen and (max-width: 640px) {
     .par-hero { height: 80vh; min-height: 440px; cursor: auto; }
     .par-fg { padding: 0 24px 40px; }
-    .par-title-word { font-size: clamp(22px, 6.5vw, 34px); }
+    .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); }
     .par-cursor-ring, .par-cursor-dot { display: none; }
     .par-scroll-hint { right: 1.5rem; bottom: 2rem; }
   }
@@ -676,7 +649,6 @@
     var parDark      = document.getElementById('par-dark');
     var parGhostWrap = document.getElementById('par-ghost-layer');
     var parGhost     = document.getElementById('par-ghost');
-    var parWords     = document.querySelectorAll('.par-title-word');
     var parCtaEl     = document.getElementById('par-cta');
     var parRing      = document.getElementById('par-cursor-ring');
     var parDotEl     = document.getElementById('par-cursor-dot');
@@ -687,9 +659,6 @@
       var pInside = false;
       var pSpeed  = 0, pPrevX = pMouse.x, pPrevY = pMouse.y;
       var SPOT_R  = 200;
-
-      var wT = [], wC = [];
-      parWords.forEach(function() { wT.push({x:0,y:0}); wC.push({x:0,y:0}); });
       var gT = {x:0,y:0}, gC = {x:0,y:0};
 
       function plerp(a, b, n) { return a + (b - a) * n; }
@@ -711,9 +680,8 @@
           pInside = false;
           if (parRing)  parRing.classList.remove('visible');
           if (parDotEl) parDotEl.classList.remove('visible');
-          parWords.forEach(function(w, i) { wT[i].x = 0; wT[i].y = 0; });
           gT.x = 0; gT.y = 0;
-          if (parDark) parDark.style.background = 'rgba(18,16,14,0.82)';
+          if (parDark) parDark.style.background = 'rgba(18,16,14,0.42)';
         });
         if (parCtaEl) {
           parCtaEl.addEventListener('mouseenter', function() { if (parRing) parRing.classList.add('hovering-cta'); });
@@ -743,13 +711,8 @@
           if (parDark) {
             parDark.style.background =
               'radial-gradient(circle ' + dynR + 'px at ' + sx + 'px ' + sy + 'px, ' +
-              'transparent 0%, rgba(18,16,14,0.25) 55%, rgba(18,16,14,0.82) 100%)';
+              'transparent 0%, rgba(18,16,14,0.12) 55%, rgba(18,16,14,0.42) 100%)';
           }
-          parWords.forEach(function(word, i) {
-            var depth = parseFloat(word.getAttribute('data-depth'));
-            wT[i].x = nx * depth;
-            wT[i].y = ny * depth * 0.6;
-          });
           gT.x = nx * -14;
           gT.y = ny * -10;
           if (parGhost) {
@@ -758,11 +721,6 @@
           }
         }
 
-        parWords.forEach(function(word, i) {
-          wC[i].x = plerp(wC[i].x, wT[i].x, 0.07);
-          wC[i].y = plerp(wC[i].y, wT[i].y, 0.07);
-          word.style.transform = 'translate(' + wC[i].x + 'px,' + wC[i].y + 'px)';
-        });
         gC.x = plerp(gC.x, gT.x, 0.05);
         gC.y = plerp(gC.y, gT.y, 0.05);
         if (parGhostWrap) parGhostWrap.style.transform = 'translate(' + gC.x + 'px,' + gC.y + 'px)';
