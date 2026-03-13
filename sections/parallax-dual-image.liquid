@@ -1,0 +1,270 @@
+{%- assign sid = section.id -%}
+
+<style>
+  #pdi-{{ sid }} {
+    width: 100%;
+    overflow: hidden;
+    padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;
+    background: {{ section.settings.background }};
+  }
+
+  .pdi-inner-{{ sid }} {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: {{ section.settings.col_ratio }};
+    align-items: start;
+    gap: {{ section.settings.gap }}px;
+  }
+
+  .pdi-slot {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pdi-slot-a { margin-top: 0; }
+  .pdi-slot-b { margin-top: {{ section.settings.offset_b }}px; }
+
+  .pdi-img-wrap {
+    width: 100%;
+    overflow: hidden;
+    display: block;
+    line-height: 0;
+  }
+
+  .pdi-img-wrap img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    will-change: transform;
+  }
+
+  .pdi-caption {
+    margin-top: 10px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #9a8f86;
+  }
+
+  @media screen and (max-width: 640px) {
+    .pdi-inner-{{ sid }} {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .pdi-slot-b { margin-top: 0; }
+  }
+</style>
+
+<div id="pdi-{{ sid }}">
+  <div class="pdi-inner-{{ sid }}">
+
+    {%- comment -%} Image A {%- endcomment -%}
+    <div class="pdi-slot pdi-slot-a">
+      <div class="pdi-img-wrap">
+        {%- if section.settings.image_a != blank -%}
+          <img
+            src="{{ section.settings.image_a | img_url: '1200x' }}"
+            srcset="{{ section.settings.image_a | img_url: '600x' }} 600w, {{ section.settings.image_a | img_url: '900x' }} 900w, {{ section.settings.image_a | img_url: '1200x' }} 1200w"
+            sizes="(max-width: 640px) 100vw, 50vw"
+            alt="{{ section.settings.image_a.alt | default: section.settings.caption_a | escape }}"
+            loading="lazy"
+            width="{{ section.settings.image_a.width }}"
+            height="{{ section.settings.image_a.height }}"
+            data-pdi-img="a-{{ sid }}"
+            style="transform: scale(1.08);">
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+      {%- if section.settings.caption_a != blank -%}
+        <p class="pdi-caption">{{ section.settings.caption_a }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Image B {%- endcomment -%}
+    <div class="pdi-slot pdi-slot-b">
+      <div class="pdi-img-wrap">
+        {%- if section.settings.image_b != blank -%}
+          <img
+            src="{{ section.settings.image_b | img_url: '1200x' }}"
+            srcset="{{ section.settings.image_b | img_url: '600x' }} 600w, {{ section.settings.image_b | img_url: '900x' }} 900w, {{ section.settings.image_b | img_url: '1200x' }} 1200w"
+            sizes="(max-width: 640px) 100vw, 50vw"
+            alt="{{ section.settings.image_b.alt | default: section.settings.caption_b | escape }}"
+            loading="lazy"
+            width="{{ section.settings.image_b.width }}"
+            height="{{ section.settings.image_b.height }}"
+            data-pdi-img="b-{{ sid }}"
+            style="transform: scale(1.08);">
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+      {%- if section.settings.caption_b != blank -%}
+        <p class="pdi-caption">{{ section.settings.caption_b }}</p>
+      {%- endif -%}
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var imgA = document.querySelector('[data-pdi-img="a-{{ sid }}"]');
+  var imgB = document.querySelector('[data-pdi-img="b-{{ sid }}"]');
+  if (!imgA || !imgB) return;
+
+  var rateA = 0.08;   /* slower — more grounded */
+  var rateB = 0.14;   /* faster — more floating */
+
+  var curA = 0, curB = 0, tgtA = 0, tgtB = 0;
+  var ticking = false;
+
+  function lerp(a, b, n) { return a + (b - a) * n; }
+
+  function calcTargets() {
+    var rectA = imgA.closest('.pdi-img-wrap').getBoundingClientRect();
+    var rectB = imgB.closest('.pdi-img-wrap').getBoundingClientRect();
+    var vH = window.innerHeight;
+
+    /* How far each image has scrolled through the viewport (-1 … 1) */
+    var progA = ((vH / 2) - (rectA.top + rectA.height / 2)) / vH;
+    var progB = ((vH / 2) - (rectB.top + rectB.height / 2)) / vH;
+
+    tgtA = progA * rectA.height * rateA * -1;
+    tgtB = progB * rectB.height * rateB;
+  }
+
+  function tick() {
+    calcTargets();
+    curA = lerp(curA, tgtA, 0.07);
+    curB = lerp(curB, tgtB, 0.07);
+    imgA.style.transform = 'translateY(' + curA + 'px) scale(1.08)';
+    imgB.style.transform = 'translateY(' + curB + 'px) scale(1.08)';
+    requestAnimationFrame(tick);
+  }
+
+  tick();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Parallax Dual Image",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Image A (left)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_a",
+      "label": "Image A"
+    },
+    {
+      "type": "text",
+      "id": "caption_a",
+      "label": "Caption A",
+      "placeholder": "Optional caption below image"
+    },
+    {
+      "type": "header",
+      "content": "Image B (right)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_b",
+      "label": "Image B"
+    },
+    {
+      "type": "text",
+      "id": "caption_b",
+      "label": "Caption B",
+      "placeholder": "Optional caption below image"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "col_ratio",
+      "label": "Column ratio",
+      "options": [
+        { "value": "1fr 1fr",    "label": "Equal (50 / 50)" },
+        { "value": "3fr 2fr",    "label": "Left wider (60 / 40)" },
+        { "value": "2fr 3fr",    "label": "Right wider (40 / 60)" },
+        { "value": "2fr 1fr",    "label": "Left dominant (66 / 33)" },
+        { "value": "1fr 2fr",    "label": "Right dominant (33 / 66)" }
+      ],
+      "default": "3fr 2fr"
+    },
+    {
+      "type": "range",
+      "id": "offset_b",
+      "label": "Right image vertical offset",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between images",
+      "min": 8,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max section width",
+      "min": 800,
+      "max": 1600,
+      "step": 40,
+      "unit": "px",
+      "default": 1200
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background colour",
+      "default": "#f5f4f2"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Parallax Dual Image"
+    }
+  ]
+}
+{% endschema %}

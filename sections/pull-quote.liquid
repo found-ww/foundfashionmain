@@ -1,0 +1,212 @@
+{%- assign sid = section.id -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&display=swap" rel="stylesheet">
+
+<style>
+  #pq-{{ sid }} {
+    width: 100%;
+    padding: {{ section.settings.padding_top }}px 24px {{ section.settings.padding_bottom }}px;
+    background: {{ section.settings.background }};
+  }
+
+  .pq-inner-{{ sid }} {
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    {%- if section.settings.show_card -%}
+    background: {{ section.settings.card_background }};
+    border: 0.5px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: 4rem 3.5rem 4.5rem;
+    {%- endif -%}
+  }
+
+  .pq-mark-{{ sid }} {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 130px;
+    line-height: 0.55;
+    color: {{ section.settings.text_color }};
+    opacity: 0.12;
+    font-style: italic;
+    font-weight: 300;
+    display: block;
+    margin-bottom: 1.5rem;
+    user-select: none;
+  }
+
+  .pq-text-{{ sid }} {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(28px, 4.5vw, {{ section.settings.font_size }}px);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.25;
+    color: {{ section.settings.text_color }};
+    letter-spacing: -0.01em;
+  }
+
+  .pq-word {
+    display: inline-block;
+    transition:
+      transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.35s,
+      opacity 0.35s;
+    cursor: default;
+  }
+
+  .pq-word:hover {
+    transform: translateY(-6px);
+    color: rgba(0,0,0,0.35);
+  }
+
+  .pq-text-{{ sid }}:hover .pq-word:not(:hover) {
+    opacity: 0.28;
+  }
+
+  .pq-attribution-{{ sid }} {
+    margin-top: 2rem;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: {{ section.settings.text_color }};
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pq-attribution-{{ sid }}::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 0.5px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  @media screen and (max-width: 640px) {
+    .pq-inner-{{ sid }} {
+      {%- if section.settings.show_card -%}
+      padding: 2.5rem 1.75rem 3rem;
+      {%- endif -%}
+    }
+  }
+</style>
+
+<div id="pq-{{ sid }}">
+  <div class="pq-inner-{{ sid }}">
+    <span class="pq-mark-{{ sid }}" aria-hidden="true">&ldquo;</span>
+    <p class="pq-text-{{ sid }}" data-pq-text="{{ sid }}">{{ section.settings.quote }}</p>
+    {%- if section.settings.attribution != blank -%}
+      <p class="pq-attribution-{{ sid }}">{{ section.settings.attribution }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+<script>
+(function() {
+  var el = document.querySelector('[data-pq-text="{{ sid }}"]');
+  if (!el) return;
+  var raw = el.textContent.trim();
+  el.innerHTML = raw.split(' ').map(function(w) {
+    return '<span class="pq-word">' + w + '</span>';
+  }).join(' ');
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Pull Quote",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "quote",
+      "label": "Quote text",
+      "default": "The garment that moves you is not the one you wear to be seen — it is the one you wear when no one is watching."
+    },
+    {
+      "type": "text",
+      "id": "attribution",
+      "label": "Attribution",
+      "placeholder": "e.g. — Coco Chanel (optional)"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Max font size",
+      "min": 32,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text colour",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Section background",
+      "default": "#f5f4f2"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_card",
+      "label": "Show card (white box)",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max content width",
+      "min": 480,
+      "max": 1200,
+      "step": 40,
+      "unit": "px",
+      "default": 900
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pull Quote"
+    }
+  ]
+}
+{% endschema %}
