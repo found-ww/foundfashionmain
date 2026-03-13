@@ -429,7 +429,7 @@
     font-size: 10px;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.72);
+    color: rgba(255,255,255,0.9);
     margin-bottom: 1rem;
   }
   .par-title {
@@ -458,7 +458,7 @@
     font-size: 10px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.8);
   }
   .par-cta {
     font-size: 11px;
@@ -499,7 +499,7 @@
     50%      { transform: translateY(7px); opacity: 0.8; }
   }
   .par-scroll-hint span {
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #fff;
@@ -627,7 +627,18 @@
     if (parCtaEl) {
       parCtaEl.addEventListener('click', function(e) {
         var target = document.getElementById('article-body');
-        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+        if (!target) return;
+        e.preventDefault();
+        var start    = window.pageYOffset;
+        var end      = target.getBoundingClientRect().top + start;
+        var duration = 1400;
+        var t0       = performance.now();
+        function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
+        (function step(now) {
+          var p = Math.min((now - t0) / duration, 1);
+          window.scrollTo(0, start + (end - start) * ease(p));
+          if (p < 1) requestAnimationFrame(step);
+        })(t0);
       });
     }
 
