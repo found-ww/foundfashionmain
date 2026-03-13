@@ -112,9 +112,6 @@
   </aside>
 
   {%- if article.image and section.settings.show_article_image -%}
-    <div class="par-cursor-ring" id="par-cursor-ring"></div>
-    <div class="par-cursor-dot"  id="par-cursor-dot"></div>
-
     <div class="par-hero" id="par-hero">
       <div class="par-img-wrap" id="par-img">
         <img src="{{ article.image | img_url: '1600x' }}"
@@ -394,7 +391,6 @@
     min-height: 580px;
     overflow: hidden;
     background: #12100e;
-    cursor: none;
   }
   .par-img-wrap {
     position: absolute;
@@ -487,34 +483,6 @@
     gap: 20px;
   }
   .par-cta svg { flex-shrink: 0; }
-  .par-cursor-ring {
-    position: fixed;
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    border: 0.5px solid rgba(255,255,255,0.5);
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: width 0.3s cubic-bezier(0.16,1,0.3,1),
-                height 0.3s cubic-bezier(0.16,1,0.3,1),
-                border-color 0.3s,
-                opacity 0.3s;
-    opacity: 0;
-  }
-  .par-cursor-ring.visible { opacity: 1; }
-  .par-cursor-ring.hovering-cta { width: 70px; height: 70px; border-color: rgba(255,255,255,0.8); }
-  .par-cursor-dot {
-    position: fixed;
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .par-cursor-dot.visible { opacity: 1; }
   .par-scroll-hint {
     position: absolute;
     bottom: 3.5rem; right: 3.5rem;
@@ -542,10 +510,9 @@
     background: rgba(255,255,255,0.6);
   }
   @media screen and (max-width: 640px) {
-    .par-hero { height: 80vh; min-height: 440px; cursor: auto; }
+    .par-hero { height: 80vh; min-height: 440px; }
     .par-fg { padding: 0 24px 40px; }
     .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); }
-    .par-cursor-ring, .par-cursor-dot { display: none; }
     .par-scroll-hint { right: 1.5rem; bottom: 2rem; }
   }
 </style>
@@ -629,89 +596,39 @@
 
     /* ---- Parallax hero ---- */
     var parHero  = document.getElementById('par-hero');
-    var parDark  = document.getElementById('par-dark');
     var parImg   = document.getElementById('par-img');
     var parCtaEl = document.getElementById('par-cta');
-    var parRing  = document.getElementById('par-cursor-ring');
-    var parDotEl = document.getElementById('par-cursor-dot');
 
-    if (parHero) {
-      var pMouse  = { x: window.innerWidth / 2,  y: window.innerHeight / 2 };
-      var pCur    = { x: window.innerWidth / 2,  y: window.innerHeight / 2 };
+    if (parHero && parImg && window.matchMedia('(hover: hover)').matches) {
+      var pMouse  = { x: 0, y: 0 };
+      var imgT    = { x: 0, y: 0 };
+      var imgC    = { x: 0, y: 0 };
       var pInside = false;
-      var pSpeed  = 0, pPrevX = pMouse.x, pPrevY = pMouse.y;
-      var SPOT_R  = 200;
-      var imgT = {x:0,y:0}, imgC = {x:0,y:0};
 
       function plerp(a, b, n) { return a + (b - a) * n; }
-      function pclamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
-      document.addEventListener('mousemove', function(e) {
-        pSpeed  = Math.hypot(e.clientX - pPrevX, e.clientY - pPrevY);
-        pPrevX  = pMouse.x; pPrevY = pMouse.y;
-        pMouse.x = e.clientX; pMouse.y = e.clientY;
+      parHero.addEventListener('mousemove', function(e) {
+        var r  = parHero.getBoundingClientRect();
+        pMouse.x = (e.clientX - r.left) / r.width  - 0.5;
+        pMouse.y = (e.clientY - r.top)  / r.height - 0.5;
       });
-
-      if (window.matchMedia('(hover: hover)').matches) {
-        parHero.addEventListener('mouseenter', function() {
-          pInside = true;
-          if (parRing)  parRing.classList.add('visible');
-          if (parDotEl) parDotEl.classList.add('visible');
-        });
-        parHero.addEventListener('mouseleave', function() {
-          pInside = false;
-          if (parRing)  parRing.classList.remove('visible');
-          if (parDotEl) parDotEl.classList.remove('visible');
-          imgT.x = 0; imgT.y = 0;
-          if (parDark) parDark.style.background = 'rgba(18,16,14,0.42)';
-        });
-        if (parCtaEl) {
-          parCtaEl.addEventListener('mouseenter', function() { if (parRing) parRing.classList.add('hovering-cta'); });
-          parCtaEl.addEventListener('mouseleave', function() { if (parRing) parRing.classList.remove('hovering-cta'); });
-        }
-      }
+      parHero.addEventListener('mouseenter', function() { pInside = true; });
+      parHero.addEventListener('mouseleave', function() { pInside = false; imgT.x = 0; imgT.y = 0; });
 
       (function ptick() {
-        if (parRing) {
-          pCur.x = plerp(pCur.x, pMouse.x, 0.12);
-          pCur.y = plerp(pCur.y, pMouse.y, 0.12);
-          parRing.style.left = pCur.x + 'px';
-          parRing.style.top  = pCur.y + 'px';
-        }
-        if (parDotEl) {
-          parDotEl.style.left = pMouse.x + 'px';
-          parDotEl.style.top  = pMouse.y + 'px';
-        }
-
-        if (pInside) {
-          var r  = parHero.getBoundingClientRect();
-          var nx = (pMouse.x - r.left) / r.width  - 0.5;
-          var ny = (pMouse.y - r.top)  / r.height - 0.5;
-          var sx = pMouse.x - r.left;
-          var sy = pMouse.y - r.top;
-          var dynR = SPOT_R + pclamp(pSpeed * 1.2, 0, 80);
-          if (parDark) {
-            parDark.style.background =
-              'radial-gradient(circle ' + dynR + 'px at ' + sx + 'px ' + sy + 'px, ' +
-              'transparent 0%, rgba(18,16,14,0.12) 55%, rgba(18,16,14,0.42) 100%)';
-          }
-          imgT.x = nx * -22;
-          imgT.y = ny * -14;
-        }
-
+        if (pInside) { imgT.x = pMouse.x * -24; imgT.y = pMouse.y * -16; }
         imgC.x = plerp(imgC.x, imgT.x, 0.06);
         imgC.y = plerp(imgC.y, imgT.y, 0.06);
-        if (parImg) parImg.style.transform = 'translate(' + imgC.x + 'px,' + imgC.y + 'px) scale(1.08)';
-
+        parImg.style.transform = 'translate(' + imgC.x + 'px,' + imgC.y + 'px) scale(1.08)';
         requestAnimationFrame(ptick);
       })();
+    }
 
-      if (parCtaEl) {
-        parCtaEl.addEventListener('click', function(e) {
-          var target = document.getElementById('article-body');
-          if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
-        });
-      }
+    if (parCtaEl) {
+      parCtaEl.addEventListener('click', function(e) {
+        var target = document.getElementById('article-body');
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
     }
 
     /* ---- Parallax images ---- */
