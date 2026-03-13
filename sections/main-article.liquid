@@ -44,6 +44,7 @@
   }
   .ppv1-breadcrumb__link:hover { color: #1c1c1c; }
   .ppv1-breadcrumb__current { color: #1c1c1c; }
+  .ppv1-breadcrumb--bottom { display: none; }
 </style>
 
 <nav class="ppv1-breadcrumb" aria-label="Breadcrumb">
@@ -207,6 +208,24 @@
           {{ article_footer }}
         </footer>
       {%- endif -%}
+
+      <nav class="ppv1-breadcrumb ppv1-breadcrumb--bottom" aria-label="Breadcrumb" style="border-top:1px solid #ede8e2;border-bottom:none;margin-top:24px;">
+        <ol class="ppv1-breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+          <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a class="ppv1-breadcrumb__link" href="{{ routes.root_url }}" itemprop="item"><span itemprop="name">{{ 'general.breadcrumb.home' | t }}</span></a>
+            <meta itemprop="position" content="1">
+          </li>
+          <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a class="ppv1-breadcrumb__link" href="{{ blog.url }}" itemprop="item"><span itemprop="name">{{ blog.title }}</span></a>
+            <meta itemprop="position" content="2">
+          </li>
+          <li class="ppv1-breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span class="ppv1-breadcrumb__current" itemprop="name">{{ article.title }}</span>
+            <meta itemprop="item" content="{{ shop.url }}{{ article.url }}">
+            <meta itemprop="position" content="3">
+          </li>
+        </ol>
+      </nav>
     </div>
 
   </div>
@@ -510,10 +529,13 @@
     background: rgba(255,255,255,0.6);
   }
   @media screen and (max-width: 640px) {
-    .par-hero { height: 80vh; min-height: 440px; }
+    .par-hero { height: 70vh; min-height: 380px; }
     .par-fg { padding: 0 24px 40px; }
-    .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); }
+    .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; }
+    .par-sub { padding-right: 3.5rem; }
     .par-scroll-hint { right: 1.5rem; bottom: 2rem; }
+    .ppv1-breadcrumb { display: none; }
+    .ppv1-breadcrumb--bottom { display: block; }
   }
 </style>
 
