@@ -178,7 +178,9 @@
         {%- assign _img1 = article.metafields.custom.duel_parallax_img_1.value -%}
         {%- assign _img2 = article.metafields.custom.duel_parallax_img_2.value -%}
         {%- assign _quote = article.metafields.custom.large_quote.value -%}
+        {%- assign _quote2 = article.metafields.custom.large_quote_2.value -%}
         {%- assign _largetext = article.metafields.custom.large_text.value -%}
+        {%- assign _largetext2 = article.metafields.custom.large_text_2.value -%}
 
         {%- assign _content = article.content -%}
 
@@ -201,6 +203,20 @@
           {%- assign _content = _content | replace: '<p>[largeword]</p>', _lt_html -%}
         {%- else -%}
           {%- assign _content = _content | replace: '<p>[largeword]</p>', '' -%}
+        {%- endif -%}
+
+        {%- if _quote2 != blank -%}
+          {%- capture _pq2_html -%}{%- render 'embed-pull-quote', quote: _quote2 -%}{%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[quote_2]</p>', _pq2_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[quote_2]</p>', '' -%}
+        {%- endif -%}
+
+        {%- if _largetext2 != blank -%}
+          {%- capture _lt2_html -%}{%- render 'embed-large-text', text: _largetext2 -%}{%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[largeword_2]</p>', _lt2_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[largeword_2]</p>', '' -%}
         {%- endif -%}
 
         {{ _content }}
@@ -411,16 +427,20 @@
     overflow: hidden;
     display: block;
     line-height: 0;
-    margin-top: 2.4em;   /* take over margin from .Rte img so it doesn't bleed inside the clip */
+    margin-top: 2.4em;
     margin-bottom: 2.4em;
   }
   .Article__ParallaxWrap img {
     width: 100%;
     display: block;
-    margin: 0 !important; /* override .Rte img margin so image sits flush inside the wrapper */
+    margin: 0 !important;
     will-change: transform;
-    transform: scale(1.12); /* pre-scale so overflow is clipped before JS kicks in */
+    transform: scale(1.12);
     transform-origin: center center;
+  }
+  @media screen and (max-width: 640px) {
+    .Article__ParallaxWrap { min-height: 72vw; }
+    .Article__ParallaxWrap img { height: 100%; object-fit: cover; }
   }
 
   /* ---- Parallax hero ---- */
