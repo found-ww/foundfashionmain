@@ -407,7 +407,7 @@
     position: absolute;
     inset: 0;
     z-index: 1;
-    background: rgba(18,16,14,0.42);
+    background: rgba(18,16,14,0.5);
   }
   .par-fg {
     position: absolute;
@@ -631,8 +631,8 @@
         e.preventDefault();
         var start    = window.pageYOffset;
         var toolbar  = document.querySelector('.ArticleToolbar');
-        var offset   = toolbar ? toolbar.offsetHeight + 16 : 16;
-        var end      = target.getBoundingClientRect().top + start - offset;
+        var toolbarH = toolbar ? toolbar.offsetHeight : 0;
+        var end      = parHero.getBoundingClientRect().bottom + start - toolbarH;
         var duration = 1400;
         var t0       = performance.now();
         function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
