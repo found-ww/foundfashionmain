@@ -629,10 +629,11 @@
         var target = document.getElementById('article-body');
         if (!target) return;
         e.preventDefault();
-        var start    = window.pageYOffset;
-        var toolbar  = document.querySelector('.ArticleToolbar');
-        var toolbarH = toolbar ? toolbar.offsetHeight : 0;
-        var end      = parHero.getBoundingClientRect().bottom + start - toolbarH;
+        var start      = window.pageYOffset;
+        var toolbar    = document.querySelector('.ArticleToolbar');
+        var headerH    = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-height')) || 0;
+        var toolbarH   = toolbar ? toolbar.offsetHeight : 0;
+        var end        = parHero.getBoundingClientRect().bottom + start - headerH - toolbarH;
         var duration = 1400;
         var t0       = performance.now();
         function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
