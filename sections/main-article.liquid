@@ -516,7 +516,7 @@
   @media screen and (max-width: 640px) {
     .par-hero { height: 70vh; min-height: 380px; }
     .par-fg { padding: 0 24px 40px; }
-    .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; }
+    .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; line-height: 1.22; }
     .par-sub { padding-right: 3.5rem; }
     .par-scroll-hint { right: 1.5rem; bottom: 2rem; }
     .ppv1-breadcrumb { display: none; }
@@ -604,6 +604,17 @@
     var parHero  = document.getElementById('par-hero');
     var parImg   = document.getElementById('par-img');
     var parCtaEl = document.getElementById('par-cta');
+
+    if (parHero && parImg && !window.matchMedia('(hover: hover)').matches) {
+      /* Mobile: scroll-driven vertical parallax */
+      function mobileParallax() {
+        var rect  = parHero.getBoundingClientRect();
+        var drift = Math.min(55, Math.max(0, (window.innerHeight - rect.top) * 0.06));
+        parImg.style.transform = 'translateY(' + drift + 'px) scale(1.12)';
+      }
+      window.addEventListener('scroll', mobileParallax, { passive: true });
+      mobileParallax();
+    }
 
     if (parHero && parImg && window.matchMedia('(hover: hover)').matches) {
       var pMouse  = { x: 0, y: 0 };
