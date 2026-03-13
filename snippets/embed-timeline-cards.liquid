@@ -1,5 +1,6 @@
 {% comment %}
   embed-timeline-cards.liquid
+  Sticky-scroll timeline. Pins to viewport and advances cards as user scrolls.
   Format: groups of 3 lines (year / headline / body), up to 5 blocks. No blank lines needed.
 {% endcomment %}
 
@@ -16,118 +17,171 @@
 {%- if _tc_total == 0 -%}{%- break -%}{%- endif -%}
 
 <style>
-#tc-{{ _tc_id }} {
-  box-sizing: border-box;
-  display: flex !important;
-  flex-direction: column !important;
-  height: 500px;
-  overflow: hidden !important;
-  border-top: .5px solid rgba(0,0,0,.1);
-  border-bottom: .5px solid rgba(0,0,0,.1);
-  margin: 3.5rem 0;
+/* ── Outer scroll container — height gives scroll room ── */
+.tl-outer-{{ _tc_id }} {
+  --n: {{ _tc_total }};
+  height: calc((var(--n) - 1) * 55vh + 100vh);
+  position: relative;
 }
-#tc-{{ _tc_id }} * { box-sizing: border-box; }
 
-#tc-{{ _tc_id }} .tl-prog { height: 1px; background: rgba(0,0,0,.07); flex-shrink: 0; position: relative; }
-#tc-{{ _tc_id }} .tl-pf   { position: absolute; top: 0; left: 0; height: 100%; width: 0; background: #555; }
+/* ── Sticky panel ── */
+.tl-outer-{{ _tc_id }} .tl-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;
+}
 
-#tc-{{ _tc_id }} .tl-card {
-  flex-shrink: 0 !important;
-  width: clamp(300px, 34vw, 440px) !important;
-  height: 100% !important;
-  border-right: .5px solid rgba(0,0,0,.07) !important;
+/* ── Top progress bar ── */
+.tl-outer-{{ _tc_id }} .tl-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(0,0,0,.07);
+}
+.tl-outer-{{ _tc_id }} .tl-bar-fill {
+  position: absolute;
+  top: 0; left: 0; height: 100%; width: 0;
+  background: #222;
+  transition: width .05s linear;
+}
+
+/* ── Cards container ── */
+.tl-outer-{{ _tc_id }} .tl-cards {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Single card ── */
+.tl-outer-{{ _tc_id }} .tl-card {
+  position: absolute !important;
+  top: 0; left: 0; right: 0; bottom: 0;
   display: flex !important;
   flex-direction: column !important;
-  justify-content: flex-end !important;
-  gap: 1.1rem !important;
-  background: #fff !important;
-  position: relative !important;
-  overflow: hidden !important;
+  justify-content: center !important;
+  padding: 0 0 0 0 !important;
   margin: 0 !important;
-  padding: 2.8rem !important;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: none; /* driven by JS */
+  pointer-events: none;
+  background: transparent !important;
+}
+.tl-outer-{{ _tc_id }} .tl-card.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
-#tc-{{ _tc_id }} .tl-num {
-  position: absolute !important; top: 2rem; right: 2rem;
-  font-size: 10px !important; letter-spacing: .18em; text-transform: uppercase;
-  color: #ccc; margin: 0 !important; padding: 0 !important; font-style: normal !important;
-}
-
-#tc-{{ _tc_id }} .tl-date {
+/* ── Year — huge decorative ── */
+.tl-outer-{{ _tc_id }} .tl-year {
   font-family: 'Cormorant Garamond', Georgia, serif !important;
-  font-size: clamp(42px, 5.5vw, 64px) !important;
-  font-weight: 300 !important; font-style: italic !important;
-  color: #d0d0d0 !important; line-height: 1 !important;
-  margin: 0 !important; padding: 0 !important;
-  transition: color .4s ease;
+  font-size: clamp(80px, 14vw, 160px) !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+  color: #ebebeb !important;
+  line-height: 1 !important;
+  margin: 0 0 .3em 0 !important;
+  padding: 0 !important;
+  letter-spacing: -.02em;
+  user-select: none;
 }
-#tc-{{ _tc_id }} .tl-card:hover .tl-date { color: #aaa !important; }
 
-#tc-{{ _tc_id }} .tl-rule {
-  width: 24px !important; height: 1px !important;
-  background: #e0e0e0; flex-shrink: 0;
-  transition: width .4s cubic-bezier(.16,1,.3,1), background .3s;
-  margin: 0 !important; padding: 0 !important;
+/* ── Rule ── */
+.tl-outer-{{ _tc_id }} .tl-rule {
+  width: 32px !important;
+  height: 1px !important;
+  background: #ddd;
+  margin: 0 0 1.4em 0 !important;
+  padding: 0 !important;
+  flex-shrink: 0;
+  transition: width .5s cubic-bezier(.16,1,.3,1);
 }
-#tc-{{ _tc_id }} .tl-card:hover .tl-rule { width: 48px !important; background: #999; }
+.tl-outer-{{ _tc_id }} .tl-card.active .tl-rule { width: 56px !important; background: #aaa; }
 
-#tc-{{ _tc_id }} .tl-h {
+/* ── Headline ── */
+.tl-outer-{{ _tc_id }} .tl-h {
   font-family: 'Cormorant Garamond', Georgia, serif !important;
-  font-size: clamp(20px, 2.4vw, 26px) !important;
-  font-weight: 300 !important; font-style: italic !important;
-  color: #1a1a1a !important; line-height: 1.2 !important;
+  font-size: clamp(28px, 4vw, 48px) !important;
+  font-weight: 300 !important;
+  font-style: italic !important;
+  color: #1a1a1a !important;
+  line-height: 1.2 !important;
+  margin: 0 0 1em 0 !important;
+  padding: 0 !important;
+  max-width: 16em;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+/* ── Body ── */
+.tl-outer-{{ _tc_id }} .tl-p {
+  font-size: 14px !important;
+  line-height: 1.75 !important;
+  color: #888 !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: 44ch;
+}
+
+/* ── Bottom row: card count + dots + hint ── */
+.tl-outer-{{ _tc_id }} .tl-foot {
+  position: absolute;
+  bottom: 2.5rem; left: 0; right: 0;
+  display: flex !important;
+  align-items: center;
+  gap: .75rem;
+}
+.tl-outer-{{ _tc_id }} .tl-num {
+  font-size: 10px !important;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: #ccc;
   margin: 0 !important; padding: 0 !important;
-  text-transform: none !important; letter-spacing: normal !important;
-  transition: transform .45s cubic-bezier(.16,1,.3,1);
+  font-style: normal !important;
+  min-width: 3.5em;
 }
-#tc-{{ _tc_id }} .tl-card:hover .tl-h { transform: translateX(6px); }
-
-#tc-{{ _tc_id }} .tl-p {
-  font-size: 13px !important; line-height: 1.72 !important;
-  color: #999 !important;
-  font-style: normal !important; font-weight: 400 !important;
-  margin: 0 !important; padding: 0 !important;
+.tl-outer-{{ _tc_id }} .tl-dot {
+  width: 4px !important; height: 4px !important;
+  border-radius: 50%;
+  background: #ddd;
+  transition: background .3s, transform .3s;
+  padding: 0 !important; margin: 0 !important;
+  flex-shrink: 0;
 }
-
-#tc-{{ _tc_id }} .tl-card::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: #ccc; transform: scaleX(0); transform-origin: left;
-  transition: transform .5s cubic-bezier(.16,1,.3,1);
-}
-#tc-{{ _tc_id }} .tl-card:hover::after { transform: scaleX(1); }
-
-#tc-{{ _tc_id }} .tl-foot {
-  height: 40px; border-top: .5px solid rgba(0,0,0,.07); flex-shrink: 0;
-  display: flex !important; align-items: center; gap: 1rem; padding: 0 2rem;
-}
-#tc-{{ _tc_id }} .tl-dot {
-  width: 5px !important; height: 5px !important; border-radius: 50%;
-  background: #ddd; cursor: pointer;
-  transition: background .2s, transform .2s;
-  flex-shrink: 0; padding: 0 !important; margin: 0 !important;
-}
-#tc-{{ _tc_id }} .tl-dot.active,
-#tc-{{ _tc_id }} .tl-dot:hover { background: #555 !important; transform: scale(1.5); }
-#tc-{{ _tc_id }} .tl-hint {
-  margin-left: auto !important; font-size: 9px !important;
-  letter-spacing: .16em; text-transform: uppercase; color: #ccc;
+.tl-outer-{{ _tc_id }} .tl-dot.active { background: #444 !important; transform: scale(1.5); }
+.tl-outer-{{ _tc_id }} .tl-hint {
+  margin-left: auto !important;
+  font-size: 9px !important;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #ccc;
 }
 
+/* ── Mobile: smaller height per step ── */
 @media (max-width: 640px) {
-  #tc-{{ _tc_id }} { height: 460px; }
-  #tc-{{ _tc_id }} .tl-card { width: 80vw !important; padding: 2.2rem 1.75rem !important; }
-  #tc-{{ _tc_id }} .tl-date { font-size: clamp(38px, 11vw, 52px) !important; }
+  .tl-outer-{{ _tc_id }} { height: calc((var(--n) - 1) * 70vh + 100vh); }
+  .tl-outer-{{ _tc_id }} .tl-h { font-size: clamp(24px, 7vw, 36px) !important; }
+  .tl-outer-{{ _tc_id }} .tl-year { font-size: clamp(64px, 18vw, 100px) !important; }
+  .tl-outer-{{ _tc_id }} .tl-p { font-size: 13px !important; }
 }
 </style>
 
-<div id="tc-{{ _tc_id }}">
+<div class="tl-outer-{{ _tc_id }}" id="tl-outer-{{ _tc_id }}" data-n="{{ _tc_total }}">
+  <div class="tl-sticky">
 
-  <div class="tl-prog"><div class="tl-pf" id="tl-pf-{{ _tc_id }}"></div></div>
+    <div class="tl-bar"><div class="tl-bar-fill" id="tl-bar-{{ _tc_id }}"></div></div>
 
-  <div class="tl-inner" id="tl-tw-{{ _tc_id }}"
-    style="flex:1;overflow:hidden;position:relative;touch-action:pan-y;cursor:grab;">
-    <div id="tl-track-{{ _tc_id }}"
-      style="display:flex;height:100%;width:max-content;will-change:transform;user-select:none;-webkit-user-select:none;">
+    <div class="tl-cards" id="tl-cards-{{ _tc_id }}" style="padding: 0 3rem;">
 
       {%- assign _tc_card_idx = 0 -%}
       {%- for _i in (0..4) -%}
@@ -139,11 +193,8 @@
         {%- assign _tc_body = _tc_lines[_tc_i2] | strip -%}
         {%- if _tc_date == blank -%}{%- break -%}{%- endif -%}
         {%- assign _tc_card_idx = _tc_card_idx | plus: 1 -%}
-        {%- assign _tc_num   = _tc_card_idx | prepend: '0' | slice: -2, 2 -%}
-        {%- assign _tc_tot_s = _tc_total    | prepend: '0' | slice: -2, 2 -%}
-        <div class="tl-card">
-          <span class="tl-num">{{ _tc_num }} / {{ _tc_tot_s }}</span>
-          <div class="tl-date">{{ _tc_date }}</div>
+        <div class="tl-card{% if _tc_card_idx == 1 %} active{% endif %}" data-idx="{{ forloop.index0 }}">
+          <div class="tl-year">{{ _tc_date }}</div>
           <div class="tl-rule"></div>
           {%- if _tc_head != blank -%}<p class="tl-h">{{ _tc_head }}</p>{%- endif -%}
           {%- if _tc_body != blank -%}<p class="tl-p">{{ _tc_body }}</p>{%- endif -%}
@@ -151,90 +202,76 @@
       {%- endfor -%}
 
     </div>
-  </div>
 
-  <div class="tl-foot">
-    {%- for _i in (0..4) -%}
-      {%- if _i < _tc_total -%}
-        <div class="tl-dot{% if _i == 0 %} active{% endif %}" data-i="{{ _i }}"></div>
-      {%- endif -%}
-    {%- endfor -%}
-    <span class="tl-hint">Drag to explore</span>
-  </div>
+    <div class="tl-foot" style="padding: 0 3rem;" id="tl-foot-{{ _tc_id }}">
+      <span class="tl-num" id="tl-num-{{ _tc_id }}">01 / {{ _tc_total | prepend: '0' | slice: -2, 2 }}</span>
+      {%- for _i in (0..4) -%}
+        {%- if _i < _tc_total -%}
+          <div class="tl-dot{% if _i == 0 %} active{% endif %}" data-i="{{ _i }}"></div>
+        {%- endif -%}
+      {%- endfor -%}
+      <span class="tl-hint" id="tl-hint-{{ _tc_id }}">Scroll to continue</span>
+    </div>
 
+  </div>
 </div>
 
 <script>
 (function(){
-  var root  = document.getElementById('tc-{{ _tc_id }}');
-  var tw    = document.getElementById('tl-tw-{{ _tc_id }}');
-  var track = document.getElementById('tl-track-{{ _tc_id }}');
-  var pf    = document.getElementById('tl-pf-{{ _tc_id }}');
-  if (!tw || !track) return;
+  var eid   = '{{ _tc_id }}';
+  var outer = document.getElementById('tl-outer-' + eid);
+  var bar   = document.getElementById('tl-bar-'   + eid);
+  var numEl = document.getElementById('tl-num-'   + eid);
+  var hint  = document.getElementById('tl-hint-'  + eid);
+  var cards = outer.querySelectorAll('.tl-card');
+  var dots  = outer.querySelectorAll('.tl-dot');
+  var N     = cards.length;
+  if (!outer || N === 0) return;
 
-  var dots  = root.querySelectorAll('.tl-dot');
-  var cards = track.querySelectorAll('.tl-card');
-  var tx = 0, animTx = 0, raf;
-  var dragStartX = 0, dragStartTx = 0, dragging = false;
+  var shown = -1; /* which card is currently active */
 
-  function lerp(a,b,n){ return a+(b-a)*n; }
-  function maxTx(){ return -(track.scrollWidth - tw.clientWidth); }
-  function clamp(v){ return Math.max(maxTx(), Math.min(0,v)); }
+  /* smoothstep easing */
+  function ease(t){ return t*t*(3-2*t); }
 
-  function render(){
-    track.style.transform = 'translateX('+animTx+'px)';
-    var max = -maxTx();
-    pf.style.width = (max > 0 ? Math.min(100, (-animTx/max)*100) : 0)+'%';
-    var cw = cards[0] ? cards[0].offsetWidth : 1;
-    dots.forEach(function(d,i){ d.classList.toggle('active', i === Math.round(-animTx/cw)); });
-  }
-  function loop(){
-    animTx = lerp(animTx, tx, .1);
-    if(Math.abs(animTx - tx) > 0.3){ render(); raf = requestAnimationFrame(loop); }
-    else{ animTx = tx; render(); }
-  }
+  function fmt(n){ return (n < 10 ? '0' : '') + n; }
 
-  /* ── Pointer Events API — handles mouse + touch uniformly ── */
-  tw.addEventListener('pointerdown', function(e){
-    dragging = true;
-    dragStartX = e.clientX;
-    dragStartTx = tx;
-    tw.setPointerCapture(e.pointerId);
-    tw.style.cursor = 'grabbing';
-    cancelAnimationFrame(raf);
-    e.preventDefault();
-  });
+  function goTo(idx, instant) {
+    if (idx === shown) return;
+    shown = idx;
 
-  tw.addEventListener('pointermove', function(e){
-    if(!dragging) return;
-    tx = clamp(dragStartTx + (e.clientX - dragStartX));
-    render();
-  });
-
-  tw.addEventListener('pointerup', function(e){
-    if(!dragging) return;
-    dragging = false;
-    tw.style.cursor = 'grab';
-    /* snap to nearest card */
-    var cw = cards[0] ? cards[0].offsetWidth : 1;
-    tx = clamp(-Math.round(-tx / cw) * cw);
-    cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
-  });
-
-  tw.addEventListener('pointercancel', function(){
-    dragging = false;
-    tw.style.cursor = 'grab';
-  });
-
-  /* ── Dot clicks ── */
-  dots.forEach(function(d){
-    d.addEventListener('click', function(){
-      tx = clamp(-(cards[0] ? cards[0].offsetWidth * parseInt(d.dataset.i) : 0));
-      cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+    cards.forEach(function(c, i) {
+      var active = i === idx;
+      if (instant) {
+        c.style.transition = 'none';
+        c.style.opacity    = active ? '1' : '0';
+        c.style.transform  = active ? 'translateY(0)' : (i < idx ? 'translateY(-22px)' : 'translateY(22px)');
+      } else {
+        c.style.transition = 'opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1)';
+        c.style.opacity    = active ? '1' : '0';
+        c.style.transform  = active ? 'translateY(0)' : (i < idx ? 'translateY(-22px)' : 'translateY(22px)');
+      }
+      c.classList.toggle('active', active);
     });
-  });
 
-  window.addEventListener('resize', function(){ tx = clamp(tx); render(); });
-  render();
+    dots.forEach(function(d, i){ d.classList.toggle('active', i === idx); });
+
+    if (numEl) numEl.textContent = fmt(idx + 1) + ' / ' + fmt(N);
+    if (hint)  hint.textContent  = idx < N - 1 ? 'Scroll to continue' : '↓ Continue reading';
+    if (bar)   bar.style.width   = ((idx / (N - 1)) * 100) + '%';
+  }
+
+  function onScroll() {
+    var rect    = outer.getBoundingClientRect();
+    var scrolled = -rect.top;                        /* px scrolled past outer top */
+    var range    = rect.height - window.innerHeight; /* total scrollable within outer */
+    var progress = Math.max(0, Math.min(1, scrolled / range));
+    var idx      = Math.min(N - 1, Math.floor(progress * N));
+    goTo(idx, false);
+  }
+
+  /* init */
+  goTo(0, true);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 })();
 </script>
