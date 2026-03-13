@@ -402,10 +402,13 @@
     overflow: hidden;
     display: block;
     line-height: 0;
+    margin-top: 2.4em;   /* take over margin from .Rte img so it doesn't bleed inside the clip */
+    margin-bottom: 2.4em;
   }
   .Article__ParallaxWrap img {
     width: 100%;
     display: block;
+    margin: 0 !important; /* override .Rte img margin so image sits flush inside the wrapper */
     will-change: transform;
   }
 
