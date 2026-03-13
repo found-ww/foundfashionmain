@@ -410,6 +410,8 @@
     display: block;
     margin: 0 !important; /* override .Rte img margin so image sits flush inside the wrapper */
     will-change: transform;
+    transform: scale(1.15); /* pre-scale so overflow is clipped before JS kicks in */
+    transform-origin: center center;
   }
 
   /* ---- Parallax hero ---- */
@@ -772,7 +774,12 @@
           if (rect.bottom < -100 || rect.top > viewH + 100) return;
           var progress = (viewH / 2 - (rect.top + rect.height / 2)) / viewH;
           var img = wrap.querySelector('img');
-          if (img) img.style.transform = 'translateY(' + (progress * 35) + 'px) scale(1.07)';
+          if (img) {
+            /* cap translation to 7.5% of image height — matches scale(1.15) extra coverage */
+            var maxT = rect.height * 0.075;
+            var t = Math.max(-maxT, Math.min(maxT, progress * rect.height * 0.15));
+            img.style.transform = 'translateY(' + t + 'px) scale(1.15)';
+          }
         });
       }
       window.addEventListener('scroll', updateParallax, { passive: true });
