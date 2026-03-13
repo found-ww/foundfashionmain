@@ -1,0 +1,12 @@
+{% comment %}
+  Large text embed — driven by article metafields.
+  Usage: render 'embed-large-text', text: string
+  Triggered by [largeword] marker in article body.
+  Same styling as embed-pull-quote but without the quotation mark.
+{% endcomment %}
+
+{%- assign epq_id = 'epq-' | append: section.id -%}
+
+<div class="epq" id="{{ epq_id }}">
+  <p class="epq__text" data-epq-id="{{ epq_id }}">{{ text | escape }}</p>
+</div>
