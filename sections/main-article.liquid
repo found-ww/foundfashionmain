@@ -317,18 +317,25 @@
   .ShareButtons__Item--instagram:hover { background: #e1306c; color: #ffffff; border-color: #e1306c; outline: 1.5px solid #e1306c; }
 
   /* ---- Article width + body font size ---- */
-  .Article__Wrapper { max-width: none; width: 100%; padding-left: max(20px, 6vw); padding-right: max(20px, 3vw); margin-bottom: 0; }
+  .Article__Wrapper { max-width: none; width: 100%; padding-left: max(20px, 6vw); padding-right: 50px; margin-bottom: 0; }
   @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
   @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: none; margin-bottom: 0; } }
-  .Article__Body { font-size: 16px; line-height: 1.75; }
+  .Article__Body { font-size: 17px; line-height: 1.75; }
 
   /* ── Two-column article body layout ── */
-  .art-body-section-text,
+  .art-body-section-text {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 80px;
+    margin-bottom: 56px;
+    align-items: start;
+  }
   .art-body-section-img {
     display: grid;
     grid-template-columns: 5fr 7fr;
     gap: 80px;
     margin-bottom: 56px;
+    margin-right: -30px; /* extends image to 20px from viewport right (50px wrapper - 30px = 20px) */
     align-items: start;
   }
   .art-body-left {
@@ -336,7 +343,7 @@
     top: 80px;
   }
   .art-body-section-h {
-    font-size: 13px !important;
+    font-size: 16px !important;
     font-weight: 500 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.14em !important;
@@ -398,7 +405,7 @@
   @media screen and (max-width: 768px) {
     .Article__Wrapper { padding-left: 20px; padding-right: 20px; }
     .art-body-section-text,
-    .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; }
+    .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; margin-right: 0; }
     .art-body-left { position: static; }
     .art-body-caption-col { justify-content: flex-start; }
     .art-body-caption-inner { text-align: left; max-width: none; }
@@ -570,9 +577,9 @@
   .art-headline {
     font-family: 'Jost', -apple-system, sans-serif;
     font-size: clamp(2.8rem, 3.8vw, 7.5rem);
-    font-weight: 400;
+    font-weight: 600;
     font-style: normal;
-    line-height: 1.02;
+    line-height: 1.08;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: #190d04;
@@ -596,7 +603,7 @@
     position: relative;
     width: calc(100vw - 40px);
     margin-left: calc(50% - 50vw + 20px);
-    height: 75vh;
+    height: 60vh;
     min-height: 460px;
     overflow: hidden;
     background: #12100e;
