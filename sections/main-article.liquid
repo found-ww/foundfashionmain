@@ -507,7 +507,8 @@
   /* ── Parallax hero — clean image, no overlay ── */
   .par-hero {
     position: relative;
-    width: 100%;
+    width: calc(100vw - 20px);
+    margin-left: calc(50% - 50vw + 10px);
     height: 75vh;
     min-height: 460px;
     overflow: hidden;
@@ -705,8 +706,8 @@
     if (toolbar && heroTrigger) {
       toolbar.classList.add('hero-locked');
       function checkToolbarVisibility() {
-        var bottom = heroTrigger.getBoundingClientRect().bottom;
-        toolbar.classList.toggle('hero-locked', bottom > 0);
+        var top = heroTrigger.getBoundingClientRect().top;
+        toolbar.classList.toggle('hero-locked', top > -100);
       }
       window.addEventListener('scroll', checkToolbarVisibility, { passive: true });
       checkToolbarVisibility();
