@@ -290,8 +290,8 @@
 
 <style>
   /* ---- Pin ArticleToolbar to the true left viewport edge ---- */
-  .ArticleToolbar { left: 0; right: 0; z-index: 10; background: #806f64; visibility: hidden; }
-  .ArticleToolbar.is-visible { visibility: visible; }
+  .ArticleToolbar { left: 0; right: 0; z-index: 10; background: #806f64; }
+  .ArticleToolbar.hero-locked { visibility: hidden !important; }
   .ArticleToolbar,
   .ArticleToolbar .Link,
   .ArticleToolbar__ArticleTitle { color: #fff; }
@@ -487,7 +487,7 @@
   .art-headline {
     font-family: 'Jost', -apple-system, sans-serif;
     font-size: clamp(2.8rem, 3.8vw, 7.5rem);
-    font-weight: 300;
+    font-weight: 400;
     font-style: normal;
     line-height: 1.02;
     letter-spacing: 0.05em;
@@ -699,13 +699,14 @@
       });
     }
 
-    /* ---- Show toolbar only after hero image scrolls past ---- */
+    /* ---- Show toolbar only after hero scrolls fully past viewport top ---- */
     var toolbar  = document.querySelector('.ArticleToolbar');
     var heroTrigger = document.getElementById('par-hero') || document.querySelector('.art-editorial-header');
     if (toolbar && heroTrigger) {
+      toolbar.classList.add('hero-locked');
       function checkToolbarVisibility() {
         var bottom = heroTrigger.getBoundingClientRect().bottom;
-        toolbar.classList.toggle('is-visible', bottom <= 0);
+        toolbar.classList.toggle('hero-locked', bottom > 0);
       }
       window.addEventListener('scroll', checkToolbarVisibility, { passive: true });
       checkToolbarVisibility();
