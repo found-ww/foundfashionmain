@@ -73,9 +73,10 @@
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
-  align-items: center !important;
-  text-align: center !important;
-  padding: 0 clamp(2rem, 8vw, 10rem) 4rem !important;
+  align-items: flex-start !important;
+  text-align: left !important;
+  /* left edge aligns with article column */
+  padding: 0 3rem 4rem max(1.5rem, calc((100vw - 920px) / 2)) !important;
   margin: 0 !important;
   background: transparent !important;
 }
