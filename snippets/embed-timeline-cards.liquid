@@ -126,10 +126,11 @@
   ───────────────────────────────────────────── */
   var stickyTopPx = parseFloat(getComputedStyle(sticky).top) || 80;
 
-  /* Outer just needs to be tall enough to keep sticky stuck while
-     we intercept wheel events. Just over sticky height eliminates dead space. */
+  /* Outer height = sticky margin-top + sticky height + 8px release buffer.
+     This eliminates dead space while keeping the sticky stuck during wheel lock. */
   function setOuterHeight() {
-    outer.style.height = (sticky.offsetHeight + 8) + 'px';
+    var mt = parseFloat(getComputedStyle(sticky).marginTop) || 0;
+    outer.style.height = (mt + sticky.offsetHeight + 8) + 'px';
   }
   setOuterHeight();
   window.addEventListener('resize', setOuterHeight);
@@ -137,9 +138,11 @@
   function getMaxX() { return Math.max(0, track.scrollHeight - track.clientHeight); }
   function lerp(a, b, t) { return a + (b - a) * t; }
 
+  /* Check sticky element's own position — accurate even with margin-top spacing */
   function isStuck() {
-    var r = outer.getBoundingClientRect();
-    return r.top <= stickyTopPx + 2 && r.bottom > stickyTopPx + sticky.offsetHeight;
+    var sr = sticky.getBoundingClientRect();
+    var or = outer.getBoundingClientRect();
+    return Math.abs(sr.top - stickyTopPx) < 4 && or.bottom > sr.bottom;
   }
 
   function updateUI(x) {
