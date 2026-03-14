@@ -496,10 +496,13 @@
     margin: 0;
   }
   @media screen and (max-width: 767px) {
+    .art-editorial-header {
+      padding-top: 10px;
+    }
     .art-editorial-header__grid {
       grid-template-columns: 1fr;
-      gap: 1.25rem;
-      padding: 0 5vw 2rem;
+      gap: 25px;
+      padding: 0 5vw 25px;
     }
     .art-editorial-header__left { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 1.2rem; padding-left: 0; }
   }
@@ -527,7 +530,7 @@
     display: block;
   }
   @media screen and (max-width: 640px) {
-    .par-hero { height: 50vh; min-height: 280px; }
+    .par-hero { height: 50vh; min-height: 280px; margin-top: 25px; }
     .par-fg { padding: 0 24px 40px; }
     .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; line-height: 1.22; }
     .par-sub { padding-right: 3.5rem; }
@@ -707,7 +710,7 @@
       toolbar.classList.add('hero-locked');
       function checkToolbarVisibility() {
         var top = heroTrigger.getBoundingClientRect().top;
-        toolbar.classList.toggle('hero-locked', top > -60);
+        toolbar.classList.toggle('hero-locked', top > -40);
       }
       window.addEventListener('scroll', checkToolbarVisibility, { passive: true });
       checkToolbarVisibility();
