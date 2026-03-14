@@ -320,7 +320,7 @@
   .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 50px; margin-bottom: 0; }
   @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
   @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: none; margin-bottom: 0; } }
-  .Article__Body { font-size: 18px; line-height: 1.75; }
+  .Article__Body { font-size: 18px; line-height: 1.65; }
 
   /* ── Two-column article body layout ── */
   .art-body-section-text {
@@ -333,16 +333,23 @@
   .art-body-section-img {
     display: grid;
     grid-template-columns: 5fr 7fr;
-    gap: 20px;
+    gap: 80px;
     margin-bottom: 56px;
     align-items: start;
+  }
+  /* Caption + image side by side inside the right column */
+  .art-body-img-right {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    min-width: 0;
   }
   .art-body-left {
     position: sticky;
     top: 80px;
   }
   .art-body-section-h {
-    font-size: 17px !important;
+    font-size: 16px !important;
     font-weight: 500 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.14em !important;
@@ -367,13 +374,12 @@
     font-style: normal !important;
   }
   .art-body-caption-col {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
+    flex-shrink: 0;
+    width: 9rem;
+    text-align: right;
   }
   .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
   .art-body-caption-inner {
-    max-width: 13rem;
     text-align: right;
   }
   .art-body-caption {
@@ -384,7 +390,7 @@
     letter-spacing: -0.02em;
     margin: 0;
   }
-  .art-body-img-col { min-width: 0; margin-right: -30px; }
+  .art-body-img-col { flex: 1; min-width: 0; margin-right: -30px; }
   .art-body-rule {
     border: none;
     border-top: 0.5px solid #e8e3db;
@@ -409,6 +415,8 @@
     .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; }
     .art-body-img-col { margin-right: 0; }
     .art-body-right { padding-right: 0; }
+    .art-body-img-right { flex-direction: column; gap: 8px; }
+    .art-body-caption-col { width: auto; text-align: left; }
     .art-body-left { position: static; }
     .art-body-caption-col { justify-content: flex-start; }
     .art-body-caption-inner { text-align: left; max-width: none; }
@@ -792,9 +800,15 @@
       if (sec.type === 'img') {
         var row = document.createElement('div');
         row.className = 'art-body-section-img art-fade-in';
-        var capCol = document.createElement('div');
-        capCol.className = 'art-body-caption-col';
+        /* Empty left col so image aligns with body text */
+        var emptyLeft = document.createElement('div');
+        emptyLeft.className = 'art-body-left';
+        /* Right col: caption + image side by side */
+        var imgRight = document.createElement('div');
+        imgRight.className = 'art-body-img-right';
         if (sec.alt) {
+          var capCol = document.createElement('div');
+          capCol.className = 'art-body-caption-col';
           var inner = document.createElement('div');
           inner.className = 'art-body-caption-inner';
           var cp = document.createElement('p');
@@ -802,17 +816,25 @@
           cp.textContent = sec.alt;
           inner.appendChild(cp);
           capCol.appendChild(inner);
+          imgRight.appendChild(capCol);
         }
         var imgCol = document.createElement('div');
         imgCol.className = 'art-body-img-col';
         imgCol.appendChild(sec.el);
-        row.appendChild(capCol);
-        row.appendChild(imgCol);
+        imgRight.appendChild(imgCol);
+        row.appendChild(emptyLeft);
+        row.appendChild(imgRight);
         frag.appendChild(row);
         return;
       }
       if (sec.type === 'text') {
         if (!sec.heading && !sec.right.length) return;
+        /* Auto divider before each new H2 section (except the first) */
+        if (sec.heading && frag.childNodes.length > 0) {
+          var autoRule = document.createElement('hr');
+          autoRule.className = 'art-body-rule';
+          frag.appendChild(autoRule);
+        }
         var row = document.createElement('div');
         row.className = 'art-body-section-text art-fade-in';
         var left = document.createElement('div');
