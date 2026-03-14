@@ -654,7 +654,7 @@
     align-items: end;
     gap: 10px;
   }
-  .epd__slot--b { margin-top: 3rem; }
+  .epd__slot--b { margin-top: 1rem; }
   .epd__wrap {
     overflow: hidden;
     line-height: 0;
@@ -673,10 +673,11 @@
     .epd__slot--b { display: none; }
   }
 
-  /* ── Timeline: horizontal scroll-jacking ── */
+  /* ── Timeline: vertical scroll-jacking ── */
   .tl-h-outer {
     position: relative;
     width: 100%;
+    padding-top: 2rem;
   }
   .tl-h-sticky {
     position: sticky;
@@ -703,6 +704,7 @@
   .tl-h-track {
     flex: 1;
     display: flex;
+    flex-direction: column;
     gap: 0;
     overflow: hidden;
     min-height: 0;
@@ -810,11 +812,10 @@
       overflow: visible;
     }
     .tl-h-track {
-      overflow-x: auto !important;
-      overflow-y: visible !important;
-      scroll-snap-type: x mandatory;
+      overflow-x: visible !important;
+      overflow-y: auto !important;
+      scroll-snap-type: y mandatory;
       -webkit-overflow-scrolling: touch;
-      padding-bottom: 10px;
     }
     .tl-h-card {
       flex: 0 0 100% !important;
