@@ -290,7 +290,8 @@
 
 <style>
   /* ---- Pin ArticleToolbar to the true left viewport edge ---- */
-  .ArticleToolbar { left: 0; right: 0; z-index: 10; background: #806f64; }
+  .ArticleToolbar { left: 0; right: 0; z-index: 10; background: #806f64; opacity: 0; transform: translateY(-100%); transition: opacity 0.3s, transform 0.3s; pointer-events: none; }
+  .ArticleToolbar.is-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
   .ArticleToolbar,
   .ArticleToolbar .Link,
   .ArticleToolbar__ArticleTitle { color: #fff; }
@@ -448,7 +449,7 @@
   .art-editorial-header {
     width: 100vw;
     margin-left: calc(50% - 50vw);
-    padding: calc(3.5rem + 30px) 0 0;
+    padding: 60px 0 0;
     border-bottom: 0.5px solid rgba(25,13,4,0.08);
   }
   .art-editorial-header__grid {
@@ -456,7 +457,7 @@
     grid-template-columns: 2.3fr 3fr;
     gap: 2rem;
     align-items: flex-start;
-    padding: 0 3vw calc(2.5rem + 30px);
+    padding: 0 3vw 40px;
   }
   .art-editorial-header__left {
     display: flex;
@@ -696,6 +697,18 @@
           document.body.removeChild(ta); onCopied();
         }
       });
+    }
+
+    /* ---- Show toolbar only after hero image scrolls past ---- */
+    var toolbar  = document.querySelector('.ArticleToolbar');
+    var heroTrigger = document.getElementById('par-hero') || document.querySelector('.art-editorial-header');
+    if (toolbar && heroTrigger) {
+      function checkToolbarVisibility() {
+        var bottom = heroTrigger.getBoundingClientRect().bottom;
+        toolbar.classList.toggle('is-visible', bottom <= 0);
+      }
+      window.addEventListener('scroll', checkToolbarVisibility, { passive: true });
+      checkToolbarVisibility();
     }
 
     /* ---- Parallax hero ---- */
