@@ -115,7 +115,7 @@
 
   function setOuterHeight() {
     var mt = parseFloat(getComputedStyle(sticky).marginTop) || 0;
-    outer.style.height = (mt + sticky.offsetHeight + 8) + 'px';
+    outer.style.height = (mt + sticky.offsetHeight + 80) + 'px';
   }
   setOuterHeight();
   window.addEventListener('resize', setOuterHeight);
