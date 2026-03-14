@@ -22,6 +22,8 @@
   --n: {{ _tc_total }};
   height: calc((var(--n) - 1) * 110vh + 100vh);
   position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
 }
 
 /* ── Sticky panel ── */
@@ -76,17 +78,17 @@
   background: transparent !important;
 }
 
-/* ── Year — big, dark, Cormorant ── */
+/* ── Year — bold, modern ── */
 .tl-outer-{{ _tc_id }} .tl-year {
-  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-family: 'Jost', -apple-system, sans-serif !important;
   font-size: clamp(72px, 12vw, 140px) !important;
-  font-weight: 300 !important;
-  font-style: italic !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
   color: #190d04 !important;
   line-height: 1 !important;
   margin: 0 0 .45em 0 !important;
   padding: 0 !important;
-  letter-spacing: -.02em;
+  letter-spacing: -.03em !important;
   user-select: none;
 }
 
@@ -145,7 +147,7 @@
 @media (max-width: 640px) {
   .tl-outer-{{ _tc_id }} { height: calc((var(--n) - 1) * 110vh + 100vh); }
   .tl-outer-{{ _tc_id }} .tl-h { font-size: clamp(24px, 7vw, 36px) !important; }
-  .tl-outer-{{ _tc_id }} .tl-year { font-size: clamp(64px, 18vw, 100px) !important; }
+  .tl-outer-{{ _tc_id }} .tl-year { font-size: clamp(56px, 16vw, 100px) !important; }
   .tl-outer-{{ _tc_id }} .tl-p { font-size: 13px !important; }
 }
 </style>
