@@ -42,36 +42,36 @@
     </div>
 
   </div>
+
+  <script>
+  (function() {
+    var yearEl  = document.getElementById('tl-v-year-{{ _tc_id }}');
+    var outer   = document.getElementById('tl-v-{{ _tc_id }}');
+    if (!yearEl || !outer) return;
+
+    var entries = outer.querySelectorAll('.tl-v-entry');
+    if (!entries.length) return;
+
+    var current = yearEl.textContent.trim();
+
+    function setYear(y) {
+      if (y === current) return;
+      current = y;
+      yearEl.classList.add('tl-v-year--fade');
+      setTimeout(function() {
+        yearEl.textContent = y;
+        yearEl.classList.remove('tl-v-year--fade');
+      }, 220);
+    }
+
+    var io = new IntersectionObserver(function(obs) {
+      obs.forEach(function(e) {
+        if (e.isIntersecting) setYear(e.target.dataset.tlYear);
+      });
+    }, { rootMargin: '-5% 0px -55% 0px', threshold: 0 });
+
+    entries.forEach(function(el) { io.observe(el); });
+  })();
+  </script>
+
 </div>
-
-<script>
-(function() {
-  var yearEl  = document.getElementById('tl-v-year-{{ _tc_id }}');
-  var outer   = document.getElementById('tl-v-{{ _tc_id }}');
-  if (!yearEl || !outer) return;
-
-  var entries = outer.querySelectorAll('.tl-v-entry');
-  if (!entries.length) return;
-
-  var current = yearEl.textContent.trim();
-
-  function setYear(y) {
-    if (y === current) return;
-    current = y;
-    yearEl.classList.add('tl-v-year--fade');
-    setTimeout(function() {
-      yearEl.textContent = y;
-      yearEl.classList.remove('tl-v-year--fade');
-    }, 220);
-  }
-
-  /* Fire when entry crosses upper 40% of viewport */
-  var io = new IntersectionObserver(function(obs) {
-    obs.forEach(function(e) {
-      if (e.isIntersecting) setYear(e.target.dataset.tlYear);
-    });
-  }, { rootMargin: '-5% 0px -55% 0px', threshold: 0 });
-
-  entries.forEach(function(el) { io.observe(el); });
-})();
-</script>

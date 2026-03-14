@@ -647,14 +647,14 @@
   }
 
   /* ── Embed: Parallax Dual Image ── */
-  .epd { margin: 0; }
+  .epd { margin: 0; width: 100%; }
   .epd__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    align-items: start;
-    gap: 12px;
+    align-items: end;
+    gap: 10px;
   }
-  .epd__slot--b { margin-top: 2.5rem; }
+  .epd__slot--b { margin-top: 3rem; }
   .epd__wrap {
     overflow: hidden;
     line-height: 0;
@@ -665,7 +665,7 @@
     height: 100%;
     display: block;
     object-fit: cover;
-    transform: scale(1.08);
+    transform: scale(1.1);
     will-change: transform;
   }
   @media screen and (max-width: 640px) {
@@ -674,53 +674,60 @@
   }
 
   /* ── Timeline v2: sticky year left, flowing entries right ── */
-  .tl-v-outer { margin-bottom: 30px; }
+  .tl-v-outer { padding: 2rem 0; }
   .tl-v-grid {
-    display: grid;
-    grid-template-columns: 5fr 7fr;
-    gap: 80px;
-    align-items: start;
+    display: grid !important;
+    grid-template-columns: 5fr 7fr !important;
+    gap: 80px !important;
+    align-items: start !important;
   }
-  .tl-v-left { position: sticky; top: 80px; }
+  .tl-v-left { position: sticky !important; top: 80px !important; }
   .tl-v-year {
-    font-size: clamp(40px, 4vw, 80px);
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: #190d04;
-    font-family: inherit;
+    font-size: clamp(42px, 4vw, 82px) !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.02em !important;
+    color: #190d04 !important;
+    font-family: inherit !important;
+    font-style: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
     transition: opacity 0.25s ease;
   }
   .tl-v-year.tl-v-year--fade { opacity: 0; }
-  .tl-v-right { padding-right: 10vw; }
-  @media screen and (min-width: 1440px) { .tl-v-right { padding-right: 15vw; } }
-  @media screen and (min-width: 1600px) { .tl-v-right { padding-right: 18vw; } }
-  @media screen and (min-width: 1920px) { .tl-v-right { padding-right: 22vw; } }
-  .tl-v-entry { padding-bottom: 2.5rem; }
-  .tl-v-entry + .tl-v-entry { border-top: 0.5px solid #e8e3db; padding-top: 2.5rem; }
+  .tl-v-right { padding-right: 10vw !important; }
+  @media screen and (min-width: 1440px) { .tl-v-right { padding-right: 15vw !important; } }
+  @media screen and (min-width: 1600px) { .tl-v-right { padding-right: 18vw !important; } }
+  @media screen and (min-width: 1920px) { .tl-v-right { padding-right: 22vw !important; } }
+  .tl-v-entry { padding: 0 0 3rem !important; margin: 0 !important; }
+  .tl-v-entry + .tl-v-entry { border-top: 0.5px solid #e8e3db !important; padding-top: 3rem !important; }
   .tl-v-h {
-    font-size: 16px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: #0f0f0f;
-    line-height: 1.4;
-    margin: 0 0 0.7em;
-    font-family: inherit;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.14em !important;
+    color: #0f0f0f !important;
+    line-height: 1.4 !important;
+    margin: 0 0 0.8em !important;
+    padding: 0 !important;
+    font-family: inherit !important;
+    font-style: normal !important;
   }
   .tl-v-p {
-    font-size: 1em;
-    line-height: 1.65;
-    color: #190d04;
-    margin: 0;
-    font-family: inherit;
-    font-weight: 400;
+    font-size: 1em !important;
+    line-height: 1.65 !important;
+    color: rgba(25,13,4,0.7) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: inherit !important;
+    font-weight: 400 !important;
+    font-style: normal !important;
   }
   @media screen and (max-width: 768px) {
-    .tl-v-grid { grid-template-columns: 1fr; gap: 16px; }
-    .tl-v-left { position: static; margin-bottom: 1rem; }
-    .tl-v-right { padding-right: 0; }
-    .tl-v-year { font-size: clamp(32px, 10vw, 56px); }
+    .tl-v-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+    .tl-v-left { position: static !important; margin-bottom: 1.5rem !important; }
+    .tl-v-right { padding-right: 0 !important; }
+    .tl-v-year { font-size: clamp(32px, 10vw, 56px) !important; }
   }
 
   /* ── Embed: Pull Quote ── */
@@ -857,7 +864,17 @@
         return;
       }
       if (sec.type === 'embed') {
+        if (frag.childNodes.length > 0) {
+          var embedRule = document.createElement('hr');
+          embedRule.className = 'art-body-rule';
+          frag.appendChild(embedRule);
+        }
         frag.appendChild(sec.el);
+        if (true) {
+          var embedRuleAfter = document.createElement('hr');
+          embedRuleAfter.className = 'art-body-rule';
+          frag.appendChild(embedRuleAfter);
+        }
         return;
       }
       if (sec.type === 'img') {
