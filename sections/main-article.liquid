@@ -317,10 +317,10 @@
   .ShareButtons__Item--instagram:hover { background: #e1306c; color: #ffffff; border-color: #e1306c; outline: 1.5px solid #e1306c; }
 
   /* ---- Article width + body font size ---- */
-  .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 20px; margin-bottom: 0; }
+  .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 20px; margin-bottom: 0; font-size: max(15px, 1.5vw); }
   @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
   @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: none; margin-bottom: 0; } }
-  .Article__Body, .Article__Body.Rte { font-size: max(15px, 1.5vw) !important; line-height: 1.65; }
+  .Article__Body, .Article__Body.Rte { font-size: 1em !important; line-height: 1.65; }
 
   /* ── Two-column article body layout ── */
   .art-body-section-text {
@@ -378,7 +378,7 @@
     margin-right: -60px;
   }
   .art-body-caption {
-    font-size: clamp(11px, 1vw, 16px);
+    font-size: 0.7em;
     font-weight: 400;
     color: rgba(27,27,28,0.35);
     line-height: 1.3;
