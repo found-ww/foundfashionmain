@@ -647,23 +647,22 @@
   }
 
   /* ── Embed: Parallax Dual Image ── */
-  .epd {
-    margin: 3.5rem 0;
-    overflow: hidden;
-  }
+  .epd { margin: 0; }
   .epd__grid {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 1fr 1fr;
     align-items: start;
-    gap: 20px;
+    gap: 12px;
   }
-  .epd__slot--b { margin-top: 60px; }
+  .epd__slot--b { margin-top: 2.5rem; }
   .epd__wrap {
     overflow: hidden;
     line-height: 0;
+    aspect-ratio: 3 / 4;
   }
   .epd__wrap img {
     width: 100%;
+    height: 100%;
     display: block;
     object-fit: cover;
     transform: scale(1.08);
@@ -672,6 +671,56 @@
   @media screen and (max-width: 640px) {
     .epd__grid { grid-template-columns: 1fr; }
     .epd__slot--b { display: none; }
+  }
+
+  /* ── Timeline v2: sticky year left, flowing entries right ── */
+  .tl-v-outer { margin-bottom: 30px; }
+  .tl-v-grid {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .tl-v-left { position: sticky; top: 80px; }
+  .tl-v-year {
+    font-size: clamp(40px, 4vw, 80px);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #190d04;
+    font-family: inherit;
+    transition: opacity 0.25s ease;
+  }
+  .tl-v-year.tl-v-year--fade { opacity: 0; }
+  .tl-v-right { padding-right: 10vw; }
+  @media screen and (min-width: 1440px) { .tl-v-right { padding-right: 15vw; } }
+  @media screen and (min-width: 1600px) { .tl-v-right { padding-right: 18vw; } }
+  @media screen and (min-width: 1920px) { .tl-v-right { padding-right: 22vw; } }
+  .tl-v-entry { padding-bottom: 2.5rem; }
+  .tl-v-entry + .tl-v-entry { border-top: 0.5px solid #e8e3db; padding-top: 2.5rem; }
+  .tl-v-h {
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #0f0f0f;
+    line-height: 1.4;
+    margin: 0 0 0.7em;
+    font-family: inherit;
+  }
+  .tl-v-p {
+    font-size: 1em;
+    line-height: 1.65;
+    color: #190d04;
+    margin: 0;
+    font-family: inherit;
+    font-weight: 400;
+  }
+  @media screen and (max-width: 768px) {
+    .tl-v-grid { grid-template-columns: 1fr; gap: 16px; }
+    .tl-v-left { position: static; margin-bottom: 1rem; }
+    .tl-v-right { padding-right: 0; }
+    .tl-v-year { font-size: clamp(32px, 10vw, 56px); }
   }
 
   /* ── Embed: Pull Quote ── */
@@ -751,9 +800,10 @@
       var t = n.tagName.toLowerCase();
       if (t === 'img') return true;
       if (t === 'figure') return true;
+      if (n.classList.contains('epd')) return true;
       /* div/p wrapping only an img (editor sometimes does this) */
       if ((t === 'div' || t === 'p') && n.children.length === 1 && n.querySelector('img') &&
-          !n.classList.contains('epd') && !n.classList.contains('epq') &&
+          !n.classList.contains('epq') &&
           !n.classList.contains('tl-outer') && !n.querySelector('.tl-outer')) return true;
       return false;
     }
@@ -774,6 +824,11 @@
         if (tag === 'hr') {
           flush();
           sections.push({ type: 'rule' });
+          return;
+        }
+        if (n.classList.contains('tl-v-outer')) {
+          flush();
+          sections.push({ type: 'embed', el: n });
           return;
         }
         if (isImgNode(n)) {
@@ -799,6 +854,10 @@
         var hr = document.createElement('hr');
         hr.className = 'art-body-rule';
         frag.appendChild(hr);
+        return;
+      }
+      if (sec.type === 'embed') {
+        frag.appendChild(sec.el);
         return;
       }
       if (sec.type === 'img') {
