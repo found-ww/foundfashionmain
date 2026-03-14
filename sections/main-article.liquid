@@ -624,7 +624,7 @@
     height: clamp(460px, 45vw, 85vh);
     overflow: hidden;
     background: #12100e;
-    margin-bottom: 3.5rem;
+    margin-bottom: 1.2rem;
   }
   .par-img-wrap {
     position: absolute;
@@ -711,8 +711,8 @@
   .tl-h-card {
     flex: 0 0 clamp(240px, 26vw, 340px);
     height: 100%;
-    background: #faf9f7;
-    border: 0.5px solid #e8e3db;
+    background: none;
+    border: 0.5px solid rgba(25,13,4,0.1);
     padding: 26px 26px 22px;
     box-sizing: border-box;
     position: relative;
@@ -734,12 +734,16 @@
     font-size: clamp(28px, 2.6vw, 42px);
     font-style: italic;
     font-weight: 300;
-    color: #947b69;
+    color: #2a2a2a;
     line-height: 1.1;
-    margin: 0 0 14px;
+    margin: 0 0 6px;
     font-family: inherit;
     padding: 0;
+    display: inline-block;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
   }
+  .tl-h-date:hover { transform: scale(1.06); }
   .tl-h-rule {
     border: none;
     border-top: 0.5px solid #e8e3db;
@@ -760,10 +764,12 @@
     flex-shrink: 0;
   }
   .tl-h-head {
-    font-size: clamp(14px, 1.15vw, 18px);
-    font-style: italic;
-    font-weight: 400;
-    line-height: 1.35;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    line-height: 1.4;
     color: #190d04;
     margin: 0 0 10px;
     font-family: inherit;
@@ -797,13 +803,13 @@
     height: 5px;
     border-radius: 50%;
     border: none;
-    background: rgba(25,13,4,0.14);
+    background: rgba(25,13,4,0.3);
     padding: 0;
     cursor: pointer;
     transition: background 0.25s ease, transform 0.25s ease;
   }
   .tl-h-dot--active {
-    background: #947b69;
+    background: #2a2a2a;
     transform: scale(1.5);
   }
   @media screen and (max-width: 767px) {
