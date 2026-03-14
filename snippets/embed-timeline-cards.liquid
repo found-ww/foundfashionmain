@@ -142,25 +142,37 @@
 
   /* ── Apple-style: one clear gesture = one card advance ── */
   var accumDelta = 0;
-  var cooldown = false;
+  var exitAccum  = 0;
+  var cooldown   = false;
 
   window.addEventListener('wheel', function(e) {
     if (!isStuck()) return;
-    /* At end wheeling down or start wheeling up → let page scroll */
-    if (e.deltaY > 0 && activeIdx >= N - 1) return;
+
+    /* At start, scrolling up → let page scroll normally */
     if (e.deltaY < 0 && activeIdx <= 0) return;
 
+    /* At last card, scrolling down:
+       - Block during cooldown (absorbs inertia from the last card-advance swipe)
+       - After cooldown, require a deliberate gesture (150px) to exit */
+    if (e.deltaY > 0 && activeIdx >= N - 1) {
+      if (cooldown) { e.preventDefault(); return; }
+      exitAccum += e.deltaY;
+      if (exitAccum >= 150) { exitAccum = 0; return; } /* deliberate push past → scroll */
+      e.preventDefault();
+      return;
+    }
+
+    exitAccum = 0;
     e.preventDefault();
     if (cooldown) return;
 
     accumDelta += e.deltaY;
-    if (Math.abs(accumDelta) < 40) return; /* wait for clear intent */
+    if (Math.abs(accumDelta) < 40) return;
 
     var dir = accumDelta > 0 ? 1 : -1;
     accumDelta = 0;
     goToCard(activeIdx + dir);
 
-    /* Cooldown absorbs trackpad inertia so one swipe = one card */
     cooldown = true;
     setTimeout(function() { cooldown = false; accumDelta = 0; }, 500);
   }, { passive: false });
