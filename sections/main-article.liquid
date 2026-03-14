@@ -796,6 +796,12 @@
     var body = document.querySelector('.Article__Body');
     if (!body) return;
 
+    /* Unwrap editor wrappers (ppv1-story__text etc.) so embeds become direct children */
+    Array.from(body.querySelectorAll('.ppv1-story__text')).forEach(function(wrapper) {
+      while (wrapper.firstChild) wrapper.parentNode.insertBefore(wrapper.firstChild, wrapper);
+      wrapper.remove();
+    });
+
     var nodes = Array.from(body.childNodes);
     var sections = [];
     var cur = null; // { type:'text', heading:el|null, right:[] } | { type:'img', el, alt } | { type:'rule' }
@@ -833,7 +839,7 @@
           sections.push({ type: 'rule' });
           return;
         }
-        if (n.classList.contains('tl-v-outer')) {
+        if (n.classList.contains('tl-v-outer') || n.classList.contains('epq')) {
           flush();
           sections.push({ type: 'embed', el: n });
           return;
