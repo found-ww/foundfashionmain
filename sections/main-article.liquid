@@ -354,8 +354,9 @@
   }
   .art-body-right { min-width: 0; padding-right: 10vw; }
   @media screen and (min-width: 1440px) { .art-body-right { padding-right: 15vw; } }
-  @media screen and (min-width: 1600px) { .art-body-right { padding-right: 18vw; } }
-  @media screen and (min-width: 1920px) { .art-body-right { padding-right: 20vw; } }
+  @media screen and (min-width: 1600px) { .art-body-right { padding-right: 20vw; } }
+  @media screen and (min-width: 1920px) { .art-body-right { padding-right: 24vw; } }
+  @media screen and (min-width: 2220px) { .art-body-right { padding-right: 30vw; } }
   .art-body-right > p:first-child,
   .art-body-right > h3:first-child { margin-top: 0 !important; }
   .art-body-right h3 {
@@ -376,12 +377,12 @@
   }
   .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
   .art-body-caption-inner {
-    max-width: 9rem;
+    max-width: clamp(9rem, 10vw, 14rem);
     text-align: right;
     margin-right: -60px;
   }
   .art-body-caption {
-    font-size: 0.7em;
+    font-size: 0.78em;
     font-weight: 400;
     color: rgba(27,27,28,0.35);
     line-height: 1.3;
@@ -565,20 +566,20 @@
     line-height: 1.2;
   }
   .art-meta-label {
-    font-size: 14px;
+    font-size: clamp(13px, 1vw, 17px);
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #190d04;
   }
   .art-meta-date {
-    font-size: 14px;
+    font-size: clamp(13px, 1vw, 17px);
     font-weight: 500;
     letter-spacing: 0.04em;
     color: #555;
   }
   .art-meta-read {
-    font-size: 13px;
+    font-size: clamp(12px, 0.9vw, 16px);
     font-weight: 400;
     letter-spacing: 0.04em;
     color: #999;
