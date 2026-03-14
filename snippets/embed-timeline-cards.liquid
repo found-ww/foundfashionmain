@@ -78,41 +78,41 @@
   ───────────────────────────────────────────── */
   if (isMobile) {
     outer.style.height = 'auto';
-    var startX = 0, dragStartX = 0, isDragging = false, trackX = 0;
+    var startY = 0, dragStartY = 0, isDragging = false, trackY = 0;
 
-    function mobileMaxX() { return Math.max(0, track.scrollWidth - track.clientWidth); }
+    function mobileMaxY() { return Math.max(0, track.scrollHeight - track.clientHeight); }
 
-    function mobileClamp(v) { return Math.max(0, Math.min(mobileMaxX(), v)); }
+    function mobileClamp(v) { return Math.max(0, Math.min(mobileMaxY(), v)); }
 
     function mobileSnap() {
-      var cardW = cards[0] ? (cards[0].offsetWidth + 16) : 1;
-      var idx = Math.round(trackX / cardW);
+      var cardH = cards[0] ? cards[0].offsetHeight : 1;
+      var idx = Math.round(trackY / cardH);
       idx = Math.max(0, Math.min(N - 1, idx));
-      trackX = mobileClamp(idx * cardW);
+      trackY = mobileClamp(idx * cardH);
       track.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
-      track.style.transform  = 'translateX(' + (-trackX) + 'px)';
+      track.style.transform  = 'translateY(' + (-trackY) + 'px)';
       setTimeout(function() { track.style.transition = ''; }, 380);
       dots.forEach(function(d, i) { d.classList.toggle('tl-h-dot--active', i === idx); });
     }
 
     track.addEventListener('touchstart', function(e) {
-      startX = e.touches[0].clientX;
-      dragStartX = trackX;
+      startY = e.touches[0].clientY;
+      dragStartY = trackY;
       isDragging = true;
     }, { passive: true });
     track.addEventListener('touchmove', function(e) {
       if (!isDragging) return;
-      trackX = mobileClamp(dragStartX - (e.touches[0].clientX - startX));
-      track.style.transform = 'translateX(' + (-trackX) + 'px)';
+      trackY = mobileClamp(dragStartY - (e.touches[0].clientY - startY));
+      track.style.transform = 'translateY(' + (-trackY) + 'px)';
     }, { passive: true });
     track.addEventListener('touchend', mobileSnap);
 
     dots.forEach(function(d, i) {
       d.addEventListener('click', function() {
-        var cardW = cards[0] ? (cards[0].offsetWidth + 16) : 1;
-        trackX = mobileClamp(i * cardW);
+        var cardH = cards[0] ? cards[0].offsetHeight : 1;
+        trackY = mobileClamp(i * cardH);
         track.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
-        track.style.transform  = 'translateX(' + (-trackX) + 'px)';
+        track.style.transform  = 'translateY(' + (-trackY) + 'px)';
         setTimeout(function() { track.style.transition = ''; }, 380);
         dots.forEach(function(d2, j) { d2.classList.toggle('tl-h-dot--active', j === i); });
       });
@@ -129,12 +129,12 @@
   /* Outer just needs to be tall enough to keep sticky stuck while
      we intercept wheel events. Just over sticky height eliminates dead space. */
   function setOuterHeight() {
-    outer.style.height = (sticky.offsetHeight + 24) + 'px';
+    outer.style.height = (sticky.offsetHeight + 8) + 'px';
   }
   setOuterHeight();
   window.addEventListener('resize', setOuterHeight);
 
-  function getMaxX() { return Math.max(0, track.scrollWidth - track.clientWidth); }
+  function getMaxX() { return Math.max(0, track.scrollHeight - track.clientHeight); }
   function lerp(a, b, t) { return a + (b - a) * t; }
 
   function isStuck() {
@@ -168,7 +168,7 @@
   function tick() {
     curX = lerp(curX, tgtX, 0.12);
     if (Math.abs(tgtX - curX) < 0.3) curX = tgtX;
-    track.style.transform = 'translateX(' + (-curX) + 'px)';
+    track.style.transform = 'translateY(' + (-curX) + 'px)';
     updateUI(curX);
     raf = (Math.abs(tgtX - curX) > 0.3) ? requestAnimationFrame(tick) : null;
   }
@@ -197,7 +197,7 @@
     });
   });
 
-  track.style.transform = 'translateX(0)';
+  track.style.transform = 'translateY(0)';
   updateUI(0);
 })();
 </script>
