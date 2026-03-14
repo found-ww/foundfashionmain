@@ -507,8 +507,8 @@
   /* ── Parallax hero — clean image, no overlay ── */
   .par-hero {
     position: relative;
-    width: calc(100vw - 20px);
-    margin-left: calc(50% - 50vw + 10px);
+    width: calc(100vw - 40px);
+    margin-left: calc(50% - 50vw + 20px);
     height: 75vh;
     min-height: 460px;
     overflow: hidden;
@@ -527,7 +527,7 @@
     display: block;
   }
   @media screen and (max-width: 640px) {
-    .par-hero { height: 70vh; min-height: 380px; }
+    .par-hero { height: 50vh; min-height: 280px; }
     .par-fg { padding: 0 24px 40px; }
     .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; line-height: 1.22; }
     .par-sub { padding-right: 3.5rem; }
@@ -707,7 +707,7 @@
       toolbar.classList.add('hero-locked');
       function checkToolbarVisibility() {
         var top = heroTrigger.getBoundingClientRect().top;
-        toolbar.classList.toggle('hero-locked', top > -100);
+        toolbar.classList.toggle('hero-locked', top > -60);
       }
       window.addEventListener('scroll', checkToolbarVisibility, { passive: true });
       checkToolbarVisibility();
