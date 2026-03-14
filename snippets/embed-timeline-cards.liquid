@@ -122,30 +122,26 @@
   }
 
   /* ─────────────────────────────────────────────
-     Desktop: scroll-jacking
+     Desktop: wheel-intercepting scroll-lock
+     Page does not advance until all cards are seen.
   ───────────────────────────────────────────── */
   var stickyTopPx = parseFloat(getComputedStyle(sticky).top) || 80;
 
+  /* Outer just needs to be tall enough to keep sticky stuck while
+     we intercept wheel events. 2× gives a comfortable release buffer. */
   function setOuterHeight() {
-    var stickyH = sticky.offsetHeight;
-    var extra   = (N - 1) * 0.85 * window.innerHeight;
-    outer.style.height = (stickyH + extra) + 'px';
+    outer.style.height = (sticky.offsetHeight * 2) + 'px';
   }
   setOuterHeight();
   window.addEventListener('resize', setOuterHeight);
 
-  function getProgress() {
-    var outerTop = outer.getBoundingClientRect().top;
-    var scrolled = -outerTop + stickyTopPx;
-    var total    = outer.offsetHeight - sticky.offsetHeight;
-    return total > 0 ? Math.max(0, Math.min(1, scrolled / total)) : 0;
-  }
-
-  function getMaxX() {
-    return Math.max(0, track.scrollWidth - track.clientWidth);
-  }
-
+  function getMaxX() { return Math.max(0, track.scrollWidth - track.clientWidth); }
   function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function isStuck() {
+    var r = outer.getBoundingClientRect();
+    return r.top <= stickyTopPx + 2 && r.bottom > stickyTopPx + sticky.offsetHeight;
+  }
 
   function updateUI(x) {
     var maxX = getMaxX();
@@ -157,6 +153,8 @@
   }
 
   var curX = 0, tgtX = 0, raf = null;
+  var virtualScroll = 0;
+  var scrollPerCard = 420; /* px of wheel delta to advance one card */
 
   function tick() {
     curX = lerp(curX, tgtX, 0.12);
@@ -166,23 +164,29 @@
     raf = (Math.abs(tgtX - curX) > 0.3) ? requestAnimationFrame(tick) : null;
   }
 
-  window.addEventListener('scroll', function() {
-    tgtX = getProgress() * getMaxX();
+  window.addEventListener('wheel', function(e) {
+    if (!isStuck()) return;
+    var maxX = getMaxX();
+    /* At end and wheeling down → let page scroll normally */
+    if (e.deltaY > 0 && tgtX >= maxX - 1) return;
+    /* At start and wheeling up → let page scroll normally */
+    if (e.deltaY < 0 && tgtX <= 1) return;
+    e.preventDefault();
+    virtualScroll = Math.max(0, Math.min((N - 1) * scrollPerCard, virtualScroll + e.deltaY));
+    tgtX = (virtualScroll / ((N - 1) * scrollPerCard)) * maxX;
     if (!raf) raf = requestAnimationFrame(tick);
-  }, { passive: true });
+  }, { passive: false });
 
   dots.forEach(function(d, i) {
     d.addEventListener('click', function() {
       var frac = N > 1 ? i / (N - 1) : 0;
-      var outerAbsTop = outer.getBoundingClientRect().top + window.scrollY;
-      var total = outer.offsetHeight - sticky.offsetHeight;
-      window.scrollTo({ top: outerAbsTop - stickyTopPx + frac * total, behavior: 'smooth' });
+      virtualScroll = frac * (N - 1) * scrollPerCard;
+      tgtX = frac * getMaxX();
+      if (!raf) raf = requestAnimationFrame(tick);
     });
   });
 
-  tgtX = getProgress() * getMaxX();
-  curX = tgtX;
-  track.style.transform = 'translateX(' + (-curX) + 'px)';
-  updateUI(curX);
+  track.style.transform = 'translateX(0)';
+  updateUI(0);
 })();
 </script>
