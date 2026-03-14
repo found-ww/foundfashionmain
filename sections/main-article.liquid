@@ -112,6 +112,39 @@
   </aside>
 
   {%- if article.image and section.settings.show_article_image -%}
+
+    <div class="art-editorial-header">
+      <div class="art-editorial-header__inner">
+        {%- if article.tags != empty or par_brand != blank -%}
+          <div class="art-meta-top">
+            {%- if par_brand != blank -%}
+              <span class="art-meta-brand">{{ par_brand }}</span>
+              <span class="art-meta-sep">·</span>
+            {%- endif -%}
+            {%- if article.tags != empty -%}
+              <span class="art-meta-tag">{{ article.tags.first }}</span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        <h1 class="art-headline">{{ article.title }}</h1>
+
+        {%- if par_sub != blank -%}
+          <p class="art-sub">{{ par_sub }}</p>
+        {%- endif -%}
+
+        <div class="art-meta-bottom">
+          <span>{{ article.published_at | date: '%B %-d, %Y' }}</span>
+          {%- if article.author != blank -%}
+            <span class="art-meta-dot">·</span>
+            <span>{{ article.author }}</span>
+          {%- endif -%}
+          <span class="art-meta-dot">·</span>
+          <span>{{ read_minutes }} min read</span>
+        </div>
+      </div>
+    </div>
+
     <div class="par-hero" id="par-hero">
       <div class="par-img-wrap" id="par-img">
         <img src="{{ article.image | img_url: '1600x' }}"
@@ -123,30 +156,8 @@
              fetchpriority="high"
              alt="{{ article.image.alt | default: article.title | escape }}">
       </div>
-      <div class="par-dark" id="par-dark"></div>
-      <div class="par-fg" id="par-fg">
-        <div class="par-rule"></div>
-        <p class="par-kicker">
-          {%- if par_brand != blank -%}{{ par_brand }} &nbsp;·&nbsp; {%- endif -%}
-          {{ pub_year }}
-        </p>
-        <h1 class="par-title">{{ article.title }}</h1>
-        {%- if par_sub != blank -%}
-          <p class="par-sub">{{ par_sub }}</p>
-        {%- endif -%}
-        <div class="par-foot">
-          <span class="par-readtime">{{ read_minutes }} min read</span>
-          <a class="par-cta" id="par-cta" href="#article-body">
-            Start reading
-            <svg viewBox="0 0 10 10" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h6M5 2l3 3-3 3"/></svg>
-          </a>
-        </div>
-      </div>
-      <div class="par-scroll-hint" aria-hidden="true">
-        <span>Scroll</span>
-        <div class="par-scroll-line"></div>
-      </div>
     </div>
+
   {%- endif -%}
 
   <div id="article-body" class="Article__Wrapper">
@@ -157,18 +168,13 @@
           {%- if section.settings.show_date -%}
             <span class="Article__MetaItem">{{ article.published_at | date: format: 'month_day_year' }}</span>
           {%- endif -%}
-
           {%- if section.settings.show_category and article.tags != empty -%}
             <span class="Article__MetaItem">{{ article.tags.first }}</span>
           {%- endif -%}
         {%- endcapture -%}
-
         {%- if article_meta != blank -%}
-          <div class="Article__Meta Heading Text--subdued u-h6">
-            {{- article_meta -}}
-          </div>
+          <div class="Article__Meta Heading Text--subdued u-h6">{{- article_meta -}}</div>
         {%- endif -%}
-
         <h1 class="Article__Title Heading u-h1">{{ article.title }}</h1>
       </header>
       {%- endunless -%}
@@ -450,14 +456,72 @@
     .Article__ParallaxWrap img { min-height: 72vw; object-fit: cover; }
   }
 
-  /* ---- Parallax hero ---- */
+  /* ── Editorial header (above image) ── */
+  .art-editorial-header {
+    padding: 3.5rem 0 2.5rem;
+  }
+  .art-editorial-header__inner {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .art-meta-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.4rem;
+  }
+  .art-meta-brand,
+  .art-meta-tag {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgb(128,111,100);
+  }
+  .art-meta-sep { color: rgba(128,111,100,0.4); font-size: 10px; }
+  .art-headline {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: clamp(2.2rem, 4.5vw, 4rem);
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: #190d04;
+    margin: 0 0 1.2rem;
+    max-width: 820px;
+  }
+  .art-editorial-header .art-sub {
+    font-size: clamp(1rem, 1.4vw, 1.15rem);
+    color: #888;
+    line-height: 1.65;
+    max-width: 600px;
+    margin: 0 0 1.6rem;
+  }
+  .art-meta-bottom {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(128,111,100);
+    opacity: 0.7;
+  }
+  .art-meta-dot { opacity: 0.4; }
+  @media screen and (max-width: 640px) {
+    .art-editorial-header { padding: 2rem 0 1.75rem; }
+    .art-headline { font-size: clamp(1.9rem, 7vw, 2.8rem); }
+  }
+
+  /* ── Parallax hero — clean image, no overlay ── */
   .par-hero {
     position: relative;
     width: 100%;
-    height: 90vh;
-    min-height: 580px;
+    height: 75vh;
+    min-height: 460px;
     overflow: hidden;
     background: #12100e;
+    margin-bottom: 3.5rem;
   }
   .par-img-wrap {
     position: absolute;
@@ -467,115 +531,8 @@
   .par-img-wrap img {
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: center 20%;
+    object-position: center 30%;
     display: block;
-  }
-  .par-dark {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: rgba(18,16,14,0.65);
-  }
-  .par-fg {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 0 3.5rem 3.5rem;
-    pointer-events: none;
-  }
-  .par-rule {
-    width: 32px;
-    height: 0.5px;
-    background: rgba(255,255,255,0.38);
-    margin-bottom: 0.85rem;
-  }
-  .par-kicker {
-    font-size: 10px;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 1rem;
-  }
-  .par-title {
-    font-size: clamp(1.8rem, 3.8vw, 3.8rem);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: #fff;
-    margin: 0 0 1rem;
-    max-width: 720px;
-  }
-  .par-sub {
-    font-size: clamp(1rem, 1.6vw, 1.2rem);
-    color: rgba(255,255,255,0.6);
-    max-width: 560px;
-    line-height: 1.6;
-    margin: 0 0 2rem;
-  }
-  .par-foot {
-    display: flex;
-    align-items: center;
-    gap: 1.75rem;
-    pointer-events: all;
-  }
-  .par-readtime {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.8);
-  }
-  .par-cta {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #fff;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    padding: 13px 26px;
-    border: 0.5px solid rgba(255,255,255,0.65);
-    border-radius: 2px;
-    background: rgba(255,255,255,0.14);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: background 0.3s, border-color 0.3s, gap 0.35s cubic-bezier(0.16,1,0.3,1);
-  }
-  .par-cta:hover {
-    background: rgba(255,255,255,0.24);
-    border-color: rgba(255,255,255,0.9);
-    gap: 20px;
-  }
-  .par-cta svg { flex-shrink: 0; }
-  @media screen and (min-width: 641px) { .par-scroll-hint { display: none; } }
-  .par-scroll-hint {
-    position: absolute;
-    bottom: 3.5rem; right: 3.5rem;
-    z-index: 4;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    animation: par-bob 2.4s ease-in-out infinite;
-    pointer-events: none;
-  }
-  @keyframes par-bob {
-    0%,100% { transform: translateY(0);   opacity: 0.55; }
-    50%      { transform: translateY(7px); opacity: 0.8; }
-  }
-  .par-scroll-hint span {
-    font-size: 13px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #fff;
-    writing-mode: vertical-rl;
-  }
-  .par-scroll-line {
-    width: 1px; height: 52px;
-    background: rgba(255,255,255,0.6);
   }
   @media screen and (max-width: 640px) {
     .par-hero { height: 70vh; min-height: 380px; }
