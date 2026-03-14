@@ -317,10 +317,91 @@
   .ShareButtons__Item--instagram:hover { background: #e1306c; color: #ffffff; border-color: #e1306c; outline: 1.5px solid #e1306c; }
 
   /* ---- Article width + body font size ---- */
-  .Article__Wrapper { max-width: 920px; margin-bottom: 0; }
+  .Article__Wrapper { max-width: 1200px; padding-left: 64px; padding-right: 64px; margin-bottom: 0; }
   @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
-  @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: 920px; margin-bottom: 0; } }
+  @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: 1200px; margin-bottom: 0; } }
   .Article__Body { font-size: 16px; line-height: 1.75; }
+
+  /* ── Two-column article body layout ── */
+  .art-body-section-text,
+  .art-body-section-img {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 80px;
+    margin-bottom: 56px;
+    align-items: start;
+  }
+  .art-body-left {
+    position: sticky;
+    top: 80px;
+  }
+  .art-body-section-h {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.14em !important;
+    color: #190d04 !important;
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    font-family: inherit !important;
+    font-style: normal !important;
+  }
+  .art-body-right { min-width: 0; }
+  .art-body-right h3 {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.12em !important;
+    color: #190d04 !important;
+    line-height: 1.4 !important;
+    margin: 0 0 1em !important;
+    font-family: inherit !important;
+    font-style: normal !important;
+  }
+  .art-body-caption-col {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+  .art-body-caption-inner {
+    max-width: 13rem;
+    text-align: right;
+  }
+  .art-body-caption {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(27,27,28,0.35);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .art-body-img-col { min-width: 0; }
+  .art-body-rule {
+    border: none;
+    border-top: 0.5px solid #e8e3db;
+    margin: 0 0 56px;
+  }
+  /* Fade-in */
+  .art-fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .art-fade-in.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Mobile */
+  @media screen and (max-width: 768px) {
+    .Article__Wrapper { padding-left: 20px; padding-right: 20px; }
+    .art-body-section-text,
+    .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; }
+    .art-body-left { position: static; }
+    .art-body-caption-col { justify-content: flex-start; }
+    .art-body-caption-inner { text-align: left; max-width: none; }
+    .art-body-rule { margin-bottom: 36px; }
+  }
 
   /* ---- New badge ---- */
   .ArticleItem__ImageWrapper { position: relative; }
@@ -628,6 +709,128 @@
 </style>
 
 <script>
+  /* ── Two-column article body restructure ── */
+  (function() {
+    var body = document.querySelector('.Article__Body');
+    if (!body) return;
+
+    var nodes = Array.from(body.childNodes);
+    var sections = [];
+    var cur = null; // { type:'text', heading:el|null, right:[] } | { type:'img', el, alt } | { type:'rule' }
+
+    function flush() { if (cur) { sections.push(cur); cur = null; } }
+
+    function isImgNode(n) {
+      if (n.nodeType !== 1) return false;
+      var t = n.tagName.toLowerCase();
+      if (t === 'img') return true;
+      if (t === 'figure') return true;
+      /* div/p wrapping only an img (editor sometimes does this) */
+      if ((t === 'div' || t === 'p') && n.children.length === 1 && n.querySelector('img') &&
+          !n.classList.contains('epd') && !n.classList.contains('epq') &&
+          !n.classList.contains('tl-outer') && !n.querySelector('.tl-outer')) return true;
+      return false;
+    }
+
+    nodes.forEach(function(n) {
+      /* Skip pure whitespace text nodes */
+      if (n.nodeType === 3 && !n.textContent.trim()) return;
+
+      /* Elements */
+      if (n.nodeType === 1) {
+        var tag = n.tagName.toLowerCase();
+
+        if (tag === 'h2') {
+          flush();
+          cur = { type: 'text', heading: n, right: [] };
+          return;
+        }
+        if (tag === 'hr') {
+          flush();
+          sections.push({ type: 'rule' });
+          return;
+        }
+        if (isImgNode(n)) {
+          flush();
+          var img = n.tagName.toLowerCase() === 'img' ? n : n.querySelector('img');
+          sections.push({ type: 'img', el: n, alt: img ? (img.getAttribute('alt') || '') : '' });
+          return;
+        }
+      }
+
+      /* Everything else → right column of current text section */
+      if (!cur || cur.type !== 'text') cur = { type: 'text', heading: null, right: [] };
+      cur.right.push(n);
+    });
+    flush();
+
+    if (!sections.length) return;
+
+    var frag = document.createDocumentFragment();
+
+    sections.forEach(function(sec, i) {
+      if (sec.type === 'rule') {
+        var hr = document.createElement('hr');
+        hr.className = 'art-body-rule';
+        frag.appendChild(hr);
+        return;
+      }
+      if (sec.type === 'img') {
+        var row = document.createElement('div');
+        row.className = 'art-body-section-img art-fade-in';
+        var capCol = document.createElement('div');
+        capCol.className = 'art-body-caption-col';
+        if (sec.alt) {
+          var inner = document.createElement('div');
+          inner.className = 'art-body-caption-inner';
+          var cp = document.createElement('p');
+          cp.className = 'art-body-caption';
+          cp.textContent = sec.alt;
+          inner.appendChild(cp);
+          capCol.appendChild(inner);
+        }
+        var imgCol = document.createElement('div');
+        imgCol.className = 'art-body-img-col';
+        imgCol.appendChild(sec.el);
+        row.appendChild(capCol);
+        row.appendChild(imgCol);
+        frag.appendChild(row);
+        return;
+      }
+      if (sec.type === 'text') {
+        if (!sec.heading && !sec.right.length) return;
+        var row = document.createElement('div');
+        row.className = 'art-body-section-text art-fade-in';
+        var left = document.createElement('div');
+        left.className = 'art-body-left';
+        if (sec.heading) {
+          sec.heading.className = 'art-body-section-h';
+          left.appendChild(sec.heading);
+        }
+        var right = document.createElement('div');
+        right.className = 'art-body-right';
+        sec.right.forEach(function(n) { right.appendChild(n); });
+        row.appendChild(left);
+        row.appendChild(right);
+        frag.appendChild(row);
+      }
+    });
+
+    body.innerHTML = '';
+    body.appendChild(frag);
+
+    /* Scroll fade-in */
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.art-fade-in').forEach(function(el, i) {
+      el.style.transitionDelay = (i * 0.05) + 's';
+      io.observe(el);
+    });
+  })();
+
   (function() {
 
     /* ---- Progress bar: tracks article content, not full page ---- */
