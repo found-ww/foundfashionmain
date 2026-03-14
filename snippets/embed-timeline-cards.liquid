@@ -78,47 +78,32 @@
   ───────────────────────────────────────────── */
   if (isMobile) {
     outer.style.height = 'auto';
-    var startY = 0, dragStartY = 0, isDragging = false, trackY = 0;
+    var mobileIdx = 0;
 
-    function mobileMaxY() { return Math.max(0, track.scrollHeight - track.clientHeight); }
-
-    function mobileClamp(v) { return Math.max(0, Math.min(mobileMaxY(), v)); }
-
-    function getMobileCardH() { return cards[0] ? cards[0].offsetHeight : 1; }
-
-    function mobileSnap() {
-      var h = getMobileCardH();
-      var idx = Math.round(trackY / h);
+    function mobileGoTo(idx) {
       idx = Math.max(0, Math.min(N - 1, idx));
-      trackY = mobileClamp(idx * h);
-      track.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
-      track.style.transform  = 'translateY(' + (-trackY) + 'px)';
-      setTimeout(function() { track.style.transition = ''; }, 380);
+      mobileIdx = idx;
+      Array.from(cards).forEach(function(c, i) {
+        c.classList.toggle('tl-h-card--active', i === idx);
+        c.classList.toggle('tl-h-card--prev', false);
+      });
       dots.forEach(function(d, i) { d.classList.toggle('tl-h-dot--active', i === idx); });
     }
 
+    var touchStartY = 0;
     track.addEventListener('touchstart', function(e) {
-      startY = e.touches[0].clientY;
-      dragStartY = trackY;
-      isDragging = true;
+      touchStartY = e.touches[0].clientY;
     }, { passive: true });
-    track.addEventListener('touchmove', function(e) {
-      if (!isDragging) return;
-      trackY = mobileClamp(dragStartY - (e.touches[0].clientY - startY));
-      track.style.transform = 'translateY(' + (-trackY) + 'px)';
-    }, { passive: true });
-    track.addEventListener('touchend', mobileSnap);
+    track.addEventListener('touchend', function(e) {
+      var dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 30) mobileGoTo(mobileIdx + (dy > 0 ? 1 : -1));
+    });
 
     dots.forEach(function(d, i) {
-      d.addEventListener('click', function() {
-        var h = getMobileCardH();
-        trackY = mobileClamp(i * h);
-        track.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
-        track.style.transform  = 'translateY(' + (-trackY) + 'px)';
-        setTimeout(function() { track.style.transition = ''; }, 380);
-        dots.forEach(function(d2, j) { d2.classList.toggle('tl-h-dot--active', j === i); });
-      });
+      d.addEventListener('click', function() { mobileGoTo(i); });
     });
+
+    mobileGoTo(0);
     return;
   }
 
@@ -128,33 +113,14 @@
   ───────────────────────────────────────────── */
   var stickyTopPx = parseFloat(getComputedStyle(sticky).top) || 80;
 
-  /* Outer height = sticky margin-top + sticky height + 8px release buffer. */
   function setOuterHeight() {
     var mt = parseFloat(getComputedStyle(sticky).marginTop) || 0;
     outer.style.height = (mt + sticky.offsetHeight + 8) + 'px';
   }
+  setOuterHeight();
+  window.addEventListener('resize', setOuterHeight);
 
-  /* Cards must fill the track height — percentage flex-basis is unreliable
-     when parent height comes from flex:1 rather than an explicit value. */
-  function setCardHeights() {
-    var h = track.offsetHeight;
-    if (!h) return;
-    Array.from(cards).forEach(function(c) { c.style.height = h + 'px'; });
-  }
-
-  function init() {
-    setOuterHeight();
-    setCardHeights();
-  }
-  init();
-  window.addEventListener('resize', function() { init(); goToCard(activeIdx); });
-
-  /* Use card height directly — scrollHeight is unreliable with overflow:hidden */
-  function cardH() { return cards[0] ? cards[0].offsetHeight : 1; }
-  function getMaxX() { return (N - 1) * cardH(); }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  /* Check sticky element's own position — accurate even with margin-top spacing */
+  /* Check sticky element's own position */
   function isStuck() {
     var sr = sticky.getBoundingClientRect();
     var or = outer.getBoundingClientRect();
@@ -163,26 +129,15 @@
 
   var activeIdx = 0;
 
-  function updateUI(idx) {
-    dots.forEach(function(d, i) { d.classList.toggle('tl-h-dot--active', i === idx); });
-    if (fill) fill.style.width = (N > 1 ? idx / (N - 1) * 100 : 0) + '%';
-  }
-
-  var curY = 0, tgtY = 0, raf = null;
-
-  function tick() {
-    curY = lerp(curY, tgtY, 0.12);
-    if (Math.abs(tgtY - curY) < 0.3) curY = tgtY;
-    track.style.transform = 'translateY(' + (-curY) + 'px)';
-    raf = (Math.abs(tgtY - curY) > 0.3) ? requestAnimationFrame(tick) : null;
-  }
-
   function goToCard(idx) {
     idx = Math.max(0, Math.min(N - 1, idx));
     activeIdx = idx;
-    tgtY = idx * cardH();
-    updateUI(idx);
-    if (!raf) raf = requestAnimationFrame(tick);
+    Array.from(cards).forEach(function(c, i) {
+      c.classList.toggle('tl-h-card--active', i === idx);
+      c.classList.toggle('tl-h-card--prev',   i < idx);
+    });
+    dots.forEach(function(d, i) { d.classList.toggle('tl-h-dot--active', i === idx); });
+    if (fill) fill.style.width = (N > 1 ? idx / (N - 1) * 100 : 0) + '%';
   }
 
   /* ── Apple-style: one clear gesture = one card advance ── */
@@ -214,7 +169,6 @@
     d.addEventListener('click', function() { goToCard(i); });
   });
 
-  track.style.transform = 'translateY(0)';
-  updateUI(0);
+  goToCard(0);
 })();
 </script>
