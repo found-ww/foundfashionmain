@@ -320,7 +320,7 @@
   .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 50px; margin-bottom: 0; }
   @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
   @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: none; margin-bottom: 0; } }
-  .Article__Body { font-size: 17px; line-height: 1.75; }
+  .Article__Body { font-size: 18px; line-height: 1.75; }
 
   /* ── Two-column article body layout ── */
   .art-body-section-text {
@@ -333,7 +333,7 @@
   .art-body-section-img {
     display: grid;
     grid-template-columns: 5fr 7fr;
-    gap: 80px;
+    gap: 20px;
     margin-bottom: 56px;
     align-items: start;
   }
@@ -342,17 +342,19 @@
     top: 80px;
   }
   .art-body-section-h {
-    font-size: 16px !important;
+    font-size: 17px !important;
     font-weight: 500 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.14em !important;
-    color: #190d04 !important;
+    color: #0f0f0f !important;
     line-height: 1.4 !important;
     margin: 0 !important;
     font-family: inherit !important;
     font-style: normal !important;
   }
-  .art-body-right { min-width: 0; padding-right: 80px; }
+  .art-body-right { min-width: 0; padding-right: 80px; max-width: 500px; }
+  .art-body-right > p:first-child,
+  .art-body-right > h3:first-child { margin-top: 0 !important; }
   .art-body-right h3 {
     font-size: 13px !important;
     font-weight: 500 !important;
@@ -375,7 +377,7 @@
     text-align: right;
   }
   .art-body-caption {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 400;
     color: rgba(27,27,28,0.35);
     line-height: 1.3;
