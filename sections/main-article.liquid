@@ -329,7 +329,6 @@
     gap: 80px;
     margin-bottom: 30px;
     align-items: start;
-    padding-right: 10vw;
   }
   .art-body-section-img {
     display: grid;
@@ -353,7 +352,7 @@
     font-family: inherit !important;
     font-style: normal !important;
   }
-  .art-body-right { min-width: 0; padding-right: 80px; }
+  .art-body-right { min-width: 0; padding-right: 10vw; }
   .art-body-right > p:first-child,
   .art-body-right > h3:first-child { margin-top: 0 !important; }
   .art-body-right h3 {
@@ -386,7 +385,7 @@
     letter-spacing: -0.02em;
     margin: 0;
   }
-  .art-body-img-col { min-width: 0; margin-right: -30px; }
+  .art-body-img-col { min-width: 0; }
   .art-body-rule {
     border: none;
     border-top: 0.5px solid #e8e3db;
@@ -613,8 +612,7 @@
     position: relative;
     width: calc(100vw - 40px);
     margin-left: calc(50% - 50vw + 20px);
-    height: 60vh;
-    min-height: 460px;
+    height: clamp(460px, 45vw, 85vh);
     overflow: hidden;
     background: #12100e;
     margin-bottom: 3.5rem;
