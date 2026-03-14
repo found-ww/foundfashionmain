@@ -128,14 +128,26 @@
   ───────────────────────────────────────────── */
   var stickyTopPx = parseFloat(getComputedStyle(sticky).top) || 80;
 
-  /* Outer height = sticky margin-top + sticky height + 8px release buffer.
-     This eliminates dead space while keeping the sticky stuck during wheel lock. */
+  /* Outer height = sticky margin-top + sticky height + 8px release buffer. */
   function setOuterHeight() {
     var mt = parseFloat(getComputedStyle(sticky).marginTop) || 0;
     outer.style.height = (mt + sticky.offsetHeight + 8) + 'px';
   }
-  setOuterHeight();
-  window.addEventListener('resize', setOuterHeight);
+
+  /* Cards must fill the track height — percentage flex-basis is unreliable
+     when parent height comes from flex:1 rather than an explicit value. */
+  function setCardHeights() {
+    var h = track.offsetHeight;
+    if (!h) return;
+    Array.from(cards).forEach(function(c) { c.style.height = h + 'px'; });
+  }
+
+  function init() {
+    setOuterHeight();
+    setCardHeights();
+  }
+  init();
+  window.addEventListener('resize', function() { init(); goToCard(activeIdx); });
 
   /* Use card height directly — scrollHeight is unreliable with overflow:hidden */
   function cardH() { return cards[0] ? cards[0].offsetHeight : 1; }
