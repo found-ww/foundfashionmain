@@ -51,7 +51,8 @@
     </div>
     <div class="tl-h-dots">
       {%- for _i in (0..7) -%}
-        {%- assign _tc_check2 = _tc_lines[_i | times: 3] | strip -%}
+        {%- assign _tc_dot_i0 = _i | times: 3 -%}
+        {%- assign _tc_check2 = _tc_lines[_tc_dot_i0] | strip -%}
         {%- if _tc_check2 == blank -%}{%- break -%}{%- endif -%}
         <button class="tl-h-dot{% if _i == 0 %} tl-h-dot--active{% endif %}" type="button" aria-label="Go to card {{ _i | plus: 1 }}"></button>
       {%- endfor -%}
