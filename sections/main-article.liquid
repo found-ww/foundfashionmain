@@ -292,6 +292,10 @@
   /* ---- Pin ArticleToolbar to the true left viewport edge ---- */
   .ArticleToolbar { left: 0; right: 0; z-index: 10; background: #806f64; }
   .ArticleToolbar.hero-locked { visibility: hidden !important; }
+  @media screen and (min-width: 1008px) {
+    header.Header { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+    header.Header.art-header-hidden { transform: translateY(-100%); }
+  }
   .ArticleToolbar,
   .ArticleToolbar .Link,
   .ArticleToolbar__ArticleTitle { color: #fff; }
@@ -945,6 +949,26 @@
       }
       window.addEventListener('scroll', checkToolbarVisibility, { passive: true });
       checkToolbarVisibility();
+    }
+
+    /* ---- Hide header on scroll down, reveal on scroll up (desktop only) ---- */
+    if (window.innerWidth >= 1008) {
+      var siteHeader = document.querySelector('header.Header');
+      if (siteHeader) {
+        var lastScrollY = window.scrollY;
+        var scrollThreshold = 80;
+        window.addEventListener('scroll', function() {
+          var currentY = window.scrollY;
+          if (currentY < scrollThreshold) {
+            siteHeader.classList.remove('art-header-hidden');
+          } else if (currentY > lastScrollY) {
+            siteHeader.classList.add('art-header-hidden');
+          } else {
+            siteHeader.classList.remove('art-header-hidden');
+          }
+          lastScrollY = currentY;
+        }, { passive: true });
+      }
     }
 
     /* ---- Parallax hero ---- */
