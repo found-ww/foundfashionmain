@@ -76,7 +76,7 @@
   align-items: flex-start !important;
   text-align: left !important;
   /* left edge aligns with article column */
-  padding: 0 3rem 4rem max(1.5rem, calc((100vw - 920px) / 2)) !important;
+  padding: 0 3rem 4rem max(1.5rem, calc((100vw - 920px) / 2 + 2rem)) !important;
   margin: 0 !important;
   background: transparent !important;
 }
@@ -134,17 +134,6 @@
   max-width: 52ch;
 }
 
-/* ── Card counter ── */
-.tl-outer-{{ _tc_id }} .tl-num {
-  position: absolute;
-  bottom: 2rem; left: 3rem;
-  font-size: 10px !important;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: #ccc;
-  margin: 0 !important; padding: 0 !important;
-  font-style: normal !important;
-}
 
 /* ── Mobile: smaller height per step ── */
 @media (max-width: 640px) {
@@ -184,8 +173,6 @@
       </div>
     </div>
 
-    <span class="tl-num" id="tl-num-{{ _tc_id }}">01 / {{ _tc_total | prepend: '0' | slice: -2, 2 }}</span>
-
   </div>
 </div>
 
@@ -196,14 +183,11 @@
   var cardsEl = document.getElementById('tl-cards-' + eid);
   var track = document.getElementById('tl-track-' + eid);
   var bar   = document.getElementById('tl-bar-'   + eid);
-  var numEl = document.getElementById('tl-num-'   + eid);
   var cards = track ? track.querySelectorAll('.tl-card') : [];
   var N     = cards.length;
   if (!outer || !track || N === 0) return;
 
   var targetX = 0, animX = 0, raf;
-
-  function fmt(n){ return (n < 10 ? '0' : '') + n; }
 
   function cardWidth(){ return cardsEl.clientWidth; }
 
@@ -216,8 +200,7 @@
     track.style.transform = 'translateX(' + animX + 'px)';
     var cw  = cardWidth();
     var idx = Math.min(N - 1, Math.max(0, Math.round(-animX / cw)));
-    if (numEl) numEl.textContent = fmt(idx + 1) + ' / ' + fmt(N);
-    if (bar)   bar.style.width   = (N > 1 ? (-animX / ((N - 1) * cw)) * 100 : 0) + '%';
+    if (bar) bar.style.width = (N > 1 ? (-animX / ((N - 1) * cw)) * 100 : 0) + '%';
   }
 
   function loop(){
