@@ -335,7 +335,6 @@
     grid-template-columns: 5fr 7fr;
     gap: 80px;
     margin-bottom: 56px;
-    margin-right: -30px; /* extends image to 20px from viewport right (50px wrapper - 30px = 20px) */
     align-items: start;
   }
   .art-body-left {
@@ -353,7 +352,7 @@
     font-family: inherit !important;
     font-style: normal !important;
   }
-  .art-body-right { min-width: 0; }
+  .art-body-right { min-width: 0; padding-right: 50px; }
   .art-body-right h3 {
     font-size: 13px !important;
     font-weight: 500 !important;
@@ -383,7 +382,7 @@
     letter-spacing: -0.02em;
     margin: 0;
   }
-  .art-body-img-col { min-width: 0; }
+  .art-body-img-col { min-width: 0; margin-right: -30px; }
   .art-body-rule {
     border: none;
     border-top: 0.5px solid #e8e3db;
@@ -405,7 +404,9 @@
   @media screen and (max-width: 768px) {
     .Article__Wrapper { padding-left: 20px; padding-right: 20px; }
     .art-body-section-text,
-    .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; margin-right: 0; }
+    .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; }
+    .art-body-img-col { margin-right: 0; }
+    .art-body-right { padding-right: 0; }
     .art-body-left { position: static; }
     .art-body-caption-col { justify-content: flex-start; }
     .art-body-caption-inner { text-align: left; max-width: none; }
