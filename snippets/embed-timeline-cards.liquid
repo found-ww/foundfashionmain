@@ -1,7 +1,11 @@
 {% comment %}
-  embed-timeline-cards.liquid
-  Option 2: sticky year left column, flowing events right column.
-  Format: groups of 3 lines (year / headline / body), up to 8 blocks. No blank lines needed.
+  embed-timeline-cards.liquid — Horizontal scroll-jacking timeline.
+  Format: groups of 3 lines per card (date / [tag | headline] / body), up to 8 cards.
+  Date line: e.g. "2019" or "March 2019"
+  Headline line: optionally prefix with "TAG | " to show a small uppercase tag above the headline
+  Body line: body copy (clipped to fit card)
+  On desktop: scroll-jacks horizontally through cards, then page continues.
+  On mobile: touch-draggable horizontal carousel.
 {% endcomment %}
 
 {%- assign _tc_id    = id | default: article.id -%}
@@ -16,62 +20,168 @@
 
 {%- if _tc_total == 0 -%}{%- break -%}{%- endif -%}
 
-{%- assign _tc_first_year = _tc_lines[0] | strip -%}
-
-<div class="tl-v-outer" id="tl-v-{{ _tc_id }}">
-  <div class="tl-v-grid">
-
-    <div class="tl-v-left">
-      <div class="tl-v-year" id="tl-v-year-{{ _tc_id }}">{{ _tc_first_year }}</div>
-    </div>
-
-    <div class="tl-v-right">
+<div class="tl-h-outer" id="tl-h-{{ _tc_id }}" data-tl-count="{{ _tc_total }}">
+  <div class="tl-h-sticky">
+    <div class="tl-h-progress"><div class="tl-h-progress-fill"></div></div>
+    <div class="tl-h-track">
       {%- for _i in (0..7) -%}
         {%- assign _tc_i0   = _i | times: 3 -%}
         {%- assign _tc_i1   = _tc_i0 | plus: 1 -%}
         {%- assign _tc_i2   = _tc_i0 | plus: 2 -%}
         {%- assign _tc_date = _tc_lines[_tc_i0] | strip -%}
-        {%- assign _tc_head = _tc_lines[_tc_i1] | strip -%}
+        {%- assign _tc_raw2 = _tc_lines[_tc_i1] | strip -%}
         {%- assign _tc_body = _tc_lines[_tc_i2] | strip -%}
         {%- if _tc_date == blank -%}{%- break -%}{%- endif -%}
-        <div class="tl-v-entry" data-tl-year="{{ _tc_date }}">
-          {%- if _tc_head != blank -%}<p class="tl-v-h">{{ _tc_head }}</p>{%- endif -%}
-          {%- if _tc_body != blank -%}<p class="tl-v-p">{{ _tc_body }}</p>{%- endif -%}
+        {%- assign _tc_tag  = '' -%}
+        {%- assign _tc_head = _tc_raw2 -%}
+        {%- if _tc_raw2 contains '|' -%}
+          {%- assign _tc_parts = _tc_raw2 | split: '|' -%}
+          {%- assign _tc_tag  = _tc_parts[0] | strip -%}
+          {%- assign _tc_head = _tc_parts[1] | strip -%}
+        {%- endif -%}
+        <div class="tl-h-card">
+          <span class="tl-h-num">{{ _i | plus: 1 | prepend: '0' | slice: -2, 2 }}</span>
+          <p class="tl-h-date">{{ _tc_date }}</p>
+          <hr class="tl-h-rule">
+          {%- if _tc_tag != blank -%}<p class="tl-h-tag">{{ _tc_tag }}</p>{%- endif -%}
+          {%- if _tc_head != blank -%}<p class="tl-h-head">{{ _tc_head }}</p>{%- endif -%}
+          {%- if _tc_body != blank -%}<p class="tl-h-body">{{ _tc_body }}</p>{%- endif -%}
         </div>
       {%- endfor -%}
     </div>
-
+    <div class="tl-h-dots">
+      {%- for _i in (0..7) -%}
+        {%- assign _tc_check2 = _tc_lines[_i | times: 3] | strip -%}
+        {%- if _tc_check2 == blank -%}{%- break -%}{%- endif -%}
+        <button class="tl-h-dot{% if _i == 0 %} tl-h-dot--active{% endif %}" type="button" aria-label="Go to card {{ _i | plus: 1 }}"></button>
+      {%- endfor -%}
+    </div>
   </div>
+</div>
 
-  <script>
-  (function() {
-    var yearEl  = document.getElementById('tl-v-year-{{ _tc_id }}');
-    var outer   = document.getElementById('tl-v-{{ _tc_id }}');
-    if (!yearEl || !outer) return;
+<script>
+(function() {
+  var outer  = document.getElementById('tl-h-{{ _tc_id }}');
+  if (!outer) return;
+  var sticky = outer.querySelector('.tl-h-sticky');
+  var track  = outer.querySelector('.tl-h-track');
+  var cards  = outer.querySelectorAll('.tl-h-card');
+  var fill   = outer.querySelector('.tl-h-progress-fill');
+  var dots   = outer.querySelectorAll('.tl-h-dot');
+  var N      = cards.length;
+  if (!N) return;
 
-    var entries = outer.querySelectorAll('.tl-v-entry');
-    if (!entries.length) return;
+  var isMobile = window.matchMedia('(max-width: 767px)').matches;
 
-    var current = yearEl.textContent.trim();
+  /* ─────────────────────────────────────────────
+     Mobile: touch-draggable carousel
+  ───────────────────────────────────────────── */
+  if (isMobile) {
+    outer.style.height = 'auto';
+    var startX = 0, dragStartX = 0, isDragging = false, trackX = 0;
 
-    function setYear(y) {
-      if (y === current) return;
-      current = y;
-      yearEl.classList.add('tl-v-year--fade');
-      setTimeout(function() {
-        yearEl.textContent = y;
-        yearEl.classList.remove('tl-v-year--fade');
-      }, 220);
+    function mobileMaxX() { return Math.max(0, track.scrollWidth - track.clientWidth); }
+
+    function mobileClamp(v) { return Math.max(0, Math.min(mobileMaxX(), v)); }
+
+    function mobileSnap() {
+      var cardW = cards[0] ? (cards[0].offsetWidth + 16) : 1;
+      var idx = Math.round(trackX / cardW);
+      idx = Math.max(0, Math.min(N - 1, idx));
+      trackX = mobileClamp(idx * cardW);
+      track.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
+      track.style.transform  = 'translateX(' + (-trackX) + 'px)';
+      setTimeout(function() { track.style.transition = ''; }, 380);
+      dots.forEach(function(d, i) { d.classList.toggle('tl-h-dot--active', i === idx); });
     }
 
-    var io = new IntersectionObserver(function(obs) {
-      obs.forEach(function(e) {
-        if (e.isIntersecting) setYear(e.target.dataset.tlYear);
+    track.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      dragStartX = trackX;
+      isDragging = true;
+    }, { passive: true });
+    track.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
+      trackX = mobileClamp(dragStartX - (e.touches[0].clientX - startX));
+      track.style.transform = 'translateX(' + (-trackX) + 'px)';
+    }, { passive: true });
+    track.addEventListener('touchend', mobileSnap);
+
+    dots.forEach(function(d, i) {
+      d.addEventListener('click', function() {
+        var cardW = cards[0] ? (cards[0].offsetWidth + 16) : 1;
+        trackX = mobileClamp(i * cardW);
+        track.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1)';
+        track.style.transform  = 'translateX(' + (-trackX) + 'px)';
+        setTimeout(function() { track.style.transition = ''; }, 380);
+        dots.forEach(function(d2, j) { d2.classList.toggle('tl-h-dot--active', j === i); });
       });
-    }, { rootMargin: '-5% 0px -55% 0px', threshold: 0 });
+    });
+    return;
+  }
 
-    entries.forEach(function(el) { io.observe(el); });
-  })();
-  </script>
+  /* ─────────────────────────────────────────────
+     Desktop: scroll-jacking
+  ───────────────────────────────────────────── */
+  var stickyTopPx = parseFloat(getComputedStyle(sticky).top) || 80;
 
-</div>
+  function setOuterHeight() {
+    var stickyH = sticky.offsetHeight;
+    var extra   = (N - 1) * 0.85 * window.innerHeight;
+    outer.style.height = (stickyH + extra) + 'px';
+  }
+  setOuterHeight();
+  window.addEventListener('resize', setOuterHeight);
+
+  function getProgress() {
+    var outerTop = outer.getBoundingClientRect().top;
+    var scrolled = -outerTop + stickyTopPx;
+    var total    = outer.offsetHeight - sticky.offsetHeight;
+    return total > 0 ? Math.max(0, Math.min(1, scrolled / total)) : 0;
+  }
+
+  function getMaxX() {
+    return Math.max(0, track.scrollWidth - track.clientWidth);
+  }
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function updateUI(x) {
+    var maxX = getMaxX();
+    var pct  = maxX > 0 ? x / maxX : 0;
+    var idx  = Math.round(pct * (N - 1));
+    idx = Math.max(0, Math.min(N - 1, idx));
+    dots.forEach(function(d, i) { d.classList.toggle('tl-h-dot--active', i === idx); });
+    if (fill) fill.style.width = (pct * 100) + '%';
+  }
+
+  var curX = 0, tgtX = 0, raf = null;
+
+  function tick() {
+    curX = lerp(curX, tgtX, 0.12);
+    if (Math.abs(tgtX - curX) < 0.3) curX = tgtX;
+    track.style.transform = 'translateX(' + (-curX) + 'px)';
+    updateUI(curX);
+    raf = (Math.abs(tgtX - curX) > 0.3) ? requestAnimationFrame(tick) : null;
+  }
+
+  window.addEventListener('scroll', function() {
+    tgtX = getProgress() * getMaxX();
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+
+  dots.forEach(function(d, i) {
+    d.addEventListener('click', function() {
+      var frac = N > 1 ? i / (N - 1) : 0;
+      var outerAbsTop = outer.getBoundingClientRect().top + window.scrollY;
+      var total = outer.offsetHeight - sticky.offsetHeight;
+      window.scrollTo({ top: outerAbsTop - stickyTopPx + frac * total, behavior: 'smooth' });
+    });
+  });
+
+  tgtX = getProgress() * getMaxX();
+  curX = tgtX;
+  track.style.transform = 'translateX(' + (-curX) + 'px)';
+  updateUI(curX);
+})();
+</script>
