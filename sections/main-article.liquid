@@ -497,7 +497,7 @@
   }
   @media screen and (max-width: 767px) {
     .art-editorial-header {
-      padding-top: 10px;
+      padding-top: 25px;
     }
     .art-editorial-header__grid {
       grid-template-columns: 1fr;
@@ -710,7 +710,7 @@
       toolbar.classList.add('hero-locked');
       function checkToolbarVisibility() {
         var top = heroTrigger.getBoundingClientRect().top;
-        toolbar.classList.toggle('hero-locked', top > -40);
+        toolbar.classList.toggle('hero-locked', top > -10);
       }
       window.addEventListener('scroll', checkToolbarVisibility, { passive: true });
       checkToolbarVisibility();
