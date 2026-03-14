@@ -939,11 +939,6 @@
           sections.push({ type: 'rule' });
           return;
         }
-        if (n.classList.contains('epq')) {
-          flush();
-          sections.push({ type: 'embed', el: n });
-          return;
-        }
         if (isImgNode(n)) {
           flush();
           var img = n.tagName.toLowerCase() === 'img' ? n : n.querySelector('img');
