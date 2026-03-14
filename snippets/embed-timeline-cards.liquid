@@ -40,7 +40,6 @@
           {%- assign _tc_head = _tc_parts[1] | strip -%}
         {%- endif -%}
         <div class="tl-h-card">
-          <span class="tl-h-num">{{ _i | plus: 1 | prepend: '0' | slice: -2, 2 }}</span>
           <p class="tl-h-date">{{ _tc_date }}</p>
           <hr class="tl-h-rule">
           {%- if _tc_tag != blank -%}<p class="tl-h-tag">{{ _tc_tag }}</p>{%- endif -%}
@@ -128,9 +127,9 @@
   var stickyTopPx = parseFloat(getComputedStyle(sticky).top) || 80;
 
   /* Outer just needs to be tall enough to keep sticky stuck while
-     we intercept wheel events. 2× gives a comfortable release buffer. */
+     we intercept wheel events. Just over sticky height eliminates dead space. */
   function setOuterHeight() {
-    outer.style.height = (sticky.offsetHeight * 2) + 'px';
+    outer.style.height = (sticky.offsetHeight + 24) + 'px';
   }
   setOuterHeight();
   window.addEventListener('resize', setOuterHeight);
@@ -155,6 +154,16 @@
   var curX = 0, tgtX = 0, raf = null;
   var virtualScroll = 0;
   var scrollPerCard = 420; /* px of wheel delta to advance one card */
+  var snapTimer = null;
+
+  function snapToCard() {
+    var maxX = getMaxX();
+    var idx = Math.round(virtualScroll / scrollPerCard);
+    idx = Math.max(0, Math.min(N - 1, idx));
+    virtualScroll = idx * scrollPerCard;
+    tgtX = N > 1 ? (idx / (N - 1)) * maxX : 0;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }
 
   function tick() {
     curX = lerp(curX, tgtX, 0.12);
@@ -175,6 +184,8 @@
     virtualScroll = Math.max(0, Math.min((N - 1) * scrollPerCard, virtualScroll + e.deltaY));
     tgtX = (virtualScroll / ((N - 1) * scrollPerCard)) * maxX;
     if (!raf) raf = requestAnimationFrame(tick);
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(snapToCard, 160);
   }, { passive: false });
 
   dots.forEach(function(d, i) {
