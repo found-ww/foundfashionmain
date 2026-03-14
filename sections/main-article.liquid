@@ -452,47 +452,44 @@
     border-bottom: 0.5px solid rgba(25,13,4,0.08);
   }
   .art-editorial-header__grid {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 max(2rem, calc((100vw - 1280px) / 2));
     display: grid;
-    grid-template-columns: 2fr 5fr;
-    gap: 3rem;
+    grid-template-columns: 1fr 2.5fr;
+    gap: 4rem;
     align-items: flex-end;
-    padding-bottom: 2.5rem;
+    padding: 0 3vw 2.5rem;
   }
   .art-editorial-header__left {
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    padding-bottom: 0.25rem;
+    gap: 0.6rem;
+    padding-bottom: 0.35rem;
   }
   .art-meta-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #190d04;
   }
   .art-meta-date {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     color: #555;
   }
   .art-meta-read {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 400;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     color: #999;
   }
   .art-headline {
     font-family: 'Jost', -apple-system, sans-serif;
-    font-size: clamp(1.6rem, 3.5vw, 3.2rem);
-    font-weight: 600;
+    font-size: clamp(2.2rem, 5vw, 5.5rem);
+    font-weight: 300;
     font-style: normal;
-    line-height: 1.05;
-    letter-spacing: 0.04em;
+    line-height: 1.02;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: #190d04;
     margin: 0;
@@ -500,10 +497,11 @@
   @media screen and (max-width: 767px) {
     .art-editorial-header__grid {
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 1.25rem;
+      padding: 0 5vw 2rem;
     }
-    .art-editorial-header__left { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 1rem; }
-    .art-headline { font-size: clamp(1.5rem, 6vw, 2.2rem); }
+    .art-editorial-header__left { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+    .art-headline { font-size: clamp(1.8rem, 7vw, 3rem); }
   }
 
   /* ── Parallax hero — clean image, no overlay ── */
