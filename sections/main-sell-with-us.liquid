@@ -355,7 +355,7 @@
 {%- comment -%} ── Commission ── {%- endcomment -%}
 <div class="swu-commission">
   <p class="swu-commission__label">{{ section.settings.commission_label | default: 'Our commission' }}</p>
-  <p class="swu-commission__rate" data-swu-counter data-swu-from="25" data-swu-to="15">15%</p>
+  <p class="swu-commission__rate" data-swu-counter data-swu-from="30" data-swu-to="25">25%</p>
   {%- if section.settings.commission_fee != blank -%}
     <p class="swu-commission__fee">{{ section.settings.commission_fee }}</p>
   {%- endif -%}
@@ -458,7 +458,7 @@
           started = true;
           obs.disconnect();
           var start = null;
-          var duration = 1200;
+          var duration = 2000;
           function step(ts) {
             if (!start) start = ts;
             var progress = Math.min((ts - start) / duration, 1);
