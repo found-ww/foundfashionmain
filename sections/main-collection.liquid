@@ -558,16 +558,18 @@
 
         productsWrap.classList.add('is-loading');
 
-        fetch(url, { credentials: 'same-origin' })
+        // Use Shopify section rendering API — same approach as theme's _reloadProducts
+        var fetchUrl = url.indexOf('?') === -1
+          ? url + '?section_id={{ section.id }}'
+          : url + '&section_id={{ section.id }}';
+
+        fetch(fetchUrl, { credentials: 'same-origin' })
           .then(function (res) { return res.text(); })
           .then(function (html) {
             var doc = new DOMParser().parseFromString(html, 'text/html');
 
-            var freshRoot =
-              doc.querySelector('[data-section-type="collection"][data-section-id="{{ section.id }}"]') ||
-              doc.querySelector('[data-section-type="collection"]');
-
-            var freshProductsWrap = freshRoot && freshRoot.querySelector('.CollectionInner__Products');
+            // Section rendering returns the section HTML directly
+            var freshProductsWrap = doc.querySelector('.CollectionInner__Products');
             if (!freshProductsWrap) return;
 
             productsWrap.innerHTML = freshProductsWrap.innerHTML;
@@ -644,7 +646,11 @@
       isLoadingMore = true;
       productsWrap.classList.add('is-loading');
 
-      fetch(nextUrl, { credentials: 'same-origin' })
+      var nextFetchUrl = nextUrl.indexOf('?') === -1
+        ? nextUrl + '?section_id={{ section.id }}'
+        : nextUrl + '&section_id={{ section.id }}';
+
+      fetch(nextFetchUrl, { credentials: 'same-origin' })
         .then(function (res) { return res.text(); })
         .then(function (html) {
           var doc = new DOMParser().parseFromString(html, 'text/html');
@@ -656,7 +662,7 @@
             currentGrid.appendChild(cell);
           });
 
-          var nextBtn = doc.querySelector('[data-action="load-more"]');
+          var nextBtn = doc.querySelector('[data-action="load-more"]') || doc.querySelector('.CollectionLoadMore [data-next-url]');
           if (nextBtn && nextBtn.getAttribute('data-next-url')) {
             btn.setAttribute('data-next-url', nextBtn.getAttribute('data-next-url'));
           } else {
