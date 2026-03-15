@@ -320,19 +320,13 @@
           </div>
         {%- endif -%}
 
-        {%- if section.settings.whatsapp != blank or section.settings.whatsapp_uk != blank -%}
+        {%- if section.settings.whatsapp != blank -%}
+          {%- assign wa_number = section.settings.whatsapp | remove: '+' | remove: ' ' | remove: '-' -%}
           <div>
             <p class="ContactInfo__Label">WhatsApp</p>
             <p class="ContactInfo__Value">
-              {%- if section.settings.whatsapp != blank -%}
-                {%- assign wa_number = section.settings.whatsapp | remove: '+' | remove: ' ' | remove: '-' -%}
-                <a href="https://wa.me/{{ wa_number }}">{{ section.settings.whatsapp }}</a>
-              {%- endif -%}
-              {%- if section.settings.whatsapp != blank and section.settings.whatsapp_uk != blank -%}<br>{%- endif -%}
-              {%- if section.settings.whatsapp_uk != blank -%}
-                {%- assign wa_uk_number = section.settings.whatsapp_uk | remove: '+' | remove: ' ' | remove: '-' -%}
-                <a href="https://wa.me/{{ wa_uk_number }}">{{ section.settings.whatsapp_uk }}</a>
-              {%- endif -%}
+              <a href="https://wa.me/{{ wa_number }}">{{ section.settings.whatsapp }}</a><br>
+              <a href="https://wa.me/447405520466">+447405520466</a>
             </p>
           </div>
         {%- endif -%}
