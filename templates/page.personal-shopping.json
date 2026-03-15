@@ -1,9 +1,40 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-personal-shopping",
-      "settings": {}
+      "settings": {
+        "hero_image": "shopify://shop_images/Hermes-Birkin-Faubourg-Midnight-and-Snow.jpg",
+        "hero_eyebrow": "Found Fashion",
+        "hero_title": "Personal Shopping",
+        "hero_sub": "We find what others can't. Tell us what you're looking for.",
+        "intro_text": "Our personal shopping service is designed for clients seeking specific pieces — rare, discontinued, or simply hard to find. We draw on a global network of trusted sources to locate exactly what you have in mind.",
+        "process_label": "How it works",
+        "step_1_title": "Submit your request",
+        "step_1_body": "Tell us what you're looking for — style, colour, size, condition, and budget. The more detail, the better.",
+        "step_2_title": "We get to work",
+        "step_2_body": "Our team responds within 24 hours with an estimated sourcing timeline. A fully refundable deposit secures your search.",
+        "step_3_title": "Delivered to you",
+        "step_3_body": "Once sourced and authenticated, your piece is shipped via DHL Express worldwide — or collected at our London location.",
+        "trust_1": "Response within 24 hours",
+        "trust_2": "Every piece authenticated",
+        "trust_3": "Worldwide delivery",
+        "form_eyebrow": "Begin your search",
+        "form_title": "Submit a Request",
+        "form_note": "We typically respond within 24 hours.",
+        "success_note": "We will be in touch within 24 hours."
+      }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
