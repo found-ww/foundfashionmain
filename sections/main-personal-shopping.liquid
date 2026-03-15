@@ -47,14 +47,31 @@
     margin: 0 0 20px;
     max-width: 700px;
   }
+  /* Hero word-by-word reveal */
+  .ps-hero__word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .ps-hero__word.ps--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
   .ps-hero__sub {
     font-size: clamp(13px, 1.2vw, 15px);
     font-weight: 300;
     letter-spacing: 0.04em;
-    opacity: 0.85;
+    opacity: 0;
     max-width: 480px;
     line-height: 1.7;
     margin: 0;
+    transform: translateY(12px);
+    transition: opacity 0.7s 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.7s 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .ps-hero__sub.ps--in {
+    opacity: 0.85;
+    transform: translateY(0);
   }
 
   /* ── Intro ── */
@@ -80,8 +97,8 @@
   }
   .ps-process__label {
     text-align: center;
-    font-size: 10px;
-    letter-spacing: 0.28em;
+    font-size: 16px;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
     color: #9a8f86;
     margin-bottom: 56px;
@@ -89,23 +106,39 @@
   .ps-process__steps {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0;
+    column-gap: 1px;
+    background: #e5e0da;
     max-width: 960px;
     margin: 0 auto;
   }
   .ps-step {
-    padding: 0 40px;
-    border-right: 0.5px solid #e5e0da;
+    background: #fff;
+    padding: 40px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s cubic-bezier(0.16,1,0.3,1);
+    cursor: default;
   }
-  .ps-step:last-child {
-    border-right: none;
+  .ps-step.ps--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ps-step.ps--in:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.07);
+    position: relative;
+    z-index: 1;
+  }
+  .ps-step.ps--in:hover .ps-step__num {
+    color: #8a7268;
   }
   .ps-step__num {
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: 0.2em;
     color: #b5ada5;
     margin-bottom: 20px;
     display: block;
+    transition: color 0.3s;
   }
   .ps-step__title {
     font-size: 13px;
@@ -296,9 +329,8 @@
     .ps-hero__content { padding-bottom: 48px; }
     .ps-intro { padding: 60px 24px; }
     .ps-process { padding: 60px 24px; }
-    .ps-process__steps { grid-template-columns: 1fr; gap: 40px; }
-    .ps-step { padding: 0; border-right: none; border-bottom: 0.5px solid #e5e0da; padding-bottom: 40px; }
-    .ps-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .ps-process__steps { grid-template-columns: 1fr; column-gap: 0; row-gap: 1px; }
+    .ps-step { padding: 36px 24px; }
     .ps-trust__inner { flex-direction: column; gap: 24px; }
     .ps-trust__item { border-right: none; padding: 0; }
     .ps-form-wrap { padding: 60px 24px 80px; }
@@ -325,9 +357,9 @@
     {%- if section.settings.hero_eyebrow != blank -%}
       <p class="ps-hero__eyebrow">{{ section.settings.hero_eyebrow }}</p>
     {%- endif -%}
-    <h1 class="ps-hero__title">{{ section.settings.hero_title | default: 'Personal Shopping' }}</h1>
+    <h1 class="ps-hero__title" data-ps-title>{{ section.settings.hero_title | default: 'Personal Shopping' }}</h1>
     {%- if section.settings.hero_sub != blank -%}
-      <p class="ps-hero__sub">{{ section.settings.hero_sub }}</p>
+      <p class="ps-hero__sub" data-ps-sub>{{ section.settings.hero_sub }}</p>
     {%- endif -%}
   </div>
 </div>
@@ -435,6 +467,84 @@
     {%- endform -%}
   </div>
 </div>
+
+<script>
+(function () {
+  /* ── 1. Hero word reveal + cursor scale ── */
+  var titleEl = document.querySelector('[data-ps-title]');
+  var subEl   = document.querySelector('[data-ps-sub]');
+  var heroEl  = document.querySelector('.ps-hero');
+
+  if (titleEl) {
+    var raw = titleEl.textContent.trim();
+    titleEl.innerHTML = raw.split(' ').map(function (w, i) {
+      return '<span class="ps-hero__word" style="transition-delay:' + (0.08 * i) + 's">' + w + '</span>';
+    }).join(' ');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        titleEl.querySelectorAll('.ps-hero__word').forEach(function (w) {
+          w.classList.add('ps--in');
+        });
+        if (subEl) subEl.classList.add('ps--in');
+      });
+    });
+
+    /* Cursor: one word at a time, slow scale to 1.1 */
+    if (heroEl && window.matchMedia('(hover: hover)').matches) {
+      setTimeout(function () {
+        var words = titleEl.querySelectorAll('.ps-hero__word');
+        var activeWord = null;
+        heroEl.addEventListener('mousemove', function (e) {
+          var mx = e.clientX, my = e.clientY;
+          var closest = null, closestDist = Infinity;
+          words.forEach(function (w) {
+            var r = w.getBoundingClientRect();
+            var cx = r.left + r.width / 2;
+            var cy = r.top  + r.height / 2;
+            var dist = Math.sqrt(Math.pow(mx - cx, 2) + Math.pow(my - cy, 2));
+            if (dist < closestDist) { closestDist = dist; closest = w; }
+          });
+          if (closest !== activeWord) {
+            if (activeWord) {
+              activeWord.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+              activeWord.style.transform = 'scale(1)';
+            }
+            activeWord = closest;
+          }
+          if (closest) {
+            closest.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+            closest.style.transform = 'scale(1.1)';
+          }
+        });
+        heroEl.addEventListener('mouseleave', function () {
+          words.forEach(function (w) {
+            w.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+            w.style.transform = 'scale(1)';
+          });
+          activeWord = null;
+        });
+      }, 1000);
+    }
+  }
+
+  /* ── 2. Process step stagger reveal ── */
+  var steps = document.querySelectorAll('.ps-step');
+  if (steps.length) {
+    var stepObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('ps--in');
+          stepObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    steps.forEach(function (s, i) {
+      s.style.transitionDelay = (0.1 * i) + 's';
+      stepObs.observe(s);
+    });
+  }
+})();
+</script>
 
 {% schema %}
 {
