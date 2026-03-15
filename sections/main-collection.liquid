@@ -506,8 +506,18 @@
           var nextGrid = doc.querySelector('.CollectionInner__Products .ProductList');
           if (!nextGrid) return;
 
+          var newCells = [];
           nextGrid.querySelectorAll('.Grid__Cell').forEach(function (cell) {
+            newCells.push(cell);
             currentGrid.appendChild(cell);
+          });
+
+          // The theme CSS hides all .ProductItem via visibility:hidden and relies on GSAP to reveal them.
+          // GSAP only observes items present at page-load, so newly appended items never get revealed.
+          // Force-reveal them here.
+          newCells.forEach(function (cell) {
+            var item = cell.querySelector('.ProductItem');
+            if (item) item.style.visibility = 'visible';
           });
 
           if (window.lazySizes) {
