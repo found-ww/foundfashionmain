@@ -320,12 +320,19 @@
           </div>
         {%- endif -%}
 
-        {%- if section.settings.whatsapp != blank -%}
-          {%- assign wa_number = section.settings.whatsapp | remove: '+' | remove: ' ' | remove: '-' -%}
+        {%- if section.settings.whatsapp != blank or section.settings.whatsapp_uk != blank -%}
           <div>
             <p class="ContactInfo__Label">WhatsApp</p>
             <p class="ContactInfo__Value">
-              <a href="https://wa.me/{{ wa_number }}">{{ section.settings.whatsapp }}</a>
+              {%- if section.settings.whatsapp != blank -%}
+                {%- assign wa_number = section.settings.whatsapp | remove: '+' | remove: ' ' | remove: '-' -%}
+                <a href="https://wa.me/{{ wa_number }}">{{ section.settings.whatsapp }}</a>
+              {%- endif -%}
+              {%- if section.settings.whatsapp != blank and section.settings.whatsapp_uk != blank -%}<br>{%- endif -%}
+              {%- if section.settings.whatsapp_uk != blank -%}
+                {%- assign wa_uk_number = section.settings.whatsapp_uk | remove: '+' | remove: ' ' | remove: '-' -%}
+                <a href="https://wa.me/{{ wa_uk_number }}">{{ section.settings.whatsapp_uk }}</a>
+              {%- endif -%}
             </p>
           </div>
         {%- endif -%}
@@ -646,6 +653,12 @@
       "id": "whatsapp",
       "label": "WhatsApp number (include country code)",
       "default": "+85264954710"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_uk",
+      "label": "WhatsApp number 2 (include country code)",
+      "default": "+447405520466"
     },
     {
       "type": "text",
