@@ -1,11 +1,48 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-sell-with-us",
       "settings": {
-        "cta_url": "/pages/submit-an-item"
+        "hero_image": "shopify://shop_images/Hermes-Picotin-White-1.jpg",
+        "hero_eyebrow": "Found Fashion",
+        "hero_title": "Sell With Us",
+        "hero_sub": "Turn your luxury pieces into something new.",
+        "intro_text": "We offer a carefully curated resale service for luxury pieces in exceptional condition. Our team handles everything from listing to authentication to delivery — so you don't have to.",
+        "process_label": "How it works",
+        "step_1": "Submit your item for listing approval.",
+        "step_2": "Once approved, your item goes live on our site and is promoted to our private client network.",
+        "step_3": "When your item sells, we send you a pre-paid shipping label.",
+        "step_4": "Our team fully authenticates the piece at our London office.",
+        "step_5": "Funds are released to your account and the item is shipped to the buyer with full tracking.",
+        "commission_label": "Our commission",
+        "commission_rate": "15%",
+        "commission_fee": "Plus a £10 listing fee",
+        "commission_note": "For rare or exotic pieces, we may negotiate a mutual rate on a case-by-case basis.",
+        "condition_label": "Condition guide",
+        "tier_1_name": "Pristine",
+        "tier_1_desc": "Never used. Stored perfectly with no signs of wear. Original tags and receipt included.",
+        "tier_2_name": "Excellent",
+        "tier_2_desc": "Appears unworn but has been used. No visible scratches or signs of wear.",
+        "tier_3_name": "Very Good",
+        "tier_3_desc": "Minimal use and wear. Any scratches are small and only visible on close inspection.",
+        "condition_note": "We only accept items in the highest condition to ensure our customers are satisfied with every purchase.",
+        "cta_title": "Ready to sell?",
+        "cta_sub": "Fill out our seller form and we'll be in touch within 24 hours.",
+        "cta_url": "/pages/submit-an-item",
+        "cta_label": "List an Item"
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
