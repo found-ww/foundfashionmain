@@ -395,23 +395,33 @@
         <div class="ps-field">
           <input type="text" name="contact[name]" class="ps-input" placeholder=" " autocomplete="name" required
             {% if customer %}value="{{ customer.name }}"{% endif %}>
-          <label class="ps-label">Name</label>
+          <label class="ps-label">Name *</label>
         </div>
 
         <div class="ps-field">
           <input type="email" name="contact[email]" class="ps-input" placeholder=" " autocomplete="email" required
             {% if customer %}value="{{ customer.email }}"{% endif %}>
-          <label class="ps-label">Email</label>
+          <label class="ps-label">Email *</label>
+        </div>
+
+        <div class="ps-field">
+          <input type="tel" name="contact[WhatsApp]" class="ps-input" placeholder=" " autocomplete="tel">
+          <label class="ps-label">WhatsApp</label>
         </div>
 
         <div class="ps-field">
           <textarea name="contact[Item description]" class="ps-textarea" placeholder=" " required></textarea>
-          <label class="ps-label">Describe the item you're looking for</label>
+          <label class="ps-label">Name of product, size, colour, material, hardware *</label>
+        </div>
+
+        <div class="ps-field">
+          <input type="url" name="contact[Link]" class="ps-input" placeholder=" ">
+          <label class="ps-label">Link (if you have one)</label>
         </div>
 
         <div class="ps-field">
           <input type="text" name="contact[Budget]" class="ps-input" placeholder=" ">
-          <label class="ps-label">Budget (optional)</label>
+          <label class="ps-label">Budget</label>
         </div>
 
         <div class="ps-field">
