@@ -90,35 +90,6 @@
     letter-spacing: 0.01em;
   }
 
-  /* ── Marquee ── */
-  .swu-marquee {
-    overflow: hidden;
-    background: #fff;
-    border-top: 0.5px solid #e5e0da;
-    border-bottom: 0.5px solid #e5e0da;
-    padding: 16px 0;
-    white-space: nowrap;
-  }
-  .swu-marquee__track {
-    display: inline-flex;
-    animation: swu-marquee 28s linear infinite;
-  }
-  .swu-marquee__item {
-    font-size: 10px;
-    letter-spacing: 0.26em;
-    text-transform: uppercase;
-    color: #9a8f86;
-    padding: 0 40px;
-  }
-  .swu-marquee__dot {
-    color: #c8c0b8;
-    padding: 0;
-  }
-  @keyframes swu-marquee {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-
   /* ── Process ── */
   .swu-process {
     padding: 80px 24px;
@@ -126,8 +97,8 @@
   }
   .swu-process__label {
     text-align: center;
-    font-size: 10px;
-    letter-spacing: 0.28em;
+    font-size: 11px;
+    letter-spacing: 0.3em;
     text-transform: uppercase;
     color: #9a8f86;
     margin-bottom: 56px;
@@ -142,14 +113,26 @@
   .swu-step {
     padding: 0 28px;
     border-right: 0.5px solid #e5e0da;
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), box-shadow 0.35s cubic-bezier(0.16,1,0.3,1);
+    cursor: default;
   }
   .swu-step:last-child { border-right: none; }
+  .swu-step:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.07);
+    position: relative;
+    z-index: 1;
+  }
+  .swu-step:hover .swu-step__num {
+    color: #8a7268;
+  }
   .swu-step__num {
     font-size: 11px;
     letter-spacing: 0.2em;
     color: #b5ada5;
     margin-bottom: 16px;
     display: block;
+    transition: color 0.3s;
   }
   .swu-step__body {
     font-size: 13px;
@@ -341,26 +324,6 @@
   </div>
 {%- endif -%}
 
-{%- comment -%} ── Marquee ── {%- endcomment -%}
-{%- assign m1 = section.settings.marquee_1 | default: 'Authenticated in London' -%}
-{%- assign m2 = section.settings.marquee_2 | default: 'Shipped Worldwide' -%}
-{%- assign m3 = section.settings.marquee_3 | default: 'Trusted by Collectors' -%}
-{%- assign m4 = section.settings.marquee_4 | default: 'Fairer Commission' -%}
-<div class="swu-marquee" aria-hidden="true">
-  <div class="swu-marquee__track">
-    {%- for i in (1..2) -%}
-      <span class="swu-marquee__item">{{ m1 }}</span>
-      <span class="swu-marquee__dot">·</span>
-      <span class="swu-marquee__item">{{ m2 }}</span>
-      <span class="swu-marquee__dot">·</span>
-      <span class="swu-marquee__item">{{ m3 }}</span>
-      <span class="swu-marquee__dot">·</span>
-      <span class="swu-marquee__item">{{ m4 }}</span>
-      <span class="swu-marquee__dot">·</span>
-    {%- endfor -%}
-  </div>
-</div>
-
 {%- comment -%} ── Process ── {%- endcomment -%}
 <div class="swu-process">
   <p class="swu-process__label">{{ section.settings.process_label | default: 'How it works' }}</p>
@@ -529,34 +492,6 @@
       "id": "intro_text",
       "label": "Intro paragraph",
       "default": "We offer a carefully curated resale service for luxury pieces in exceptional condition. Our team handles everything from listing to authentication to delivery — so you don't have to."
-    },
-    {
-      "type": "header",
-      "content": "Marquee"
-    },
-    {
-      "type": "text",
-      "id": "marquee_1",
-      "label": "Item 1",
-      "default": "Authenticated in London"
-    },
-    {
-      "type": "text",
-      "id": "marquee_2",
-      "label": "Item 2",
-      "default": "Shipped Worldwide"
-    },
-    {
-      "type": "text",
-      "id": "marquee_3",
-      "label": "Item 3",
-      "default": "Trusted by Collectors"
-    },
-    {
-      "type": "text",
-      "id": "marquee_4",
-      "label": "Item 4",
-      "default": "Fairer Commission"
     },
     {
       "type": "header",
