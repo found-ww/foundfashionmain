@@ -205,11 +205,18 @@
     padding: 40px 36px;
     opacity: 0;
     transform: translateY(24px);
-    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s cubic-bezier(0.16,1,0.3,1);
+    cursor: default;
   }
   .swu-tier.swu--in {
     opacity: 1;
     transform: translateY(0);
+  }
+  .swu-tier.swu--in:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.07);
+    position: relative;
+    z-index: 1;
   }
   .swu-tier__name {
     font-size: 14px;
@@ -400,29 +407,39 @@
       });
     });
 
-    /* Cursor proximity scale — activates after reveal settles */
+    /* Cursor proximity scale — one word at a time, very slow */
     if (heroEl && window.matchMedia('(hover: hover)').matches) {
       setTimeout(function () {
         var words = titleEl.querySelectorAll('.swu-hero__word');
+        var activeWord = null;
         heroEl.addEventListener('mousemove', function (e) {
           var mx = e.clientX, my = e.clientY;
+          var closest = null, closestDist = Infinity;
           words.forEach(function (w) {
             var r = w.getBoundingClientRect();
             var cx = r.left + r.width / 2;
             var cy = r.top  + r.height / 2;
             var dist = Math.sqrt(Math.pow(mx - cx, 2) + Math.pow(my - cy, 2));
-            var maxDist = 220;
-            var proximity = Math.max(0, 1 - dist / maxDist);
-            var scale = 1 + proximity * 0.12;
-            w.style.transition = 'transform 0.25s cubic-bezier(0.16,1,0.3,1)';
-            w.style.transform = 'scale(' + scale + ')';
+            if (dist < closestDist) { closestDist = dist; closest = w; }
           });
+          if (closest !== activeWord) {
+            if (activeWord) {
+              activeWord.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+              activeWord.style.transform = 'scale(1)';
+            }
+            activeWord = closest;
+          }
+          if (closest) {
+            closest.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+            closest.style.transform = 'scale(1.1)';
+          }
         });
         heroEl.addEventListener('mouseleave', function () {
           words.forEach(function (w) {
-            w.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+            w.style.transition = 'transform 0.7s cubic-bezier(0.16,1,0.3,1)';
             w.style.transform = 'scale(1)';
           });
+          activeWord = null;
         });
       }, 1000);
     }
