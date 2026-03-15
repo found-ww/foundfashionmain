@@ -566,11 +566,14 @@
         fetch(fetchUrl, { credentials: 'same-origin' })
           .then(function (res) { return res.text(); })
           .then(function (html) {
-            var doc = new DOMParser().parseFromString(html, 'text/html');
+            var tmp = document.createElement('div');
+            tmp.innerHTML = html;
 
-            // Section rendering returns the section HTML directly
-            var freshProductsWrap = doc.querySelector('.CollectionInner__Products');
-            if (!freshProductsWrap) return;
+            var freshProductsWrap = tmp.querySelector('.CollectionInner__Products');
+            if (!freshProductsWrap || !freshProductsWrap.innerHTML.trim()) {
+              window.location.href = url;
+              return;
+            }
 
             productsWrap.innerHTML = freshProductsWrap.innerHTML;
 
@@ -653,9 +656,10 @@
       fetch(nextFetchUrl, { credentials: 'same-origin' })
         .then(function (res) { return res.text(); })
         .then(function (html) {
-          var doc = new DOMParser().parseFromString(html, 'text/html');
+          var tmp = document.createElement('div');
+          tmp.innerHTML = html;
 
-          var nextGrid = doc.querySelector('.CollectionInner__Products .ProductList');
+          var nextGrid = tmp.querySelector('.CollectionInner__Products .ProductList');
           if (!nextGrid) return;
 
           nextGrid.querySelectorAll('.Grid__Cell').forEach(function (cell) {
@@ -667,7 +671,7 @@
             lazySizes.autoSizer.checkElems();
           }
 
-          var nextBtn = doc.querySelector('[data-action="load-more"]') || doc.querySelector('.CollectionLoadMore [data-next-url]');
+          var nextBtn = tmp.querySelector('[data-action="load-more"]') || tmp.querySelector('.CollectionLoadMore [data-next-url]');
           if (nextBtn && nextBtn.getAttribute('data-next-url')) {
             btn.setAttribute('data-next-url', nextBtn.getAttribute('data-next-url'));
           } else {
