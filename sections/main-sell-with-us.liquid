@@ -113,7 +113,7 @@
   }
   .swu-step {
     background: #fff;
-    padding: 0 28px;
+    padding: 40px 28px;
     transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s cubic-bezier(0.16,1,0.3,1);
     cursor: default;
   }
@@ -212,22 +212,22 @@
     transform: translateY(0);
   }
   .swu-tier__name {
-    font-size: 11px;
-    letter-spacing: 0.22em;
+    font-size: 14px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #1c1c1c;
-    font-weight: 500;
-    margin-bottom: 16px;
+    font-weight: 400;
+    margin-bottom: 20px;
   }
   .swu-tier__desc {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 300;
-    line-height: 1.75;
+    line-height: 1.8;
     color: #6b6259;
   }
   .swu-condition__note {
     text-align: center;
-    font-size: 12px;
+    font-size: 13px;
     font-style: italic;
     color: #9a8f86;
     max-width: 560px;
@@ -284,9 +284,7 @@
     .swu-condition,
     .swu-cta { padding: 60px 24px; }
     .swu-process__steps { grid-template-columns: 1fr; column-gap: 0; row-gap: 1px; }
-    .swu-step { padding: 24px 0; }
-    .swu-step:first-child { padding-top: 0; }
-    .swu-step:last-child { padding-bottom: 0; }
+    .swu-step { padding: 36px 24px; }
     .swu-condition__grid { grid-template-columns: 1fr; }
   }
 </style>
@@ -322,6 +320,11 @@
 {%- if section.settings.intro_text != blank -%}
   <div class="swu-intro">
     <p class="swu-intro__text">{{ section.settings.intro_text }}</p>
+    {%- if section.settings.cta_url != blank -%}
+      <div style="margin-top:32px;">
+        <a href="{{ section.settings.cta_url }}" class="swu-cta__btn">{{ section.settings.cta_label | default: 'List an Item' }}</a>
+      </div>
+    {%- endif -%}
   </div>
 {%- endif -%}
 
@@ -376,22 +379,12 @@
   {%- endif -%}
 </div>
 
-{%- comment -%} ── CTA ── {%- endcomment -%}
-<div class="swu-cta">
-  <h2 class="swu-cta__title">{{ section.settings.cta_title | default: 'Ready to sell?' }}</h2>
-  {%- if section.settings.cta_sub != blank -%}
-    <p class="swu-cta__sub">{{ section.settings.cta_sub }}</p>
-  {%- endif -%}
-  {%- if section.settings.cta_url != blank -%}
-    <a href="{{ section.settings.cta_url }}" class="swu-cta__btn">{{ section.settings.cta_label | default: 'List an Item' }}</a>
-  {%- endif -%}
-</div>
-
 <script>
 (function () {
-  /* ── 1. Hero word reveal ── */
+  /* ── 1. Hero word reveal + cursor scale ── */
   var titleEl = document.querySelector('[data-swu-title]');
   var subEl   = document.querySelector('[data-swu-sub]');
+  var heroEl  = document.querySelector('.swu-hero');
 
   if (titleEl) {
     var raw = titleEl.textContent.trim();
@@ -406,6 +399,33 @@
         if (subEl) subEl.classList.add('swu--in');
       });
     });
+
+    /* Cursor proximity scale — activates after reveal settles */
+    if (heroEl && window.matchMedia('(hover: hover)').matches) {
+      setTimeout(function () {
+        var words = titleEl.querySelectorAll('.swu-hero__word');
+        heroEl.addEventListener('mousemove', function (e) {
+          var mx = e.clientX, my = e.clientY;
+          words.forEach(function (w) {
+            var r = w.getBoundingClientRect();
+            var cx = r.left + r.width / 2;
+            var cy = r.top  + r.height / 2;
+            var dist = Math.sqrt(Math.pow(mx - cx, 2) + Math.pow(my - cy, 2));
+            var maxDist = 220;
+            var proximity = Math.max(0, 1 - dist / maxDist);
+            var scale = 1 + proximity * 0.12;
+            w.style.transition = 'transform 0.25s cubic-bezier(0.16,1,0.3,1)';
+            w.style.transform = 'scale(' + scale + ')';
+          });
+        });
+        heroEl.addEventListener('mouseleave', function () {
+          words.forEach(function (w) {
+            w.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+            w.style.transform = 'scale(1)';
+          });
+        });
+      }, 1000);
+    }
   }
 
   /* ── 2. Commission counter 25 → 15 ── */
