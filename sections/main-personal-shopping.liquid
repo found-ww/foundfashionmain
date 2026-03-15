@@ -1,0 +1,586 @@
+{%- assign sid = section.id -%}
+
+<style>
+  /* ── Hero ── */
+  .ps-hero {
+    position: relative;
+    width: 100%;
+    height: 90vh;
+    min-height: 560px;
+    overflow: hidden;
+  }
+  .ps-hero__img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+  .ps-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.32);
+  }
+  .ps-hero__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 24px 72px;
+    text-align: center;
+    color: #fff;
+  }
+  .ps-hero__eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 20px;
+  }
+  .ps-hero__title {
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 0 0 20px;
+    max-width: 700px;
+  }
+  .ps-hero__sub {
+    font-size: clamp(13px, 1.2vw, 15px);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+    max-width: 480px;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ── Intro ── */
+  .ps-intro {
+    padding: 80px 24px;
+    text-align: center;
+    background: #faf9f7;
+  }
+  .ps-intro__text {
+    max-width: 620px;
+    margin: 0 auto;
+    font-size: clamp(15px, 1.4vw, 18px);
+    font-weight: 300;
+    line-height: 1.75;
+    color: #2a2420;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Process ── */
+  .ps-process {
+    padding: 80px 24px;
+    background: #fff;
+  }
+  .ps-process__label {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 56px;
+  }
+  .ps-process__steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .ps-step {
+    padding: 0 40px;
+    border-right: 0.5px solid #e5e0da;
+  }
+  .ps-step:last-child {
+    border-right: none;
+  }
+  .ps-step__num {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: #b5ada5;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .ps-step__title {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    font-weight: 400;
+    margin-bottom: 14px;
+  }
+  .ps-step__body {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: #6b6259;
+  }
+
+  /* ── Trust bar ── */
+  .ps-trust {
+    padding: 48px 24px;
+    background: #1c1c1c;
+  }
+  .ps-trust__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .ps-trust__item {
+    flex: 1;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    padding: 0 32px;
+    border-right: 0.5px solid rgba(255,255,255,0.15);
+  }
+  .ps-trust__item:last-child {
+    border-right: none;
+  }
+
+  /* ── Form ── */
+  .ps-form-wrap {
+    padding: 80px 24px 100px;
+    background: #faf9f7;
+  }
+  .ps-form-inner {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .ps-form__eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .ps-form__title {
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .ps-field {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .ps-input,
+  .ps-textarea,
+  .ps-select {
+    width: 100%;
+    border: 1px solid #e0dbd5;
+    background: #fff;
+    padding: 20px 16px 8px;
+    font-size: 14px;
+    color: #3d3530;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    display: block;
+    box-sizing: border-box;
+    border-radius: 0;
+    appearance: none;
+  }
+  .ps-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  .ps-select {
+    padding: 14px 40px 14px 16px;
+    cursor: pointer;
+  }
+  .ps-input:focus,
+  .ps-textarea:focus,
+  .ps-select:focus { border-color: #9a8f86; }
+  .ps-label {
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    font-size: 14px;
+    color: #b5ada5;
+    pointer-events: none;
+    transition: top 0.15s, font-size 0.15s, color 0.15s, letter-spacing 0.15s;
+    font-family: inherit;
+  }
+  .ps-input:focus ~ .ps-label,
+  .ps-input:not(:placeholder-shown) ~ .ps-label,
+  .ps-textarea:focus ~ .ps-label,
+  .ps-textarea:not(:placeholder-shown) ~ .ps-label {
+    top: 6px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9a8f86;
+  }
+  .ps-select-wrap {
+    position: relative;
+  }
+  .ps-select-chevron {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #9a8f86;
+  }
+  .ps-submit {
+    width: 100%;
+    background: #1c1c1c;
+    color: #fff;
+    border: none;
+    padding: 16px 24px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .ps-submit:hover { background: #3d3530; }
+  .ps-form__note {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: #9a8f86;
+    text-align: center;
+    margin-top: 16px;
+  }
+  .ps-form__success {
+    padding: 48px 0;
+    text-align: center;
+  }
+  .ps-form__success-mark {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #c8c0b8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #9a8f86;
+  }
+  .ps-form__success-title {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: #1c1c1c;
+    margin-bottom: 10px;
+  }
+  .ps-form__success-note {
+    font-size: 13px;
+    color: #9a8f86;
+    line-height: 1.6;
+  }
+
+  /* ── Mobile ── */
+  @media screen and (max-width: 767px) {
+    .ps-hero { height: 75vh; min-height: 480px; }
+    .ps-hero__content { padding-bottom: 48px; }
+    .ps-intro { padding: 60px 24px; }
+    .ps-process { padding: 60px 24px; }
+    .ps-process__steps { grid-template-columns: 1fr; gap: 40px; }
+    .ps-step { padding: 0; border-right: none; border-bottom: 0.5px solid #e5e0da; padding-bottom: 40px; }
+    .ps-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .ps-trust__inner { flex-direction: column; gap: 24px; }
+    .ps-trust__item { border-right: none; padding: 0; }
+    .ps-form-wrap { padding: 60px 24px 80px; }
+  }
+</style>
+
+{%- comment -%} ── Hero ── {%- endcomment -%}
+<div class="ps-hero">
+  {%- if section.settings.hero_image -%}
+    <div class="ps-hero__img Image--lazyLoad Image--zoomOut"
+         data-optimumx="1.4"
+         data-expand="-150"
+         style="background-image: url({{ section.settings.hero_image | img_url: '1x1' }})"
+         data-bgset="{{ section.settings.hero_image | img_url: '750x' }} 750w, {{ section.settings.hero_image | img_url: '1200x' }} 1200w, {{ section.settings.hero_image | img_url: '1800x' }} 1800w">
+    </div>
+    <noscript>
+      <div class="ps-hero__img" style="background-image: url({{ section.settings.hero_image | img_url: '1200x' }})"></div>
+    </noscript>
+  {%- else -%}
+    <div class="ps-hero__img" style="background: #2a2420;"></div>
+  {%- endif -%}
+  <div class="ps-hero__overlay"></div>
+  <div class="ps-hero__content">
+    {%- if section.settings.hero_eyebrow != blank -%}
+      <p class="ps-hero__eyebrow">{{ section.settings.hero_eyebrow }}</p>
+    {%- endif -%}
+    <h1 class="ps-hero__title">{{ section.settings.hero_title | default: 'Personal Shopping' }}</h1>
+    {%- if section.settings.hero_sub != blank -%}
+      <p class="ps-hero__sub">{{ section.settings.hero_sub }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- comment -%} ── Intro ── {%- endcomment -%}
+{%- if section.settings.intro_text != blank -%}
+  <div class="ps-intro">
+    <p class="ps-intro__text">{{ section.settings.intro_text }}</p>
+  </div>
+{%- endif -%}
+
+{%- comment -%} ── Process ── {%- endcomment -%}
+<div class="ps-process">
+  <p class="ps-process__label">{{ section.settings.process_label | default: 'How it works' }}</p>
+  <div class="ps-process__steps">
+    {%- for i in (1..3) -%}
+      {%- assign step_title_key = 'step_' | append: i | append: '_title' -%}
+      {%- assign step_body_key  = 'step_' | append: i | append: '_body' -%}
+      {%- assign step_title = section.settings[step_title_key] -%}
+      {%- assign step_body  = section.settings[step_body_key] -%}
+      {%- if step_title != blank or step_body != blank -%}
+        <div class="ps-step">
+          <span class="ps-step__num">0{{ i }}</span>
+          {%- if step_title != blank -%}<p class="ps-step__title">{{ step_title }}</p>{%- endif -%}
+          {%- if step_body != blank -%}<p class="ps-step__body">{{ step_body }}</p>{%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+{%- comment -%} ── Trust bar ── {%- endcomment -%}
+{%- assign t1 = section.settings.trust_1 -%}
+{%- assign t2 = section.settings.trust_2 -%}
+{%- assign t3 = section.settings.trust_3 -%}
+{%- if t1 != blank or t2 != blank or t3 != blank -%}
+  <div class="ps-trust">
+    <div class="ps-trust__inner">
+      {%- if t1 != blank -%}<span class="ps-trust__item">{{ t1 }}</span>{%- endif -%}
+      {%- if t2 != blank -%}<span class="ps-trust__item">{{ t2 }}</span>{%- endif -%}
+      {%- if t3 != blank -%}<span class="ps-trust__item">{{ t3 }}</span>{%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{%- comment -%} ── Form ── {%- endcomment -%}
+<div class="ps-form-wrap" id="submit-request">
+  <div class="ps-form-inner">
+    <p class="ps-form__eyebrow">{{ section.settings.form_eyebrow | default: 'Begin your search' }}</p>
+    <h2 class="ps-form__title">{{ section.settings.form_title | default: 'Submit a Request' }}</h2>
+
+    {%- form 'contact', class: 'ps-form' -%}
+
+      {%- if form.posted_successfully? -%}
+        <div class="ps-form__success">
+          <div class="ps-form__success-mark" aria-hidden="true">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6L5.5 10.5L15 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <p class="ps-form__success-title">Request received</p>
+          <p class="ps-form__success-note">{{ section.settings.success_note | default: 'We will be in touch within 24 hours.' }}</p>
+        </div>
+
+      {%- else -%}
+
+        <div class="ps-field">
+          <input type="text" name="contact[name]" class="ps-input" placeholder=" " autocomplete="name" required
+            {% if customer %}value="{{ customer.name }}"{% endif %}>
+          <label class="ps-label">Name</label>
+        </div>
+
+        <div class="ps-field">
+          <input type="email" name="contact[email]" class="ps-input" placeholder=" " autocomplete="email" required
+            {% if customer %}value="{{ customer.email }}"{% endif %}>
+          <label class="ps-label">Email</label>
+        </div>
+
+        <div class="ps-field">
+          <textarea name="contact[Item description]" class="ps-textarea" placeholder=" " required></textarea>
+          <label class="ps-label">Describe the item you're looking for</label>
+        </div>
+
+        <div class="ps-field">
+          <input type="text" name="contact[Budget]" class="ps-input" placeholder=" ">
+          <label class="ps-label">Budget (optional)</label>
+        </div>
+
+        <div class="ps-field">
+          <div class="ps-select-wrap">
+            <select name="contact[Condition]" class="ps-select" aria-label="Condition preference">
+              <option value="" disabled selected>Condition preference</option>
+              <option value="New">New</option>
+              <option value="Pre-owned">Pre-owned</option>
+              <option value="Either">Either</option>
+            </select>
+            <span class="ps-select-chevron" aria-hidden="true">
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+        </div>
+
+        <button type="submit" class="ps-submit">Submit Request</button>
+
+        {%- if section.settings.form_note != blank -%}
+          <p class="ps-form__note">{{ section.settings.form_note }}</p>
+        {%- endif -%}
+
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Personal Shopping",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Eyebrow",
+      "default": "Found Fashion"
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Headline",
+      "default": "Personal Shopping"
+    },
+    {
+      "type": "text",
+      "id": "hero_sub",
+      "label": "Subtext",
+      "default": "We find what others can't. Tell us what you're looking for."
+    },
+    {
+      "type": "header",
+      "content": "Intro"
+    },
+    {
+      "type": "textarea",
+      "id": "intro_text",
+      "label": "Intro paragraph",
+      "default": "Our personal shopping service is designed for clients seeking specific pieces — rare, discontinued, or simply hard to find. We draw on a global network of trusted sources to locate exactly what you have in mind."
+    },
+    {
+      "type": "header",
+      "content": "Process"
+    },
+    {
+      "type": "text",
+      "id": "process_label",
+      "label": "Section label",
+      "default": "How it works"
+    },
+    {
+      "type": "text",
+      "id": "step_1_title",
+      "label": "Step 1 title",
+      "default": "Submit your request"
+    },
+    {
+      "type": "textarea",
+      "id": "step_1_body",
+      "label": "Step 1 description",
+      "default": "Tell us what you're looking for — style, colour, size, condition, and budget. The more detail, the better."
+    },
+    {
+      "type": "text",
+      "id": "step_2_title",
+      "label": "Step 2 title",
+      "default": "We get to work"
+    },
+    {
+      "type": "textarea",
+      "id": "step_2_body",
+      "label": "Step 2 description",
+      "default": "Our team responds within 24 hours with an estimated sourcing timeline. A fully refundable deposit secures your search."
+    },
+    {
+      "type": "text",
+      "id": "step_3_title",
+      "label": "Step 3 title",
+      "default": "Delivered to you"
+    },
+    {
+      "type": "textarea",
+      "id": "step_3_body",
+      "label": "Step 3 description",
+      "default": "Once sourced and authenticated, your piece is shipped via DHL Express worldwide — or collected at our London location."
+    },
+    {
+      "type": "header",
+      "content": "Trust bar"
+    },
+    {
+      "type": "text",
+      "id": "trust_1",
+      "label": "Trust item 1",
+      "default": "Response within 24 hours"
+    },
+    {
+      "type": "text",
+      "id": "trust_2",
+      "label": "Trust item 2",
+      "default": "Every piece authenticated"
+    },
+    {
+      "type": "text",
+      "id": "trust_3",
+      "label": "Trust item 3",
+      "default": "Worldwide delivery"
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "text",
+      "id": "form_eyebrow",
+      "label": "Form eyebrow",
+      "default": "Begin your search"
+    },
+    {
+      "type": "text",
+      "id": "form_title",
+      "label": "Form title",
+      "default": "Submit a Request"
+    },
+    {
+      "type": "text",
+      "id": "form_note",
+      "label": "Note below button",
+      "default": "We typically respond within 24 hours."
+    },
+    {
+      "type": "text",
+      "id": "success_note",
+      "label": "Success message",
+      "default": "We will be in touch within 24 hours."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Personal Shopping"
+    }
+  ]
+}
+{% endschema %}
