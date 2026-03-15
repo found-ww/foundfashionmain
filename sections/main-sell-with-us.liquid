@@ -47,14 +47,31 @@
     margin: 0 0 20px;
     max-width: 600px;
   }
+  /* Hero word-by-word reveal */
+  .swu-hero__word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .swu-hero__word.swu--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
   .swu-hero__sub {
     font-size: clamp(13px, 1.2vw, 15px);
     font-weight: 300;
     letter-spacing: 0.04em;
-    opacity: 0.85;
+    opacity: 0;
     max-width: 440px;
     line-height: 1.7;
     margin: 0;
+    transform: translateY(12px);
+    transition: opacity 0.7s 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.7s 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .swu-hero__sub.swu--in {
+    opacity: 0.85;
+    transform: translateY(0);
   }
 
   /* ── Intro ── */
@@ -71,6 +88,35 @@
     line-height: 1.75;
     color: #2a2420;
     letter-spacing: 0.01em;
+  }
+
+  /* ── Marquee ── */
+  .swu-marquee {
+    overflow: hidden;
+    background: #fff;
+    border-top: 0.5px solid #e5e0da;
+    border-bottom: 0.5px solid #e5e0da;
+    padding: 16px 0;
+    white-space: nowrap;
+  }
+  .swu-marquee__track {
+    display: inline-flex;
+    animation: swu-marquee 28s linear infinite;
+  }
+  .swu-marquee__item {
+    font-size: 10px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    padding: 0 40px;
+  }
+  .swu-marquee__dot {
+    color: #c8c0b8;
+    padding: 0;
+  }
+  @keyframes swu-marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
   }
 
   /* ── Process ── */
@@ -115,21 +161,21 @@
   /* ── Commission ── */
   .swu-commission {
     padding: 80px 24px;
-    background: #6b4c3b;
+    background: #eeece8;
     text-align: center;
   }
   .swu-commission__label {
     font-size: 10px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
+    color: rgba(28,28,28,0.4);
     margin-bottom: 24px;
   }
   .swu-commission__rate {
     font-size: clamp(3rem, 8vw, 6rem);
     font-weight: 300;
     letter-spacing: 0.04em;
-    color: #fff;
+    color: #1c1c1c;
     line-height: 1;
     margin-bottom: 16px;
   }
@@ -137,13 +183,13 @@
     font-size: 13px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
+    color: rgba(28,28,28,0.45);
     margin-bottom: 32px;
   }
   .swu-commission__note {
     font-size: 13px;
     font-weight: 300;
-    color: rgba(255,255,255,0.55);
+    color: rgba(28,28,28,0.5);
     line-height: 1.7;
     max-width: 480px;
     margin: 0 auto;
@@ -174,6 +220,13 @@
   .swu-tier {
     background: #faf9f7;
     padding: 40px 36px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .swu-tier.swu--in {
+    opacity: 1;
+    transform: translateY(0);
   }
   .swu-tier__name {
     font-size: 11px;
@@ -241,7 +294,7 @@
   /* ── Mobile ── */
   @media screen and (max-width: 767px) {
     .swu-hero { height: 50vh; min-height: 320px; }
-    .swu-hero__content { padding: 0 24px 48px; align-items: center; text-align: center; }
+    .swu-hero__content { padding: 0 24px 48px; }
     .swu-intro,
     .swu-process,
     .swu-commission,
@@ -274,9 +327,9 @@
     {%- if section.settings.hero_eyebrow != blank -%}
       <p class="swu-hero__eyebrow">{{ section.settings.hero_eyebrow }}</p>
     {%- endif -%}
-    <h1 class="swu-hero__title">{{ section.settings.hero_title | default: 'Sell With Us' }}</h1>
+    <h1 class="swu-hero__title" data-swu-title>{{ section.settings.hero_title | default: 'Sell With Us' }}</h1>
     {%- if section.settings.hero_sub != blank -%}
-      <p class="swu-hero__sub">{{ section.settings.hero_sub }}</p>
+      <p class="swu-hero__sub" data-swu-sub>{{ section.settings.hero_sub }}</p>
     {%- endif -%}
   </div>
 </div>
@@ -287,6 +340,26 @@
     <p class="swu-intro__text">{{ section.settings.intro_text }}</p>
   </div>
 {%- endif -%}
+
+{%- comment -%} ── Marquee ── {%- endcomment -%}
+{%- assign m1 = section.settings.marquee_1 | default: 'Authenticated in London' -%}
+{%- assign m2 = section.settings.marquee_2 | default: 'Shipped Worldwide' -%}
+{%- assign m3 = section.settings.marquee_3 | default: 'Trusted by Collectors' -%}
+{%- assign m4 = section.settings.marquee_4 | default: 'Fairer Commission' -%}
+<div class="swu-marquee" aria-hidden="true">
+  <div class="swu-marquee__track">
+    {%- for i in (1..2) -%}
+      <span class="swu-marquee__item">{{ m1 }}</span>
+      <span class="swu-marquee__dot">·</span>
+      <span class="swu-marquee__item">{{ m2 }}</span>
+      <span class="swu-marquee__dot">·</span>
+      <span class="swu-marquee__item">{{ m3 }}</span>
+      <span class="swu-marquee__dot">·</span>
+      <span class="swu-marquee__item">{{ m4 }}</span>
+      <span class="swu-marquee__dot">·</span>
+    {%- endfor -%}
+  </div>
+</div>
 
 {%- comment -%} ── Process ── {%- endcomment -%}
 <div class="swu-process">
@@ -308,7 +381,7 @@
 {%- comment -%} ── Commission ── {%- endcomment -%}
 <div class="swu-commission">
   <p class="swu-commission__label">{{ section.settings.commission_label | default: 'Our commission' }}</p>
-  <p class="swu-commission__rate">{{ section.settings.commission_rate | default: '15%' }}</p>
+  <p class="swu-commission__rate" data-swu-counter data-swu-from="25" data-swu-to="15">15%</p>
   {%- if section.settings.commission_fee != blank -%}
     <p class="swu-commission__fee">{{ section.settings.commission_fee }}</p>
   {%- endif -%}
@@ -321,15 +394,15 @@
 <div class="swu-condition">
   <p class="swu-condition__label">{{ section.settings.condition_label | default: 'Condition guide' }}</p>
   <div class="swu-condition__grid">
-    <div class="swu-tier">
+    <div class="swu-tier" data-swu-tier style="transition-delay: 0s;">
       <p class="swu-tier__name">{{ section.settings.tier_1_name | default: 'Pristine' }}</p>
       <p class="swu-tier__desc">{{ section.settings.tier_1_desc | default: 'Never used. Stored perfectly with no signs of wear. Original tags and receipt included.' }}</p>
     </div>
-    <div class="swu-tier">
+    <div class="swu-tier" data-swu-tier style="transition-delay: 0.12s;">
       <p class="swu-tier__name">{{ section.settings.tier_2_name | default: 'Excellent' }}</p>
       <p class="swu-tier__desc">{{ section.settings.tier_2_desc | default: 'Appears unworn but has been used. No visible scratches or signs of wear.' }}</p>
     </div>
-    <div class="swu-tier">
+    <div class="swu-tier" data-swu-tier style="transition-delay: 0.24s;">
       <p class="swu-tier__name">{{ section.settings.tier_3_name | default: 'Very Good' }}</p>
       <p class="swu-tier__desc">{{ section.settings.tier_3_desc | default: 'Minimal use and wear. Any scratches are small and only visible on close inspection.' }}</p>
     </div>
@@ -349,6 +422,72 @@
     <a href="{{ section.settings.cta_url }}" class="swu-cta__btn">{{ section.settings.cta_label | default: 'List an Item' }}</a>
   {%- endif -%}
 </div>
+
+<script>
+(function () {
+  /* ── 1. Hero word reveal ── */
+  var titleEl = document.querySelector('[data-swu-title]');
+  var subEl   = document.querySelector('[data-swu-sub]');
+
+  if (titleEl) {
+    var raw = titleEl.textContent.trim();
+    titleEl.innerHTML = raw.split(' ').map(function (w, i) {
+      return '<span class="swu-hero__word" style="transition-delay:' + (0.08 * i) + 's">' + w + '</span>';
+    }).join(' ');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        titleEl.querySelectorAll('.swu-hero__word').forEach(function (w) {
+          w.classList.add('swu--in');
+        });
+        if (subEl) subEl.classList.add('swu--in');
+      });
+    });
+  }
+
+  /* ── 2. Commission counter 25 → 15 ── */
+  var counterEl = document.querySelector('[data-swu-counter]');
+  if (counterEl) {
+    var from = parseInt(counterEl.getAttribute('data-swu-from'), 10);
+    var to   = parseInt(counterEl.getAttribute('data-swu-to'),   10);
+    var started = false;
+
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && !started) {
+          started = true;
+          obs.disconnect();
+          var start = null;
+          var duration = 1200;
+          function step(ts) {
+            if (!start) start = ts;
+            var progress = Math.min((ts - start) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = Math.round(from + (to - from) * eased);
+            counterEl.textContent = current + '%';
+            if (progress < 1) requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        }
+      });
+    }, { threshold: 0.5 });
+    obs.observe(counterEl);
+  }
+
+  /* ── 3. Condition tier stagger reveal ── */
+  var tiers = document.querySelectorAll('[data-swu-tier]');
+  if (tiers.length) {
+    var tierObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('swu--in');
+          tierObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    tiers.forEach(function (t) { tierObs.observe(t); });
+  }
+})();
+</script>
 
 {% schema %}
 {
@@ -390,6 +529,34 @@
       "id": "intro_text",
       "label": "Intro paragraph",
       "default": "We offer a carefully curated resale service for luxury pieces in exceptional condition. Our team handles everything from listing to authentication to delivery — so you don't have to."
+    },
+    {
+      "type": "header",
+      "content": "Marquee"
+    },
+    {
+      "type": "text",
+      "id": "marquee_1",
+      "label": "Item 1",
+      "default": "Authenticated in London"
+    },
+    {
+      "type": "text",
+      "id": "marquee_2",
+      "label": "Item 2",
+      "default": "Shipped Worldwide"
+    },
+    {
+      "type": "text",
+      "id": "marquee_3",
+      "label": "Item 3",
+      "default": "Trusted by Collectors"
+    },
+    {
+      "type": "text",
+      "id": "marquee_4",
+      "label": "Item 4",
+      "default": "Fairer Commission"
     },
     {
       "type": "header",
