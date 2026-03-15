@@ -662,6 +662,11 @@
             currentGrid.appendChild(cell);
           });
 
+          // Kick lazySizes so newly appended images load
+          if (window.lazySizes) {
+            lazySizes.autoSizer.checkElems();
+          }
+
           var nextBtn = doc.querySelector('[data-action="load-more"]') || doc.querySelector('.CollectionLoadMore [data-next-url]');
           if (nextBtn && nextBtn.getAttribute('data-next-url')) {
             btn.setAttribute('data-next-url', nextBtn.getAttribute('data-next-url'));
@@ -679,7 +684,7 @@
           }
         })
         .catch(function () {
-          window.location.href = nextUrl;
+          // silent fail — don't navigate away on infinite scroll error
         })
         .finally(function () {
           isLoadingMore = false;
