@@ -359,19 +359,6 @@
   </div>
 </div>
 
-{%- comment -%} ── Trust bar ── {%- endcomment -%}
-{%- assign t1 = section.settings.trust_1 -%}
-{%- assign t2 = section.settings.trust_2 -%}
-{%- assign t3 = section.settings.trust_3 -%}
-{%- if t1 != blank or t2 != blank or t3 != blank -%}
-  <div class="ps-trust">
-    <div class="ps-trust__inner">
-      {%- if t1 != blank -%}<span class="ps-trust__item">{{ t1 }}</span>{%- endif -%}
-      {%- if t2 != blank -%}<span class="ps-trust__item">{{ t2 }}</span>{%- endif -%}
-      {%- if t3 != blank -%}<span class="ps-trust__item">{{ t3 }}</span>{%- endif -%}
-    </div>
-  </div>
-{%- endif -%}
 
 {%- comment -%} ── Form ── {%- endcomment -%}
 <div class="ps-form-wrap" id="submit-request">
