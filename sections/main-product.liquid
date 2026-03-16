@@ -367,7 +367,7 @@
               <button type="button"
                  class="Button Button--primary ppv1-atc-btn"
                  style="flex:1;"
-                 id="ppv1-source-btn">
+                 onclick="var m=document.getElementById('ppv1-source-modal');if(m){m.style.display='flex';document.body.style.overflow='hidden';}">
                 ASK OUR TEAM TO SOURCE
               </button>
             {%- endif -%}
@@ -1626,14 +1626,11 @@ button[class*="make-an-offer"]:hover,
 </div>
 <script>
 (function () {
-  var btn     = document.getElementById('ppv1-source-btn');
   var modal   = document.getElementById('ppv1-source-modal');
   var overlay = document.getElementById('ppv1-source-overlay');
   var close   = document.getElementById('ppv1-source-close');
-  if (!btn || !modal) return;
-  function openModal() { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  if (!modal) return;
   function closeModal() { modal.style.display = 'none'; document.body.style.overflow = ''; }
-  btn.addEventListener('click', openModal);
   overlay.addEventListener('click', closeModal);
   close.addEventListener('click', closeModal);
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
