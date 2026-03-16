@@ -345,8 +345,10 @@
         {%- form 'product', product, class: 'ppv1-form' -%}
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
           {%- if product.selected_or_first_available_variant.available -%}
-            <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart">
-              ADD TO CART &bull; {{ product.selected_or_first_available_variant.price | money }}
+            {%- assign atc_variant = product.selected_or_first_available_variant -%}
+            <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart"
+              onclick="gtag('event','add_to_cart',{'currency':'{{ shop.currency }}','value':{{ atc_variant.price | divided_by: 100.0 }},'items':[{'item_id':'{{ atc_variant.id }}','item_name':{{ product.title | json }},'item_variant':{{ atc_variant.title | json }},'price':{{ atc_variant.price | divided_by: 100.0 }},'quantity':1}]})">
+              ADD TO CART &bull; {{ atc_variant.price | money }}
             </button>
           {%- else -%}
             <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled style="flex:1;">SOLD OUT</button>
