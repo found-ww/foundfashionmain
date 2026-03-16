@@ -364,11 +364,12 @@
                 ASK OUR TEAM TO SOURCE
               </a>
             {%- else -%}
-              <a href="/account/login?return_url={{ product.url | url_encode }}"
+              <button type="button"
                  class="Button Button--primary ppv1-atc-btn"
-                 style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;">
-                LOGIN TO SOURCE
-              </a>
+                 style="flex:1;"
+                 id="ppv1-source-btn">
+                ASK OUR TEAM TO SOURCE
+              </button>
             {%- endif -%}
           {%- endif -%}
         {%- endform -%}
@@ -1610,6 +1611,35 @@ button[class*="make-an-offer"]:hover,
   }
 })();
 </script>
+
+{%- unless customer -%}
+<div class="ArticleLoginModal" id="ppv1-source-modal" style="display:none" aria-modal="true" role="dialog">
+  <div class="ArticleLoginModal__Overlay" id="ppv1-source-overlay"></div>
+  <div class="ArticleLoginModal__Box">
+    <button class="ArticleLoginModal__Close" id="ppv1-source-close" type="button" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </button>
+    <p class="ArticleLoginModal__Title">Login to source</p>
+    <p class="ArticleLoginModal__Subtitle">You need to be logged in to contact our team about sourcing this piece.</p>
+    <a class="ArticleLoginModal__Btn Button Button--primary" href="/account/login?return_url={{ product.url | url_encode }}">Login</a>
+  </div>
+</div>
+<script>
+(function () {
+  var btn     = document.getElementById('ppv1-source-btn');
+  var modal   = document.getElementById('ppv1-source-modal');
+  var overlay = document.getElementById('ppv1-source-overlay');
+  var close   = document.getElementById('ppv1-source-close');
+  if (!btn || !modal) return;
+  function openModal() { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  function closeModal() { modal.style.display = 'none'; document.body.style.overflow = ''; }
+  btn.addEventListener('click', openModal);
+  overlay.addEventListener('click', closeModal);
+  close.addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
+{%- endunless -%}
 
 {% schema %}
 {
