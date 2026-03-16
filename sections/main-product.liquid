@@ -769,6 +769,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.ppv1-source-modal--open {
+  opacity: 1;
+  visibility: visible;
 }
 .ppv1-source-modal__overlay {
   position: absolute;
@@ -783,6 +790,11 @@
   width: calc(100% - 40px);
   text-align: center;
   z-index: 1;
+  transform: translateY(12px);
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.ppv1-source-modal--open .ppv1-source-modal__box {
+  transform: translateY(0);
 }
 .ppv1-source-modal__close {
   position: absolute;
@@ -797,6 +809,7 @@
   align-items: center;
   justify-content: center;
   transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 .ppv1-source-modal__close:hover { color: #1c1c1c; }
 .ppv1-source-modal__title {
@@ -1664,7 +1677,7 @@ button[class*="make-an-offer"]:hover,
 </script>
 
 {%- unless customer -%}
-<div class="ppv1-source-modal" id="ppv1-source-modal" style="display:none" aria-modal="true" role="dialog">
+<div class="ppv1-source-modal" id="ppv1-source-modal" aria-modal="true" role="dialog">
   <div class="ppv1-source-modal__overlay" id="ppv1-source-overlay"></div>
   <div class="ppv1-source-modal__box">
     <button class="ppv1-source-modal__close" id="ppv1-source-close" type="button" aria-label="Close">
@@ -1681,8 +1694,8 @@ button[class*="make-an-offer"]:hover,
   var overlay = document.getElementById('ppv1-source-overlay');
   var close   = document.getElementById('ppv1-source-close');
   if (!modal) return;
-  function openModal()  { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-  function closeModal() { modal.style.display = 'none'; document.body.style.overflow = ''; }
+  function openModal()  { modal.classList.add('ppv1-source-modal--open'); document.body.style.overflow = 'hidden'; }
+  function closeModal() { modal.classList.remove('ppv1-source-modal--open'); document.body.style.overflow = ''; }
   document.querySelectorAll('.ppv1-source-trigger').forEach(function(btn) {
     btn.addEventListener('click', openModal);
   });
