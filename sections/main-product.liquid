@@ -351,7 +351,8 @@
           {%- else -%}
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
               <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled style="flex:1;">SOLD OUT</button>
-              {%- assign wa_message = 'Hi, I am interested in sourcing: ' | append: product.title | url_encode -%}
+              {%- assign wa_product_url = shop.url | append: product.url -%}
+              {%- assign wa_message = "Hi, I'm looking to source the " | append: product.title | append: ". Could you let me know if you're able to source one? " | append: wa_product_url | url_encode -%}
               <a href="https://wa.me/447405520466?text={{ wa_message }}"
                  class="Button Button--primary ppv1-atc-btn"
                  target="_blank"
