@@ -349,7 +349,17 @@
               ADD TO CART &bull; {{ product.selected_or_first_available_variant.price | money }}
             </button>
           {%- else -%}
-            <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled>SOLD OUT</button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled style="flex:1;">SOLD OUT</button>
+              {%- assign wa_message = 'Hi, I am interested in sourcing: ' | append: product.title | url_encode -%}
+              <a href="https://wa.me/447405520466?text={{ wa_message }}"
+                 class="Button Button--primary ppv1-atc-btn"
+                 target="_blank"
+                 rel="noopener"
+                 style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;">
+                ASK OUR TEAM TO SOURCE
+              </a>
+            </div>
           {%- endif -%}
         {%- endform -%}
       </div>
