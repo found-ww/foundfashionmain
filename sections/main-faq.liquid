@@ -157,14 +157,31 @@
   [data-section-id="{{ section.id }}"] .ff-faq__answer p {
     margin: 0 0 8px;
   }
+  /* ── Smooth accordion ── */
+  [data-section-id="{{ section.id }}"] .Faq__AnswerWrapper {
+    display: grid !important;
+    grid-template-rows: 0fr !important;
+    transition: grid-template-rows 0.4s cubic-bezier(0.16,1,0.3,1) !important;
+    overflow: hidden !important;
+    visibility: visible !important;
+  }
+  [data-section-id="{{ section.id }}"] .Faq__Item[aria-expanded="true"] .Faq__AnswerWrapper {
+    grid-template-rows: 1fr !important;
+  }
+  [data-section-id="{{ section.id }}"] .Faq__Answer {
+    min-height: 0;
+    overflow: hidden;
+  }
+
   [data-section-id="{{ section.id }}"] .ff-faq__icon {
     color: #b5ada5;
-    transition: color 0.2s, transform 0.3s;
+    transition: color 0.2s, transform 0.4s cubic-bezier(0.16,1,0.3,1);
     flex-shrink: 0;
     margin-top: 20px;
   }
   [data-section-id="{{ section.id }}"] .Faq__Item[aria-expanded="true"] .ff-faq__icon {
     color: #8a7268;
+    transform: rotate(90deg);
   }
 
   /* ── Container spacing ── */
