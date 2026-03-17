@@ -280,7 +280,7 @@
 <div class="auth-service">
   <p class="auth-service__label">Additional service</p>
   <h2 class="auth-service__title" data-auth-service-title>{{ section.settings.service_title | default: 'Authentication Service' }}</h2>
-  <p class="auth-service__body">{{ section.settings.service_body | default: 'We offer an independent authentication service at an additional cost — for pieces you\'ve purchased elsewhere or are considering buying. Our specialists will assess and certify your item.' }}</p>
+  <p class="auth-service__body">{{ section.settings.service_body | default: 'We offer an independent authentication service at an additional cost — for pieces purchased elsewhere or under consideration. Our specialists will assess and certify your item.' }}</p>
   {%- if section.settings.service_cta_url != blank -%}
     <a href="{{ section.settings.service_cta_url }}" class="auth-service__btn">{{ section.settings.service_cta_label | default: 'Get in Touch' }}</a>
   {%- endif -%}
