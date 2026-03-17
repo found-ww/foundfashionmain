@@ -8,25 +8,25 @@
 {%- endfor -%}
 
 {%- capture faq_content -%}
-  <div class="Faq">
+  <div class="Faq ff-faq">
     {%- for block in section.blocks -%}
       {%- case block.type -%}
         {%- when 'separator' -%}
-          <h2 class="Faq__Section Heading u-h1" {{ block.shopify_attributes }}>
+          <div class="ff-faq__section-label" {{ block.shopify_attributes }}>
             <span class="Anchor" id="block-{{ block.id }}"></span>
             {{- block.settings.title | escape -}}
-          </h2>
+          </div>
 
         {%- when 'question' -%}
           {%- if block.settings.title != blank and block.settings.answer != blank -%}
-            <div class="Faq__Item {% if section.blocks[forloop.index].type == 'separator' or forloop.last %}Faq__Item--lastOfSection{% endif %}" aria-expanded="false" {{ block.shopify_attributes }}>
-              <span class="Faq__Icon">{% render 'icon' with 'select-arrow-right' %}</span>
+            <div class="Faq__Item ff-faq__item {% if section.blocks[forloop.index].type == 'separator' or forloop.last %}Faq__Item--lastOfSection{% endif %}" aria-expanded="false" {{ block.shopify_attributes }}>
+              <span class="Faq__Icon ff-faq__icon">{% render 'icon' with 'select-arrow-right' %}</span>
 
-              <div class="Faq__ItemWrapper">
-                <button class="Faq__Question">{{ block.settings.title | escape }}</button>
+              <div class="Faq__ItemWrapper ff-faq__wrapper">
+                <button class="Faq__Question ff-faq__question">{{ block.settings.title | escape }}</button>
 
                 <div class="Faq__AnswerWrapper" aria-hidden="true">
-                  <div class="Faq__Answer Rte">
+                  <div class="Faq__Answer Rte ff-faq__answer">
                     {{ block.settings.answer }}
                   </div>
                 </div>
@@ -39,29 +39,161 @@
 {%- endcapture -%}
 
 <style>
+  /* ── Layout overrides ── */
   [data-section-id="{{ section.id }}"] .PageLayout__Section--secondary {
-    max-width: 140px !important;
-    min-width: 140px !important;
-    flex-basis: 140px !important;
+    max-width: 160px !important;
+    min-width: 160px !important;
+    flex-basis: 160px !important;
   }
   [data-section-id="{{ section.id }}"] .PageLayout__Section + .PageLayout__Section {
-    margin-left: 40px !important;
+    margin-left: 56px !important;
+  }
+
+  /* ── Hero header ── */
+  .ff-faq-hero {
+    background: #1c1c1c;
+    padding: 72px 24px 64px;
+    text-align: center;
+    margin-bottom: 0;
+  }
+  .ff-faq-hero__eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 16px;
+  }
+  .ff-faq-hero__title {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    margin: 0 0 16px;
+    line-height: 1.1;
+  }
+  .ff-faq-hero__sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    max-width: 440px;
+    margin: 0 auto;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── Sidebar nav ── */
+  [data-section-id="{{ section.id }}"] .FaqSummary {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: sticky;
+    top: 80px;
+  }
+  [data-section-id="{{ section.id }}"] .FaqSummary__Item {
+    margin-bottom: 4px;
+  }
+  [data-section-id="{{ section.id }}"] .FaqSummary__Link {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #b5ada5;
+    text-decoration: none;
+    padding: 6px 0;
+    border-left: 2px solid transparent;
+    padding-left: 12px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  [data-section-id="{{ section.id }}"] .FaqSummary__Link:hover,
+  [data-section-id="{{ section.id }}"] .FaqSummary__Item.is-active .FaqSummary__Link {
+    color: #2a2420;
+    border-left-color: #8a7268;
+  }
+
+  /* ── Section label ── */
+  .ff-faq__section-label {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin: 48px 0 4px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #ede8e2;
+  }
+  .ff-faq__section-label:first-child {
+    margin-top: 0;
+  }
+
+  /* ── FAQ items ── */
+  [data-section-id="{{ section.id }}"] .ff-faq__item {
+    border-bottom: 1px solid #ede8e2;
+    border-top: none;
+    padding: 0;
+  }
+  [data-section-id="{{ section.id }}"] .ff-faq__question {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.02em !important;
+    color: #1c1c1c !important;
+    padding: 20px 0 !important;
+    text-align: left;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  [data-section-id="{{ section.id }}"] .ff-faq__item:hover .ff-faq__question {
+    color: #8a7268 !important;
+  }
+  [data-section-id="{{ section.id }}"] .ff-faq__answer {
+    font-size: 14px !important;
+    font-weight: 300 !important;
+    color: #6b6259 !important;
+    line-height: 1.8 !important;
+    padding-bottom: 20px !important;
+  }
+  [data-section-id="{{ section.id }}"] .ff-faq__answer p {
+    margin: 0 0 8px;
+  }
+  [data-section-id="{{ section.id }}"] .ff-faq__icon {
+    color: #b5ada5;
+    transition: color 0.2s, transform 0.3s;
+    flex-shrink: 0;
+    margin-top: 20px;
+  }
+  [data-section-id="{{ section.id }}"] .Faq__Item[aria-expanded="true"] .ff-faq__icon {
+    color: #8a7268;
+  }
+
+  /* ── Container spacing ── */
+  [data-section-id="{{ section.id }}"] .Container {
+    padding-top: 64px;
+    padding-bottom: 80px;
+  }
+
+  /* ── Hide old header (replaced by hero) ── */
+  .ff-faq-hide { display: none !important; }
+
+  @media screen and (max-width: 767px) {
+    .ff-faq-hero { padding: 56px 24px 48px; }
+    [data-section-id="{{ section.id }}"] .Container { padding-top: 48px; padding-bottom: 60px; }
   }
 </style>
+
+{%- comment -%} ── Hero ── {%- endcomment -%}
+<div class="ff-faq-hero">
+  <p class="ff-faq-hero__eyebrow">{{ section.settings.eyebrow | default: 'Found Fashion' }}</p>
+  <h1 class="ff-faq-hero__title">{{ page.title }}</h1>
+  {%- if section.settings.description != blank -%}
+    <p class="ff-faq-hero__sub">{{ section.settings.description }}</p>
+  {%- endif -%}
+</div>
 
 <section data-section-type="faq" data-section-id="{{ section.id }}">
   <div class="Container">
     <div class="PageContent {% unless has_section_separator %}PageContent--narrow{% endunless %}">
-
-      {%- comment -%} Page header {%- endcomment -%}
-      <header class="SectionHeader SectionHeader--center" style="margin-bottom: 48px;">
-        <h1 class="SectionHeader__Heading Heading u-h1">{{ page.title }}</h1>
-        {%- if section.settings.description != blank -%}
-          <p class="SectionHeader__Description" style="margin-top: 16px; font-size: 14px; color: #9a8f86; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.7;">
-            {{ section.settings.description }}
-          </p>
-        {%- endif -%}
-      </header>
 
       {%- if has_section_separator -%}
         <div class="PageLayout">
@@ -152,9 +284,15 @@
   "name": "FAQ",
   "settings": [
     {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Hero eyebrow",
+      "default": "Found Fashion"
+    },
+    {
       "type": "textarea",
       "id": "description",
-      "label": "Intro text",
+      "label": "Hero subtext",
       "default": "Below you'll find answers to our most common questions. If you need further help, our team is always happy to assist."
     },
     {
