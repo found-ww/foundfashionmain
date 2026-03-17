@@ -10,11 +10,11 @@
 {
   "sections": {
     "main": {
-      "type": "main-page",
-      "settings": {}
+      "type": "authenticity-guarantee",
+      "settings": {
+        "service_cta_url": "/pages/contact"
+      }
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["main"]
 }
