@@ -176,8 +176,58 @@
   /* ── Hide old header (replaced by hero) ── */
   .ff-faq-hide { display: none !important; }
 
+  /* ── Contact CTA panel ── */
+  .ff-faq-cta {
+    background: #1c1c1c;
+    padding: 80px 24px;
+    text-align: center;
+  }
+  .ff-faq-cta__eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 20px;
+  }
+  .ff-faq-cta__title {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .ff-faq-cta__sub {
+    font-size: 14px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.55);
+    max-width: 380px;
+    margin: 0 auto 36px;
+    line-height: 1.75;
+  }
+  .ff-faq-cta__btn {
+    display: inline-block;
+    background: transparent;
+    color: #fff;
+    text-decoration: none;
+    padding: 15px 48px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: inherit;
+    border: 1px solid rgba(255,255,255,0.4);
+    transition: background 0.25s, border-color 0.25s;
+  }
+  .ff-faq-cta__btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.7);
+    color: #fff;
+  }
+
   @media screen and (max-width: 767px) {
     .ff-faq-hero { padding: 56px 24px 48px; }
+    .ff-faq-cta { padding: 60px 24px; }
     [data-section-id="{{ section.id }}"] .Container { padding-top: 48px; padding-bottom: 60px; }
   }
 </style>
@@ -223,27 +273,24 @@
         {{- faq_content -}}
       {%- endif -%}
 
-      {%- comment -%} Contact CTA {%- endcomment -%}
-      {%- if section.settings.cta_title != blank -%}
-        <div style="text-align: center; padding: 64px 24px 16px; border-top: 1px solid #ede8e2; margin-top: 48px;">
-          <p style="font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #9a8f86; margin-bottom: 12px;">{{ section.settings.cta_eyebrow }}</p>
-          <h2 style="font-size: 22px; letter-spacing: 0.06em; font-weight: 400; text-transform: uppercase; color: #1c1c1c; margin-bottom: 12px;">{{ section.settings.cta_title }}</h2>
-          {%- if section.settings.cta_subtitle != blank -%}
-            <p style="font-size: 14px; color: #9a8f86; margin-bottom: 28px; line-height: 1.6;">{{ section.settings.cta_subtitle }}</p>
-          {%- endif -%}
-          {%- if section.settings.cta_button_label != blank and section.settings.cta_button_url != blank -%}
-            <a href="{{ section.settings.cta_button_url }}"
-               style="display: inline-block; background: #1c1c1c; color: #fff; padding: 14px 32px; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 500; text-decoration: none; transition: background 0.2s;"
-               onmouseover="this.style.background='#3d3530'" onmouseout="this.style.background='#1c1c1c'">
-              {{ section.settings.cta_button_label }}
-            </a>
-          {%- endif -%}
-        </div>
-      {%- endif -%}
-
     </div>
   </div>
 </section>
+
+{%- if section.settings.cta_title != blank -%}
+  <div class="ff-faq-cta">
+    {%- if section.settings.cta_eyebrow != blank -%}
+      <p class="ff-faq-cta__eyebrow">{{ section.settings.cta_eyebrow }}</p>
+    {%- endif -%}
+    <h2 class="ff-faq-cta__title">{{ section.settings.cta_title }}</h2>
+    {%- if section.settings.cta_subtitle != blank -%}
+      <p class="ff-faq-cta__sub">{{ section.settings.cta_subtitle }}</p>
+    {%- endif -%}
+    {%- if section.settings.cta_button_label != blank and section.settings.cta_button_url != blank -%}
+      <a href="{{ section.settings.cta_button_url }}" class="ff-faq-cta__btn">{{ section.settings.cta_button_label }}</a>
+    {%- endif -%}
+  </div>
+{%- endif -%}
 
 {%- comment -%} FAQPage schema {%- endcomment -%}
 {%- assign has_faq_questions = false -%}
