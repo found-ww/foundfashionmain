@@ -104,7 +104,7 @@
   }
   .auth-process__steps {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     column-gap: 1px;
     background: #e5e0da;
     max-width: 960px;
@@ -215,7 +215,7 @@
     .auth-intro,
     .auth-process,
     .auth-service { padding: 60px 24px; }
-    .auth-process__steps { grid-template-columns: 1fr; column-gap: 0; row-gap: 1px; }
+    .auth-process__steps { grid-template-columns: 1fr; column-gap: 0; row-gap: 1px; max-width: 480px; }
     .auth-step { padding: 36px 24px; }
   }
 </style>
@@ -266,12 +266,7 @@
     <div class="auth-step" data-auth-step style="transition-delay: 0.1s;">
       <span class="auth-step__num">02</span>
       <p class="auth-step__title">{{ section.settings.step_2_title | default: 'Verified in house' }}</p>
-      <p class="auth-step__body">{{ section.settings.step_2_body | default: 'Each piece is examined by our specialists before listing. We check hardware, stitching, date stamps, leather grain and provenance documentation.' }}</p>
-    </div>
-    <div class="auth-step" data-auth-step style="transition-delay: 0.2s;">
-      <span class="auth-step__num">03</span>
-      <p class="auth-step__title">{{ section.settings.step_3_title | default: 'Guaranteed authentic' }}</p>
-      <p class="auth-step__body">{{ section.settings.step_3_body | default: 'We stand behind every item we sell. If a piece is ever found to be inauthentic, we offer a full refund — no questions asked.' }}</p>
+      <p class="auth-step__body">{{ section.settings.step_2_body | default: 'Each piece is examined by our specialists before listing. We check hardware, stitching, date stamps and leather grain.' }}</p>
     </div>
   </div>
 </div>
