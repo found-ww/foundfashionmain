@@ -1,1 +1,11 @@
-{"sections":{"main":{"type":"main-page","settings":{"show_large":false}}},"order":["main"]}
+{
+  "sections": {
+    "main": {
+      "type": "main-authenticity",
+      "settings": {
+        "service_cta_url": "/pages/contact"
+      }
+    }
+  },
+  "order": ["main"]
+}
