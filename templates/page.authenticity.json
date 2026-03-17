@@ -1,7 +1,7 @@
 {
   "sections": {
     "main": {
-      "type": "main-authenticity",
+      "type": "authenticity-guarantee",
       "settings": {
         "service_cta_url": "/pages/contact"
       }
