@@ -193,40 +193,24 @@
               "content": "<p>Sign up to our newsletter to read the latest luxury news, from spotlights on our sellers and partners, to the latest collections, styling tips, special offers and events.</p>"
             }
           },
-          "8f326c6e-0634-479a-9cf9-00dd800b7dc1": {
-            "type": "links",
-            "settings": {
-              "menu": ""
-            }
-          },
           "footer-1": {
             "type": "links",
             "settings": {
               "menu": "footer"
             }
           },
-          "f8264f6a-0b41-46a1-a626-f5dde331de23": {
-            "type": "text",
-            "settings": {
-              "title": "Disclaimer",
-              "content": "<p>Found Fashion is not affiliated, associated with any brand mentioned or sold on this website.Trademarks and copyrights are reserved to the original brands.</p>",
-              "show_social_media": true
-            }
-          },
           "53df1f3d-626b-4043-8941-c5de42067263": {
             "type": "text",
             "settings": {
               "title": "The Found Collective Group",
-              "content": "<p>Located in the heart of London we promise you the finest luxury ready-to-wear, handbags, shoes and accessories. </p><p></p><p>Registered Office: 4/F 299QRC, 299 Queen's Road, Central, Sheung Wan, Hong Kong</p>",
-              "show_social_media": false
+              "content": "<p>Located in the heart of London we promise you the finest luxury ready-to-wear, handbags, shoes and accessories.</p><p>Registered Office: 4/F 299QRC, 299 Queen’s Road, Central, Sheung Wan, Hong Kong</p><p>Found Fashion is not affiliated or associated with any brand mentioned or sold on this website. Trademarks and copyrights are reserved to their respective owners.</p>",
+              "show_social_media": true
             }
           }
         },
         "block_order": [
           "footer-2",
-          "8f326c6e-0634-479a-9cf9-00dd800b7dc1",
           "footer-1",
-          "f8264f6a-0b41-46a1-a626-f5dde331de23",
           "53df1f3d-626b-4043-8941-c5de42067263"
         ],
         "settings": {
