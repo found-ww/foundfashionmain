@@ -139,8 +139,16 @@
       {%- endif -%}
 
       <div class="Footer__Copyright">
-        <a href="{{ routes.root_url }}" class="Footer__StoreName Heading u-h7 Link Link--secondary">© The Found Collective Group Limited</a>
+        <a href="{{ routes.root_url }}" class="Footer__StoreName Heading u-h7 Link Link--secondary">© {{ 'now' | date: '%Y' }} Found Collective Group Limited</a>
         <p class="Footer__ThemeAuthor">{{ powered_by_link }}</p>
+      </div>
+
+      <div class="Footer__Legal">
+        <a href="/policies/privacy-policy" class="Footer__LegalLink">Privacy Policy</a>
+        <a href="/policies/terms-of-service" class="Footer__LegalLink">Terms & Conditions</a>
+        <a href="/policies/refund-policy" class="Footer__LegalLink">Returns & Refunds</a>
+        <a href="/pages/faqs" class="Footer__LegalLink">FAQs</a>
+        <a href="/pages/authenticity" class="Footer__LegalLink">Authenticity</a>
       </div>
 
       {%- if section.settings.show_payment_methods -%}
@@ -167,6 +175,29 @@
     }
   </style>
 {%- endif -%}
+
+<style>
+  .Footer__Legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+    margin-top: 12px;
+  }
+  .Footer__LegalLink {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--text-color);
+    opacity: 0.45;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .Footer__LegalLink:hover {
+    opacity: 0.85;
+  }
+  @media screen and (max-width: 767px) {
+    .Footer__Legal { gap: 4px 16px; }
+  }
+</style>
 
 {% schema %}
 {
