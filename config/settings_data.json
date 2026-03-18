@@ -203,7 +203,15 @@
             "type": "text",
             "settings": {
               "title": "The Found Collective Group",
-              "content": "<p>Located in the heart of London we promise you the finest luxury ready-to-wear, handbags, shoes and accessories.</p><p>Registered Office: 4/F 299QRC, 299 Queen’s Road, Central, Sheung Wan, Hong Kong</p><p>Found Fashion is not affiliated or associated with any brand mentioned or sold on this website. Trademarks and copyrights are reserved to their respective owners.</p>",
+              "content": "<p>Located in the heart of London we promise you the finest luxury ready-to-wear, handbags, shoes and accessories.</p><p>Registered Office: 4/F 299QRC, 299 Queen’s Road, Central, Sheung Wan, Hong Kong</p>",
+              "show_social_media": false
+            }
+          },
+          "f8264f6a-0b41-46a1-a626-f5dde331de23": {
+            "type": "text",
+            "settings": {
+              "title": "Disclaimer",
+              "content": "<p>Found Fashion is not affiliated or associated with any brand mentioned or sold on this website. Trademarks and copyrights are reserved to their respective owners.</p>",
               "show_social_media": true
             }
           }
@@ -211,6 +219,7 @@
         "block_order": [
           "footer-2",
           "footer-1",
+          "f8264f6a-0b41-46a1-a626-f5dde331de23",
           "53df1f3d-626b-4043-8941-c5de42067263"
         ],
         "settings": {
