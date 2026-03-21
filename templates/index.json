@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero-split": {
@@ -25,7 +34,9 @@
           }
         }
       },
-      "block_order": ["new-arrivals-collection"],
+      "block_order": [
+        "new-arrivals-collection"
+      ],
       "settings": {
         "title": "NEW ARRIVALS",
         "layout_mode": "grid",
@@ -42,23 +53,33 @@
         "editorial-1": {
           "type": "image",
           "settings": {
-            "button_text": "READ MORE"
+            "image": "shopify://shop_images/Hermes-Rock-Haut-a-courroies-Birkn-bag-2022-2-1.webp",
+            "link_url": "",
+            "button_text": "Shop bags"
           }
         },
         "editorial-2": {
           "type": "image",
           "settings": {
-            "button_text": "READ MORE"
+            "image": "shopify://shop_images/IMG_8602_jpg.webp",
+            "link_url": "",
+            "button_text": "shop shoes"
           }
         },
         "editorial-3": {
           "type": "image",
           "settings": {
-            "button_text": "READ MORE"
+            "image": "shopify://shop_images/AAE6A3AF-6E4D-46CB-BF59-1469E1C5F3C4_jpg.webp",
+            "link_url": "",
+            "button_text": "shop jewellery"
           }
         }
       },
-      "block_order": ["editorial-1", "editorial-2", "editorial-3"],
+      "block_order": [
+        "editorial-1",
+        "editorial-2",
+        "editorial-3"
+      ],
       "settings": {}
     },
     "bags-shoes": {
@@ -83,7 +104,10 @@
           }
         }
       },
-      "block_order": ["bags-tab", "shoes-tab"],
+      "block_order": [
+        "bags-tab",
+        "shoes-tab"
+      ],
       "settings": {
         "title": "",
         "layout_mode": "grid",
@@ -97,12 +121,18 @@
     "discover-story": {
       "type": "discover-story",
       "settings": {
+        "left_image_1": "shopify://shop_images/Hermes-Picotin-White-1.jpg",
+        "left_link_1": "",
+        "left_btn_1": "READ MORE",
+        "left_image_2": "shopify://shop_images/IMG_9477_copy.jpg",
+        "left_link_2": "",
+        "left_btn_2": "READ MORE",
+        "right_image": "shopify://shop_images/Hermes-Birkin-Faubourg-Midnight-and-Snow.jpg",
         "right_heading": "DISCOVER THE STORY",
         "right_text": "<p>The Hermès Cargo Picotin 18 offers a modern interpretation of the classic Picotin silhouette, distinguished by its exterior pockets and functional detailing. This example is finished in Nata and Gold tones, paired with gold-plated hardware for a warm, contrasting finish.</p>",
+        "right_link": "",
         "right_btn_text": "READ MORE",
-        "right_bg_color": "#f0ebe5",
-        "left_btn_1": "READ MORE",
-        "left_btn_2": "READ MORE"
+        "right_bg_color": "#f0ebe5"
       }
     }
   },
