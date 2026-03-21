@@ -174,8 +174,8 @@
   var currentPair = 0;
   var locked = false;
   var scrollAccum = 0;
-  var SCROLL_THRESHOLD = 150; /* px of wheel delta to trigger swap */
-  var COOLDOWN = 600; /* ms after swap before releasing lock */
+  var SCROLL_THRESHOLD = 60; /* px of wheel delta to trigger swap */
+  var COOLDOWN = 500; /* ms after swap before releasing lock */
 
   function showPair(index) {
     if (index === currentPair || index < 0 || index >= pairCount) return false;
@@ -192,7 +192,7 @@
     var vh = window.innerHeight;
     var sectionCenter = rect.top + rect.height / 2;
     /* Section center is within 30%-55% of viewport — triggers a touch earlier */
-    return sectionCenter > vh * 0.40 && sectionCenter < vh * 0.65;
+    return sectionCenter > vh * 0.20 && sectionCenter < vh * 0.80;
   }
 
   function onWheel(e) {
