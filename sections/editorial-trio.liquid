@@ -20,6 +20,13 @@
 
   .editorial-pin__viewport {
     width: 100%;
+    max-width: var(--container-max-width, 1400px);
+    margin: 0 auto;
+    padding: 0 var(--container-gutter, 40px);
+    position: relative;
+  }
+
+  .editorial-pin__pairs-wrap {
     position: relative;
   }
 
@@ -27,26 +34,19 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 100%;
-    padding: 0 var(--container-gutter, 40px);
-    max-width: var(--container-max-width, 1400px);
     opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 
   .editorial-pin__pair.is-active {
     opacity: 1;
     pointer-events: auto;
     position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin: 0 auto;
   }
 
   .editorial-pin__item {
@@ -126,9 +126,10 @@
   }
 </style>
 
-<section id="editorial-pin-{{ sid }}" class="editorial-pin-{{ sid }} Section Section--spacingNormal">
+<section id="editorial-pin-{{ sid }}" class="editorial-pin-{{ sid }}">
   <div class="editorial-pin__sticky-{{ sid }}">
     <div class="editorial-pin__viewport">
+      <div class="editorial-pin__pairs-wrap">
       {%- for block in section.blocks -%}
         {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
         {%- assign within_pair = forloop.index0 | modulo: 2 -%}
@@ -157,6 +158,8 @@
           </div>
         {%- endif -%}
       {%- endfor -%}
+
+      </div>{%- comment -%}end pairs-wrap{%- endcomment -%}
 
       {%- if pair_count > 1 -%}
         <div class="editorial-pin__dots">
