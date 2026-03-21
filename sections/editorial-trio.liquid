@@ -191,8 +191,8 @@
     var rect = section.getBoundingClientRect();
     var vh = window.innerHeight;
     var sectionCenter = rect.top + rect.height / 2;
-    /* Section center is within the middle 60% of viewport */
-    return sectionCenter > vh * 0.2 && sectionCenter < vh * 0.8;
+    /* Section center is within the middle 20% of viewport (40%-60%) */
+    return sectionCenter > vh * 0.35 && sectionCenter < vh * 0.65;
   }
 
   function onWheel(e) {
