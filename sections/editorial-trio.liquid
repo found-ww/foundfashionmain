@@ -4,7 +4,6 @@
 
 <style>
   .editorial-pin-{{ sid }} {
-    /* Height = viewport for the visible area + extra scroll per additional pair */
     height: calc(100vh * {{ pair_count }});
     position: relative;
   }
@@ -21,20 +20,20 @@
 
   .editorial-pin__viewport {
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 60px;
     position: relative;
   }
 
   .editorial-pin__pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 20px;
     position: absolute;
-    inset: 0;
-    padding: 0 60px;
-    align-items: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    padding: 0 var(--container-gutter, 40px);
+    max-width: var(--container-max-width, 1400px);
     opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none;
@@ -44,6 +43,10 @@
     opacity: 1;
     pointer-events: auto;
     position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 0 auto;
   }
 
   .editorial-pin__item {
@@ -57,7 +60,7 @@
     width: 100%;
     display: block;
     object-fit: cover;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 3 / 2;
     transition: transform 0.6s ease;
   }
 
@@ -67,26 +70,27 @@
 
   .editorial-pin__btn {
     position: absolute;
-    bottom: 24px;
-    left: 24px;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
     background: #ffffff;
     color: #1c1b1b;
     font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 10px 20px;
+    padding: 12px 28px;
     text-decoration: none;
     border: none;
     cursor: pointer;
     font-family: inherit;
+    white-space: nowrap;
   }
 
-  /* Progress dots */
   .editorial-pin__dots {
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 20px;
+    margin-top: 24px;
   }
 
   .editorial-pin__dot {
@@ -105,22 +109,24 @@
   }
 
   @media screen and (max-width: 640px) {
-    .editorial-pin__viewport {
-      padding: 0 16px;
-    }
-
     .editorial-pin__pair {
-      padding: 0 16px;
       gap: 8px;
+      padding: 0 20px;
     }
 
     .editorial-pin__item img {
-      aspect-ratio: 3 / 4;
+      aspect-ratio: 1 / 1;
+    }
+
+    .editorial-pin__btn {
+      bottom: 16px;
+      padding: 8px 16px;
+      font-size: 10px;
     }
   }
 </style>
 
-<section id="editorial-pin-{{ sid }}" class="editorial-pin-{{ sid }}">
+<section id="editorial-pin-{{ sid }}" class="editorial-pin-{{ sid }} Section Section--spacingNormal">
   <div class="editorial-pin__sticky-{{ sid }}">
     <div class="editorial-pin__viewport">
       {%- for block in section.blocks -%}
@@ -222,7 +228,7 @@
           "type": "image_picker",
           "id": "image",
           "label": "Image",
-          "info": "900 x 1100px .jpg recommended"
+          "info": "900 x 600px .jpg recommended"
         },
         {
           "type": "url",
