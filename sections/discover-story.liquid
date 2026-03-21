@@ -7,16 +7,9 @@
     margin: 0 auto;
   }
 
-  .discover-story__grid {
+  .discover-story__grid-{{ sid }} {
     display: grid;
     grid-template-columns: 1fr 2fr;
-    gap: 16px;
-    align-items: start;
-  }
-
-  .discover-story__left {
-    display: flex;
-    flex-direction: column;
     gap: 16px;
   }
 
@@ -25,13 +18,14 @@
     overflow: hidden;
     display: block;
     text-decoration: none;
+    height: 100%;
   }
 
   .discover-story__left-item img {
     width: 100%;
+    height: 100%;
     display: block;
     object-fit: cover;
-    aspect-ratio: 3 / 4;
     transition: transform 0.6s ease;
   }
 
@@ -57,17 +51,21 @@
     position: relative;
     overflow: hidden;
     background: {{ section.settings.right_bg_color }};
+    display: flex;
+    flex-direction: column;
   }
 
   .discover-story__right-img {
     width: 100%;
     display: block;
     object-fit: cover;
-    aspect-ratio: 4 / 3;
+    flex: 1;
+    min-height: 0;
   }
 
   .discover-story__right-content {
     padding: 40px 48px;
+    flex-shrink: 0;
   }
 
   .discover-story__right-heading {
@@ -99,16 +97,12 @@
   }
 
   @media screen and (max-width: 640px) {
-    .discover-story__grid {
+    .discover-story__grid-{{ sid }} {
       grid-template-columns: 1fr;
     }
 
-    .discover-story__left {
-      flex-direction: row;
-    }
-
-    .discover-story__left-item {
-      flex: 1;
+    .discover-story__left-item img {
+      aspect-ratio: 3 / 4;
     }
 
     .discover-story__right-content {
@@ -118,32 +112,18 @@
 </style>
 
 <section id="discover-story-{{ sid }}">
-  <div class="discover-story__grid">
-    <div class="discover-story__left">
-      {%- if section.settings.left_image_1 != blank -%}
-        <a href="{{ section.settings.left_link_1 | default: '#' }}" class="discover-story__left-item">
-          <img
-            src="{{ section.settings.left_image_1 | img_url: '600x' }}"
-            srcset="{{ section.settings.left_image_1 | img_url: '400x' }} 400w, {{ section.settings.left_image_1 | img_url: '600x' }} 600w"
-            sizes="(max-width: 640px) 50vw, 33vw"
-            alt="{{ section.settings.left_image_1.alt | escape }}"
-            loading="lazy">
-          <span class="discover-story__left-btn">{{ section.settings.left_btn_1 | default: 'READ MORE' | escape }}</span>
-        </a>
-      {%- endif -%}
-
-      {%- if section.settings.left_image_2 != blank -%}
-        <a href="{{ section.settings.left_link_2 | default: '#' }}" class="discover-story__left-item">
-          <img
-            src="{{ section.settings.left_image_2 | img_url: '600x' }}"
-            srcset="{{ section.settings.left_image_2 | img_url: '400x' }} 400w, {{ section.settings.left_image_2 | img_url: '600x' }} 600w"
-            sizes="(max-width: 640px) 50vw, 33vw"
-            alt="{{ section.settings.left_image_2.alt | escape }}"
-            loading="lazy">
-          <span class="discover-story__left-btn">{{ section.settings.left_btn_2 | default: 'READ MORE' | escape }}</span>
-        </a>
-      {%- endif -%}
-    </div>
+  <div class="discover-story__grid-{{ sid }}">
+    {%- if section.settings.left_image_1 != blank -%}
+      <a href="{{ section.settings.left_link_1 | default: '#' }}" class="discover-story__left-item">
+        <img
+          src="{{ section.settings.left_image_1 | img_url: '600x' }}"
+          srcset="{{ section.settings.left_image_1 | img_url: '400x' }} 400w, {{ section.settings.left_image_1 | img_url: '600x' }} 600w"
+          sizes="(max-width: 640px) 100vw, 33vw"
+          alt="{{ section.settings.left_image_1.alt | escape }}"
+          loading="lazy">
+        <span class="discover-story__left-btn">{{ section.settings.left_btn_1 | default: 'READ MORE' | escape }}</span>
+      </a>
+    {%- endif -%}
 
     <div class="discover-story__right">
       {%- if section.settings.right_image != blank -%}
@@ -179,42 +159,22 @@
   "settings": [
     {
       "type": "header",
-      "content": "Left column – Image 1"
+      "content": "Left column"
     },
     {
       "type": "image_picker",
       "id": "left_image_1",
-      "label": "Image 1"
+      "label": "Image"
     },
     {
       "type": "url",
       "id": "left_link_1",
-      "label": "Link 1"
+      "label": "Link"
     },
     {
       "type": "text",
       "id": "left_btn_1",
-      "label": "Button text 1",
-      "default": "READ MORE"
-    },
-    {
-      "type": "header",
-      "content": "Left column – Image 2"
-    },
-    {
-      "type": "image_picker",
-      "id": "left_image_2",
-      "label": "Image 2"
-    },
-    {
-      "type": "url",
-      "id": "left_link_2",
-      "label": "Link 2"
-    },
-    {
-      "type": "text",
-      "id": "left_btn_2",
-      "label": "Button text 2",
+      "label": "Button text",
       "default": "READ MORE"
     },
     {
