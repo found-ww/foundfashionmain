@@ -187,17 +187,20 @@
     return true;
   }
 
-  function isInCenter() {
+  var hijacked = false;
+
+  function shouldHijack() {
     var rect = section.getBoundingClientRect();
     var vh = window.innerHeight;
-    var sectionCenter = rect.top + rect.height / 2;
-    /* Section center is within 40%-65% of viewport */
-    return sectionCenter > vh * 0.40 && sectionCenter < vh * 0.65;
+    /* Section top is above 50% of viewport AND section bottom is below 40% */
+    var topAboveMid = rect.top < vh * 0.50;
+    var bottomBelowMid = rect.bottom > vh * 0.40;
+    return topAboveMid && bottomBelowMid;
   }
 
   function onWheel(e) {
-    if (!isInCenter()) {
-      locked = false;
+    if (!shouldHijack()) {
+      hijacked = false;
       scrollAccum = 0;
       return;
     }
@@ -205,24 +208,25 @@
     var scrollingDown = e.deltaY > 0;
     var scrollingUp = e.deltaY < 0;
 
-    /* At boundaries, ALWAYS let page scroll (regardless of lock state) */
+    /* At boundaries, release — let page scroll naturally */
     if (scrollingUp && currentPair === 0) {
+      hijacked = false;
       scrollAccum = 0;
       return;
     }
     if (scrollingDown && currentPair === pairCount - 1) {
+      hijacked = false;
       scrollAccum = 0;
       return;
     }
 
-    /* During cooldown, block scroll but don't accumulate */
-    if (locked) {
-      e.preventDefault();
-      return;
-    }
-
-    /* We're in the zone and have pairs to show — hijack scroll */
+    /* Hijack the scroll */
     e.preventDefault();
+    hijacked = true;
+
+    /* During cooldown, block scroll but don't accumulate */
+    if (locked) return;
+
     scrollAccum += e.deltaY;
 
     if (Math.abs(scrollAccum) >= SCROLL_THRESHOLD) {
