@@ -6,14 +6,13 @@
 <style>
   .editorial-pin-{{ sid }} {
     position: relative;
-    margin-top: 20px;
-    /* Content height + extra scroll allowance for swaps */
-    margin-bottom: calc({{ extra_pairs }} * 300px);
+    margin: 20px 0 0;
   }
 
   .editorial-pin__sticky-{{ sid }} {
     position: sticky;
-    top: 20%;
+    top: 0;
+    z-index: 1;
   }
 
   .editorial-pin__viewport {
@@ -90,7 +89,7 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    margin-top: 20px;
+    padding: 20px 0;
   }
 
   .editorial-pin__dot {
@@ -108,6 +107,12 @@
     background: #1c1b1b;
   }
 
+  /* Spacer creates scroll runway - invisible, consumed while content is pinned */
+  .editorial-pin__spacer {
+    height: 0;
+    transition: height 0s;
+  }
+
   @media screen and (max-width: 640px) {
     .editorial-pin__pair {
       gap: 8px;
@@ -115,16 +120,13 @@
 
     .editorial-pin__item img {
       aspect-ratio: 1 / 1;
+      max-height: 300px;
     }
 
     .editorial-pin__btn {
       bottom: 16px;
       padding: 8px 16px;
       font-size: 10px;
-    }
-
-    .editorial-pin-{{ sid }} {
-      margin-bottom: calc({{ extra_pairs }} * 200px);
     }
   }
 </style>
@@ -173,20 +175,27 @@
       {%- endif -%}
     </div>
   </div>
+  <div class="editorial-pin__spacer" id="editorial-spacer-{{ sid }}"></div>
 </section>
 
 <script>
 (function() {
-  var section = document.getElementById('editorial-pin-{{ sid }}');
+  var sid = '{{ sid }}';
+  var section = document.getElementById('editorial-pin-' + sid);
+  var spacer = document.getElementById('editorial-spacer-' + sid);
   if (!section) return;
 
   var pairs = section.querySelectorAll('.editorial-pin__pair');
   var dots = section.querySelectorAll('.editorial-pin__dot');
   var pairCount = pairs.length;
-  if (pairCount < 2) return;
+  if (pairCount < 2) { return; }
 
   var currentPair = 0;
-  var scrollBudget = {{ extra_pairs }} * 300;
+  var SCROLL_PER_SWAP = 400;
+  var totalBudget = (pairCount - 1) * SCROLL_PER_SWAP;
+
+  /* Set spacer height to create scroll runway */
+  spacer.style.height = totalBudget + 'px';
 
   function updatePair(index) {
     if (index === currentPair) return;
@@ -198,15 +207,19 @@
   }
 
   function onScroll() {
-    var rect = section.getBoundingClientRect();
-    var sectionBottom = rect.bottom;
-    var contentHeight = section.querySelector('.editorial-pin__pairs-wrap').offsetHeight + 60;
-    var totalHeight = contentHeight + scrollBudget;
-    /* How far past the content top we've scrolled */
-    var scrolled = -rect.top;
-    /* Only start swapping after the content is visible */
-    var swapStart = contentHeight * 0.5;
-    var progress = Math.max(0, Math.min(1, (scrolled - swapStart) / scrollBudget));
+    var stickyEl = section.querySelector('.editorial-pin__sticky-' + sid);
+    var stickyRect = stickyEl.getBoundingClientRect();
+    var sectionRect = section.getBoundingClientRect();
+
+    /* The sticky element is pinned when its top = 0 (our sticky top value).
+       The scroll budget starts being consumed when the spacer starts scrolling.
+       We measure how far the section bottom has moved above the viewport bottom
+       minus the content height. */
+    var contentH = stickyEl.offsetHeight;
+    var sectionH = section.offsetHeight;
+    var scrolledInto = -sectionRect.top;
+    var swapZoneStart = contentH;
+    var progress = Math.max(0, Math.min(1, (scrolledInto - swapZoneStart) / totalBudget));
     var target = Math.min(Math.floor(progress * pairCount), pairCount - 1);
     updatePair(target);
   }
