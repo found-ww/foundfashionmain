@@ -192,7 +192,7 @@
     var vh = window.innerHeight;
     var sectionCenter = rect.top + rect.height / 2;
     /* Section center is within 30%-55% of viewport — triggers a touch earlier */
-    return sectionCenter > vh * 0.35 && sectionCenter < vh * 0.55;
+    return sectionCenter > vh * 0.40 && sectionCenter < vh * 0.65;
   }
 
   function onWheel(e) {
