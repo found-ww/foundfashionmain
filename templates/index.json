@@ -77,6 +77,7 @@
         "editorial-4": {
           "type": "image",
           "settings": {
+            "image": "shopify://shop_images/IMG_9477_copy.jpg",
             "link_url": "",
             "button_text": "Shop accessories"
           }
@@ -137,6 +138,7 @@
         "right_text": "<p>The Hermès Cargo Picotin 18 offers a modern interpretation of the classic Picotin silhouette, distinguished by its exterior pockets and functional detailing. This example is finished in Nata and Gold tones, paired with gold-plated hardware for a warm, contrasting finish.</p>",
         "right_link": "",
         "right_btn_text": "READ MORE",
+        "overlay_opacity": 35,
         "right_bg_color": "#f0ebe5"
       }
     }
