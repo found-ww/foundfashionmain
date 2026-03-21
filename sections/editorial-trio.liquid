@@ -1,38 +1,71 @@
 {%- assign sid = section.id -%}
+{%- assign total_blocks = section.blocks.size -%}
+{%- assign pair_count = total_blocks | divided_by: 2 -%}
 
 <style>
-  #editorial-grid-{{ sid }} {
-    padding: 0;
+  .editorial-pin-{{ sid }} {
+    /* Height = viewport for the visible area + extra scroll per additional pair */
+    height: calc(100vh * {{ pair_count }});
+    position: relative;
+  }
+
+  .editorial-pin__sticky-{{ sid }} {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .editorial-pin__viewport {
+    width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 0 60px;
+    position: relative;
   }
 
-  .editorial-grid__grid-{{ sid }} {
+  .editorial-pin__pair {
     display: grid;
-    grid-template-columns: repeat({{ section.blocks.size }}, 1fr);
-    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    position: absolute;
+    inset: 0;
+    padding: 0 60px;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
   }
 
-  .editorial-grid__item {
+  .editorial-pin__pair.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+  }
+
+  .editorial-pin__item {
     position: relative;
     overflow: hidden;
     display: block;
     text-decoration: none;
   }
 
-  .editorial-grid__item img {
+  .editorial-pin__item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
     display: block;
+    object-fit: cover;
     aspect-ratio: 4 / 5;
     transition: transform 0.6s ease;
   }
 
-  .editorial-grid__item:hover img {
+  .editorial-pin__item:hover img {
     transform: scale(1.03);
   }
 
-  .editorial-grid__btn {
+  .editorial-pin__btn {
     position: absolute;
     bottom: 24px;
     left: 24px;
@@ -48,43 +81,136 @@
     font-family: inherit;
   }
 
+  /* Progress dots */
+  .editorial-pin__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .editorial-pin__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d4d4d4;
+    transition: background 0.3s ease;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .editorial-pin__dot.is-active {
+    background: #1c1b1b;
+  }
+
   @media screen and (max-width: 640px) {
-    .editorial-grid__grid-{{ sid }} {
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
+    .editorial-pin__viewport {
+      padding: 0 16px;
     }
 
-    .editorial-grid__item img {
+    .editorial-pin__pair {
+      padding: 0 16px;
+      gap: 8px;
+    }
+
+    .editorial-pin__item img {
       aspect-ratio: 3 / 4;
     }
   }
 </style>
 
-<section id="editorial-grid-{{ sid }}">
-  <div class="editorial-grid__grid-{{ sid }}">
-    {%- for block in section.blocks -%}
-      <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-grid__item" {{ block.shopify_attributes }}>
-        {%- if block.settings.image != blank -%}
-          <img
-            src="{{ block.settings.image | img_url: '800x' }}"
-            srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '800x' }} 800w"
-            sizes="(max-width: 640px) 50vw, 25vw"
-            alt="{{ block.settings.image.alt | escape }}"
-            loading="lazy">
-        {%- else -%}
-          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+<section id="editorial-pin-{{ sid }}" class="editorial-pin-{{ sid }}">
+  <div class="editorial-pin__sticky-{{ sid }}">
+    <div class="editorial-pin__viewport">
+      {%- for block in section.blocks -%}
+        {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
+        {%- assign within_pair = forloop.index0 | modulo: 2 -%}
+
+        {%- if within_pair == 0 -%}
+          <div class="editorial-pin__pair{% if pair_index == 0 %} is-active{% endif %}" data-pair-index="{{ pair_index }}">
         {%- endif -%}
-        {%- if block.settings.button_text != blank -%}
-          <span class="editorial-grid__btn">{{ block.settings.button_text | escape }}</span>
+
+        <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-pin__item" {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            <img
+              src="{{ block.settings.image | img_url: '900x' }}"
+              srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '900x' }} 900w"
+              sizes="(max-width: 640px) 50vw, 45vw"
+              alt="{{ block.settings.image.alt | escape }}"
+              loading="lazy">
+          {%- else -%}
+            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+          {%- if block.settings.button_text != blank -%}
+            <span class="editorial-pin__btn">{{ block.settings.button_text | escape }}</span>
+          {%- endif -%}
+        </a>
+
+        {%- if within_pair == 1 or forloop.last -%}
+          </div>
         {%- endif -%}
-      </a>
-    {%- endfor -%}
+      {%- endfor -%}
+
+      {%- if pair_count > 1 -%}
+        <div class="editorial-pin__dots">
+          {%- for i in (1..pair_count) -%}
+            <button class="editorial-pin__dot{% if forloop.first %} is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="View pair {{ forloop.index }}"></button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
   </div>
 </section>
 
+<script>
+(function() {
+  var section = document.getElementById('editorial-pin-{{ sid }}');
+  if (!section) return;
+
+  var pairs = section.querySelectorAll('.editorial-pin__pair');
+  var dots = section.querySelectorAll('.editorial-pin__dot');
+  var pairCount = pairs.length;
+  if (pairCount < 2) return;
+
+  var currentPair = 0;
+
+  function updatePair(index) {
+    if (index === currentPair) return;
+    pairs[currentPair].classList.remove('is-active');
+    if (dots[currentPair]) dots[currentPair].classList.remove('is-active');
+    currentPair = index;
+    pairs[currentPair].classList.add('is-active');
+    if (dots[currentPair]) dots[currentPair].classList.add('is-active');
+  }
+
+  function onScroll() {
+    var rect = section.getBoundingClientRect();
+    var sectionHeight = section.offsetHeight;
+    var scrolled = -rect.top;
+    var progress = Math.max(0, Math.min(1, scrolled / (sectionHeight - window.innerHeight)));
+    var target = Math.min(Math.floor(progress * pairCount), pairCount - 1);
+    updatePair(target);
+  }
+
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        onScroll();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  onScroll();
+})();
+</script>
+
 {% schema %}
 {
-  "name": "Editorial Grid",
+  "name": "Editorial Pinned",
   "max_blocks": 6,
   "settings": [],
   "blocks": [
@@ -96,7 +222,7 @@
           "type": "image_picker",
           "id": "image",
           "label": "Image",
-          "info": "800 x 1000px .jpg recommended"
+          "info": "900 x 1100px .jpg recommended"
         },
         {
           "type": "url",
@@ -114,7 +240,7 @@
   ],
   "presets": [
     {
-      "name": "Editorial Grid",
+      "name": "Editorial Pinned",
       "blocks": [
         { "type": "image" },
         { "type": "image" },
