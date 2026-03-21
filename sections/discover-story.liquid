@@ -1,0 +1,266 @@
+{%- assign sid = section.id -%}
+
+<style>
+  #discover-story-{{ sid }} {
+    padding: 0 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .discover-story__grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .discover-story__left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .discover-story__left-item {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+  }
+
+  .discover-story__left-item img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 3 / 4;
+    transition: transform 0.6s ease;
+  }
+
+  .discover-story__left-item:hover img {
+    transform: scale(1.03);
+  }
+
+  .discover-story__left-btn {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    background: #ffffff;
+    color: #1c1b1b;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: none;
+  }
+
+  .discover-story__right {
+    position: relative;
+    overflow: hidden;
+    background: {{ section.settings.right_bg_color }};
+  }
+
+  .discover-story__right-img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 4 / 3;
+  }
+
+  .discover-story__right-content {
+    padding: 40px 48px;
+  }
+
+  .discover-story__right-heading {
+    font-size: 18px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin: 0 0 20px;
+    color: #1c1b1b;
+    font-weight: 400;
+  }
+
+  .discover-story__right-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #6a6a6a;
+    margin: 0 0 28px;
+  }
+
+  .discover-story__right-btn {
+    display: inline-block;
+    background: #ffffff;
+    color: #1c1b1b;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: 1px solid #1c1b1b;
+  }
+
+  @media screen and (max-width: 640px) {
+    .discover-story__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .discover-story__left {
+      flex-direction: row;
+    }
+
+    .discover-story__left-item {
+      flex: 1;
+    }
+
+    .discover-story__right-content {
+      padding: 24px;
+    }
+  }
+</style>
+
+<section id="discover-story-{{ sid }}">
+  <div class="discover-story__grid">
+    <div class="discover-story__left">
+      {%- if section.settings.left_image_1 != blank -%}
+        <a href="{{ section.settings.left_link_1 | default: '#' }}" class="discover-story__left-item">
+          <img
+            src="{{ section.settings.left_image_1 | img_url: '600x' }}"
+            srcset="{{ section.settings.left_image_1 | img_url: '400x' }} 400w, {{ section.settings.left_image_1 | img_url: '600x' }} 600w"
+            sizes="(max-width: 640px) 50vw, 33vw"
+            alt="{{ section.settings.left_image_1.alt | escape }}"
+            loading="lazy">
+          <span class="discover-story__left-btn">{{ section.settings.left_btn_1 | default: 'READ MORE' | escape }}</span>
+        </a>
+      {%- endif -%}
+
+      {%- if section.settings.left_image_2 != blank -%}
+        <a href="{{ section.settings.left_link_2 | default: '#' }}" class="discover-story__left-item">
+          <img
+            src="{{ section.settings.left_image_2 | img_url: '600x' }}"
+            srcset="{{ section.settings.left_image_2 | img_url: '400x' }} 400w, {{ section.settings.left_image_2 | img_url: '600x' }} 600w"
+            sizes="(max-width: 640px) 50vw, 33vw"
+            alt="{{ section.settings.left_image_2.alt | escape }}"
+            loading="lazy">
+          <span class="discover-story__left-btn">{{ section.settings.left_btn_2 | default: 'READ MORE' | escape }}</span>
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="discover-story__right">
+      {%- if section.settings.right_image != blank -%}
+        <img
+          class="discover-story__right-img"
+          src="{{ section.settings.right_image | img_url: '1200x' }}"
+          srcset="{{ section.settings.right_image | img_url: '600x' }} 600w, {{ section.settings.right_image | img_url: '900x' }} 900w, {{ section.settings.right_image | img_url: '1200x' }} 1200w"
+          sizes="(max-width: 640px) 100vw, 66vw"
+          alt="{{ section.settings.right_image.alt | escape }}"
+          loading="lazy">
+      {%- endif -%}
+
+      <div class="discover-story__right-content">
+        {%- if section.settings.right_heading != blank -%}
+          <h2 class="discover-story__right-heading">{{ section.settings.right_heading | escape }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.right_text != blank -%}
+          <div class="discover-story__right-text">{{ section.settings.right_text }}</div>
+        {%- endif -%}
+
+        {%- if section.settings.right_link != blank -%}
+          <a href="{{ section.settings.right_link }}" class="discover-story__right-btn">{{ section.settings.right_btn_text | default: 'READ MORE' | escape }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Discover Story",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Left column – Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "url",
+      "id": "left_link_1",
+      "label": "Link 1"
+    },
+    {
+      "type": "text",
+      "id": "left_btn_1",
+      "label": "Button text 1",
+      "default": "READ MORE"
+    },
+    {
+      "type": "header",
+      "content": "Left column – Image 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "left_image_2",
+      "label": "Image 2"
+    },
+    {
+      "type": "url",
+      "id": "left_link_2",
+      "label": "Link 2"
+    },
+    {
+      "type": "text",
+      "id": "left_btn_2",
+      "label": "Button text 2",
+      "default": "READ MORE"
+    },
+    {
+      "type": "header",
+      "content": "Right column – Feature"
+    },
+    {
+      "type": "image_picker",
+      "id": "right_image",
+      "label": "Feature image",
+      "info": "1200 x 900px .jpg recommended"
+    },
+    {
+      "type": "text",
+      "id": "right_heading",
+      "label": "Heading",
+      "default": "DISCOVER THE STORY"
+    },
+    {
+      "type": "richtext",
+      "id": "right_text",
+      "label": "Text",
+      "default": "<p>Tell the story behind the collection. Share what makes it special and why your customers will love it.</p>"
+    },
+    {
+      "type": "url",
+      "id": "right_link",
+      "label": "Button link"
+    },
+    {
+      "type": "text",
+      "id": "right_btn_text",
+      "label": "Button text",
+      "default": "READ MORE"
+    },
+    {
+      "type": "color",
+      "id": "right_bg_color",
+      "label": "Feature background",
+      "default": "#f0ebe5"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Discover Story"
+    }
+  ]
+}
+{% endschema %}
