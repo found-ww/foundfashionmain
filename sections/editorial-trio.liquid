@@ -3,14 +3,16 @@
 <style>
   #editorial-grid-{{ sid }} {
     padding: 0;
-    max-width: 100%;
     margin: 0 auto;
   }
 
   .editorial-grid__grid-{{ sid }} {
     display: grid;
     grid-template-columns: repeat({{ section.blocks.size }}, 1fr);
-    gap: 0;
+    gap: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
   }
 
   .editorial-grid__item {
@@ -25,7 +27,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 4 / 5;
     transition: transform 0.6s ease;
   }
 
@@ -52,7 +54,8 @@
   @media screen and (max-width: 640px) {
     .editorial-grid__grid-{{ sid }} {
       grid-template-columns: 1fr 1fr;
-      gap: 2px;
+      gap: 4px;
+      padding: 0 16px;
     }
 
     .editorial-grid__item img {

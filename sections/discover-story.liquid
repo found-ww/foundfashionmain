@@ -50,38 +50,48 @@
   .discover-story__right {
     position: relative;
     overflow: hidden;
-    background: {{ section.settings.right_bg_color }};
-    display: flex;
-    flex-direction: column;
+    height: 500px;
   }
 
   .discover-story__right-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
+    height: 100%;
     display: block;
     object-fit: cover;
-    flex: 1;
-    min-height: 0;
+  }
+
+  .discover-story__right-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, {{ section.settings.overlay_opacity | default: 35 | divided_by: 100.0 }});
   }
 
   .discover-story__right-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     padding: 40px 48px;
-    flex-shrink: 0;
+    z-index: 1;
   }
 
   .discover-story__right-heading {
     font-size: 18px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin: 0 0 20px;
-    color: #1c1b1b;
+    margin: 0 0 16px;
+    color: #ffffff;
     font-weight: 400;
   }
 
   .discover-story__right-text {
     font-size: 14px;
     line-height: 1.7;
-    color: #6a6a6a;
-    margin: 0 0 28px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0 0 24px;
+    max-width: 600px;
   }
 
   .discover-story__right-btn {
@@ -93,7 +103,7 @@
     text-transform: uppercase;
     padding: 10px 20px;
     text-decoration: none;
-    border: 1px solid #1c1b1b;
+    border: none;
   }
 
   @media screen and (max-width: 640px) {
@@ -103,6 +113,10 @@
 
     .discover-story__left-item img {
       aspect-ratio: 3 / 4;
+    }
+
+    .discover-story__right {
+      height: 400px;
     }
 
     .discover-story__right-content {
@@ -135,6 +149,8 @@
           alt="{{ section.settings.right_image.alt | escape }}"
           loading="lazy">
       {%- endif -%}
+
+      <div class="discover-story__right-overlay"></div>
 
       <div class="discover-story__right-content">
         {%- if section.settings.right_heading != blank -%}
@@ -211,9 +227,19 @@
       "default": "READ MORE"
     },
     {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
       "type": "color",
       "id": "right_bg_color",
-      "label": "Feature background",
+      "label": "Feature background (fallback)",
       "default": "#f0ebe5"
     }
   ],
