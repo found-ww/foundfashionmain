@@ -1,18 +1,11 @@
 {%- assign sid = section.id -%}
 {%- assign total_blocks = section.blocks.size -%}
 {%- assign pair_count = total_blocks | divided_by: 2 -%}
-{%- assign extra_pairs = pair_count | minus: 1 -%}
 
 <style>
   .editorial-pin-{{ sid }} {
     position: relative;
     margin: 20px 0 0;
-  }
-
-  .editorial-pin__sticky-{{ sid }} {
-    position: sticky;
-    top: 0;
-    z-index: 1;
   }
 
   .editorial-pin__viewport {
@@ -33,7 +26,7 @@
     gap: 20px;
     width: 100%;
     opacity: 0;
-    transition: opacity 0.45s ease;
+    transition: opacity 0.4s ease;
     pointer-events: none;
     position: absolute;
     top: 0;
@@ -89,7 +82,7 @@
     display: flex;
     justify-content: center;
     gap: 8px;
-    padding: 20px 0;
+    padding: 20px 0 0;
   }
 
   .editorial-pin__dot {
@@ -105,12 +98,6 @@
 
   .editorial-pin__dot.is-active {
     background: #1c1b1b;
-  }
-
-  /* Spacer creates scroll runway - invisible, consumed while content is pinned */
-  .editorial-pin__spacer {
-    height: 0;
-    transition: height 0s;
   }
 
   @media screen and (max-width: 640px) {
@@ -132,110 +119,114 @@
 </style>
 
 <section id="editorial-pin-{{ sid }}" class="editorial-pin-{{ sid }}">
-  <div class="editorial-pin__sticky-{{ sid }}">
-    <div class="editorial-pin__viewport">
-      <div class="editorial-pin__pairs-wrap">
-      {%- for block in section.blocks -%}
-        {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
-        {%- assign within_pair = forloop.index0 | modulo: 2 -%}
+  <div class="editorial-pin__viewport">
+    <div class="editorial-pin__pairs-wrap">
+    {%- for block in section.blocks -%}
+      {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
+      {%- assign within_pair = forloop.index0 | modulo: 2 -%}
 
-        {%- if within_pair == 0 -%}
-          <div class="editorial-pin__pair{% if pair_index == 0 %} is-active{% endif %}" data-pair-index="{{ pair_index }}">
+      {%- if within_pair == 0 -%}
+        <div class="editorial-pin__pair{% if pair_index == 0 %} is-active{% endif %}" data-pair-index="{{ pair_index }}">
+      {%- endif -%}
+
+      <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-pin__item" {{ block.shopify_attributes }}>
+        {%- if block.settings.image != blank -%}
+          <img
+            src="{{ block.settings.image | img_url: '900x' }}"
+            srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '900x' }} 900w"
+            sizes="(max-width: 640px) 50vw, 45vw"
+            alt="{{ block.settings.image.alt | escape }}"
+            loading="lazy">
+        {%- else -%}
+          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
         {%- endif -%}
-
-        <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-pin__item" {{ block.shopify_attributes }}>
-          {%- if block.settings.image != blank -%}
-            <img
-              src="{{ block.settings.image | img_url: '900x' }}"
-              srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '900x' }} 900w"
-              sizes="(max-width: 640px) 50vw, 45vw"
-              alt="{{ block.settings.image.alt | escape }}"
-              loading="lazy">
-          {%- else -%}
-            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
-          {%- endif -%}
-          {%- if block.settings.button_text != blank -%}
-            <span class="editorial-pin__btn">{{ block.settings.button_text | escape }}</span>
-          {%- endif -%}
-        </a>
-
-        {%- if within_pair == 1 or forloop.last -%}
-          </div>
+        {%- if block.settings.button_text != blank -%}
+          <span class="editorial-pin__btn">{{ block.settings.button_text | escape }}</span>
         {%- endif -%}
-      {%- endfor -%}
+      </a>
 
-      </div>
-
-      {%- if pair_count > 1 -%}
-        <div class="editorial-pin__dots">
-          {%- for i in (1..pair_count) -%}
-            <button class="editorial-pin__dot{% if forloop.first %} is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="View pair {{ forloop.index }}"></button>
-          {%- endfor -%}
+      {%- if within_pair == 1 or forloop.last -%}
         </div>
       {%- endif -%}
+    {%- endfor -%}
     </div>
+
+    {%- if pair_count > 1 -%}
+      <div class="editorial-pin__dots">
+        {%- for i in (1..pair_count) -%}
+          <button class="editorial-pin__dot{% if forloop.first %} is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="View pair {{ forloop.index }}"></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
   </div>
-  <div class="editorial-pin__spacer" id="editorial-spacer-{{ sid }}"></div>
 </section>
 
 <script>
 (function() {
-  var sid = '{{ sid }}';
-  var section = document.getElementById('editorial-pin-' + sid);
-  var spacer = document.getElementById('editorial-spacer-' + sid);
+  var section = document.getElementById('editorial-pin-{{ sid }}');
   if (!section) return;
 
   var pairs = section.querySelectorAll('.editorial-pin__pair');
   var dots = section.querySelectorAll('.editorial-pin__dot');
   var pairCount = pairs.length;
-  if (pairCount < 2) { return; }
+  if (pairCount < 2) return;
 
   var currentPair = 0;
-  var SCROLL_PER_SWAP = 400;
-  var totalBudget = (pairCount - 1) * SCROLL_PER_SWAP;
+  var locked = false;
+  var scrollAccum = 0;
+  var SCROLL_THRESHOLD = 150; /* px of wheel delta to trigger swap */
+  var COOLDOWN = 600; /* ms after swap before releasing lock */
 
-  /* Set spacer height to create scroll runway */
-  spacer.style.height = totalBudget + 'px';
-
-  function updatePair(index) {
-    if (index === currentPair) return;
+  function showPair(index) {
+    if (index === currentPair || index < 0 || index >= pairCount) return false;
     pairs[currentPair].classList.remove('is-active');
     if (dots[currentPair]) dots[currentPair].classList.remove('is-active');
     currentPair = index;
     pairs[currentPair].classList.add('is-active');
     if (dots[currentPair]) dots[currentPair].classList.add('is-active');
+    return true;
   }
 
-  function onScroll() {
-    var stickyEl = section.querySelector('.editorial-pin__sticky-' + sid);
-    var stickyRect = stickyEl.getBoundingClientRect();
-    var sectionRect = section.getBoundingClientRect();
-
-    /* The sticky element is pinned when its top = 0 (our sticky top value).
-       The scroll budget starts being consumed when the spacer starts scrolling.
-       We measure how far the section bottom has moved above the viewport bottom
-       minus the content height. */
-    var contentH = stickyEl.offsetHeight;
-    var sectionH = section.offsetHeight;
-    var scrolledInto = -sectionRect.top;
-    var swapZoneStart = contentH;
-    var progress = Math.max(0, Math.min(1, (scrolledInto - swapZoneStart) / totalBudget));
-    var target = Math.min(Math.floor(progress * pairCount), pairCount - 1);
-    updatePair(target);
+  function isInCenter() {
+    var rect = section.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var sectionCenter = rect.top + rect.height / 2;
+    /* Section center is within the middle 60% of viewport */
+    return sectionCenter > vh * 0.2 && sectionCenter < vh * 0.8;
   }
 
-  var ticking = false;
-  window.addEventListener('scroll', function() {
-    if (!ticking) {
-      requestAnimationFrame(function() {
-        onScroll();
-        ticking = false;
-      });
-      ticking = true;
+  function onWheel(e) {
+    if (!isInCenter()) {
+      locked = false;
+      scrollAccum = 0;
+      return;
     }
-  });
 
-  onScroll();
+    var scrollingDown = e.deltaY > 0;
+    var scrollingUp = e.deltaY < 0;
+
+    /* At first pair scrolling up, or last pair scrolling down → let page scroll */
+    if (scrollingUp && currentPair === 0 && !locked) return;
+    if (scrollingDown && currentPair === pairCount - 1 && !locked) return;
+
+    /* We're in the zone and have pairs to show — hijack scroll */
+    e.preventDefault();
+
+    scrollAccum += e.deltaY;
+
+    if (Math.abs(scrollAccum) >= SCROLL_THRESHOLD) {
+      var next = scrollingDown ? currentPair + 1 : currentPair - 1;
+      var swapped = showPair(next);
+      scrollAccum = 0;
+
+      if (swapped) {
+        locked = true;
+        setTimeout(function() { locked = false; }, COOLDOWN);
+      }
+    }
+  }
+
+  window.addEventListener('wheel', onWheel, { passive: false });
 })();
 </script>
 
