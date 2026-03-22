@@ -188,9 +188,21 @@
     return true;
   }
 
+  /* Target scroll position: section centered in viewport */
+  function getSnapScrollY() {
+    var rect = section.getBoundingClientRect();
+    var vh = window.innerHeight;
+    /* Scroll so section center aligns with viewport center */
+    var sectionCenterFromTop = window.scrollY + rect.top + rect.height / 2;
+    return sectionCenterFromTop - vh / 2;
+  }
+
   function freeze() {
     if (frozen) return;
     frozen = true;
+    /* Snap scroll position so section is centered, THEN lock */
+    var targetY = getSnapScrollY();
+    window.scrollTo(0, targetY);
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
   }
@@ -200,32 +212,27 @@
     frozen = false;
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
+    /* Reset observer so it can re-trigger on next scroll into view */
+    observer.unobserve(section);
+    setTimeout(function() { observer.observe(section); }, 100);
   }
 
-  function sectionInView() {
-    var rect = section.getBoundingClientRect();
-    var vh = window.innerHeight;
-    /* Section top is in the upper half, and bottom is below 40% */
-    return rect.top < vh * 0.50 && rect.bottom > vh * 0.40;
-  }
-
-  /* Use IntersectionObserver + scroll to detect when to freeze */
-  function checkFreeze() {
-    if (swapping) return;
-
-    if (sectionInView()) {
-      /* Only freeze if we have somewhere to go (not at last pair going down) */
-      if (!frozen && currentPair < pairCount - 1) {
-        freeze();
+  /* Use IntersectionObserver to catch the section reliably */
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !frozen && !swapping) {
+        /* Only freeze if we have pairs to swap through */
+        if (currentPair < pairCount - 1 || currentPair > 0) {
+          freeze();
+        }
       }
-      /* If scrolling back up and we're past pair 0, re-freeze */
-      if (!frozen && currentPair > 0) {
-        freeze();
-      }
-    }
-  }
+    });
+  }, {
+    /* Trigger when 50% of the section is visible */
+    threshold: 0.5
+  });
 
-  window.addEventListener('scroll', checkFreeze, { passive: true });
+  observer.observe(section);
 
   window.addEventListener('wheel', function(e) {
     if (!frozen) return;
