@@ -346,6 +346,41 @@
           {%- assign _content = _content | replace: '<p>[product_block_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%} ── Hotspot image embed ── {%- endcomment -%}
+        {%- assign _hs_val = article.metafields.custom.hotspot_1.value -%}
+        {%- if _hs_val != blank -%}
+          {%- assign _hs_clean = _hs_val | strip_html | strip -%}
+          {%- assign _hs_lines = _hs_clean | newline_to_br | split: '<br />' -%}
+          {%- assign _hs_img = _hs_lines[0] | strip -%}
+          {%- capture _hs_html -%}
+            <div class="art-hotspot">
+              <div class="art-hotspot__img-wrap">
+                <img class="art-hotspot__img" src="{{ _hs_img }}" alt="" loading="lazy">
+                {%- assign _hs_i = 0 -%}
+                {%- for _line in _hs_lines -%}
+                  {%- if forloop.index0 == 0 -%}{%- continue -%}{%- endif -%}
+                  {%- assign _line_stripped = _line | strip -%}
+                  {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                  {%- assign _hs_mod = _hs_i | modulo: 2 -%}
+                  {%- if _hs_mod == 0 -%}
+                    {%- assign _hs_coords = _line_stripped | split: ',' -%}
+                    {%- assign _hs_x = _hs_coords[0] | strip -%}
+                    {%- assign _hs_y = _hs_coords[1] | strip -%}
+                  {%- else -%}
+                    <button class="art-hotspot__dot" style="left:{{ _hs_x }}%;top:{{ _hs_y }}%" data-hs-label="{{ _line_stripped | escape }}" type="button" aria-label="{{ _line_stripped | escape }}">
+                      <span class="art-hotspot__pulse"></span>
+                    </button>
+                  {%- endif -%}
+                  {%- assign _hs_i = _hs_i | plus: 1 -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[hotspot_1]</p>', _hs_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[hotspot_1]</p>', '' -%}
+        {%- endif -%}
+
         {{ _content }}
       </div>
 
@@ -705,6 +740,111 @@
       row-gap: 1px;
     }
     .art-product-block__card { padding: 24px 20px; }
+  }
+
+  /* ── Hotspot image embed ── */
+  .art-hotspot {
+    margin: 2em 0;
+    width: 100%;
+  }
+  .art-hotspot__img-wrap {
+    position: relative;
+    display: block;
+    line-height: 0;
+  }
+  .art-hotspot__img {
+    width: 100%;
+    display: block;
+  }
+  .art-hotspot__dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid rgba(255,255,255,0.9);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    cursor: pointer;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s ease;
+    padding: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .art-hotspot__dot:hover { transform: translate(-50%, -50%) scale(1.3); }
+  .art-hotspot__pulse {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.7);
+    animation: art-hs-pulse 2s cubic-bezier(0.4,0,0.2,1) infinite;
+    pointer-events: none;
+  }
+  @keyframes art-hs-pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  .art-hotspot__tooltip {
+    position: absolute;
+    z-index: 3;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    padding: 10px 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -100%) translateY(-14px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .art-hotspot__tooltip--visible {
+    opacity: 1;
+    transform: translate(-50%, -100%) translateY(-18px);
+  }
+  .art-hotspot__tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #fff;
+  }
+  /* Tooltip below dot (when near top) */
+  .art-hotspot__tooltip--below {
+    transform: translate(-50%, 0%) translateY(14px);
+  }
+  .art-hotspot__tooltip--below.art-hotspot__tooltip--visible {
+    transform: translate(-50%, 0%) translateY(18px);
+  }
+  .art-hotspot__tooltip--below::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: #fff;
+  }
+  /* Dot entrance animation */
+  .art-hotspot__dot {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  .art-hotspot__dot.art-hs--in {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    transition: opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-hotspot__dot.art-hs--in:hover {
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+  @media screen and (max-width: 768px) {
+    .art-hotspot__dot { width: 18px; height: 18px; }
+    .art-hotspot__tooltip { font-size: 10px; padding: 8px 12px; }
   }
 
   /* Image column */
@@ -1396,6 +1536,70 @@
         pbIo.observe(card);
       });
     }
+
+    /* ---- Hotspot image ---- */
+    document.querySelectorAll('.art-hotspot').forEach(function(hotspot) {
+      var wrap = hotspot.querySelector('.art-hotspot__img-wrap');
+      if (!wrap) return;
+      var dots = wrap.querySelectorAll('.art-hotspot__dot');
+      var isMobile = !window.matchMedia('(hover: hover)').matches;
+      var activeTooltip = null;
+
+      function showTooltip(dot) {
+        hideTooltip();
+        var label = dot.getAttribute('data-hs-label');
+        if (!label) return;
+        var tip = document.createElement('div');
+        tip.className = 'art-hotspot__tooltip';
+        tip.textContent = label;
+        tip.style.left = dot.style.left;
+        tip.style.top = dot.style.top;
+        /* Position below if dot is near top */
+        var yPct = parseFloat(dot.style.top);
+        if (yPct < 25) tip.classList.add('art-hotspot__tooltip--below');
+        wrap.appendChild(tip);
+        activeTooltip = tip;
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            tip.classList.add('art-hotspot__tooltip--visible');
+          });
+        });
+      }
+
+      function hideTooltip() {
+        if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
+      }
+
+      dots.forEach(function(dot) {
+        if (isMobile) {
+          dot.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (activeTooltip && activeTooltip._dot === dot) { hideTooltip(); return; }
+            showTooltip(dot);
+            if (activeTooltip) activeTooltip._dot = dot;
+          });
+        } else {
+          dot.addEventListener('mouseenter', function() { showTooltip(dot); });
+          dot.addEventListener('mouseleave', function() { hideTooltip(); });
+        }
+      });
+
+      if (isMobile) {
+        document.addEventListener('click', function() { hideTooltip(); });
+      }
+
+      /* Scroll-in: staggered dot appearance */
+      var hsIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (!e.isIntersecting) return;
+          hsIo.disconnect();
+          dots.forEach(function(dot, i) {
+            setTimeout(function() { dot.classList.add('art-hs--in'); }, 300 + i * 150);
+          });
+        });
+      }, { threshold: 0.3 });
+      hsIo.observe(wrap);
+    });
   })();
 
   (function() {
@@ -1579,6 +1783,7 @@
       bodyEl.querySelectorAll('img').forEach(function(img) {
         if (img.closest('.Article__ParallaxWrap')) return;
         if (img.closest('.art-product-card')) return;
+        if (img.closest('.art-hotspot')) return;
         var wrap = document.createElement('div');
         wrap.className = 'Article__ParallaxWrap';
         img.parentNode.insertBefore(wrap, img);
