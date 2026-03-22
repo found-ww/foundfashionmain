@@ -393,13 +393,15 @@
   }
   .art-body-right > h3:first-child { margin-top: 0 !important; }
 
-  /* Image caption — floated into right margin */
+  /* Image caption — floated into right margin, sticky */
   .art-body-caption-wrap {
     float: right;
     width: clamp(120px, 10vw, 180px);
     margin-right: calc(-1 * clamp(120px, 10vw, 180px) - 48px);
     margin-top: 0;
     text-align: left;
+    position: sticky;
+    top: 80px;
   }
   .art-body-caption {
     font-size: 11px;
@@ -475,7 +477,8 @@
     max-width: none;
   }
 
-  /* Pull quotes / large text stay within body column */
+  /* Pull quotes / large text within body column */
+  .art-body-right .epq,
   .Article__Body > .epq {
     max-width: 100%;
   }
@@ -531,6 +534,7 @@
       margin-right: 0;
       text-align: left;
       margin-bottom: 8px;
+      position: static;
     }
   }
 
@@ -974,9 +978,9 @@
 
     function flush() { if (cur) { sections.push(cur); cur = null; } }
 
-    function isEmbed(n) {
+    function isFullWidthEmbed(n) {
       if (n.nodeType !== 1) return false;
-      return n.classList.contains('tl-h-outer') || n.classList.contains('epq');
+      return n.classList.contains('tl-h-outer');
     }
 
     function isImgNode(n) {
@@ -1005,7 +1009,7 @@
           return;
         }
         if (tag === 'hr') { return; /* skip dividers */ }
-        if (isEmbed(n)) {
+        if (isFullWidthEmbed(n)) {
           flush();
           sections.push({ type: 'embed', el: n });
           return;
