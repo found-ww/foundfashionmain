@@ -172,10 +172,11 @@
   if (pairCount < 2) return;
 
   var currentPair = 0;
-  var locked = false;
+  var frozen = false;
+  var swapping = false;
   var scrollAccum = 0;
-  var SCROLL_THRESHOLD = 300; /* px of wheel delta to trigger swap */
-  var COOLDOWN = 500; /* ms after swap before releasing lock */
+  var SCROLL_THRESHOLD = 300;
+  var SWAP_DURATION = 600;
 
   function showPair(index) {
     if (index === currentPair || index < 0 || index >= pairCount) return false;
@@ -187,64 +188,107 @@
     return true;
   }
 
-  var hijacked = false;
-
-  function shouldHijack() {
-    var rect = section.getBoundingClientRect();
-    var vh = window.innerHeight;
-    /* Section top is above 50% of viewport AND section bottom is below 40% */
-    var topAboveMid = rect.top < vh * 0.50;
-    var bottomBelowMid = rect.bottom > vh * 0.40;
-    return topAboveMid && bottomBelowMid;
+  function freeze() {
+    if (frozen) return;
+    frozen = true;
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
   }
 
-  function onWheel(e) {
-    if (!shouldHijack()) {
-      hijacked = false;
-      scrollAccum = 0;
-      return;
+  function unfreeze() {
+    if (!frozen) return;
+    frozen = false;
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
+
+  function sectionInView() {
+    var rect = section.getBoundingClientRect();
+    var vh = window.innerHeight;
+    /* Section top is in the upper half, and bottom is below 40% */
+    return rect.top < vh * 0.50 && rect.bottom > vh * 0.40;
+  }
+
+  /* Use IntersectionObserver + scroll to detect when to freeze */
+  function checkFreeze() {
+    if (swapping) return;
+
+    if (sectionInView()) {
+      /* Only freeze if we have somewhere to go (not at last pair going down) */
+      if (!frozen && currentPair < pairCount - 1) {
+        freeze();
+      }
+      /* If scrolling back up and we're past pair 0, re-freeze */
+      if (!frozen && currentPair > 0) {
+        freeze();
+      }
     }
+  }
+
+  window.addEventListener('scroll', checkFreeze, { passive: true });
+
+  window.addEventListener('wheel', function(e) {
+    if (!frozen) return;
+
+    e.preventDefault();
+
+    if (swapping) return;
 
     var scrollingDown = e.deltaY > 0;
     var scrollingUp = e.deltaY < 0;
 
-    /* At boundaries, release — let page scroll naturally */
-    if (scrollingUp && currentPair === 0) {
-      hijacked = false;
-      scrollAccum = 0;
-      return;
-    }
+    /* At boundaries, unfreeze and let page continue */
     if (scrollingDown && currentPair === pairCount - 1) {
-      hijacked = false;
       scrollAccum = 0;
+      unfreeze();
       return;
     }
-
-    /* Hijack the scroll */
-    e.preventDefault();
-    hijacked = true;
-
-    /* During cooldown, block scroll but don't accumulate */
-    if (locked) return;
+    if (scrollingUp && currentPair === 0) {
+      scrollAccum = 0;
+      unfreeze();
+      return;
+    }
 
     scrollAccum += e.deltaY;
 
     if (Math.abs(scrollAccum) >= SCROLL_THRESHOLD) {
       var next = scrollingDown ? currentPair + 1 : currentPair - 1;
-      var swapped = showPair(next);
+      swapping = true;
+      showPair(next);
       scrollAccum = 0;
 
-      if (swapped) {
-        locked = true;
-        setTimeout(function() {
-          locked = false;
-          scrollAccum = 0;
-        }, COOLDOWN);
-      }
+      setTimeout(function() {
+        swapping = false;
+      }, SWAP_DURATION);
     }
-  }
+  }, { passive: false });
 
-  window.addEventListener('wheel', onWheel, { passive: false });
+  /* Also handle touch for mobile */
+  var touchStartY = 0;
+  section.addEventListener('touchstart', function(e) {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  section.addEventListener('touchmove', function(e) {
+    if (!frozen) return;
+    e.preventDefault();
+    if (swapping) return;
+
+    var dy = touchStartY - e.touches[0].clientY;
+    var scrollingDown = dy > 0;
+    var scrollingUp = dy < 0;
+
+    if (scrollingDown && currentPair === pairCount - 1) { unfreeze(); return; }
+    if (scrollingUp && currentPair === 0) { unfreeze(); return; }
+
+    if (Math.abs(dy) > 60) {
+      var next = scrollingDown ? currentPair + 1 : currentPair - 1;
+      swapping = true;
+      showPair(next);
+      touchStartY = e.touches[0].clientY;
+      setTimeout(function() { swapping = false; }, SWAP_DURATION);
+    }
+  }, { passive: false });
 })();
 </script>
 
