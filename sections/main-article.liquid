@@ -228,8 +228,8 @@
           {%- assign _p_marker = '[product_' | append: _pi | append: ']' -%}
           {%- assign _p_marker_tag = '<p>' | append: _p_marker | append: '</p>' -%}
           {%- if _p_val != blank -%}
-            {%- assign _p_lines = _p_val | split: '
-' -%}
+            {%- assign _p_clean = _p_val | strip_html | strip -%}
+            {%- assign _p_lines = _p_clean | newline_to_br | split: '<br />' -%}
             {%- assign _p_img = _p_lines[0] | strip -%}
             {%- assign _p_caption = _p_lines[1] | strip -%}
             {%- assign _p_sub = _p_lines[2] | strip -%}
