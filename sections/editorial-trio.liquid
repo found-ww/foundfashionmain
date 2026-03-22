@@ -174,9 +174,11 @@
   var currentPair = 0;
   var frozen = false;
   var swapping = false;
+  var canFreeze = true;
   var scrollAccum = 0;
-  var SCROLL_THRESHOLD = 300;
-  var SWAP_DURATION = 600;
+  var SCROLL_THRESHOLD = 200;
+  var SWAP_DURATION = 500;
+  var REFREEZE_DELAY = 800; /* ms before section can re-freeze after unfreeze */
 
   function showPair(index) {
     if (index === currentPair || index < 0 || index >= pairCount) return false;
@@ -188,21 +190,10 @@
     return true;
   }
 
-  /* Target scroll position: section centered in viewport */
-  function getSnapScrollY() {
-    var rect = section.getBoundingClientRect();
-    var vh = window.innerHeight;
-    /* Scroll so section center aligns with viewport center */
-    var sectionCenterFromTop = window.scrollY + rect.top + rect.height / 2;
-    return sectionCenterFromTop - vh / 2;
-  }
-
   function freeze() {
-    if (frozen) return;
+    if (frozen || !canFreeze) return;
     frozen = true;
-    /* Snap scroll position so section is centered, THEN lock */
-    var targetY = getSnapScrollY();
-    window.scrollTo(0, targetY);
+    /* No scroll snap — just freeze in place */
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
   }
@@ -210,26 +201,29 @@
   function unfreeze() {
     if (!frozen) return;
     frozen = false;
+    scrollAccum = 0;
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
-    /* Reset observer so it can re-trigger on next scroll into view */
+    /* Prevent immediate re-freeze from trackpad momentum */
+    canFreeze = false;
     observer.unobserve(section);
-    setTimeout(function() { observer.observe(section); }, 100);
+    setTimeout(function() {
+      canFreeze = true;
+      observer.observe(section);
+    }, REFREEZE_DELAY);
   }
 
-  /* Use IntersectionObserver to catch the section reliably */
+  /* Use IntersectionObserver to catch the section */
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
-      if (entry.isIntersecting && !frozen && !swapping) {
-        /* Only freeze if we have pairs to swap through */
+      if (entry.isIntersecting && !frozen && canFreeze) {
         if (currentPair < pairCount - 1 || currentPair > 0) {
           freeze();
         }
       }
     });
   }, {
-    /* Trigger when 50% of the section is visible */
-    threshold: 0.5
+    threshold: 0.6
   });
 
   observer.observe(section);
@@ -238,7 +232,6 @@
     if (!frozen) return;
 
     e.preventDefault();
-
     if (swapping) return;
 
     var scrollingDown = e.deltaY > 0;
@@ -246,12 +239,10 @@
 
     /* At boundaries, unfreeze and let page continue */
     if (scrollingDown && currentPair === pairCount - 1) {
-      scrollAccum = 0;
       unfreeze();
       return;
     }
     if (scrollingUp && currentPair === 0) {
-      scrollAccum = 0;
       unfreeze();
       return;
     }
@@ -263,14 +254,11 @@
       swapping = true;
       showPair(next);
       scrollAccum = 0;
-
-      setTimeout(function() {
-        swapping = false;
-      }, SWAP_DURATION);
+      setTimeout(function() { swapping = false; }, SWAP_DURATION);
     }
   }, { passive: false });
 
-  /* Also handle touch for mobile */
+  /* Touch support for mobile */
   var touchStartY = 0;
   section.addEventListener('touchstart', function(e) {
     touchStartY = e.touches[0].clientY;
