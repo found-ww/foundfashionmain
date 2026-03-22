@@ -263,6 +263,35 @@
           {%- assign _content = _content | replace: '<p>[card_block_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- assign _cb2_val = article.metafields.custom.card_block_2.value -%}
+        {%- if _cb2_val != blank -%}
+          {%- assign _cb2_clean = _cb2_val | strip_html | strip -%}
+          {%- assign _cb2_lines = _cb2_clean | newline_to_br | split: '<br />' -%}
+          {%- capture _cb2_html -%}
+            <div class="art-card-block">
+              {%- assign _cb2_i = 0 -%}
+              {%- for _line in _cb2_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _cb2_mod = _cb2_i | modulo: 2 -%}
+                {%- if _cb2_mod == 0 -%}
+                  <div class="art-card-block__card">
+                    <p class="art-card-block__title">{{ _line_stripped }}</p>
+                {%- else -%}
+                    <p class="art-card-block__body">{{ _line_stripped }}</p>
+                  </div>
+                {%- endif -%}
+                {%- assign _cb2_i = _cb2_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- assign _cb2_mod_end = _cb2_i | modulo: 2 -%}
+              {%- if _cb2_mod_end == 1 -%}</div>{%- endif -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[card_block_2]</p>', _cb2_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[card_block_2]</p>', '' -%}
+        {%- endif -%}
+
         {{ _content }}
       </div>
 
@@ -502,6 +531,7 @@
     background: #e5e0da;
     margin: 2em 0;
     width: 100%;
+    border: 1px solid #e5e0da;
   }
   .art-card-block__card {
     background: #fff;
@@ -608,8 +638,9 @@
       margin-left: 0;
       position: static;
       text-align: left;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
+    .art-body-section-h { font-size: 17px !important; }
     .art-body-section-img {
       display: flex;
       flex-direction: column;
@@ -626,6 +657,8 @@
     }
     .art-body-caption { color: rgba(0,0,0,0.38); }
     .art-body-img-col { order: 1; }
+    .epq__text { font-size: 20px !important; }
+    .art-card-block__card { padding: 24px 20px; }
   }
 
   /* ---- New badge ---- */
@@ -842,7 +875,7 @@
     display: block;
   }
   @media screen and (max-width: 640px) {
-    .par-hero { height: 35vh; min-height: 220px; margin-top: 25px; margin-bottom: 1.5rem; }
+    .par-hero { height: 45vh; min-height: 280px; margin-top: 25px; margin-bottom: 1.5rem; }
     .par-fg { padding: 0 24px 40px; }
     .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; line-height: 1.22; }
     .par-sub { padding-right: 3.5rem; }
