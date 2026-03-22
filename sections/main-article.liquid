@@ -292,6 +292,60 @@
           {%- assign _content = _content | replace: '<p>[card_block_2]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%} ── Product block embed ── {%- endcomment -%}
+        {%- assign _pb_val = article.metafields.custom.product_block_1.value -%}
+        {%- if _pb_val != blank -%}
+          {%- assign _pb_clean = _pb_val | strip_html | strip -%}
+          {%- assign _pb_lines = _pb_clean | newline_to_br | split: '<br />' -%}
+          {%- capture _pb_html -%}
+            <div class="art-product-block">
+              {%- assign _pb_i = 0 -%}
+              {%- assign _pb_card_i = 0 -%}
+              {%- for _line in _pb_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _pb_field = _pb_i | modulo: 6 -%}
+                {%- if _pb_field == 0 -%}
+                  <div class="art-product-block__card">
+                    <p class="art-product-block__title">{{ _line_stripped }}</p>
+                    <div class="art-product-block__grid">
+                {%- elsif _pb_field == 1 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Year</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                {%- elsif _pb_field == 2 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Leather</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                {%- elsif _pb_field == 3 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Construction</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                {%- elsif _pb_field == 4 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Features</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                    </div>
+                {%- elsif _pb_field == 5 -%}
+                    <div class="art-product-block__footer">
+                      <span class="art-product-block__label">Best for</span>
+                      <span class="art-product-block__value">{{ _line_stripped }}</span>
+                    </div>
+                  </div>
+                {%- endif -%}
+                {%- assign _pb_i = _pb_i | plus: 1 -%}
+              {%- endfor -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[product_block_1]</p>', _pb_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[product_block_1]</p>', '' -%}
+        {%- endif -%}
+
         {{ _content }}
       </div>
 
@@ -574,6 +628,83 @@
       row-gap: 1px;
     }
     .art-card-block__card { padding: 36px 24px; }
+  }
+
+  /* ── Product block embed ── */
+  .art-product-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    column-gap: 1px;
+    background: #e5e0da;
+    margin: 2em 0;
+    width: 100%;
+    border: 1px solid #e5e0da;
+  }
+  .art-product-block__card {
+    background: #fff;
+    padding: 40px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-product-block__card.art-pb--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .art-product-block__title {
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #0f0f0f;
+    line-height: 1.4;
+    margin: 0 0 24px !important;
+  }
+  .art-product-block__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .art-product-block__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .art-product-block__label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(0,0,0,0.38);
+    display: block;
+  }
+  .art-product-block__value {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #1a1a1a;
+    display: block;
+  }
+  .art-product-block__footer {
+    border-top: 0.5px solid #e5e0da;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .art-product-block__footer .art-product-block__value {
+    font-style: italic;
+    color: #6b6259;
+    line-height: 1.6;
+  }
+  @media screen and (max-width: 767px) {
+    .art-product-block {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      row-gap: 1px;
+    }
+    .art-product-block__card { padding: 24px 20px; }
   }
 
   /* Image column */
@@ -1249,6 +1380,20 @@
       cbCards.forEach(function(card, i) {
         card.style.transitionDelay = (0.1 * i) + 's';
         cbIo.observe(card);
+      });
+    }
+
+    /* ---- Product block scroll-in ---- */
+    var pbCards = document.querySelectorAll('.art-product-block__card');
+    if (pbCards.length) {
+      var pbIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('art-pb--in'); pbIo.unobserve(e.target); }
+        });
+      }, { threshold: 0.2 });
+      pbCards.forEach(function(card, i) {
+        card.style.transitionDelay = (0.1 * i) + 's';
+        pbIo.observe(card);
       });
     }
   })();
