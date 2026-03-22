@@ -3,50 +3,66 @@
 {%- assign pair_count = total_blocks | divided_by: 2 -%}
 
 <style>
-  .editorial-pin-{{ sid }} {
+  /*
+   * Apple-style scroll-progress approach:
+   * - Outer section is very tall (100vh per pair) to create scroll runway
+   * - Inner content is position:sticky so it stays pinned
+   * - JS watches scroll progress through the section to swap pairs
+   * - No scroll hijacking, no overflow:hidden, no preventDefault
+   */
+  .editorial-scroll-{{ sid }} {
     position: relative;
+    /* Each pair gets 100vh of scroll runway */
+    height: {{ pair_count | times: 100 }}vh;
     margin: 20px 0 0;
   }
 
-  .editorial-pin__viewport {
+  .editorial-scroll__sticky {
+    position: sticky;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    z-index: 1;
+  }
+
+  .editorial-scroll__viewport {
     width: 100%;
     margin: 0 auto;
     padding: 0 24px;
-    position: relative;
     max-width: 1600px;
   }
 
-  .editorial-pin__pairs-wrap {
+  .editorial-scroll__pairs-wrap {
     position: relative;
   }
 
-  .editorial-pin__pair {
+  .editorial-scroll__pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     width: 100%;
     opacity: 0;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.5s ease;
     pointer-events: none;
     position: absolute;
     top: 0;
     left: 0;
   }
 
-  .editorial-pin__pair.is-active {
+  .editorial-scroll__pair.is-active {
     opacity: 1;
     pointer-events: auto;
     position: relative;
   }
 
-  .editorial-pin__item {
+  .editorial-scroll__item {
     position: relative;
     overflow: hidden;
     display: block;
     text-decoration: none;
   }
 
-  .editorial-pin__item img {
+  .editorial-scroll__item img {
     width: 100%;
     height: auto;
     display: block;
@@ -56,11 +72,11 @@
     transition: transform 0.6s ease;
   }
 
-  .editorial-pin__item:hover img {
+  .editorial-scroll__item:hover img {
     transform: scale(1.03);
   }
 
-  .editorial-pin__btn {
+  .editorial-scroll__btn {
     position: absolute;
     bottom: 28px;
     left: 50%;
@@ -78,14 +94,14 @@
     white-space: nowrap;
   }
 
-  .editorial-pin__dots {
+  .editorial-scroll__dots {
     display: flex;
     justify-content: center;
     gap: 8px;
     padding: 20px 0 0;
   }
 
-  .editorial-pin__dot {
+  .editorial-scroll__dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -96,21 +112,21 @@
     cursor: pointer;
   }
 
-  .editorial-pin__dot.is-active {
+  .editorial-scroll__dot.is-active {
     background: #1c1b1b;
   }
 
   @media screen and (max-width: 640px) {
-    .editorial-pin__pair {
+    .editorial-scroll__pair {
       gap: 8px;
     }
 
-    .editorial-pin__item img {
+    .editorial-scroll__item img {
       aspect-ratio: 1 / 1;
       max-height: 300px;
     }
 
-    .editorial-pin__btn {
+    .editorial-scroll__btn {
       bottom: 16px;
       padding: 8px 16px;
       font-size: 10px;
@@ -118,172 +134,118 @@
   }
 </style>
 
-<section id="editorial-pin-{{ sid }}" class="editorial-pin-{{ sid }}">
-  <div class="editorial-pin__viewport">
-    <div class="editorial-pin__pairs-wrap">
-    {%- for block in section.blocks -%}
-      {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
-      {%- assign within_pair = forloop.index0 | modulo: 2 -%}
+<section id="editorial-scroll-{{ sid }}" class="editorial-scroll-{{ sid }}">
+  <div class="editorial-scroll__sticky">
+    <div class="editorial-scroll__viewport">
+      <div class="editorial-scroll__pairs-wrap">
+      {%- for block in section.blocks -%}
+        {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
+        {%- assign within_pair = forloop.index0 | modulo: 2 -%}
 
-      {%- if within_pair == 0 -%}
-        <div class="editorial-pin__pair{% if pair_index == 0 %} is-active{% endif %}" data-pair-index="{{ pair_index }}">
-      {%- endif -%}
-
-      <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-pin__item" {{ block.shopify_attributes }}>
-        {%- if block.settings.image != blank -%}
-          <img
-            src="{{ block.settings.image | img_url: '900x' }}"
-            srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '900x' }} 900w"
-            sizes="(max-width: 640px) 50vw, 45vw"
-            alt="{{ block.settings.image.alt | escape }}"
-            loading="lazy">
-        {%- else -%}
-          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- if within_pair == 0 -%}
+          <div class="editorial-scroll__pair{% if pair_index == 0 %} is-active{% endif %}" data-pair-index="{{ pair_index }}">
         {%- endif -%}
-        {%- if block.settings.button_text != blank -%}
-          <span class="editorial-pin__btn">{{ block.settings.button_text | escape }}</span>
-        {%- endif -%}
-      </a>
 
-      {%- if within_pair == 1 or forloop.last -%}
+        <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-scroll__item" {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            <img
+              src="{{ block.settings.image | img_url: '900x' }}"
+              srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '900x' }} 900w"
+              sizes="(max-width: 640px) 50vw, 45vw"
+              alt="{{ block.settings.image.alt | escape }}"
+              loading="lazy">
+          {%- else -%}
+            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+          {%- if block.settings.button_text != blank -%}
+            <span class="editorial-scroll__btn">{{ block.settings.button_text | escape }}</span>
+          {%- endif -%}
+        </a>
+
+        {%- if within_pair == 1 or forloop.last -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+      </div>
+
+      {%- if pair_count > 1 -%}
+        <div class="editorial-scroll__dots">
+          {%- for i in (1..pair_count) -%}
+            <button class="editorial-scroll__dot{% if forloop.first %} is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="View pair {{ forloop.index }}"></button>
+          {%- endfor -%}
         </div>
       {%- endif -%}
-    {%- endfor -%}
     </div>
-
-    {%- if pair_count > 1 -%}
-      <div class="editorial-pin__dots">
-        {%- for i in (1..pair_count) -%}
-          <button class="editorial-pin__dot{% if forloop.first %} is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="View pair {{ forloop.index }}"></button>
-        {%- endfor -%}
-      </div>
-    {%- endif -%}
   </div>
 </section>
 
 <script>
 (function() {
-  var section = document.getElementById('editorial-pin-{{ sid }}');
+  var section = document.getElementById('editorial-scroll-{{ sid }}');
   if (!section) return;
 
-  var pairs = section.querySelectorAll('.editorial-pin__pair');
-  var dots = section.querySelectorAll('.editorial-pin__dot');
+  var pairs = section.querySelectorAll('.editorial-scroll__pair');
+  var dots = section.querySelectorAll('.editorial-scroll__dot');
   var pairCount = pairs.length;
   if (pairCount < 2) return;
 
   var currentPair = 0;
-  var frozen = false;
-  var swapping = false;
-  var canFreeze = true;
-  var scrollAccum = 0;
-  var SCROLL_THRESHOLD = 200;
-  var SWAP_DURATION = 500;
-  var REFREEZE_DELAY = 800; /* ms before section can re-freeze after unfreeze */
 
   function showPair(index) {
-    if (index === currentPair || index < 0 || index >= pairCount) return false;
+    if (index === currentPair || index < 0 || index >= pairCount) return;
     pairs[currentPair].classList.remove('is-active');
     if (dots[currentPair]) dots[currentPair].classList.remove('is-active');
     currentPair = index;
     pairs[currentPair].classList.add('is-active');
     if (dots[currentPair]) dots[currentPair].classList.add('is-active');
-    return true;
   }
 
-  function freeze() {
-    if (frozen || !canFreeze) return;
-    frozen = true;
-    /* No scroll snap — just freeze in place */
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
+  /* Watch scroll progress through the tall section */
+  function onScroll() {
+    var rect = section.getBoundingClientRect();
+    var sectionHeight = section.offsetHeight;
+    var scrolled = -rect.top; /* how far we've scrolled into the section */
+    var progress = scrolled / (sectionHeight - window.innerHeight);
+
+    /* Clamp 0-1 */
+    progress = Math.max(0, Math.min(1, progress));
+
+    /* Map progress to pair index */
+    var targetPair = Math.floor(progress * pairCount);
+    /* Clamp to valid range */
+    targetPair = Math.max(0, Math.min(pairCount - 1, targetPair));
+
+    if (targetPair !== currentPair) {
+      showPair(targetPair);
+    }
   }
 
-  function unfreeze() {
-    if (!frozen) return;
-    frozen = false;
-    scrollAccum = 0;
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-    /* Prevent immediate re-freeze from trackpad momentum */
-    canFreeze = false;
-    observer.unobserve(section);
-    setTimeout(function() {
-      canFreeze = true;
-      observer.observe(section);
-    }, REFREEZE_DELAY);
-  }
-
-  /* Use IntersectionObserver to catch the section */
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting && !frozen && canFreeze) {
-        if (currentPair < pairCount - 1 || currentPair > 0) {
-          freeze();
-        }
-      }
-    });
-  }, {
-    threshold: 0.6
-  });
-
-  observer.observe(section);
-
-  window.addEventListener('wheel', function(e) {
-    if (!frozen) return;
-
-    e.preventDefault();
-    if (swapping) return;
-
-    var scrollingDown = e.deltaY > 0;
-    var scrollingUp = e.deltaY < 0;
-
-    /* At boundaries, unfreeze and let page continue */
-    if (scrollingDown && currentPair === pairCount - 1) {
-      unfreeze();
-      return;
+  /* Use requestAnimationFrame for smooth updates */
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        onScroll();
+        ticking = false;
+      });
+      ticking = true;
     }
-    if (scrollingUp && currentPair === 0) {
-      unfreeze();
-      return;
-    }
-
-    scrollAccum += e.deltaY;
-
-    if (Math.abs(scrollAccum) >= SCROLL_THRESHOLD) {
-      var next = scrollingDown ? currentPair + 1 : currentPair - 1;
-      swapping = true;
-      showPair(next);
-      scrollAccum = 0;
-      setTimeout(function() { swapping = false; }, SWAP_DURATION);
-    }
-  }, { passive: false });
-
-  /* Touch support for mobile */
-  var touchStartY = 0;
-  section.addEventListener('touchstart', function(e) {
-    touchStartY = e.touches[0].clientY;
   }, { passive: true });
 
-  section.addEventListener('touchmove', function(e) {
-    if (!frozen) return;
-    e.preventDefault();
-    if (swapping) return;
-
-    var dy = touchStartY - e.touches[0].clientY;
-    var scrollingDown = dy > 0;
-    var scrollingUp = dy < 0;
-
-    if (scrollingDown && currentPair === pairCount - 1) { unfreeze(); return; }
-    if (scrollingUp && currentPair === 0) { unfreeze(); return; }
-
-    if (Math.abs(dy) > 60) {
-      var next = scrollingDown ? currentPair + 1 : currentPair - 1;
-      swapping = true;
-      showPair(next);
-      touchStartY = e.touches[0].clientY;
-      setTimeout(function() { swapping = false; }, SWAP_DURATION);
-    }
-  }, { passive: false });
+  /* Also allow dot clicks */
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      var index = parseInt(dot.getAttribute('data-dot-index'), 10);
+      if (index >= 0 && index < pairCount) {
+        /* Scroll to the right position for this pair */
+        var sectionTop = section.offsetTop;
+        var sectionHeight = section.offsetHeight;
+        var scrollRange = sectionHeight - window.innerHeight;
+        var targetScroll = sectionTop + (index / pairCount) * scrollRange;
+        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      }
+    });
+  });
 })();
 </script>
 
