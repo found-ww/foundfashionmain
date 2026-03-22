@@ -2,7 +2,8 @@
   Custom simplified header for Found Fashion homepage redesign.
   - Left: hamburger menu
   - Center: FOUND FASHION text
-  - Right: configurable right links + CART
+  - Right: SHOP BAGS, MAGAZINE, CART
+  - Hover reveals full nav bar below
   - Transparent on homepage, solid on other pages
   - Compatible with existing theme.js HeaderSection class
 {%- endcomment -%}
@@ -11,6 +12,8 @@
 {%- if template == 'index' and section.settings.enable_transparent_header -%}
   {%- assign use_transparent_header = true -%}
 {%- endif -%}
+
+{%- assign main_menu = linklists[section.settings.navigation_menu | default: 'main-menu'] -%}
 
 {%- comment -%}Search modal — must be directly before <header> for CSS to work{%- endcomment -%}
 <div id="Search" class="Search" aria-hidden="true">
@@ -51,7 +54,9 @@
         data-section-type="header"
         data-section-settings='{{ section_settings }}'
         role="banner">
-  <div class="Header__Wrapper">
+
+  {%- comment -%}Main header bar{%- endcomment -%}
+  <div class="Header__Wrapper ff-header__bar">
     {%- comment -%}Left: hamburger{%- endcomment -%}
     <div class="Header__FlexItem Header__FlexItem--fill ff-header__left">
       <button class="ff-header__hamburger" aria-expanded="false" data-action="open-drawer" data-drawer-id="sidebar-menu" aria-label="{{ 'header.navigation.open_sidebar' | t }}">
@@ -79,8 +84,8 @@
     {%- comment -%}Right: nav links + cart{%- endcomment -%}
     <div class="Header__FlexItem Header__FlexItem--fill ff-header__right">
       <nav class="ff-header__nav hidden-pocket hidden-lap">
-        <a href="/collections" class="ff-header__nav-link">SHOP BAGS</a>
-        <a href="/blogs/magazine" class="ff-header__nav-link">MAGAZINE</a>
+        <a href="/collections/bags" class="ff-header__nav-link">SHOP BAGS</a>
+        <a href="/blogs/found-magazine" class="ff-header__nav-link">MAGAZINE</a>
         <a href="{{ routes.cart_url }}" class="ff-header__nav-link" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>
           CART{% if cart.item_count > 0 %} ({{ cart.item_count }}){% endif %}
         </a>
@@ -92,6 +97,15 @@
         <span class="Header__CartDot {% if cart.item_count > 0 %}is-visible{% endif %}"></span>
       </a>
     </div>
+  </div>
+
+  {%- comment -%}Hover-reveal full navigation bar{%- endcomment -%}
+  <div class="ff-header__reveal hidden-pocket hidden-lap">
+    <nav class="ff-header__reveal-nav">
+      {%- for link in main_menu.links -%}
+        <a href="{{ link.url }}" class="ff-header__reveal-link">{{ link.title | escape }}</a>
+      {%- endfor -%}
+    </nav>
   </div>
 </header>
 
@@ -200,6 +214,54 @@
     opacity: 0.7;
   }
 
+  /* ====================================================
+     Hover-reveal navigation
+     ==================================================== */
+
+  .ff-header__reveal {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease;
+    opacity: 0;
+  }
+
+  /* Show on header hover (desktop only) */
+  .Header:hover .ff-header__reveal {
+    max-height: 60px;
+    opacity: 1;
+  }
+
+  .ff-header__reveal-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    padding: 12px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* When NOT transparent (solid header), use dark border */
+  .Header:not(.Header--transparent) .ff-header__reveal-nav {
+    border-top-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .ff-header__reveal-link {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: inherit;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+  }
+
+  .ff-header__reveal-link:hover {
+    opacity: 0.6;
+  }
+
   @media screen and (max-width: 640px) {
     .ff-header__logo-link {
       font-size: 14px;
@@ -234,15 +296,9 @@
     {
       "type": "link_list",
       "id": "navigation_menu",
-      "label": "Sidebar menu",
+      "label": "Menu",
       "default": "main-menu",
-      "info": "Full navigation menu shown in the sidebar drawer"
-    },
-    {
-      "type": "link_list",
-      "id": "header_right_menu",
-      "label": "Header right links",
-      "info": "Links shown on the right side of the header bar. Cart is added automatically."
+      "info": "Full navigation menu — shown in sidebar drawer and hover-reveal bar"
     },
     {
       "type": "header",
