@@ -222,38 +222,25 @@
         {%- endif -%}
 
         {%- comment -%} ── Product margin annotations ── {%- endcomment -%}
-        {%- assign _margin_products = article.metafields.custom.margin_products.value -%}
-        {%- if _margin_products != blank -%}
-          {%- for _mp in _margin_products -%}
-            {%- capture _mp_anchor -%}<span class="art-product-anchor" data-product-index="{{ forloop.index0 }}"></span>{%- endcapture -%}
-            {%- if forloop.first -%}
-              {%- assign _content = _content | replace_first: '<p>[product]</p>', _mp_anchor -%}
-            {%- else -%}
-              {%- assign _content = _content | replace_first: '<p>[product]</p>', _mp_anchor -%}
-            {%- endif -%}
-          {%- endfor -%}
-          {%- assign _content = _content | replace: '<p>[product]</p>', '' -%}
-        {%- else -%}
-          {%- assign _content = _content | replace: '<p>[product]</p>', '' -%}
-        {%- endif -%}
+        {%- for _pi in (1..4) -%}
+          {%- assign _p_key = 'product_' | append: _pi -%}
+          {%- assign _p_val = article.metafields.custom[_p_key].value -%}
+          {%- assign _p_marker = '[product_' | append: _pi | append: ']' -%}
+          {%- assign _p_marker_tag = '<p>' | append: _p_marker | append: '</p>' -%}
+          {%- if _p_val != blank -%}
+            {%- assign _p_lines = _p_val | split: '
+' -%}
+            {%- assign _p_img = _p_lines[0] | strip -%}
+            {%- assign _p_caption = _p_lines[1] | strip -%}
+            {%- assign _p_sub = _p_lines[2] | strip -%}
+            {%- capture _p_anchor -%}<span class="art-product-anchor" data-p-img="{{ _p_img | escape }}" data-p-caption="{{ _p_caption | escape }}" data-p-sub="{{ _p_sub | escape }}"></span>{%- endcapture -%}
+            {%- assign _content = _content | replace: _p_marker_tag, _p_anchor -%}
+          {%- else -%}
+            {%- assign _content = _content | replace: _p_marker_tag, '' -%}
+          {%- endif -%}
+        {%- endfor -%}
 
         {{ _content }}
-
-        {%- if _margin_products != blank -%}
-          <script type="application/json" id="art-margin-products">
-            [
-              {%- for _mp in _margin_products -%}
-                {
-                  "title": {{ _mp.title | json }},
-                  "url": {{ _mp.url | json }},
-                  "price": {{ _mp.price | money | json }},
-                  "image": {{ _mp.featured_image | img_url: '400x' | prepend: 'https:' | json }},
-                  "vendor": {{ _mp.vendor | json }}
-                }{%- unless forloop.last -%},{%- endunless -%}
-              {%- endfor -%}
-            ]
-          </script>
-        {%- endif -%}
       </div>
 
       {%- capture article_footer -%}
@@ -430,6 +417,7 @@
   }
 
   /* Product margin annotation cards */
+  /* Product margin annotation cards (timeline-style) */
   .art-product-anchor { display: block; position: relative; height: 0; overflow: visible; }
   .art-product-card {
     position: absolute;
@@ -439,38 +427,34 @@
     text-decoration: none;
     color: inherit;
     display: block;
+    border: 0.5px solid rgba(0,0,0,0.08);
   }
   .art-product-card__img {
     width: 100%;
     aspect-ratio: 3 / 4;
     object-fit: cover;
     display: block;
-    margin-bottom: 8px;
   }
-  .art-product-card__vendor {
-    font-size: 9px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #9a8f86;
-    margin: 0 0 2px;
+  .art-product-card__body {
+    padding: 10px 12px 12px;
   }
-  .art-product-card__title {
+  .art-product-card__caption {
     font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.04em;
-    color: #1c1c1c;
-    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #1a1a1a;
+    line-height: 1.4;
     margin: 0 0 4px;
   }
-  .art-product-card__price {
+  .art-product-card__sub {
     font-size: 11px;
     font-weight: 400;
-    color: #9a8f86;
-    letter-spacing: 0.04em;
+    color: rgba(0,0,0,0.38);
+    line-height: 1.4;
+    letter-spacing: 0.02em;
     margin: 0;
   }
-  .art-product-card:hover .art-product-card__title { color: #947b69; }
   @media screen and (max-width: 768px) {
     .art-product-anchor { display: none; }
   }
@@ -961,7 +945,7 @@
   /* ── Embed: Pull Quote / Large Text ── */
   .epq {
     margin: 0;
-    padding: 48px 0;
+    padding: 16px 0 48px;
   }
   .epq__text {
     font-family: inherit;
@@ -1129,26 +1113,22 @@
     });
 
     /* ---- Product margin annotations ---- */
-    var prodDataEl = document.getElementById('art-margin-products');
-    if (prodDataEl) {
-      try {
-        var products = JSON.parse(prodDataEl.textContent);
-        document.querySelectorAll('.art-product-anchor').forEach(function(anchor) {
-          var idx = parseInt(anchor.getAttribute('data-product-index'), 10);
-          var prod = products[idx];
-          if (!prod) return;
-          var card = document.createElement('a');
-          card.className = 'art-product-card';
-          card.href = prod.url;
-          card.innerHTML =
-            '<img class="art-product-card__img" src="' + prod.image + '" alt="' + prod.title.replace(/"/g, '&quot;') + '" loading="lazy">' +
-            '<p class="art-product-card__vendor">' + prod.vendor + '</p>' +
-            '<p class="art-product-card__title">' + prod.title + '</p>' +
-            '<p class="art-product-card__price">' + prod.price + '</p>';
-          anchor.appendChild(card);
-        });
-      } catch(e) {}
-    }
+    document.querySelectorAll('.art-product-anchor').forEach(function(anchor) {
+      var img = anchor.getAttribute('data-p-img');
+      var caption = anchor.getAttribute('data-p-caption');
+      var sub = anchor.getAttribute('data-p-sub');
+      if (!img && !caption) return;
+      var card = document.createElement('div');
+      card.className = 'art-product-card';
+      var html = '';
+      if (img) html += '<img class="art-product-card__img" src="' + img + '" alt="' + (caption || '').replace(/"/g, '&quot;') + '" loading="lazy">';
+      html += '<div class="art-product-card__body">';
+      if (caption) html += '<p class="art-product-card__caption">' + caption + '</p>';
+      if (sub) html += '<p class="art-product-card__sub">' + sub + '</p>';
+      html += '</div>';
+      card.innerHTML = html;
+      anchor.appendChild(card);
+    });
   })();
 
   (function() {
