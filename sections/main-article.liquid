@@ -434,11 +434,13 @@
     object-fit: cover;
     display: block;
     margin: 0 !important;
+    padding: 0 !important;
   }
-  .art-product-card__body {
-    padding: 0;
-    margin: 0;
-    line-height: 1;
+  .art-product-card__caption,
+  .art-product-card__sub {
+    display: block;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .art-product-card__caption {
     font-size: 11px;
@@ -447,7 +449,6 @@
     letter-spacing: 0.14em;
     color: #1a1a1a;
     line-height: 1.4;
-    margin: 0 0 2px;
   }
   .art-product-card__sub {
     font-size: 11px;
@@ -455,7 +456,6 @@
     color: rgba(0,0,0,0.38);
     line-height: 1.4;
     letter-spacing: 0.02em;
-    margin: 0;
   }
   @media screen and (max-width: 768px) {
     .art-product-anchor { display: none; }
@@ -1124,10 +1124,8 @@
       card.className = 'art-product-card';
       var html = '';
       if (img) html += '<img class="art-product-card__img" src="' + img + '" alt="' + (caption || '').replace(/"/g, '&quot;') + '" loading="lazy">';
-      html += '<div class="art-product-card__body">';
-      if (caption) html += '<p class="art-product-card__caption">' + caption + '</p>';
-      if (sub) html += '<p class="art-product-card__sub">' + sub + '</p>';
-      html += '</div>';
+      if (caption) html += '<span class="art-product-card__caption">' + caption + '</span>';
+      if (sub) html += '<span class="art-product-card__sub">' + sub + '</span>';
       card.innerHTML = html;
       anchor.appendChild(card);
     });
