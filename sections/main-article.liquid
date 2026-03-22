@@ -479,39 +479,6 @@
   .art-body-img-col { min-width: 0; }
   .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
 
-  /* Pull image into left margin (2nd/4th images) */
-  .art-body-section-img--left {
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: flex-start;
-    gap: 0;
-  }
-  .art-body-section-img--left .art-body-img-col {
-    float: left;
-    width: 180px;
-    margin-left: calc(-180px - 60px);
-  }
-  .art-body-section-img--left .art-body-img-col .Article__ParallaxWrap {
-    margin: 0;
-  }
-  .art-body-section-img--left .art-body-img-col img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .art-body-section-img--left .art-body-caption-wrap {
-    float: none;
-    width: auto;
-    margin-right: 0;
-    text-align: left;
-  }
-  @media screen and (max-width: 768px) {
-    .art-body-section-img--left .art-body-img-col {
-      float: none;
-      width: 100%;
-      margin-left: 0;
-    }
-  }
 
   /* Full-width embeds break out of centered column */
   .Article__Body > .epd,
@@ -1103,8 +1070,6 @@
     if (!sections.length) return;
 
     var frag = document.createDocumentFragment();
-    var imgIndex = 0;
-
     sections.forEach(function(sec, i) {
       if (sec.type === 'embed') {
         sec.el.classList.add('art-fade-in');
@@ -1112,10 +1077,8 @@
         return;
       }
       if (sec.type === 'img') {
-        imgIndex++;
-        var pullLeft = (imgIndex === 2 || imgIndex === 4);
         var row = document.createElement('div');
-        row.className = 'art-body-section-img art-fade-in' + (pullLeft ? ' art-body-section-img--left' : '');
+        row.className = 'art-body-section-img art-fade-in';
         if (sec.alt) {
           var capWrap = document.createElement('div');
           capWrap.className = 'art-body-caption-wrap';
