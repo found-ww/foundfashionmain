@@ -33,22 +33,19 @@
     position: absolute;
     inset: 0;
     background: {{ section.settings.overlay_color }};
-    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    opacity: {{ section.settings.inactive_opacity | default: 40 | divided_by: 100.0 }};
     transition: opacity 0.5s ease;
     z-index: 1;
     pointer-events: none;
   }
 
+  /* Hovered side lightens */
   .hero-split__cell:hover .hero-split__cell-overlay {
     opacity: {{ section.settings.hover_opacity | default: 0 | divided_by: 100.0 }};
   }
 
   .hero-split__cell:hover img {
     transform: scale(1.03);
-  }
-
-  .hero-split__grid-{{ sid }}:hover .hero-split__cell:not(:hover) .hero-split__cell-overlay {
-    opacity: {{ section.settings.inactive_opacity | default: 40 | divided_by: 100.0 }};
   }
 
   /* Heading container */
