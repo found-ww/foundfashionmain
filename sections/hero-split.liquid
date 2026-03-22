@@ -1,5 +1,9 @@
 {%- assign sid = section.id -%}
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500&display=swap" rel="stylesheet">
+
 <style>
   #hero-split-{{ sid }} {
     position: relative;
@@ -67,11 +71,12 @@
 
   .hero-split__heading {
     color: {{ section.settings.text_color }};
-    font-family: 'Times New Roman', Georgia, serif;
-    font-style: italic;
+    font-family: 'Figtree', sans-serif;
     font-weight: 400;
+    font-style: normal;
     font-size: clamp(28px, 4vw, 52px);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
     text-align: center;
     padding: 0 24px;
     margin: 0;
@@ -126,8 +131,10 @@
     transform: translateX(-50%);
     z-index: 3;
     color: {{ section.settings.text_color }};
-    font-size: 10px;
-    letter-spacing: 0.25em;
+    font-family: 'Figtree', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0;
     text-transform: uppercase;
     text-align: center;
     pointer-events: none;
