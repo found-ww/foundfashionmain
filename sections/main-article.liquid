@@ -233,6 +233,36 @@
           {%- endif -%}
         {%- endfor -%}
 
+        {%- comment -%} ── Card block embed ── {%- endcomment -%}
+        {%- assign _cb_val = article.metafields.custom.card_block.value -%}
+        {%- if _cb_val != blank -%}
+          {%- assign _cb_clean = _cb_val | strip_html | strip -%}
+          {%- assign _cb_lines = _cb_clean | newline_to_br | split: '<br />' -%}
+          {%- capture _cb_html -%}
+            <div class="art-card-block">
+              {%- assign _cb_i = 0 -%}
+              {%- for _line in _cb_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _cb_mod = _cb_i | modulo: 2 -%}
+                {%- if _cb_mod == 0 -%}
+                  <div class="art-card-block__card">
+                    <p class="art-card-block__title">{{ _line_stripped }}</p>
+                {%- else -%}
+                    <p class="art-card-block__body">{{ _line_stripped }}</p>
+                  </div>
+                {%- endif -%}
+                {%- assign _cb_i = _cb_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- assign _cb_mod_end = _cb_i | modulo: 2 -%}
+              {%- if _cb_mod_end == 1 -%}</div>{%- endif -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[card_block_1]</p>', _cb_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[card_block_1]</p>', '' -%}
+        {%- endif -%}
+
         {{ _content }}
       </div>
 
@@ -461,6 +491,56 @@
   }
   @media screen and (max-width: 768px) {
     .art-product-anchor { display: none; }
+  }
+
+  /* ── Card block embed ── */
+  .art-card-block {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 1px;
+    background: #e5e0da;
+    margin: 2em 0;
+    width: 100%;
+  }
+  .art-card-block__card {
+    background: #fff;
+    padding: 40px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-card-block__card.art-cb--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .art-card-block__card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.07);
+    z-index: 1;
+    position: relative;
+  }
+  .art-card-block__title {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    font-weight: 400;
+    margin: 0 0 14px !important;
+  }
+  .art-card-block__body {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: #6b6259;
+    margin: 0 !important;
+  }
+  @media screen and (max-width: 767px) {
+    .art-card-block {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      row-gap: 1px;
+    }
+    .art-card-block__card { padding: 36px 24px; }
   }
 
   /* Image column */
@@ -1104,6 +1184,20 @@
       card.innerHTML = html;
       anchor.appendChild(card);
     });
+
+    /* ---- Card block scroll-in ---- */
+    var cbCards = document.querySelectorAll('.art-card-block__card');
+    if (cbCards.length) {
+      var cbIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('art-cb--in'); cbIo.unobserve(e.target); }
+        });
+      }, { threshold: 0.2 });
+      cbCards.forEach(function(card, i) {
+        card.style.transitionDelay = (0.1 * i) + 's';
+        cbIo.observe(card);
+      });
+    }
   })();
 
   (function() {
