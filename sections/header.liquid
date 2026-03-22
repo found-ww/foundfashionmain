@@ -31,7 +31,7 @@
   {% endif %}
 
   /* ====================================================
-     FF Header — 100% custom, no theme dependencies
+     FF Header
      ==================================================== */
 
   .ff-header {
@@ -53,12 +53,7 @@
     padding: 18px 28px;
   }
 
-  /* Left */
-  .ff-header__left {
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
+  .ff-header__left { flex: 1; display: flex; align-items: center; }
 
   .ff-header__hamburger {
     background: none;
@@ -70,11 +65,7 @@
     align-items: center;
   }
 
-  /* Center */
-  .ff-header__center {
-    flex: 0 0 auto;
-    text-align: center;
-  }
+  .ff-header__center { flex: 0 0 auto; text-align: center; }
 
   .ff-header__logo {
     font-family: 'Figtree', sans-serif;
@@ -82,18 +73,11 @@
     font-size: 18px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    text-decoration: none;
-    color: inherit;
-    white-space: nowrap;
     margin: 0;
   }
 
-  .ff-header__logo a {
-    color: inherit;
-    text-decoration: none;
-  }
+  .ff-header__logo a { color: inherit; text-decoration: none; }
 
-  /* Right */
   .ff-header__right {
     flex: 1;
     display: flex;
@@ -114,9 +98,7 @@
     transition: opacity 0.2s ease;
   }
 
-  .ff-header__link:hover {
-    opacity: 0.7;
-  }
+  .ff-header__link:hover { opacity: 0.7; }
 
   /* ====================================================
      Hover-reveal navigation
@@ -124,10 +106,11 @@
 
   .ff-header__reveal {
     max-height: 0;
-    overflow: hidden;
+    overflow: visible;
     opacity: 0;
     transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
                 opacity 0.25s ease;
+    position: relative;
   }
 
   .ff-header:hover .ff-header__reveal {
@@ -143,6 +126,11 @@
     padding: 0 28px 14px;
   }
 
+  /* Each reveal link wrapper (for mega menu positioning) */
+  .ff-header__reveal-item {
+    position: relative;
+  }
+
   .ff-header__reveal-link {
     font-family: 'Figtree', sans-serif;
     font-weight: 400;
@@ -153,37 +141,184 @@
     color: inherit;
     white-space: nowrap;
     transition: opacity 0.2s ease;
+    display: block;
+    padding: 2px 0;
   }
 
-  .ff-header__reveal-link:hover {
-    opacity: 0.6;
+  .ff-header__reveal-link:hover { opacity: 0.6; }
+
+  /* ====================================================
+     Mega Menu Dropdown
+     ==================================================== */
+
+  .ff-mega {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 1200px;
+    background: #ffffff;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+    z-index: 200;
+    color: #1c1b1b;
+    pointer-events: none;
+  }
+
+  .ff-header__reveal-item:hover .ff-mega {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .ff-mega__inner {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  /* Left column: nav links */
+  .ff-mega__nav {
+    flex: 0 0 auto;
+    width: 190px;
+    padding: 28px 40px;
+  }
+
+  .ff-mega__nav-label {
+    display: block;
+    font-family: 'Figtree', sans-serif;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #7a7468;
+    margin-bottom: 20px;
+  }
+
+  .ff-mega__nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ff-mega__nav-item { margin-bottom: 14px; }
+  .ff-mega__nav-item:last-child { margin-bottom: 0; }
+
+  .ff-mega__nav-link {
+    font-family: 'Figtree', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #1a1814;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .ff-mega__nav-link:hover { color: #b8a07a; }
+
+  /* Right section: 4-card product strip */
+  .ff-mega__strip {
+    flex: 1;
+    display: flex;
+    min-width: 0;
+    border-left: 1px solid #e8e2d8;
+  }
+
+  .ff-mega__card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    background: #ffffff;
+    min-width: 0;
+    transition: background-color 0.2s ease;
+  }
+
+  .ff-mega__card + .ff-mega__card { border-left: 1px solid #e8e2d8; }
+  .ff-mega__card:hover { background: #faf8f5; }
+
+  .ff-mega__empty {
+    flex: 1;
+    min-width: 0;
+    background: #ffffff;
+  }
+
+  .ff-mega__img-wrap {
+    height: 280px;
+    overflow: hidden;
+    background: #f5f3ef;
+    flex-shrink: 0;
+  }
+
+  .ff-mega__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.45s ease;
+  }
+
+  .ff-mega__card:hover .ff-mega__img { transform: scale(1.04); }
+
+  .ff-mega__info {
+    border-top: 1px solid #e8e2d8;
+    padding: 14px 20px 18px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ff-mega__brand {
+    font-family: 'Figtree', sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #bbbbbb;
+    margin-bottom: 6px;
+  }
+
+  .ff-mega__name {
+    font-family: 'Figtree', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #444444;
+    line-height: 1.5;
+    margin-bottom: 5px;
+  }
+
+  .ff-mega__price {
+    font-family: 'Figtree', sans-serif;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: #7a7468;
   }
 
   /* Mobile */
   @media screen and (max-width: 768px) {
-    .ff-header__right-desktop {
-      display: none;
-    }
-
-    .ff-header__reveal {
-      display: none;
-    }
-
-    .ff-header__logo {
-      font-size: 14px;
-      letter-spacing: 0.15em;
-    }
+    .ff-header__right-desktop { display: none; }
+    .ff-header__reveal { display: none; }
+    .ff-header__logo { font-size: 14px; letter-spacing: 0.15em; }
   }
 
   @media screen and (min-width: 769px) {
-    .ff-header__right-mobile {
-      display: none;
-    }
+    .ff-header__right-mobile { display: none; }
   }
 </style>
 
+{%- comment -%}
+  Define which reveal nav items get mega menus.
+  Format: handle | label | collection_handle | sub-links (pipe-separated)
+{%- endcomment -%}
+
 <div class="ff-header" id="ff-header">
-  {%- comment -%}Main bar{%- endcomment -%}
   <div class="ff-header__main">
     <div class="ff-header__left">
       <button class="ff-header__hamburger" data-action="open-drawer" data-drawer-id="sidebar-menu" aria-label="Open menu">
@@ -202,7 +337,6 @@
     </div>
 
     <div class="ff-header__right">
-      {%- comment -%}Desktop links{%- endcomment -%}
       <nav class="ff-header__right-desktop">
         <a href="/collections/bags" class="ff-header__link">SHOP BAGS</a>
       </nav>
@@ -210,32 +344,274 @@
         <a href="/blogs/found-magazine" class="ff-header__link">MAGAZINE</a>
       </nav>
       <a href="/cart" class="ff-header__link ff-header__right-desktop" data-action="open-drawer" data-drawer-id="sidebar-cart">CART{% if cart.item_count > 0 %} ({{ cart.item_count }}){% endif %}</a>
-
-      {%- comment -%}Mobile cart icon{%- endcomment -%}
       <a href="/cart" class="ff-header__link ff-header__right-mobile" data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="Cart">
         {%- render 'icon' with 'cart' -%}
       </a>
     </div>
   </div>
 
-  {%- comment -%}Hover-reveal full nav{%- endcomment -%}
+  {%- comment -%}Hover-reveal nav with mega menu dropdowns{%- endcomment -%}
   <div class="ff-header__reveal">
     <nav class="ff-header__reveal-inner">
-      <a href="/collections/new-arrivals" class="ff-header__reveal-link">New Arrivals</a>
-      <a href="/collections/bags" class="ff-header__reveal-link">Bags</a>
-      <a href="/collections/clothing" class="ff-header__reveal-link">Clothing</a>
-      <a href="/collections/shoes" class="ff-header__reveal-link">Shoes</a>
-      <a href="/collections/accessories" class="ff-header__reveal-link">Accessories</a>
-      <a href="/collections/jewellery-watches" class="ff-header__reveal-link">Jewellery & Watches</a>
-      <a href="/pages/personal-shopping" class="ff-header__reveal-link">Personal Shopping</a>
-      <a href="/pages/contact" class="ff-header__reveal-link">Contact</a>
-      <a href="/blogs/found-magazine" class="ff-header__reveal-link">Magazine</a>
+
+      {%- comment -%}--- NEW ARRIVALS (with mega menu) ---{%- endcomment -%}
+      <div class="ff-header__reveal-item">
+        <a href="/collections/new-arrivals" class="ff-header__reveal-link">New Arrivals</a>
+        {%- assign mega_col = collections['new-arrivals'] -%}
+        {%- if mega_col -%}
+        <div class="ff-mega">
+          <div class="ff-mega__inner">
+            <div class="ff-mega__nav">
+              <span class="ff-mega__nav-label">Shop New Arrivals</span>
+              <ul class="ff-mega__nav-list">
+                <li class="ff-mega__nav-item"><a href="/collections/new-arrivals" class="ff-mega__nav-link">VIEW ALL</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/bags" class="ff-mega__nav-link">BAGS</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/shoes" class="ff-mega__nav-link">SHOES</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/clothing" class="ff-mega__nav-link">CLOTHING</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/accessories" class="ff-mega__nav-link">ACCESSORIES</a></li>
+              </ul>
+            </div>
+            <div class="ff-mega__strip">
+              {%- assign rendered = 0 -%}
+              {%- for product in mega_col.products limit: 20 -%}
+                {%- if product.available and rendered < 4 -%}
+                  {%- assign rendered = rendered | plus: 1 -%}
+                  <a href="{{ product.url }}" class="ff-mega__card">
+                    <div class="ff-mega__img-wrap">
+                      {%- if product.featured_media -%}
+                        <img class="ff-mega__img" src="{{ product.featured_media | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy">
+                      {%- endif -%}
+                    </div>
+                    <div class="ff-mega__info">
+                      {%- if product.vendor != blank -%}<span class="ff-mega__brand">{{ product.vendor | upcase }}</span>{%- endif -%}
+                      <span class="ff-mega__name">{{ product.title | escape }}</span>
+                      <span class="ff-mega__price">{{ product.price | money }}</span>
+                    </div>
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if rendered < 4 -%}{%- assign empty = 4 | minus: rendered -%}{%- for i in (1..empty) -%}<div class="ff-mega__empty"></div>{%- endfor -%}{%- endif -%}
+            </div>
+          </div>
+        </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%}--- BAGS (with mega menu) ---{%- endcomment -%}
+      <div class="ff-header__reveal-item">
+        <a href="/collections/bags" class="ff-header__reveal-link">Bags</a>
+        {%- assign mega_col = collections['bags'] -%}
+        {%- if mega_col -%}
+        <div class="ff-mega">
+          <div class="ff-mega__inner">
+            <div class="ff-mega__nav">
+              <span class="ff-mega__nav-label">Shop Bags</span>
+              <ul class="ff-mega__nav-list">
+                <li class="ff-mega__nav-item"><a href="/collections/bags" class="ff-mega__nav-link">VIEW ALL</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/hermes-bags" class="ff-mega__nav-link">HERMÈS</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/chanel-bags" class="ff-mega__nav-link">CHANEL</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/louis-vuitton-bags" class="ff-mega__nav-link">LOUIS VUITTON</a></li>
+                <li class="ff-mega__nav-item"><a href="/collections/dior-bags" class="ff-mega__nav-link">DIOR</a></li>
+              </ul>
+            </div>
+            <div class="ff-mega__strip">
+              {%- assign rendered = 0 -%}
+              {%- for product in mega_col.products limit: 20 -%}
+                {%- if product.available and rendered < 4 -%}
+                  {%- assign rendered = rendered | plus: 1 -%}
+                  <a href="{{ product.url }}" class="ff-mega__card">
+                    <div class="ff-mega__img-wrap">
+                      {%- if product.featured_media -%}
+                        <img class="ff-mega__img" src="{{ product.featured_media | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy">
+                      {%- endif -%}
+                    </div>
+                    <div class="ff-mega__info">
+                      {%- if product.vendor != blank -%}<span class="ff-mega__brand">{{ product.vendor | upcase }}</span>{%- endif -%}
+                      <span class="ff-mega__name">{{ product.title | escape }}</span>
+                      <span class="ff-mega__price">{{ product.price | money }}</span>
+                    </div>
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if rendered < 4 -%}{%- assign empty = 4 | minus: rendered -%}{%- for i in (1..empty) -%}<div class="ff-mega__empty"></div>{%- endfor -%}{%- endif -%}
+            </div>
+          </div>
+        </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%}--- CLOTHING (with mega menu) ---{%- endcomment -%}
+      <div class="ff-header__reveal-item">
+        <a href="/collections/clothing" class="ff-header__reveal-link">Clothing</a>
+        {%- assign mega_col = collections['clothing'] -%}
+        {%- if mega_col -%}
+        <div class="ff-mega">
+          <div class="ff-mega__inner">
+            <div class="ff-mega__nav">
+              <span class="ff-mega__nav-label">Shop Clothing</span>
+              <ul class="ff-mega__nav-list">
+                <li class="ff-mega__nav-item"><a href="/collections/clothing" class="ff-mega__nav-link">VIEW ALL</a></li>
+              </ul>
+            </div>
+            <div class="ff-mega__strip">
+              {%- assign rendered = 0 -%}
+              {%- for product in mega_col.products limit: 20 -%}
+                {%- if product.available and rendered < 4 -%}
+                  {%- assign rendered = rendered | plus: 1 -%}
+                  <a href="{{ product.url }}" class="ff-mega__card">
+                    <div class="ff-mega__img-wrap">
+                      {%- if product.featured_media -%}
+                        <img class="ff-mega__img" src="{{ product.featured_media | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy">
+                      {%- endif -%}
+                    </div>
+                    <div class="ff-mega__info">
+                      {%- if product.vendor != blank -%}<span class="ff-mega__brand">{{ product.vendor | upcase }}</span>{%- endif -%}
+                      <span class="ff-mega__name">{{ product.title | escape }}</span>
+                      <span class="ff-mega__price">{{ product.price | money }}</span>
+                    </div>
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if rendered < 4 -%}{%- assign empty = 4 | minus: rendered -%}{%- for i in (1..empty) -%}<div class="ff-mega__empty"></div>{%- endfor -%}{%- endif -%}
+            </div>
+          </div>
+        </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%}--- SHOES (with mega menu) ---{%- endcomment -%}
+      <div class="ff-header__reveal-item">
+        <a href="/collections/shoes" class="ff-header__reveal-link">Shoes</a>
+        {%- assign mega_col = collections['shoes'] -%}
+        {%- if mega_col -%}
+        <div class="ff-mega">
+          <div class="ff-mega__inner">
+            <div class="ff-mega__nav">
+              <span class="ff-mega__nav-label">Shop Shoes</span>
+              <ul class="ff-mega__nav-list">
+                <li class="ff-mega__nav-item"><a href="/collections/shoes" class="ff-mega__nav-link">VIEW ALL</a></li>
+              </ul>
+            </div>
+            <div class="ff-mega__strip">
+              {%- assign rendered = 0 -%}
+              {%- for product in mega_col.products limit: 20 -%}
+                {%- if product.available and rendered < 4 -%}
+                  {%- assign rendered = rendered | plus: 1 -%}
+                  <a href="{{ product.url }}" class="ff-mega__card">
+                    <div class="ff-mega__img-wrap">
+                      {%- if product.featured_media -%}
+                        <img class="ff-mega__img" src="{{ product.featured_media | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy">
+                      {%- endif -%}
+                    </div>
+                    <div class="ff-mega__info">
+                      {%- if product.vendor != blank -%}<span class="ff-mega__brand">{{ product.vendor | upcase }}</span>{%- endif -%}
+                      <span class="ff-mega__name">{{ product.title | escape }}</span>
+                      <span class="ff-mega__price">{{ product.price | money }}</span>
+                    </div>
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if rendered < 4 -%}{%- assign empty = 4 | minus: rendered -%}{%- for i in (1..empty) -%}<div class="ff-mega__empty"></div>{%- endfor -%}{%- endif -%}
+            </div>
+          </div>
+        </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%}--- ACCESSORIES (with mega menu) ---{%- endcomment -%}
+      <div class="ff-header__reveal-item">
+        <a href="/collections/accessories" class="ff-header__reveal-link">Accessories</a>
+        {%- assign mega_col = collections['accessories'] -%}
+        {%- if mega_col -%}
+        <div class="ff-mega">
+          <div class="ff-mega__inner">
+            <div class="ff-mega__nav">
+              <span class="ff-mega__nav-label">Shop Accessories</span>
+              <ul class="ff-mega__nav-list">
+                <li class="ff-mega__nav-item"><a href="/collections/accessories" class="ff-mega__nav-link">VIEW ALL</a></li>
+              </ul>
+            </div>
+            <div class="ff-mega__strip">
+              {%- assign rendered = 0 -%}
+              {%- for product in mega_col.products limit: 20 -%}
+                {%- if product.available and rendered < 4 -%}
+                  {%- assign rendered = rendered | plus: 1 -%}
+                  <a href="{{ product.url }}" class="ff-mega__card">
+                    <div class="ff-mega__img-wrap">
+                      {%- if product.featured_media -%}
+                        <img class="ff-mega__img" src="{{ product.featured_media | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy">
+                      {%- endif -%}
+                    </div>
+                    <div class="ff-mega__info">
+                      {%- if product.vendor != blank -%}<span class="ff-mega__brand">{{ product.vendor | upcase }}</span>{%- endif -%}
+                      <span class="ff-mega__name">{{ product.title | escape }}</span>
+                      <span class="ff-mega__price">{{ product.price | money }}</span>
+                    </div>
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if rendered < 4 -%}{%- assign empty = 4 | minus: rendered -%}{%- for i in (1..empty) -%}<div class="ff-mega__empty"></div>{%- endfor -%}{%- endif -%}
+            </div>
+          </div>
+        </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%}--- JEWELLERY & WATCHES (with mega menu) ---{%- endcomment -%}
+      <div class="ff-header__reveal-item">
+        <a href="/collections/jewellery-watches" class="ff-header__reveal-link">Jewellery & Watches</a>
+        {%- assign mega_col = collections['jewellery-watches'] -%}
+        {%- if mega_col -%}
+        <div class="ff-mega">
+          <div class="ff-mega__inner">
+            <div class="ff-mega__nav">
+              <span class="ff-mega__nav-label">Shop Jewellery & Watches</span>
+              <ul class="ff-mega__nav-list">
+                <li class="ff-mega__nav-item"><a href="/collections/jewellery-watches" class="ff-mega__nav-link">VIEW ALL</a></li>
+              </ul>
+            </div>
+            <div class="ff-mega__strip">
+              {%- assign rendered = 0 -%}
+              {%- for product in mega_col.products limit: 20 -%}
+                {%- if product.available and rendered < 4 -%}
+                  {%- assign rendered = rendered | plus: 1 -%}
+                  <a href="{{ product.url }}" class="ff-mega__card">
+                    <div class="ff-mega__img-wrap">
+                      {%- if product.featured_media -%}
+                        <img class="ff-mega__img" src="{{ product.featured_media | img_url: '400x' }}" alt="{{ product.title | escape }}" loading="lazy">
+                      {%- endif -%}
+                    </div>
+                    <div class="ff-mega__info">
+                      {%- if product.vendor != blank -%}<span class="ff-mega__brand">{{ product.vendor | upcase }}</span>{%- endif -%}
+                      <span class="ff-mega__name">{{ product.title | escape }}</span>
+                      <span class="ff-mega__price">{{ product.price | money }}</span>
+                    </div>
+                  </a>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if rendered < 4 -%}{%- assign empty = 4 | minus: rendered -%}{%- for i in (1..empty) -%}<div class="ff-mega__empty"></div>{%- endfor -%}{%- endif -%}
+            </div>
+          </div>
+        </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%}--- Simple links (no mega menu) ---{%- endcomment -%}
+      <div class="ff-header__reveal-item">
+        <a href="/pages/personal-shopping" class="ff-header__reveal-link">Personal Shopping</a>
+      </div>
+      <div class="ff-header__reveal-item">
+        <a href="/pages/contact" class="ff-header__reveal-link">Contact</a>
+      </div>
+      <div class="ff-header__reveal-item">
+        <a href="/blogs/found-magazine" class="ff-header__reveal-link">Magazine</a>
+      </div>
+
     </nav>
   </div>
 </div>
 
 <script>
-  // Set header height CSS var for transparent header overlap
   (function() {
     var h = document.getElementById('ff-header');
     if (h) {
