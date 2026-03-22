@@ -1314,6 +1314,7 @@
     if (bodyEl) {
       bodyEl.querySelectorAll('img').forEach(function(img) {
         if (img.closest('.Article__ParallaxWrap')) return;
+        if (img.closest('.art-product-card')) return;
         var wrap = document.createElement('div');
         wrap.className = 'Article__ParallaxWrap';
         img.parentNode.insertBefore(wrap, img);
