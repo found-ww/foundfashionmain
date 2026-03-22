@@ -29,7 +29,6 @@
     transition: transform 0.8s ease;
   }
 
-  /* Per-cell dark overlay */
   .hero-split__cell-overlay {
     position: absolute;
     inset: 0;
@@ -40,22 +39,19 @@
     pointer-events: none;
   }
 
-  /* When hovering a cell, its overlay fades out (image lights up) */
   .hero-split__cell:hover .hero-split__cell-overlay {
     opacity: {{ section.settings.hover_opacity | default: 0 | divided_by: 100.0 }};
   }
 
-  /* Subtle zoom on hover */
   .hero-split__cell:hover img {
     transform: scale(1.03);
   }
 
-  /* When hovering one cell, darken the OTHER cell more */
   .hero-split__grid-{{ sid }}:hover .hero-split__cell:not(:hover) .hero-split__cell-overlay {
     opacity: {{ section.settings.inactive_opacity | default: 40 | divided_by: 100.0 }};
   }
 
-  /* Centered heading spanning both cells */
+  /* Heading container */
   .hero-split__overlay {
     position: absolute;
     inset: 0;
@@ -67,8 +63,12 @@
     pointer-events: none;
   }
 
-  .hero-split__heading {
+  .hero-split__headings {
     position: relative;
+    overflow: hidden;
+  }
+
+  .hero-split__heading {
     color: {{ section.settings.text_color }};
     font-family: 'Times New Roman', Georgia, serif;
     font-style: italic;
@@ -78,6 +78,48 @@
     text-align: center;
     padding: 0 24px;
     margin: 0;
+    white-space: nowrap;
+  }
+
+  /* Each letter is wrapped in a span for the flip animation */
+  .hero-split__heading .hero-char {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1),
+                opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+  }
+
+  /* Heading A (left) — visible by default */
+  .hero-split__heading--a {
+    position: relative;
+  }
+
+  .hero-split__heading--a .hero-char {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Heading B (right) — hidden below by default */
+  .hero-split__heading--b {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .hero-split__heading--b .hero-char {
+    transform: translateY(110%);
+    opacity: 0;
+  }
+
+  /* When hovering right side: A flips up, B flips in from below */
+  .hero-split__grid-{{ sid }}.is-hover-right ~ .hero-split__overlay .hero-split__heading--a .hero-char {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+
+  .hero-split__grid-{{ sid }}.is-hover-right ~ .hero-split__overlay .hero-split__heading--b .hero-char {
+    transform: translateY(0);
+    opacity: 1;
   }
 
   .hero-split__scroll {
@@ -94,7 +136,6 @@
     pointer-events: none;
   }
 
-  /* Cell link label (e.g. "SHOP WOMEN" / "SHOP MEN") */
   .hero-split__cell-label {
     position: absolute;
     bottom: 40px;
@@ -132,13 +173,17 @@
     .hero-split__cell-label {
       opacity: 1;
     }
+
+    .hero-split__heading {
+      white-space: normal;
+    }
   }
 </style>
 
 <section id="hero-split-{{ sid }}">
-  <div class="hero-split__grid-{{ sid }}">
+  <div class="hero-split__grid-{{ sid }}" id="hero-grid-{{ sid }}">
     {%- comment -%} Left cell {%- endcomment -%}
-    <{% if section.settings.link_a != blank %}a href="{{ section.settings.link_a }}"{% else %}div{% endif %} class="hero-split__cell">
+    <{% if section.settings.link_a != blank %}a href="{{ section.settings.link_a }}"{% else %}div{% endif %} class="hero-split__cell" data-hero-side="left">
       {%- if section.settings.image_a != blank -%}
         <img
           src="{{ section.settings.image_a | img_url: '1200x' }}"
@@ -157,7 +202,7 @@
     </{% if section.settings.link_a != blank %}a{% else %}div{% endif %}>
 
     {%- comment -%} Right cell {%- endcomment -%}
-    <{% if section.settings.link_b != blank %}a href="{{ section.settings.link_b }}"{% else %}div{% endif %} class="hero-split__cell">
+    <{% if section.settings.link_b != blank %}a href="{{ section.settings.link_b }}"{% else %}div{% endif %} class="hero-split__cell" data-hero-side="right">
       {%- if section.settings.image_b != blank -%}
         <img
           src="{{ section.settings.image_b | img_url: '1200x' }}"
@@ -176,15 +221,66 @@
   </div>
 
   <div class="hero-split__overlay">
-    {%- if section.settings.heading_text != blank -%}
-      <h1 class="hero-split__heading">{{ section.settings.heading_text | escape }}</h1>
-    {%- endif -%}
+    <div class="hero-split__headings">
+      <h1 class="hero-split__heading hero-split__heading--a" id="hero-heading-a-{{ sid }}">
+        {{ section.settings.heading_text | escape }}
+      </h1>
+      {%- if section.settings.heading_text_b != blank -%}
+        <div class="hero-split__heading hero-split__heading--b" id="hero-heading-b-{{ sid }}" aria-hidden="true">
+          {{ section.settings.heading_text_b | escape }}
+        </div>
+      {%- endif -%}
+    </div>
   </div>
 
   {%- if section.settings.scroll_text != blank -%}
     <div class="hero-split__scroll">{{ section.settings.scroll_text | escape }}</div>
   {%- endif -%}
 </section>
+
+<script>
+(function() {
+  var grid = document.getElementById('hero-grid-{{ sid }}');
+  var headingA = document.getElementById('hero-heading-a-{{ sid }}');
+  var headingB = document.getElementById('hero-heading-b-{{ sid }}');
+  if (!grid || !headingA) return;
+
+  /* Wrap each character in a span for staggered animation */
+  function wrapChars(el) {
+    var text = el.textContent.trim();
+    el.innerHTML = '';
+    for (var i = 0; i < text.length; i++) {
+      var span = document.createElement('span');
+      span.className = 'hero-char';
+      span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+      /* Stagger the delay per character */
+      span.style.transitionDelay = (i * 25) + 'ms';
+      el.appendChild(span);
+    }
+  }
+
+  wrapChars(headingA);
+  if (headingB) wrapChars(headingB);
+
+  /* Add/remove hover class on the grid */
+  var cells = grid.querySelectorAll('.hero-split__cell');
+
+  cells.forEach(function(cell) {
+    cell.addEventListener('mouseenter', function() {
+      var side = cell.getAttribute('data-hero-side');
+      if (side === 'right') {
+        grid.classList.add('is-hover-right');
+      } else {
+        grid.classList.remove('is-hover-right');
+      }
+    });
+  });
+
+  grid.addEventListener('mouseleave', function() {
+    grid.classList.remove('is-hover-right');
+  });
+})();
+</script>
 
 {% schema %}
 {
@@ -234,13 +330,24 @@
     },
     {
       "type": "header",
-      "content": "Text & overlay"
+      "content": "Headings"
     },
     {
       "type": "text",
       "id": "heading_text",
-      "label": "Heading",
+      "label": "Left heading (default)",
       "default": "curated for those who know"
+    },
+    {
+      "type": "text",
+      "id": "heading_text_b",
+      "label": "Right heading",
+      "default": "we find what others can't",
+      "info": "Shows when hovering the right side"
+    },
+    {
+      "type": "header",
+      "content": "General"
     },
     {
       "type": "text",
