@@ -221,7 +221,39 @@
           {%- assign _content = _content | replace: '<p>[timeline]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%} ── Product margin annotations ── {%- endcomment -%}
+        {%- assign _margin_products = article.metafields.custom.margin_products.value -%}
+        {%- if _margin_products != blank -%}
+          {%- for _mp in _margin_products -%}
+            {%- capture _mp_anchor -%}<span class="art-product-anchor" data-product-index="{{ forloop.index0 }}"></span>{%- endcapture -%}
+            {%- if forloop.first -%}
+              {%- assign _content = _content | replace_first: '<p>[product]</p>', _mp_anchor -%}
+            {%- else -%}
+              {%- assign _content = _content | replace_first: '<p>[product]</p>', _mp_anchor -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- assign _content = _content | replace: '<p>[product]</p>', '' -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[product]</p>', '' -%}
+        {%- endif -%}
+
         {{ _content }}
+
+        {%- if _margin_products != blank -%}
+          <script type="application/json" id="art-margin-products">
+            [
+              {%- for _mp in _margin_products -%}
+                {
+                  "title": {{ _mp.title | json }},
+                  "url": {{ _mp.url | json }},
+                  "price": {{ _mp.price | money | json }},
+                  "image": {{ _mp.featured_image | img_url: '400x' | prepend: 'https:' | json }},
+                  "vendor": {{ _mp.vendor | json }}
+                }{%- unless forloop.last -%},{%- endunless -%}
+              {%- endfor -%}
+            ]
+          </script>
+        {%- endif -%}
       </div>
 
       {%- capture article_footer -%}
@@ -334,7 +366,7 @@
   .art-body-section-text,
   .art-body-section-img {
     position: relative;
-    margin-bottom: 50px;
+    margin-bottom: 60px;
   }
   .art-body-section-text::after,
   .art-body-section-img::after {
@@ -397,6 +429,52 @@
     margin: 0;
   }
 
+  /* Product margin annotation cards */
+  .art-product-anchor { display: block; position: relative; height: 0; overflow: visible; }
+  .art-product-card {
+    position: absolute;
+    right: calc(-1 * clamp(120px, 10vw, 180px) - 48px);
+    top: 0;
+    width: clamp(120px, 10vw, 180px);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .art-product-card__img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .art-product-card__vendor {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin: 0 0 2px;
+  }
+  .art-product-card__title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: #1c1c1c;
+    line-height: 1.35;
+    margin: 0 0 4px;
+  }
+  .art-product-card__price {
+    font-size: 11px;
+    font-weight: 400;
+    color: #9a8f86;
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+  .art-product-card:hover .art-product-card__title { color: #947b69; }
+  @media screen and (max-width: 768px) {
+    .art-product-anchor { display: none; }
+  }
+
   /* Image column */
   .art-body-img-col { min-width: 0; }
   .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
@@ -437,13 +515,17 @@
 
   /* Full-width embeds break out of centered column */
   .Article__Body > .epd,
-  .Article__Body > .epq,
   .Article__Body > .tl-h-outer {
     position: relative;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100vw - 40px);
     max-width: none;
+  }
+
+  /* Pull quotes / large text stay within body column */
+  .Article__Body > .epq {
+    max-width: 100%;
   }
 
   /* Fade-in */
@@ -458,12 +540,10 @@
   }
   /* Fade-in for full-width embeds (preserve translateX breakout) */
   .Article__Body > .art-fade-in.epd,
-  .Article__Body > .art-fade-in.epq,
   .Article__Body > .art-fade-in.tl-h-outer {
     transform: translateX(-50%) translateY(16px);
   }
   .Article__Body > .art-fade-in.epd.is-visible,
-  .Article__Body > .art-fade-in.epq.is-visible,
   .Article__Body > .art-fade-in.tl-h-outer.is-visible {
     transform: translateX(-50%) translateY(0);
   }
@@ -528,7 +608,7 @@
   .Article__ShareSection {
     flex: 1;
     width: 100%;
-    max-width: 850px;
+    max-width: 1300px;
     min-width: 0;
     margin-left: auto;
     margin-right: auto;
@@ -1113,6 +1193,28 @@
       el.style.transitionDelay = (i * 0.05) + 's';
       io.observe(el);
     });
+
+    /* ---- Product margin annotations ---- */
+    var prodDataEl = document.getElementById('art-margin-products');
+    if (prodDataEl) {
+      try {
+        var products = JSON.parse(prodDataEl.textContent);
+        document.querySelectorAll('.art-product-anchor').forEach(function(anchor) {
+          var idx = parseInt(anchor.getAttribute('data-product-index'), 10);
+          var prod = products[idx];
+          if (!prod) return;
+          var card = document.createElement('a');
+          card.className = 'art-product-card';
+          card.href = prod.url;
+          card.innerHTML =
+            '<img class="art-product-card__img" src="' + prod.image + '" alt="' + prod.title.replace(/"/g, '&quot;') + '" loading="lazy">' +
+            '<p class="art-product-card__vendor">' + prod.vendor + '</p>' +
+            '<p class="art-product-card__title">' + prod.title + '</p>' +
+            '<p class="art-product-card__price">' + prod.price + '</p>';
+          anchor.appendChild(card);
+        });
+      } catch(e) {}
+    }
   })();
 
   (function() {
