@@ -97,15 +97,15 @@
         <span class="Header__CartDot {% if cart.item_count > 0 %}is-visible{% endif %}"></span>
       </a>
     </div>
-  </div>
 
-  {%- comment -%}Hover-reveal full navigation bar{%- endcomment -%}
-  <div class="ff-header__reveal hidden-pocket hidden-lap">
-    <nav class="ff-header__reveal-nav">
-      {%- for link in main_menu.links -%}
-        <a href="{{ link.url }}" class="ff-header__reveal-link">{{ link.title | escape }}</a>
-      {%- endfor -%}
-    </nav>
+    {%- comment -%}Hover-reveal full navigation bar (inside wrapper for DOM compat){%- endcomment -%}
+    <div class="ff-header__reveal hidden-pocket hidden-lap">
+      <nav class="ff-header__reveal-nav">
+        {%- for link in main_menu.links -%}
+          <a href="{{ link.url }}" class="ff-header__reveal-link">{{ link.title | escape }}</a>
+        {%- endfor -%}
+      </nav>
+    </div>
   </div>
 </header>
 
@@ -159,6 +159,11 @@
   #section-{{ section.id }} {
     background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') !important;
     background-size: cover;
+  }
+
+  /* Allow the reveal nav to wrap below the main bar items */
+  .Header .Header__Wrapper {
+    flex-wrap: wrap;
   }
 
   .ff-header__left {
@@ -227,6 +232,8 @@
      ==================================================== */
 
   .ff-header__reveal {
+    flex-basis: 100%;
+    width: 100%;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
