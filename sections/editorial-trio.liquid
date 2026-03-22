@@ -12,15 +12,12 @@
    */
   .editorial-scroll-{{ sid }} {
     position: relative;
-    /* Each pair gets 100vh of scroll runway */
-    height: {{ pair_count | times: 100 }}vh;
     margin: 20px 0 0;
   }
 
   .editorial-scroll__sticky {
     position: sticky;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 20px;
     width: 100%;
     z-index: 1;
   }
@@ -184,12 +181,27 @@
   var section = document.getElementById('editorial-scroll-{{ sid }}');
   if (!section) return;
 
+  var stickyEl = section.querySelector('.editorial-scroll__sticky');
   var pairs = section.querySelectorAll('.editorial-scroll__pair');
   var dots = section.querySelectorAll('.editorial-scroll__dot');
   var pairCount = pairs.length;
   if (pairCount < 2) return;
 
   var currentPair = 0;
+  /* Extra scroll distance per swap (px). Increase for more scroll between swaps. */
+  var RUNWAY_PER_SWAP = 400;
+
+  function setSectionHeight() {
+    /* Measure the actual content height (the sticky element) */
+    var contentHeight = stickyEl.offsetHeight;
+    /* Total section height = content + runway for each swap */
+    var totalHeight = contentHeight + (RUNWAY_PER_SWAP * (pairCount - 1));
+    section.style.height = totalHeight + 'px';
+  }
+
+  /* Set height on load and resize */
+  setSectionHeight();
+  window.addEventListener('resize', setSectionHeight);
 
   function showPair(index) {
     if (index === currentPair || index < 0 || index >= pairCount) return;
@@ -200,19 +212,23 @@
     if (dots[currentPair]) dots[currentPair].classList.add('is-active');
   }
 
-  /* Watch scroll progress through the tall section */
   function onScroll() {
     var rect = section.getBoundingClientRect();
     var sectionHeight = section.offsetHeight;
-    var scrolled = -rect.top; /* how far we've scrolled into the section */
-    var progress = scrolled / (sectionHeight - window.innerHeight);
+    var contentHeight = stickyEl.offsetHeight;
+    /* The scroll range is the extra height beyond the content */
+    var scrollRange = sectionHeight - contentHeight;
+    if (scrollRange <= 0) return;
+
+    /* How far we've scrolled past the point where the sticky pins */
+    var scrolled = -rect.top;
+    var progress = scrolled / scrollRange;
 
     /* Clamp 0-1 */
-    progress = Math.max(0, Math.min(1, progress));
+    progress = Math.max(0, Math.min(0.999, progress));
 
     /* Map progress to pair index */
     var targetPair = Math.floor(progress * pairCount);
-    /* Clamp to valid range */
     targetPair = Math.max(0, Math.min(pairCount - 1, targetPair));
 
     if (targetPair !== currentPair) {
@@ -220,7 +236,6 @@
     }
   }
 
-  /* Use requestAnimationFrame for smooth updates */
   var ticking = false;
   window.addEventListener('scroll', function() {
     if (!ticking) {
@@ -232,15 +247,14 @@
     }
   }, { passive: true });
 
-  /* Also allow dot clicks */
+  /* Dot clicks */
   dots.forEach(function(dot) {
     dot.addEventListener('click', function() {
       var index = parseInt(dot.getAttribute('data-dot-index'), 10);
       if (index >= 0 && index < pairCount) {
-        /* Scroll to the right position for this pair */
         var sectionTop = section.offsetTop;
-        var sectionHeight = section.offsetHeight;
-        var scrollRange = sectionHeight - window.innerHeight;
+        var contentHeight = stickyEl.offsetHeight;
+        var scrollRange = section.offsetHeight - contentHeight;
         var targetScroll = sectionTop + (index / pairCount) * scrollRange;
         window.scrollTo({ top: targetScroll, behavior: 'smooth' });
       }
