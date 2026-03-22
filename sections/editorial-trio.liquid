@@ -4,36 +4,31 @@
 
 <style>
   /*
-   * Apple-style scroll-progress approach:
-   * - Outer section is very tall (100vh per pair) to create scroll runway
-   * - Inner content is position:sticky so it stays pinned
-   * - JS watches scroll progress through the section to swap pairs
-   * - No scroll hijacking, no overflow:hidden, no preventDefault
+   * Fixed-overlay approach:
+   * - Section has NO extra height — just the content
+   * - When images reach viewport center, a fixed overlay appears
+   * - The overlay has a tall inner scroller that captures wheel/touch natively
+   * - Scroll progress through the scroller swaps pairs
+   * - When done, overlay disappears and normal page scroll resumes
+   * - Zero gaps, zero stutter, zero scroll hijacking
    */
-  .editorial-scroll-{{ sid }} {
+  .editorial-{{ sid }} {
     position: relative;
     margin: 20px 0 0;
   }
 
-  .editorial-scroll__sticky {
-    position: sticky;
-    top: 20px;
-    width: 100%;
-    z-index: 1;
-  }
-
-  .editorial-scroll__viewport {
+  .editorial-{{ sid }}__viewport {
     width: 100%;
     margin: 0 auto;
     padding: 0 24px;
     max-width: 1600px;
   }
 
-  .editorial-scroll__pairs-wrap {
+  .editorial-{{ sid }}__pairs-wrap {
     position: relative;
   }
 
-  .editorial-scroll__pair {
+  .editorial-{{ sid }}__pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
@@ -46,20 +41,20 @@
     left: 0;
   }
 
-  .editorial-scroll__pair.is-active {
+  .editorial-{{ sid }}__pair.is-active {
     opacity: 1;
     pointer-events: auto;
     position: relative;
   }
 
-  .editorial-scroll__item {
+  .editorial-{{ sid }}__item {
     position: relative;
     overflow: hidden;
     display: block;
     text-decoration: none;
   }
 
-  .editorial-scroll__item img {
+  .editorial-{{ sid }}__item img {
     width: 100%;
     height: auto;
     display: block;
@@ -69,11 +64,11 @@
     transition: transform 0.6s ease;
   }
 
-  .editorial-scroll__item:hover img {
+  .editorial-{{ sid }}__item:hover img {
     transform: scale(1.03);
   }
 
-  .editorial-scroll__btn {
+  .editorial-{{ sid }}__btn {
     position: absolute;
     bottom: 28px;
     left: 50%;
@@ -91,14 +86,14 @@
     white-space: nowrap;
   }
 
-  .editorial-scroll__dots {
+  .editorial-{{ sid }}__dots {
     display: flex;
     justify-content: center;
     gap: 8px;
     padding: 20px 0 0;
   }
 
-  .editorial-scroll__dot {
+  .editorial-{{ sid }}__dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -109,21 +104,74 @@
     cursor: pointer;
   }
 
-  .editorial-scroll__dot.is-active {
+  .editorial-{{ sid }}__dot.is-active {
     background: #1c1b1b;
   }
 
+  /* The fixed overlay — invisible scroller */
+  .editorial-overlay-{{ sid }} {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: transparent;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .editorial-overlay-{{ sid }}.is-active {
+    display: block;
+  }
+
+  /* Tall spacer inside the overlay — gives it scrollable runway */
+  .editorial-overlay__runway {
+    pointer-events: none;
+  }
+
+  /* Floating content layer — centered in viewport */
+  .editorial-overlay__content {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 10000;
+    pointer-events: none;
+    display: none;
+  }
+
+  .editorial-overlay__content.is-active {
+    display: block;
+  }
+
+  .editorial-overlay__content .editorial-{{ sid }}__viewport {
+    pointer-events: auto;
+  }
+
+  /* White background behind the fixed content to cover the page */
+  .editorial-overlay__bg {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 9998;
+    display: none;
+  }
+
+  .editorial-overlay__bg.is-active {
+    display: block;
+  }
+
   @media screen and (max-width: 640px) {
-    .editorial-scroll__pair {
+    .editorial-{{ sid }}__pair {
       gap: 8px;
     }
 
-    .editorial-scroll__item img {
+    .editorial-{{ sid }}__item img {
       aspect-ratio: 1 / 1;
       max-height: 300px;
     }
 
-    .editorial-scroll__btn {
+    .editorial-{{ sid }}__btn {
       bottom: 16px;
       padding: 8px 16px;
       font-size: 10px;
@@ -131,135 +179,210 @@
   }
 </style>
 
-<section id="editorial-scroll-{{ sid }}" class="editorial-scroll-{{ sid }}">
-  <div class="editorial-scroll__sticky">
-    <div class="editorial-scroll__viewport">
-      <div class="editorial-scroll__pairs-wrap">
-      {%- for block in section.blocks -%}
-        {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
-        {%- assign within_pair = forloop.index0 | modulo: 2 -%}
+<!-- In-page section (normal flow, no extra height) -->
+<section id="editorial-{{ sid }}" class="editorial-{{ sid }}">
+  <div class="editorial-{{ sid }}__viewport">
+    <div class="editorial-{{ sid }}__pairs-wrap">
+    {%- for block in section.blocks -%}
+      {%- assign pair_index = forloop.index0 | divided_by: 2 -%}
+      {%- assign within_pair = forloop.index0 | modulo: 2 -%}
 
-        {%- if within_pair == 0 -%}
-          <div class="editorial-scroll__pair{% if pair_index == 0 %} is-active{% endif %}" data-pair-index="{{ pair_index }}">
+      {%- if within_pair == 0 -%}
+        <div class="editorial-{{ sid }}__pair{% if pair_index == 0 %} is-active{% endif %}" data-pair-index="{{ pair_index }}">
+      {%- endif -%}
+
+      <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-{{ sid }}__item" {{ block.shopify_attributes }}>
+        {%- if block.settings.image != blank -%}
+          <img
+            src="{{ block.settings.image | img_url: '900x' }}"
+            srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '900x' }} 900w"
+            sizes="(max-width: 640px) 50vw, 45vw"
+            alt="{{ block.settings.image.alt | escape }}"
+            loading="lazy">
+        {%- else -%}
+          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
         {%- endif -%}
-
-        <a href="{{ block.settings.link_url | default: '#' }}" class="editorial-scroll__item" {{ block.shopify_attributes }}>
-          {%- if block.settings.image != blank -%}
-            <img
-              src="{{ block.settings.image | img_url: '900x' }}"
-              srcset="{{ block.settings.image | img_url: '400x' }} 400w, {{ block.settings.image | img_url: '600x' }} 600w, {{ block.settings.image | img_url: '900x' }} 900w"
-              sizes="(max-width: 640px) 50vw, 45vw"
-              alt="{{ block.settings.image.alt | escape }}"
-              loading="lazy">
-          {%- else -%}
-            {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
-          {%- endif -%}
-          {%- if block.settings.button_text != blank -%}
-            <span class="editorial-scroll__btn">{{ block.settings.button_text | escape }}</span>
-          {%- endif -%}
-        </a>
-
-        {%- if within_pair == 1 or forloop.last -%}
-          </div>
+        {%- if block.settings.button_text != blank -%}
+          <span class="editorial-{{ sid }}__btn">{{ block.settings.button_text | escape }}</span>
         {%- endif -%}
-      {%- endfor -%}
-      </div>
+      </a>
 
-      {%- if pair_count > 1 -%}
-        <div class="editorial-scroll__dots">
-          {%- for i in (1..pair_count) -%}
-            <button class="editorial-scroll__dot{% if forloop.first %} is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="View pair {{ forloop.index }}"></button>
-          {%- endfor -%}
+      {%- if within_pair == 1 or forloop.last -%}
         </div>
       {%- endif -%}
+    {%- endfor -%}
     </div>
+
+    {%- if pair_count > 1 -%}
+      <div class="editorial-{{ sid }}__dots" id="editorial-dots-{{ sid }}">
+        {%- for i in (1..pair_count) -%}
+          <button class="editorial-{{ sid }}__dot{% if forloop.first %} is-active{% endif %}" data-dot-index="{{ forloop.index0 }}" aria-label="View pair {{ forloop.index }}"></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
   </div>
 </section>
 
+<!-- Fixed overlay (hidden by default) -->
+<div class="editorial-overlay__bg" id="editorial-bg-{{ sid }}"></div>
+<div class="editorial-overlay-{{ sid }}" id="editorial-overlay-{{ sid }}">
+  <div class="editorial-overlay__runway" id="editorial-runway-{{ sid }}"></div>
+</div>
+<div class="editorial-overlay__content" id="editorial-content-{{ sid }}">
+  <div class="editorial-{{ sid }}__viewport">
+    <div class="editorial-{{ sid }}__pairs-wrap" id="editorial-overlay-pairs-{{ sid }}"></div>
+    <div class="editorial-{{ sid }}__dots" id="editorial-overlay-dots-{{ sid }}"></div>
+  </div>
+</div>
+
 <script>
 (function() {
-  var section = document.getElementById('editorial-scroll-{{ sid }}');
+  var section = document.getElementById('editorial-{{ sid }}');
   if (!section) return;
 
-  var stickyEl = section.querySelector('.editorial-scroll__sticky');
-  var pairs = section.querySelectorAll('.editorial-scroll__pair');
-  var dots = section.querySelectorAll('.editorial-scroll__dot');
-  var pairCount = pairs.length;
+  var inPagePairs = section.querySelectorAll('.editorial-{{ sid }}__pair');
+  var inPageDots = section.querySelectorAll('.editorial-{{ sid }}__dot');
+  var pairCount = inPagePairs.length;
   if (pairCount < 2) return;
 
+  var overlay = document.getElementById('editorial-overlay-{{ sid }}');
+  var overlayBg = document.getElementById('editorial-bg-{{ sid }}');
+  var overlayContent = document.getElementById('editorial-content-{{ sid }}');
+  var overlayPairsWrap = document.getElementById('editorial-overlay-pairs-{{ sid }}');
+  var overlayDotsWrap = document.getElementById('editorial-overlay-dots-{{ sid }}');
+  var runway = document.getElementById('editorial-runway-{{ sid }}');
+
+  /* Clone the pairs and dots into the overlay content */
+  var pairsWrap = section.querySelector('.editorial-{{ sid }}__pairs-wrap');
+  overlayPairsWrap.innerHTML = pairsWrap.innerHTML;
+  var dotsContainer = document.getElementById('editorial-dots-{{ sid }}');
+  if (dotsContainer) overlayDotsWrap.innerHTML = dotsContainer.innerHTML;
+
+  var overlayPairs = overlayPairsWrap.querySelectorAll('.editorial-{{ sid }}__pair');
+  var overlayDots = overlayDotsWrap.querySelectorAll('.editorial-{{ sid }}__dot');
+
   var currentPair = 0;
-  /* Extra scroll distance per swap (px). Increase for more scroll between swaps. */
-  var RUNWAY_PER_SWAP = 150;
+  var isOverlayActive = false;
+  var canActivate = true;
+  var RUNWAY_HEIGHT_PER_SWAP = 600; /* px of scrollable runway per swap */
 
-  function setSectionHeight() {
-    /* Measure the actual content height (the sticky element) */
-    var contentHeight = stickyEl.offsetHeight;
-    /* Total section height = content + runway for each swap */
-    var totalHeight = contentHeight + (RUNWAY_PER_SWAP * (pairCount - 1));
-    section.style.height = totalHeight + 'px';
+  function showPair(index, pairs, dots) {
+    if (index < 0 || index >= pairCount) return;
+    for (var i = 0; i < pairCount; i++) {
+      pairs[i].classList.toggle('is-active', i === index);
+      if (dots[i]) dots[i].classList.toggle('is-active', i === index);
+    }
   }
 
-  /* Set height on load and resize */
-  setSectionHeight();
-  window.addEventListener('resize', setSectionHeight);
+  function activateOverlay(direction) {
+    if (isOverlayActive || !canActivate) return;
+    isOverlayActive = true;
 
-  function showPair(index) {
-    if (index === currentPair || index < 0 || index >= pairCount) return;
-    pairs[currentPair].classList.remove('is-active');
-    if (dots[currentPair]) dots[currentPair].classList.remove('is-active');
-    currentPair = index;
-    pairs[currentPair].classList.add('is-active');
-    if (dots[currentPair]) dots[currentPair].classList.add('is-active');
+    /* Set runway height */
+    var totalRunway = RUNWAY_HEIGHT_PER_SWAP * (pairCount - 1) + window.innerHeight;
+    runway.style.height = totalRunway + 'px';
+
+    /* Reset to correct starting scroll position based on direction */
+    if (direction === 'down') {
+      currentPair = 0;
+      overlay.scrollTop = 0;
+    } else {
+      currentPair = pairCount - 1;
+      overlay.scrollTop = totalRunway - window.innerHeight;
+    }
+
+    /* Sync overlay pairs with current state */
+    showPair(currentPair, overlayPairs, overlayDots);
+
+    /* Show overlay */
+    overlay.classList.add('is-active');
+    overlayBg.classList.add('is-active');
+    overlayContent.classList.add('is-active');
+
+    /* Hide the in-page section content (overlay covers it) */
+    section.style.visibility = 'hidden';
   }
 
-  function onScroll() {
-    var rect = section.getBoundingClientRect();
-    var sectionHeight = section.offsetHeight;
-    var contentHeight = stickyEl.offsetHeight;
-    /* The scroll range is the extra height beyond the content */
-    var scrollRange = sectionHeight - contentHeight;
-    if (scrollRange <= 0) return;
+  function deactivateOverlay() {
+    if (!isOverlayActive) return;
+    isOverlayActive = false;
 
-    /* How far we've scrolled past the point where the sticky pins */
-    var scrolled = -rect.top;
-    var progress = scrolled / scrollRange;
+    /* Sync in-page pairs to current state */
+    showPair(currentPair, inPagePairs, inPageDots);
 
-    /* Clamp 0-1 */
-    progress = Math.max(0, Math.min(0.999, progress));
+    /* Hide overlay */
+    overlay.classList.remove('is-active');
+    overlayBg.classList.remove('is-active');
+    overlayContent.classList.remove('is-active');
 
-    /* Map progress to pair index */
+    /* Show in-page section again */
+    section.style.visibility = '';
+
+    /* Prevent re-activation from momentum */
+    canActivate = false;
+    setTimeout(function() { canActivate = true; }, 600);
+  }
+
+  /* Watch the overlay's scroll position to swap pairs */
+  overlay.addEventListener('scroll', function() {
+    if (!isOverlayActive) return;
+
+    var scrollTop = overlay.scrollTop;
+    var maxScroll = overlay.scrollHeight - overlay.clientHeight;
+
+    /* Map scroll to pair index */
+    var progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
     var targetPair = Math.floor(progress * pairCount);
     targetPair = Math.max(0, Math.min(pairCount - 1, targetPair));
 
     if (targetPair !== currentPair) {
-      showPair(targetPair);
+      currentPair = targetPair;
+      showPair(currentPair, overlayPairs, overlayDots);
     }
-  }
 
-  var ticking = false;
-  window.addEventListener('scroll', function() {
-    if (!ticking) {
-      requestAnimationFrame(function() {
-        onScroll();
-        ticking = false;
-      });
-      ticking = true;
+    /* Deactivate at boundaries — user has scrolled past all pairs */
+    if (scrollTop <= 0) {
+      deactivateOverlay();
+    } else if (scrollTop >= maxScroll - 2) {
+      deactivateOverlay();
     }
   }, { passive: true });
 
-  /* Dot clicks */
-  dots.forEach(function(dot) {
-    dot.addEventListener('click', function() {
-      var index = parseInt(dot.getAttribute('data-dot-index'), 10);
-      if (index >= 0 && index < pairCount) {
-        var sectionTop = section.offsetTop;
-        var contentHeight = stickyEl.offsetHeight;
-        var scrollRange = section.offsetHeight - contentHeight;
-        var targetScroll = sectionTop + (index / pairCount) * scrollRange;
-        window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+  /* IntersectionObserver to detect when section reaches viewport center */
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting || isOverlayActive || !canActivate) return;
+
+      /* Check if section center is near viewport center */
+      var rect = entry.boundingClientRect;
+      var sectionCenter = rect.top + rect.height / 2;
+      var vpCenter = window.innerHeight / 2;
+      var distance = Math.abs(sectionCenter - vpCenter);
+
+      if (distance < window.innerHeight * 0.3) {
+        /* Determine scroll direction from entry */
+        var direction = rect.top < vpCenter ? 'down' : 'up';
+
+        /* Refine: if section top is above viewport center, we scrolled down to it */
+        if (rect.top <= vpCenter) {
+          activateOverlay('down');
+        } else {
+          activateOverlay('up');
+        }
       }
     });
+  }, {
+    threshold: [0.3, 0.5, 0.7, 0.9]
   });
+
+  observer.observe(section);
+
+  /* Also detect scroll direction for re-entry from below */
+  var lastScrollY = window.scrollY;
+  window.addEventListener('scroll', function() {
+    if (isOverlayActive) return;
+    lastScrollY = window.scrollY;
+  }, { passive: true });
 })();
 </script>
 
