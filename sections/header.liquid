@@ -79,12 +79,8 @@
     {%- comment -%}Right: nav links + cart{%- endcomment -%}
     <div class="Header__FlexItem Header__FlexItem--fill ff-header__right">
       <nav class="ff-header__nav hidden-pocket hidden-lap">
-        {%- assign header_right_links = linklists[section.settings.header_right_menu] -%}
-        {%- if header_right_links != blank -%}
-          {%- for link in header_right_links.links -%}
-            <a href="{{ link.url }}" class="ff-header__nav-link">{{ link.title | escape }}</a>
-          {%- endfor -%}
-        {%- endif -%}
+        <a href="/collections" class="ff-header__nav-link">SHOP BAGS</a>
+        <a href="/blogs/magazine" class="ff-header__nav-link">MAGAZINE</a>
         <a href="{{ routes.cart_url }}" class="ff-header__nav-link" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>
           CART{% if cart.item_count > 0 %} ({{ cart.item_count }}){% endif %}
         </a>
