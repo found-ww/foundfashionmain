@@ -16,6 +16,9 @@
   .hero-split__cell {
     position: relative;
     overflow: hidden;
+    display: block;
+    text-decoration: none;
+    color: inherit;
   }
 
   .hero-split__cell img {
@@ -23,8 +26,36 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.8s ease;
   }
 
+  /* Per-cell dark overlay */
+  .hero-split__cell-overlay {
+    position: absolute;
+    inset: 0;
+    background: {{ section.settings.overlay_color }};
+    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    transition: opacity 0.5s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* When hovering a cell, its overlay fades out (image lights up) */
+  .hero-split__cell:hover .hero-split__cell-overlay {
+    opacity: {{ section.settings.hover_opacity | default: 0 | divided_by: 100.0 }};
+  }
+
+  /* Subtle zoom on hover */
+  .hero-split__cell:hover img {
+    transform: scale(1.03);
+  }
+
+  /* When hovering one cell, darken the OTHER cell more */
+  .hero-split__grid-{{ sid }}:hover .hero-split__cell:not(:hover) .hero-split__cell-overlay {
+    opacity: {{ section.settings.inactive_opacity | default: 40 | divided_by: 100.0 }};
+  }
+
+  /* Centered heading spanning both cells */
   .hero-split__overlay {
     position: absolute;
     inset: 0;
@@ -32,16 +63,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
-  }
-
-  .hero-split__overlay::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: {{ section.settings.overlay_color }};
-    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
   }
 
   .hero-split__heading {
@@ -62,13 +85,34 @@
     bottom: 32px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 2;
+    z-index: 3;
     color: {{ section.settings.text_color }};
     font-size: 10px;
     letter-spacing: 0.25em;
     text-transform: uppercase;
     text-align: center;
     pointer-events: none;
+  }
+
+  /* Cell link label (e.g. "SHOP WOMEN" / "SHOP MEN") */
+  .hero-split__cell-label {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: {{ section.settings.text_color }};
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .hero-split__cell:hover .hero-split__cell-label {
+    opacity: 1;
   }
 
   @media screen and (max-width: 640px) {
@@ -84,12 +128,17 @@
     .hero-split__scroll {
       bottom: 20px;
     }
+
+    .hero-split__cell-label {
+      opacity: 1;
+    }
   }
 </style>
 
 <section id="hero-split-{{ sid }}">
   <div class="hero-split__grid-{{ sid }}">
-    <div class="hero-split__cell">
+    {%- comment -%} Left cell {%- endcomment -%}
+    <{% if section.settings.link_a != blank %}a href="{{ section.settings.link_a }}"{% else %}div{% endif %} class="hero-split__cell">
       {%- if section.settings.image_a != blank -%}
         <img
           src="{{ section.settings.image_a | img_url: '1200x' }}"
@@ -101,9 +150,14 @@
       {%- else -%}
         {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
       {%- endif -%}
-    </div>
+      <div class="hero-split__cell-overlay"></div>
+      {%- if section.settings.label_a != blank -%}
+        <span class="hero-split__cell-label">{{ section.settings.label_a | escape }}</span>
+      {%- endif -%}
+    </{% if section.settings.link_a != blank %}a{% else %}div{% endif %}>
 
-    <div class="hero-split__cell">
+    {%- comment -%} Right cell {%- endcomment -%}
+    <{% if section.settings.link_b != blank %}a href="{{ section.settings.link_b }}"{% else %}div{% endif %} class="hero-split__cell">
       {%- if section.settings.image_b != blank -%}
         <img
           src="{{ section.settings.image_b | img_url: '1200x' }}"
@@ -114,7 +168,11 @@
       {%- else -%}
         {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
       {%- endif -%}
-    </div>
+      <div class="hero-split__cell-overlay"></div>
+      {%- if section.settings.label_b != blank -%}
+        <span class="hero-split__cell-label">{{ section.settings.label_b | escape }}</span>
+      {%- endif -%}
+    </{% if section.settings.link_b != blank %}a{% else %}div{% endif %}>
   </div>
 
   <div class="hero-split__overlay">
@@ -133,16 +191,50 @@
   "name": "Hero Split",
   "settings": [
     {
+      "type": "header",
+      "content": "Left side"
+    },
+    {
       "type": "image_picker",
       "id": "image_a",
       "label": "Left image",
       "info": "900 x 1200px .jpg recommended"
     },
     {
+      "type": "url",
+      "id": "link_a",
+      "label": "Left link"
+    },
+    {
+      "type": "text",
+      "id": "label_a",
+      "label": "Left hover label",
+      "info": "Shows on hover (e.g. SHOP WOMEN)"
+    },
+    {
+      "type": "header",
+      "content": "Right side"
+    },
+    {
       "type": "image_picker",
       "id": "image_b",
       "label": "Right image",
       "info": "900 x 1200px .jpg recommended"
+    },
+    {
+      "type": "url",
+      "id": "link_b",
+      "label": "Right link"
+    },
+    {
+      "type": "text",
+      "id": "label_b",
+      "label": "Right hover label",
+      "info": "Shows on hover (e.g. SHOP MEN)"
+    },
+    {
+      "type": "header",
+      "content": "Text & overlay"
     },
     {
       "type": "text",
@@ -171,12 +263,35 @@
     {
       "type": "range",
       "id": "overlay_opacity",
-      "label": "Overlay opacity",
+      "label": "Default overlay",
       "min": 0,
       "max": 100,
       "step": 5,
       "unit": "%",
-      "default": 15
+      "default": 30,
+      "info": "Darkness when not hovering"
+    },
+    {
+      "type": "range",
+      "id": "hover_opacity",
+      "label": "Hover overlay (active side)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 5,
+      "info": "Darkness when hovering (lighter = brighter)"
+    },
+    {
+      "type": "range",
+      "id": "inactive_opacity",
+      "label": "Hover overlay (inactive side)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 50,
+      "info": "Darkness of the OTHER side when hovering"
     }
   ],
   "presets": [
