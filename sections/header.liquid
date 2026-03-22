@@ -153,6 +153,14 @@
      Found Fashion — Custom Minimal Header
      ==================================================== */
 
+  /* Ensure the header is always hoverable, even when transparent.
+     A 1x1 transparent GIF background tricks the browser into treating
+     the entire area as a hover target. */
+  #section-{{ section.id }} {
+    background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') !important;
+    background-size: cover;
+  }
+
   .ff-header__left {
     justify-content: flex-start;
   }
