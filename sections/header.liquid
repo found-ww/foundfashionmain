@@ -15,7 +15,14 @@
     position: sticky;
     top: 0;
     z-index: 100;
+    background: transparent !important;
   }
+
+  {% unless template == 'index' %}
+  .shopify-section--header {
+    background: #ffffff !important;
+  }
+  {% endunless %}
 
   {% if template == 'index' %}
   .shopify-section--header {
