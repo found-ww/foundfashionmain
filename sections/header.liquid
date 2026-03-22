@@ -1,119 +1,18 @@
 {%- comment -%}
-In Prestige, the header is quite complex due to the very high number of possible combinations. If you have to edit it, please
-make sure to duplicate the theme first so you can revert your changes in case any issue is introduced.
-{%- endcomment -%}
-
-{%- comment -%}
---------------------------------------------------------------------------------------------------------------------
-USEFUL VARIABLES
---------------------------------------------------------------------------------------------------------------------
+  Custom simplified header for Found Fashion homepage redesign.
+  - Left: hamburger menu
+  - Center: FOUND FASHION text
+  - Right: configurable right links + CART
+  - Transparent on homepage, solid on other pages
+  - Compatible with existing theme.js HeaderSection class
 {%- endcomment -%}
 
 {%- assign use_transparent_header = false -%}
-
 {%- if template == 'index' and section.settings.enable_transparent_header -%}
   {%- assign use_transparent_header = true -%}
 {%- endif -%}
 
-{%- if template.name == 'collection' and section.settings.enable_transparent_header_collection and collection.image and collection.all_products_count > 0 and collection.template_suffix != 'no-image' -%}
-  {%- assign use_transparent_header = true -%}
-{%- endif -%}
-
-{%- if section.settings.navigation_style != 'sidebar' -%}
-  {%- assign use_sidebar_menu = false -%}
-{%- else -%}
-  {%- assign use_sidebar_menu = true -%}
-{%- endif -%}
-
-{%- comment -%}
---------------------------------------------------------------------------------------------------------------------
-CURRENCY AND LANGUAGE SELECTORS
---------------------------------------------------------------------------------------------------------------------
-{%- endcomment -%}
-
-{%- if section.settings.show_country_selector and localization.available_countries.size > 1 -%}
-  {%- assign country_selector = true -%}
-{%- endif -%}
-
-{%- if section.settings.show_locale_selector and localization.available_languages.size > 1 -%}
-  {%- assign locale_selector = true -%}
-{%- endif -%}
-
-{%- if locale_selector or country_selector -%}
-  {%- capture localization_form -%}
-    {%- form 'localization', id: 'localization_form_header', class: 'Header__LocalizationForm hidden-pocket hidden-lap' -%}
-      <div class="HorizontalList HorizontalList--spacingLoose">
-        {%- if country_selector -%}
-          <div class="HorizontalList__Item">
-            <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
-            <span class="u-visually-hidden">{{ 'header.general.country' | t }}</span>
-
-            <button type="button" class="SelectButton Link Link--primary u-h8" aria-haspopup="true" aria-expanded="false" aria-controls="header-currency-popover">
-              {{- localization.country.name }} ({{ localization.country.currency.iso_code }} {% if localization.country.currency.symbol %}{{ localization.country.currency.symbol }}{%- endif -%})
-              {%- render 'icon', icon: 'select-arrow' -%}
-            </button>
-
-            <div id="header-currency-popover" class="Popover Popover--small Popover--noWrap" aria-hidden="true">
-              <header class="Popover__Header">
-                <button type="button" class="Popover__Close Icon-Wrapper--clickable" data-action="close-popover">{% render 'icon' with 'close' %}</button>
-                <span class="Popover__Title Heading u-h4">{{ 'header.general.country' | t }}</span>
-              </header>
-
-              <div class="Popover__Content">
-                <div class="Popover__ValueList Popover__ValueList--center" data-scrollable>
-                  {%- for country in localization.available_countries -%}
-                    <button type="submit" name="country_code" class="Popover__Value {% if country.iso_code == localization.country.iso_code %}is-selected{% endif %} Heading Link Link--primary u-h6"  value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}aria-current="true"{% endif %}>
-                      {{- country.name }} ({{ country.currency.iso_code }} {% if country.currency.symbol %}{{ country.currency.symbol }}{%- endif -%})
-                    </button>
-                  {%- endfor -%}
-                </div>
-              </div>
-            </div>
-          </div>
-        {%- endif -%}
-
-        {%- if locale_selector -%}
-          <div class="HorizontalList__Item">
-            <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}">
-            <span class="u-visually-hidden">{{ 'header.general.locale' | t }}</span>
-
-            <button type="button" class="SelectButton Link Link--primary u-h8" aria-haspopup="true" aria-expanded="false" aria-controls="header-locale-popover">
-              {{- localization.language.endonym_name | capitalize -}}
-              {%- render 'icon', icon: 'select-arrow' -%}
-            </button>
-
-            <div id="header-locale-popover" class="Popover Popover--small Popover--noWrap" aria-hidden="true">
-              <header class="Popover__Header">
-                <button type="button" class="Popover__Close Icon-Wrapper--clickable" data-action="close-popover">{% render 'icon' with 'close' %}</button>
-                <span class="Popover__Title Heading u-h4">{{ 'header.general.locale' | t }}</span>
-              </header>
-
-              <div class="Popover__Content">
-                <div class="Popover__ValueList Popover__ValueList--center" data-scrollable>
-                  {%- for language in localization.available_languages -%}
-                    <button type="submit" name="locale_code" class="Popover__Value {% if language.iso_code == localization.language.iso_code %}is-selected{% endif %} Heading Link Link--primary u-h6" value="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}aria-current="true"{% endif %}>
-                      {{- language.endonym_name | capitalize -}}
-                    </button>
-                  {%- endfor -%}
-                </div>
-              </div>
-            </div>
-          </div>
-        {%- endif -%}
-      </div>
-    {%- endform -%}
-  {%- endcapture -%}
-{%- endif -%}
-
-{%- comment -%}
---------------------------------------------------------------------------------------------------------------------
-SEARCH FORM (implemented as a modal)
-
-Implementation note: make sure that the Search div is always just before the Header element, as the CSS uses
-                     this assumption
---------------------------------------------------------------------------------------------------------------------
-{%- endcomment -%}
-
+{%- comment -%}Search modal — must be directly before <header> for CSS to work{%- endcomment -%}
 <div id="Search" class="Search" aria-hidden="true">
   <div class="Search__Inner">
     <div class="Search__SearchBar">
@@ -122,14 +21,11 @@ Implementation note: make sure that the Search div is always just before the Hea
           <span class="hidden-tablet-and-up">{%- render 'icon' with 'search' -%}</span>
           <span class="hidden-phone">{%- render 'icon' with 'search-desktop' -%}</span>
         </div>
-
         <input type="search" class="Search__Input Heading" name="q" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="{{ 'search.general.input_placeholder' | t }}" placeholder="{{ 'search.general.input_placeholder' | t }}" autofocus>
         <input type="hidden" name="type" value="product">
       </form>
-
       <button class="Search__Close Link Link--primary" data-action="close-search" aria-label="{{ 'header.navigation.close_search' | t }}">{% render 'icon' with 'close' %}</button>
     </div>
-
     <div class="Search__Results" aria-hidden="true">
       {%- if settings.search_mode != 'product' -%}
         <div class="PageLayout PageLayout--breakLap">
@@ -141,358 +37,66 @@ Implementation note: make sure that the Search div is always just before the Hea
   </div>
 </div>
 
-{%- comment -%}
---------------------------------------------------------------------------------------------------------------------
-HEADER CONTENT
---------------------------------------------------------------------------------------------------------------------
-{%- endcomment -%}
-
 {%- capture section_settings -%}
 {
-  "navigationStyle": {{ section.settings.navigation_style | json }},
+  "navigationStyle": "sidebar",
   "hasTransparentHeader": {% if use_transparent_header %}true{% else %}false{% endif %},
   "isSticky": {% if section.settings.use_sticky_header %}true{% else %}false{% endif %}
 }
 {%- endcapture -%}
 
 <header id="section-{{ section.id }}"
-        class="Header Header--{{ section.settings.navigation_style }} {% if section.settings.navigation_style != 'inline' and section.settings.navigation_style != 'logoLeft' %}Header--initialized{% endif %} {% if use_transparent_header %}Header--transparent{% endif %} {% if section.settings.show_icons or section.settings.navigation_style == 'sidebar' %}Header--withIcons{% endif %}"
+        class="Header Header--sidebar Header--initialized {% if use_transparent_header %}Header--transparent{% endif %} Header--withIcons"
         data-section-id="{{ section.id }}"
         data-section-type="header"
         data-section-settings='{{ section_settings }}'
         role="banner">
   <div class="Header__Wrapper">
-    <div class="Header__FlexItem Header__FlexItem--fill">
-      <button class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable {% unless use_sidebar_menu %}hidden-desk{% endunless %}" aria-expanded="false" data-action="open-drawer" data-drawer-id="sidebar-menu" aria-label="{{ 'header.navigation.open_sidebar' | t }}">
-        <span class="hidden-tablet-and-up">{%- render 'icon' with 'nav' -%}</span>
-        <span class="hidden-phone">{%- render 'icon' with 'nav-desktop' -%}</span>
+    {%- comment -%}Left: hamburger{%- endcomment -%}
+    <div class="Header__FlexItem Header__FlexItem--fill ff-header__left">
+      <button class="ff-header__hamburger" aria-expanded="false" data-action="open-drawer" data-drawer-id="sidebar-menu" aria-label="{{ 'header.navigation.open_sidebar' | t }}">
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line y1="1" x2="20" y2="1" stroke="currentColor" stroke-width="1.5"/>
+          <line y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="1.5"/>
+          <line y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
       </button>
-
-      {%- comment -%}
-      --------------------------------------------------------------------------------------------------------------------
-      DESKTOP NAVIGATION (if not using the sidebar mode)
-      --------------------------------------------------------------------------------------------------------------------
-      {%- endcomment -%}
-
-      {%- unless use_sidebar_menu -%}
-        {%- assign main_menu_handle = section.settings.navigation_menu | default: 'main-menu' -%}
-        {%- assign main_menu = linklists[main_menu_handle] -%}
-
-        {%- assign mega_menu_names = '' -%}
-
-        {%- for block in section.blocks -%}
-          {%- if block.type == 'mega_menu' -%}
-            {%- assign trim_mega_menu_name = block.settings.navigation_mega_menu | strip -%}
-            {%- assign mega_menu_names = mega_menu_names | append: trim_mega_menu_name | append: ',' -%}
-          {%- endif -%}
-        {%- endfor -%}
-
-        {%- assign mega_menu_names = mega_menu_names | downcase | split: ',' | compact -%}
-
-        <nav class="Header__MainNav hidden-pocket hidden-lap" aria-label="{{ 'header.navigation.title' | t }}">
-          <ul class="HorizontalList HorizontalList--spacingExtraLoose">
-            {%- for link in main_menu.links -%}
-              {%- assign downcased_link_title = link.title | downcase | strip -%}
-              {%- assign use_mega_menu = false -%}
-
-              {%- capture menu_item_dropdown -%}
-                {%- if mega_menu_names contains downcased_link_title -%}
-                  {%- for block in section.blocks -%}
-                    {%- assign downcased_mega_menu_name = block.settings.navigation_mega_menu | downcase -%}
-
-                    {%- if downcased_mega_menu_name != downcased_link_title -%}
-                      {%- continue -%}
-                    {%- endif -%}
-
-                    {%- assign use_mega_menu = true -%}
-                    {%- assign push_image_count = 0 -%}
-
-                    {%- if block.settings.push_1_image -%}
-                      {%- assign push_image_count = push_image_count | plus: 1 -%}
-                    {%- endif -%}
-
-                    {%- if block.settings.push_2_image -%}
-                      {%- assign push_image_count = push_image_count | plus: 1 -%}
-                    {%- endif -%}
-
-                    {%- assign should_space_evenly = false -%}
-
-                    {%- if push_image_count == 0 and link.links.size <= 3 -%}
-                      {%- assign should_space_evenly = true -%}
-                    {%- endif -%}
-
-                    {%- if push_image_count == 1 and link.links.size == 1 -%}
-                      {%- assign should_space_evenly = true -%}
-                    {%- endif -%}
-
-                    {%- if push_image_count == 2 and link.links.size == 1 -%}
-                      {%- assign should_space_evenly = true -%}
-                    {%- endif -%}
-
-                    {%- assign mega_collection_handle = '' -%}
-                    {%- if link.url contains '/collections/' -%}
-                      {%- assign mega_collection_handle = link.url | split: '/collections/' | last | split: '?' | first | split: '/' | first -%}
-                    {%- endif -%}
-                    {%- assign mega_collection = collections[mega_collection_handle] -%}
-
-                    {%- assign mega_blog_handle = '' -%}
-                    {%- if link.url contains '/blogs/' -%}
-                      {%- assign mega_blog_handle = link.url | split: '/blogs/' | last | split: '?' | first | split: '/' | first -%}
-                    {%- endif -%}
-                    {%- assign mega_blog = blogs[mega_blog_handle] -%}
-
-                    <div class="MegaMenu FoundMegaMenu" aria-hidden="true" {{ block.shopify_attributes }}>
-                      <div class="FoundMegaMenu__Inner">
-
-                        {%- comment -%} Left column: nav links {%- endcomment -%}
-                        <div class="FoundMegaMenu__Nav">
-                          {%- if mega_blog != blank -%}
-                            <span class="FoundMegaMenu__NavLabel">{{ mega_blog.title | upcase }}</span>
-                            <ul class="FoundMegaMenu__NavList">
-                              <li class="FoundMegaMenu__NavItem">
-                                <a href="{{ link.url }}" class="FoundMegaMenu__NavLink">VIEW ALL</a>
-                              </li>
-                            </ul>
-                          {%- else -%}
-                            <span class="FoundMegaMenu__NavLabel">Shop {{ link.title }}</span>
-                            <ul class="FoundMegaMenu__NavList">
-                              {%- for sub_link in link.links -%}
-                                {%- if sub_link.links != blank -%}
-                                  <li class="FoundMegaMenu__NavItem">
-                                    <a href="{{ sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_link.title | upcase }}</a>
-                                  </li>
-                                  {%- for sub_sub_link in sub_link.links -%}
-                                    <li class="FoundMegaMenu__NavItem">
-                                      <a href="{{ sub_sub_link.url }}" class="FoundMegaMenu__NavLink">{{ sub_sub_link.title | upcase }}</a>
-                                    </li>
-                                  {%- endfor -%}
-                                {%- endif -%}
-                              {%- endfor -%}
-                            </ul>
-                          {%- endif -%}
-                        </div>
-
-                        {%- comment -%} Right section: 4-card strip (articles for blog, products for collection) {%- endcomment -%}
-                        <div class="FoundStrip">
-                          {%- if mega_blog != blank -%}
-                            {%- for article in mega_blog.articles limit: 3 -%}
-                              {%- assign _word_count = article.content | strip_html | split: ' ' | size -%}
-                              {%- assign _read_min = _word_count | divided_by: 200 | at_least: 1 -%}
-                              <a href="{{ article.url }}" class="FoundStrip__Card">
-                                <div class="FoundStrip__ImageWrap">
-                                  {%- if article.image -%}
-                                    {%- assign image_url = article.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-                                    <img class="FoundStrip__Img Image--lazyLoad Image--fadeIn"
-                                         data-src="{{ image_url }}"
-                                         data-widths="[300, 400, 600]"
-                                         data-sizes="auto"
-                                         alt="{{ article.image.alt | default: article.title | escape }}">
-                                  {%- endif -%}
-                                </div>
-                                <div class="FoundStrip__Info">
-                                  <span class="FoundStrip__Brand">{{ _read_min }} min read</span>
-                                  <span class="FoundStrip__Name">{{ article.title | escape }}</span>
-                                </div>
-                              </a>
-                            {%- endfor -%}
-                          {%- elsif mega_collection != blank -%}
-                            {%- assign rendered_count = 0 -%}
-                            {%- for product in mega_collection.products limit: 20 -%}
-                              {%- if product.available and rendered_count < 4 -%}
-                                {%- assign rendered_count = rendered_count | plus: 1 -%}
-                                <a href="{{ product.url }}" class="FoundStrip__Card">
-                                  <div class="FoundStrip__ImageWrap">
-                                    {%- if product.featured_media -%}
-                                      {%- assign image_url = product.featured_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-                                      <img class="FoundStrip__Img Image--lazyLoad Image--fadeIn"
-                                           data-src="{{ image_url }}"
-                                           data-widths="[300, 400, 600]"
-                                           data-sizes="auto"
-                                           alt="{{ product.featured_media.alt | default: product.title | escape }}">
-                                    {%- endif -%}
-                                  </div>
-                                  <div class="FoundStrip__Info">
-                                    {%- if product.vendor != blank -%}
-                                      <span class="FoundStrip__Brand">{{ product.vendor | upcase }}</span>
-                                    {%- endif -%}
-                                    <span class="FoundStrip__Name">{{ product.title | escape }}</span>
-                                    <span class="FoundStrip__Price">{{ product.price | money }}</span>
-                                  </div>
-                                </a>
-                              {%- endif -%}
-                            {%- endfor -%}
-                            {%- if rendered_count < 4 -%}
-                              {%- assign empty_count = 4 | minus: rendered_count -%}
-                              {%- for i in (1..empty_count) -%}
-                                <div class="FoundStrip__Empty"></div>
-                              {%- endfor -%}
-                            {%- endif -%}
-                          {%- endif -%}
-                        </div>
-
-                      </div>
-                    </div>
-                  {%- endfor -%}
-                {%- elsif link.links != blank -%}
-                  <div class="DropdownMenu" aria-hidden="true">
-                    <ul class="Linklist">
-                      {%- for sub_link in link.links -%}
-                        <li class="Linklist__Item" {% if sub_link.links != blank %}aria-haspopup="true"{% endif %}>
-                          <a href="{{ sub_link.url }}" class="Link Link--secondary">{{ sub_link.title | escape }} {% if sub_link.links != blank %}{% render 'icon' with 'select-arrow-right' %}{% endif %}</a>
-
-                          {%- if sub_link.links != blank -%}
-                            <div class="DropdownMenu" aria-hidden="true">
-                              <ul class="Linklist">
-                                {%- for sub_sub_link in sub_link.links -%}
-                                  <li class="Linklist__Item">
-                                    <a href="{{ sub_sub_link.url }}" class="Link Link--secondary">{{ sub_sub_link.title | escape }}</a>
-                                  </li>
-                                {%- endfor -%}
-                              </ul>
-                            </div>
-                          {%- endif -%}
-                        </li>
-                      {%- endfor -%}
-                    </ul>
-                  </div>
-                {%- endif -%}
-              {%- endcapture -%}
-
-              <li class="HorizontalList__Item {% if link.links == blank and link.active %}is-active{% endif %}" {% if menu_item_dropdown != blank %}aria-haspopup="true"{% endif %}>
-                <a href="{{ link.url }}" class="Heading u-h6">
-                  {{- link.title | escape -}}
-
-                  {%- if use_mega_menu or menu_item_dropdown == blank -%}
-                    <span class="Header__LinkSpacer">{{ link.title | escape }}</span>
-                  {%- endif -%}
-                </a>
-
-                {{- menu_item_dropdown -}}
-              </li>
-            {%- endfor -%}
-          </ul>
-        </nav>
-
-        {{- localization_form -}}
-      {%- endunless -%}
     </div>
 
-    {%- capture header_logo -%}
-      <a href="{{ routes.root_url }}" class="Header__LogoLink">
-        {%- if section.settings.logo != blank -%}
-          {%- capture image_size -%}{{ section.settings.logo_max_width }}x{%- endcapture -%}
-
-          <img class="Header__LogoImage Header__LogoImage--primary"
-               src="{{ section.settings.logo | img_url: image_size }}"
-               srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x"
-               width="{{ section.settings.logo.width }}"
-               height="{{ section.settings.logo.height }}"
-               alt="{{ section.settings.logo.alt | default: shop.name | escape }}">
-
-          {%- if use_transparent_header and section.settings.transparent_logo != blank -%}
-            <img class="Header__LogoImage Header__LogoImage--transparent"
-                 src="{{ section.settings.transparent_logo | img_url: image_size }}"
-                 srcset="{{ section.settings.transparent_logo | img_url: image_size }} 1x, {{ section.settings.transparent_logo | img_url: image_size, scale: 2 }} 2x"
-                 width="{{ section.settings.logo.width }}"
-                 height="{{ section.settings.logo.height }}"
-                 alt="{{ section.settings.transparent_logo.alt | default: shop.name | escape }}">
-          {%- endif -%}
-        {%- else -%}
-          <span class="Heading u-h4">{{ shop.name }}</span>
-        {%- endif -%}
-      </a>
-    {%- endcapture -%}
-
-    <div class="Header__FlexItem Header__FlexItem--logo">
+    {%- comment -%}Center: logo text{%- endcomment -%}
+    <div class="Header__FlexItem Header__FlexItem--logo ff-header__center">
       {%- if template == 'index' -%}
-        <h1 class="Header__Logo">{{ header_logo }}</h1>
+        <h1 class="Header__Logo ff-header__logo-text">
+          <a href="{{ routes.root_url }}" class="Header__LogoLink ff-header__logo-link">FOUND FASHION</a>
+        </h1>
       {%- else -%}
-        <div class="Header__Logo">{{ header_logo }}</div>
+        <div class="Header__Logo ff-header__logo-text">
+          <a href="{{ routes.root_url }}" class="Header__LogoLink ff-header__logo-link">FOUND FASHION</a>
+        </div>
       {%- endif -%}
     </div>
 
-    <div class="Header__FlexItem Header__FlexItem--fill">
-      {%- if use_sidebar_menu and section.settings.header_right_menu != blank -%}
+    {%- comment -%}Right: nav links + cart{%- endcomment -%}
+    <div class="Header__FlexItem Header__FlexItem--fill ff-header__right">
+      <nav class="ff-header__nav hidden-pocket hidden-lap">
         {%- assign header_right_links = linklists[section.settings.header_right_menu] -%}
-        <nav class="Header__SecondaryNav hidden-phone">
-          <ul class="HorizontalList HorizontalList--spacingLoose hidden-pocket hidden-lap">
-            {%- for link in header_right_links.links -%}
-              <li class="HorizontalList__Item">
-                <a href="{{ link.url }}" class="Heading Link Link--primary Text--subdued u-h8">{{ link.title | escape }}</a>
-              </li>
-            {%- endfor -%}
-            <li class="HorizontalList__Item">
-              <a href="{{ routes.cart_url }}" class="Heading Link Link--primary Text--subdued u-h8" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>CART</a>
-            </li>
-          </ul>
-        </nav>
-
-        {%- comment -%}Mobile: keep icons for search and cart{%- endcomment -%}
-        <a href="{{ routes.search_url }}" class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable hidden-tablet-and-up" data-action="toggle-search" aria-label="{{ 'header.navigation.search' | t }}">
-          {%- render 'icon' with 'search' -%}
-        </a>
-        <a href="{{ routes.cart_url }}" class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable hidden-tablet-and-up" {% if settings.cart_type == 'drawer' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-expanded="false" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endif %}>
-          {%- render 'icon' with 'cart' -%}
-          <span class="Header__CartDot {% if cart.item_count > 0 %}is-visible{% endif %}"></span>
-        </a>
-      {%- else -%}
-        {%- unless section.settings.show_icons or use_sidebar_menu -%}
-          <nav class="Header__SecondaryNav hidden-phone">
-            <ul class="HorizontalList HorizontalList--spacingLoose hidden-pocket hidden-lap">
-              {%- if localization_form != blank and section.settings.navigation_style == 'inline' or section.settings.navigation_style == 'logoLeft' -%}
-                <li class="HorizontalList__Item">
-                  {{ localization_form }}
-                </li>
-              {%- endif -%}
-
-              {%- if shop.customer_accounts_enabled -%}
-                <li class="HorizontalList__Item">
-                  <a href="{{ routes.account_url }}" class="Heading Link Link--primary Text--subdued u-h8">
-                    {{- 'header.navigation.account' | t -}}
-                  </a>
-                </li>
-              {%- endif -%}
-
-              <li class="HorizontalList__Item">
-                <a href="{{ routes.search_url }}" class="Heading Link Link--primary Text--subdued u-h8" data-action="toggle-search">{{ 'header.navigation.search' | t }}</a>
-              </li>
-
-              <li class="HorizontalList__Item">
-                <a href="{{ routes.cart_url }}" class="Heading u-h6" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>{{ 'header.navigation.cart' | t }} (<span class="Header__CartCount">{{ cart.item_count }}</span>)</a>
-              </li>
-            </ul>
-          </nav>
-        {%- elsif localization_form != blank -%}
-          <nav class="Header__SecondaryNav">
-            <ul class="HorizontalList HorizontalList--spacingLoose hidden-pocket hidden-lap">
-              <li class="HorizontalList__Item">
-                {{ localization_form }}
-              </li>
-            </ul>
-          </nav>
-        {%- endunless -%}
-
-        {%- if shop.customer_accounts_enabled and section.settings.show_icons or use_sidebar_menu -%}
-          <a href="{{ routes.account_url }}" class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable hidden-phone">
-            {%- render 'icon' with 'account' -%}
-          </a>
+        {%- if header_right_links != blank -%}
+          {%- for link in header_right_links.links -%}
+            <a href="{{ link.url }}" class="ff-header__nav-link">{{ link.title | escape }}</a>
+          {%- endfor -%}
         {%- endif -%}
-
-        <a href="{{ routes.search_url }}" class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable {% unless section.settings.show_icons or use_sidebar_menu %}hidden-desk{% endunless %}" data-action="toggle-search" aria-label="{{ 'header.navigation.search' | t }}">
-          <span class="hidden-tablet-and-up">{%- render 'icon' with 'search' -%}</span>
-          <span class="hidden-phone">{%- render 'icon' with 'search-desktop' -%}</span>
+        <a href="{{ routes.cart_url }}" class="ff-header__nav-link" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>
+          CART{% if cart.item_count > 0 %} ({{ cart.item_count }}){% endif %}
         </a>
+      </nav>
 
-        <a href="{{ routes.cart_url }}" class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable {% unless section.settings.show_icons or use_sidebar_menu %}hidden-desk{% endunless %}" {% if settings.cart_type == 'drawer' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-expanded="false" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endif %}>
-          <span class="hidden-tablet-and-up">{%- render 'icon' with 'cart' -%}</span>
-          <span class="hidden-phone">{%- render 'icon' with 'cart-desktop' -%}</span>
-          <span class="Header__CartDot {% if cart.item_count > 0 %}is-visible{% endif %}"></span>
-        </a>
-      {%- endif -%}
+      {%- comment -%}Mobile: just cart icon{%- endcomment -%}
+      <a href="{{ routes.cart_url }}" class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable hidden-tablet-and-up" {% if settings.cart_type == 'drawer' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-expanded="false" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endif %}>
+        {%- render 'icon' with 'cart' -%}
+        <span class="Header__CartDot {% if cart.item_count > 0 %}is-visible{% endif %}"></span>
+      </a>
     </div>
   </div>
-
-
 </header>
 
 <style>
@@ -501,7 +105,6 @@ HEADER CONTENT
       --use-sticky-header: 1;
       --use-unsticky-header: 0;
     }
-
     .shopify-section--header {
       position: -webkit-sticky;
       position: sticky;
@@ -513,35 +116,20 @@ HEADER CONTENT
     }
   {%- endif -%}
 
-  {%- if section.settings.logo -%}
-    .Header__LogoImage {
-      max-width: {{ section.settings.logo_max_width }}px;
-    }
-
-    @media screen and (max-width: 640px) {
-      .Header__LogoImage {
-        max-width: {{ section.settings.mobile_logo_max_width }}px;
-      }
-    }
-  {%- endif -%}
-
   {%- if use_transparent_header -%}
     :root {
       --header-is-not-transparent: 0;
       --header-is-transparent: 1;
     }
-
     .shopify-section--header {
       margin-bottom: calc(-1 * var(--header-height));
     }
-
     .supports-sticky .Search[aria-hidden="true"] + .Header--transparent {
       {%- if section.settings.show_transparent_header_border -%}
         box-shadow: 0 -1px {{ section.settings.transparent_text_color | color_modify: 'alpha', 0.25 }} inset;
       {%- else -%}
         box-shadow: none;
       {%- endif -%}
-
       color: {{ section.settings.transparent_text_color }};
     }
   {%- else -%}
@@ -550,172 +138,83 @@ HEADER CONTENT
       --header-is-transparent: 0;
     }
   {%- endif -%}
+
+  /* ====================================================
+     Found Fashion — Custom Minimal Header
+     ==================================================== */
+
+  .ff-header__left {
+    justify-content: flex-start;
+  }
+
+  .ff-header__hamburger {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ff-header__center {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .ff-header__logo-text {
+    margin: 0;
+  }
+
+  .ff-header__logo-link {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: inherit;
+    white-space: nowrap;
+  }
+
+  .ff-header__right {
+    justify-content: flex-end;
+  }
+
+  .ff-header__nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .ff-header__nav-link {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: inherit;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+  }
+
+  .ff-header__nav-link:hover {
+    opacity: 0.7;
+  }
+
+  @media screen and (max-width: 640px) {
+    .ff-header__logo-link {
+      font-size: 14px;
+      letter-spacing: 0.15em;
+    }
+  }
 </style>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap">
-
-<style>
-  /* ====================================================
-     Found Fashion — Mega Menu Dropdown
-     ==================================================== */
-
-  /* Remove default MegaMenu padding so the strip sits flush */
-  .FoundMegaMenu {
-    padding: 0;
-  }
-
-  /* Full-width flex row: nav column + card strip */
-  .FoundMegaMenu__Inner {
-    display: flex;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  /* ── Left column: nav (styles preserved exactly) ── */
-  .FoundMegaMenu__Nav {
-    flex: 0 0 auto;
-    width: 190px;
-    padding: 28px 40px;
-  }
-
-  .FoundMegaMenu__NavLabel {
-    display: none;
-    font-family: 'Jost', sans-serif;
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #7a7468;
-    margin-bottom: 20px;
-  }
-
-  .FoundMegaMenu__NavList {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .FoundMegaMenu__NavItem {
-    margin-bottom: 14px;
-  }
-
-  .FoundMegaMenu__NavItem:last-child {
-    margin-bottom: 0;
-  }
-
-  .FoundMegaMenu__NavLink {
-    font-family: 'Jost', sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #1a1814;
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-
-  .FoundMegaMenu__NavLink:hover {
-    color: #b8a07a;
-  }
-
-  /* ── Right section: 4-card horizontal product strip ── */
-  .FoundStrip {
-    flex: 1;
-    display: flex;
-    min-width: 0;
-    border-left: 1px solid #e8e2d8;
-  }
-
-  /* Each card takes an equal share of the strip */
-  .FoundStrip__Card {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    text-decoration: none;
-    color: inherit;
-    background: #ffffff;
-    min-width: 0;
-    transition: background-color 0.2s ease;
-  }
-
-  /* Hairline vertical rule between adjacent product cards only */
-  .FoundStrip__Card + .FoundStrip__Card {
-    border-left: 1px solid #e8e2d8;
-  }
-
-  /* Empty column — pure white, no border, no content */
-  .FoundStrip__Empty {
-    flex: 1;
-    min-width: 0;
-    background: #ffffff;
-  }
-
-  .FoundStrip__Card:hover {
-    background: #faf8f5;
-  }
-
-  /* Image area — fixed 220px height */
-  .FoundStrip__ImageWrap {
-    height: 280px;
-    overflow: hidden;
-    background: #f5f3ef;
-    flex-shrink: 0;
-  }
-
-  .FoundStrip__Img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.45s ease;
-  }
-
-  .FoundStrip__Card:hover .FoundStrip__Img {
-    transform: scale(1.04);
-  }
-
-  /* Text block below image */
-  .FoundStrip__Info {
-    border-top: 1px solid #e8e2d8;
-    padding: 14px 20px 18px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Brand */
-  .FoundStrip__Brand {
-    font-family: 'Jost', sans-serif;
-    font-size: 9px;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #bbbbbb;
-    margin-bottom: 6px;
-  }
-
-  /* Product name — no truncation */
-  .FoundStrip__Name {
-    font-family: 'Jost', sans-serif;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #444444;
-    line-height: 1.5;
-    margin-bottom: 5px;
-  }
-
-  /* Price */
-  .FoundStrip__Price {
-    font-family: 'Jost', sans-serif;
-    font-size: 11px;
-    font-weight: 300;
-    letter-spacing: 0.04em;
-    color: #7a7468;
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
 
 <script>
   document.documentElement.style.setProperty('--header-height', document.getElementById('shopify-section-header').offsetHeight + 'px');
@@ -734,103 +233,20 @@ HEADER CONTENT
     },
     {
       "type": "header",
-      "content": "Logo"
-    },
-    {
-      "type": "image_picker",
-      "id": "logo",
-      "label": "Image",
-      "info": "200 x 60px .png recommended"
-    },
-    {
-      "type": "range",
-      "id": "logo_max_width",
-      "min": 50,
-      "max": 350,
-      "step": 5,
-      "unit": "px",
-      "label": "Image width",
-      "default": 140
-    },
-    {
-      "type": "range",
-      "id": "mobile_logo_max_width",
-      "min": 50,
-      "max": 200,
-      "step": 5,
-      "unit": "px",
-      "label": "Mobile image width",
-      "default": 90
-    },
-    {
-      "type": "header",
-      "content": "Country/region selector",
-      "info": "To add a country/region, go to your [currency settings.](/admin/settings/payments)"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_country_selector",
-      "label": "Show country/region selector",
-      "default": false
-    },
-    {
-      "type": "header",
-      "content": "Language selector",
-      "info": "To add a language, go to your [language settings.](/admin/settings/languages)"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_locale_selector",
-      "label": "Show language selector",
-      "default": true
-    },
-    {
-      "type": "header",
       "content": "Navigation"
     },
     {
       "type": "link_list",
       "id": "navigation_menu",
-      "label": "Menu",
-      "default": "main-menu"
+      "label": "Sidebar menu",
+      "default": "main-menu",
+      "info": "Full navigation menu shown in the sidebar drawer"
     },
     {
       "type": "link_list",
       "id": "header_right_menu",
       "label": "Header right links",
-      "info": "When sidebar navigation is used, these links appear as text in the header right side. Cart link is added automatically."
-    },
-    {
-      "type": "select",
-      "id": "navigation_style",
-      "label": "Navigation style",
-      "info": "Setting will default to center style if screen width cannot fit all the links.",
-      "options": [
-        {
-          "value": "sidebar",
-          "label": "Sidebar"
-        },
-        {
-          "value": "inline",
-          "label": "Inline"
-        },
-        {
-          "value": "center",
-          "label": "Center"
-        },
-        {
-          "value": "logoLeft",
-          "label": "Logo left"
-        }
-      ],
-      "default": "inline"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_icons",
-      "label": "Show icons",
-      "info": "Text for account, search and cart are replaced by icons on desktop.",
-      "default": false
+      "info": "Links shown on the right side of the header bar. Cart is added automatically."
     },
     {
       "type": "header",
@@ -840,99 +256,19 @@ HEADER CONTENT
       "type": "checkbox",
       "id": "enable_transparent_header",
       "label": "Enable on homepage",
-      "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "enable_transparent_header_collection",
-      "label": "Enable on collection pages",
-      "default": false
+      "default": true
     },
     {
       "type": "checkbox",
       "id": "show_transparent_header_border",
       "label": "Show separation border",
-      "default": true
+      "default": false
     },
     {
       "type": "color",
       "id": "transparent_text_color",
-      "label": "Text/icon color",
+      "label": "Text/icon colour",
       "default": "#ffffff"
-    },
-    {
-      "type": "image_picker",
-      "id": "transparent_logo",
-      "label": "Logo image",
-      "info": "200 x 60px .png recommended"
-    }
-  ],
-  "blocks": [
-    {
-      "type": "mega_menu",
-      "name": "Mega menu",
-      "settings": [
-        {
-          "type": "text",
-          "id": "navigation_mega_menu",
-          "label": "Menu item",
-          "info": "Enter menu item to apply a mega menu dropdown. [Learn more](http://support.maestrooo.com/article/149-navigation-enabling-and-configuring-mega-menu)."
-        },
-        {
-          "type": "header",
-          "content": "Image push 1"
-        },
-        {
-          "type": "image_picker",
-          "id": "push_1_image",
-          "label": "Image",
-          "info": "740 x 460 px .jpg recommended"
-        },
-        {
-          "type": "text",
-          "id": "push_1_heading",
-          "label": "Heading",
-          "default": "Example heading"
-        },
-        {
-          "type": "text",
-          "id": "push_1_subheading",
-          "label": "Sub-heading",
-          "default": "Example sub-heading"
-        },
-        {
-          "type": "url",
-          "id": "push_1_url",
-          "label": "Link"
-        },
-        {
-          "type": "header",
-          "content": "Image push 2"
-        },
-        {
-          "type": "image_picker",
-          "id": "push_2_image",
-          "label": "Image",
-          "info": "740 x 460 px .jpg recommended"
-        },
-        {
-          "type": "text",
-          "id": "push_2_heading",
-          "label": "Heading",
-          "default": "Example heading"
-        },
-        {
-          "type": "text",
-          "id": "push_2_subheading",
-          "label": "Sub-heading",
-          "default": "Example sub-heading"
-        },
-        {
-          "type": "url",
-          "id": "push_2_url",
-          "label": "Link"
-        }
-      ]
     }
   ]
 }
