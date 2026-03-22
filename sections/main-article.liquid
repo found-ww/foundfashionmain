@@ -328,24 +328,29 @@
   @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: none; margin-bottom: 0; } }
   .Article__Body, .Article__Body.Rte { font-size: 1em !important; line-height: 1.65; }
 
-  /* ── Two-column article body layout ── */
-  .art-body-section-text {
-    display: grid;
-    grid-template-columns: 5fr 7fr;
-    gap: 80px;
-    margin-bottom: 30px;
-    align-items: start;
-  }
+  /* ── Centered article body with margin annotations ── */
+  .Article__Body { max-width: 700px; margin-left: auto; margin-right: auto; position: relative; }
+
+  .art-body-section-text,
   .art-body-section-img {
-    display: grid;
-    grid-template-columns: 5fr 7fr;
-    gap: 80px;
-    margin-bottom: 0;
-    align-items: start;
+    position: relative;
+    margin-bottom: 30px;
   }
+  .art-body-section-text::after,
+  .art-body-section-img::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+
+  /* H2 heading — floated into left margin, sticky within section */
   .art-body-left {
+    float: left;
+    width: 180px;
+    margin-left: calc(-180px - 48px);
     position: sticky;
     top: 80px;
+    text-align: right;
   }
   .art-body-section-h {
     font-size: 16px !important;
@@ -358,10 +363,9 @@
     font-family: inherit !important;
     font-style: normal !important;
   }
-  .art-body-right { min-width: 0; padding-right: 10vw; }
-  @media screen and (min-width: 1440px) { .art-body-right { padding-right: 15vw; } }
-  @media screen and (min-width: 1600px) { .art-body-right { padding-right: 18vw; } }
-  @media screen and (min-width: 1920px) { .art-body-right { padding-right: 22vw; } }
+
+  /* Body text — fills centered column */
+  .art-body-right { min-width: 0; }
   .art-body-right > p:first-child,
   .art-body-right > h3:first-child { margin-top: 0 !important; }
   .art-body-right h3 {
@@ -375,16 +379,14 @@
     font-family: inherit !important;
     font-style: normal !important;
   }
-  .art-body-caption-col {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-  }
-  .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
-  .art-body-caption-inner {
-    max-width: clamp(9rem, 10vw, 14rem);
-    text-align: right;
-    margin-right: -60px;
+
+  /* Image caption — floated into right margin */
+  .art-body-caption-wrap {
+    float: right;
+    width: clamp(120px, 10vw, 180px);
+    margin-right: calc(-1 * clamp(120px, 10vw, 180px) - 48px);
+    margin-top: 0;
+    text-align: left;
   }
   .art-body-caption {
     font-size: 0.78em;
@@ -394,14 +396,33 @@
     letter-spacing: -0.02em;
     margin: 0;
   }
+
+  /* Image column */
   .art-body-img-col { min-width: 0; }
+  .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
+
+  /* Full-width embeds break out of centered column */
+  .Article__Body > .epd,
+  .Article__Body > .epq,
+  .Article__Body > .tl-h-outer {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 40px);
+    max-width: none;
+  }
+
+  /* Horizontal rule — full viewport width */
   .art-body-rule {
     border: none;
     border-top: 0.5px solid #e8e3db;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
     width: calc(100vw - 40px);
-    margin-left: calc(50% - 50vw + 20px);
     margin-bottom: 30px;
   }
+
   /* Fade-in */
   .art-fade-in {
     opacity: 0;
@@ -412,19 +433,53 @@
     opacity: 1;
     transform: translateY(0);
   }
-  /* Mobile */
+  /* Fade-in for full-width embeds (preserve translateX breakout) */
+  .Article__Body > .art-fade-in.epd,
+  .Article__Body > .art-fade-in.epq,
+  .Article__Body > .art-fade-in.tl-h-outer {
+    transform: translateX(-50%) translateY(16px);
+  }
+  .Article__Body > .art-fade-in.epd.is-visible,
+  .Article__Body > .art-fade-in.epq.is-visible,
+  .Article__Body > .art-fade-in.tl-h-outer.is-visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Mid-range screens — shrink margin annotations */
+  @media screen and (max-width: 1200px) and (min-width: 769px) {
+    .Article__Body { max-width: 600px; }
+    .art-body-left {
+      width: 140px;
+      margin-left: calc(-140px - 32px);
+    }
+    .art-body-caption-wrap {
+      width: 120px;
+      margin-right: calc(-120px - 32px);
+    }
+  }
+
+  /* Mobile — stack everything */
   @media screen and (max-width: 768px) {
     .Article__Wrapper { padding-left: 20px; padding-right: 20px; }
+    .Article__Body { max-width: none; }
     .art-body-section-text,
-    .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; }
-    .art-body-img-col { margin-right: 0; }
-    .art-body-right { padding-right: 0; }
-    .art-body-caption-col { justify-content: flex-start; }
-    .art-body-caption-inner { text-align: left; max-width: none; }
-    .art-body-left { position: static; }
-    .art-body-caption-col { justify-content: flex-start; }
-    .art-body-caption-inner { text-align: left; max-width: none; }
-    .art-body-rule { width: calc(100vw - 40px); margin-left: calc(50% - 50vw + 20px); margin-bottom: 36px; }
+    .art-body-section-img { margin-bottom: 36px; }
+    .art-body-left {
+      float: none;
+      width: auto;
+      margin-left: 0;
+      position: static;
+      text-align: left;
+      margin-bottom: 12px;
+    }
+    .art-body-caption-wrap {
+      float: none;
+      width: auto;
+      margin-right: 0;
+      text-align: left;
+      margin-bottom: 8px;
+    }
+    .art-body-rule { width: calc(100vw - 40px); margin-bottom: 36px; }
   }
 
   /* ---- New badge ---- */
@@ -438,6 +493,9 @@
 
   /* ---- Share This Story section ---- */
   .Article__Footer {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 48px;
     padding-top: 24px;
     border-top: 1px solid #e5e0da;
@@ -445,7 +503,7 @@
   .Article__ShareSection {
     flex: 1;
     width: 100%;
-    max-width: 1250px;
+    max-width: 700px;
     min-width: 0;
     margin-left: auto;
     margin-right: auto;
@@ -899,7 +957,7 @@
 </style>
 
 <script>
-  /* ── Two-column article body restructure ── */
+  /* ── Centered article body restructure ── */
   (function() {
     var body = document.querySelector('.Article__Body');
     if (!body) return;
@@ -916,13 +974,16 @@
 
     function flush() { if (cur) { sections.push(cur); cur = null; } }
 
+    function isEmbed(n) {
+      if (n.nodeType !== 1) return false;
+      return n.classList.contains('epd') || n.classList.contains('tl-h-outer') || n.classList.contains('epq');
+    }
+
     function isImgNode(n) {
       if (n.nodeType !== 1) return false;
       var t = n.tagName.toLowerCase();
       if (t === 'img') return true;
       if (t === 'figure') return true;
-      if (n.classList.contains('epd')) return true;
-      if (n.classList.contains('tl-h-outer')) return true;
       /* div/p wrapping only an img (editor sometimes does this) */
       if ((t === 'div' || t === 'p') && n.children.length === 1 && n.querySelector('img') &&
           !n.classList.contains('epq') &&
@@ -946,6 +1007,11 @@
         if (tag === 'hr') {
           flush();
           sections.push({ type: 'rule' });
+          return;
+        }
+        if (isEmbed(n)) {
+          flush();
+          sections.push({ type: 'embed', el: n });
           return;
         }
         if (isImgNode(n)) {
@@ -974,37 +1040,25 @@
         return;
       }
       if (sec.type === 'embed') {
-        if (frag.childNodes.length > 0) {
-          var embedRule = document.createElement('hr');
-          embedRule.className = 'art-body-rule';
-          frag.appendChild(embedRule);
-        }
+        sec.el.classList.add('art-fade-in');
         frag.appendChild(sec.el);
-        if (true) {
-          var embedRuleAfter = document.createElement('hr');
-          embedRuleAfter.className = 'art-body-rule';
-          frag.appendChild(embedRuleAfter);
-        }
         return;
       }
       if (sec.type === 'img') {
         var row = document.createElement('div');
         row.className = 'art-body-section-img art-fade-in';
-        var capCol = document.createElement('div');
-        capCol.className = 'art-body-caption-col';
         if (sec.alt) {
-          var inner = document.createElement('div');
-          inner.className = 'art-body-caption-inner';
+          var capWrap = document.createElement('div');
+          capWrap.className = 'art-body-caption-wrap';
           var cp = document.createElement('p');
           cp.className = 'art-body-caption';
           cp.textContent = sec.alt;
-          inner.appendChild(cp);
-          capCol.appendChild(inner);
+          capWrap.appendChild(cp);
+          row.appendChild(capWrap);
         }
         var imgCol = document.createElement('div');
         imgCol.className = 'art-body-img-col';
         imgCol.appendChild(sec.el);
-        row.appendChild(capCol);
         row.appendChild(imgCol);
         frag.appendChild(row);
         return;
