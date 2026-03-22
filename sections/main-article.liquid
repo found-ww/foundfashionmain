@@ -234,7 +234,7 @@
         {%- endfor -%}
 
         {%- comment -%} ── Card block embed ── {%- endcomment -%}
-        {%- assign _cb_val = article.metafields.custom.card_block.value -%}
+        {%- assign _cb_val = article.metafields.custom.card_block_1.value -%}
         {%- if _cb_val != blank -%}
           {%- assign _cb_clean = _cb_val | strip_html | strip -%}
           {%- assign _cb_lines = _cb_clean | newline_to_br | split: '<br />' -%}
