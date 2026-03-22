@@ -323,7 +323,7 @@
   .ShareButtons__Item--instagram:hover { background: #e1306c; color: #ffffff; border-color: #e1306c; outline: 1.5px solid #e1306c; }
 
   /* ---- Article width + body font size ---- */
-  .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 20px; margin-bottom: 0; font-size: max(15px, 1.1vw); }
+  .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 20px; margin-bottom: 0; font-size: 15px; }
   @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
   @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: none; margin-bottom: 0; } }
   .Article__Body, .Article__Body.Rte { font-size: 1em !important; line-height: 1.65; }
@@ -412,17 +412,6 @@
     max-width: none;
   }
 
-  /* Horizontal rule — full viewport width */
-  .art-body-rule {
-    border: none;
-    border-top: 0.5px solid #e8e3db;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100vw - 40px);
-    margin-bottom: 30px;
-  }
-
   /* Fade-in */
   .art-fade-in {
     opacity: 0;
@@ -479,7 +468,6 @@
       text-align: left;
       margin-bottom: 8px;
     }
-    .art-body-rule { width: calc(100vw - 40px); margin-bottom: 36px; }
   }
 
   /* ---- New badge ---- */
@@ -1004,11 +992,7 @@
           cur = { type: 'text', heading: n, right: [] };
           return;
         }
-        if (tag === 'hr') {
-          flush();
-          sections.push({ type: 'rule' });
-          return;
-        }
+        if (tag === 'hr') { return; /* skip dividers */ }
         if (isEmbed(n)) {
           flush();
           sections.push({ type: 'embed', el: n });
@@ -1033,12 +1017,6 @@
     var frag = document.createDocumentFragment();
 
     sections.forEach(function(sec, i) {
-      if (sec.type === 'rule') {
-        var hr = document.createElement('hr');
-        hr.className = 'art-body-rule';
-        frag.appendChild(hr);
-        return;
-      }
       if (sec.type === 'embed') {
         sec.el.classList.add('art-fade-in');
         frag.appendChild(sec.el);
@@ -1065,12 +1043,6 @@
       }
       if (sec.type === 'text') {
         if (!sec.heading && !sec.right.length) return;
-        /* Auto divider before each new H2 section (except the first) */
-        if (sec.heading && frag.childNodes.length > 0) {
-          var autoRule = document.createElement('hr');
-          autoRule.className = 'art-body-rule';
-          frag.appendChild(autoRule);
-        }
         var row = document.createElement('div');
         row.className = 'art-body-section-text art-fade-in';
         var left = document.createElement('div');
