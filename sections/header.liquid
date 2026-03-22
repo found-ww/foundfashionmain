@@ -44,6 +44,13 @@
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
     {% endif %}
     font-family: 'Figtree', sans-serif;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* On hover: white background + dark text on ALL pages */
+  .ff-header:hover {
+    background: #ffffff;
+    color: #1c1b1b;
   }
 
   .ff-header__main {
@@ -152,12 +159,11 @@
      ==================================================== */
 
   .ff-mega {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90vw;
-    max-width: 1200px;
+    position: fixed;
+    top: auto;
+    left: 0;
+    right: 0;
+    width: 100vw;
     background: #ffffff;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     opacity: 0;
