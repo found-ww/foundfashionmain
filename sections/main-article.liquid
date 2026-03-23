@@ -70,6 +70,8 @@
 
 <article class="Article" data-section-id="{{ section.id }}" data-section-type="article">
   <div class="Article__ProgressBar" id="article-progress-bar"></div>
+  <div class="art-focus-overlay art-focus-overlay--left"></div>
+  <div class="art-focus-overlay art-focus-overlay--right"></div>
 
   <aside class="ArticleToolbar hidden-phone">
     <div class="ArticleToolbar__Left">
@@ -79,9 +81,12 @@
 
     <div class="ArticleToolbar__Right">
       <button class="ArticleToolbar__FocusBtn Heading Text--subdued u-h8" id="art-focus-toggle" type="button" aria-label="Toggle focus mode">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="ArticleToolbar__FocusIcon--open" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="ArticleToolbar__FocusIcon--closed" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-10-7-10-7a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
         <span class="ArticleToolbar__FocusLabel">Focus</span>
       </button>
+
+      <span class="ArticleToolbar__Sep"></span>
 
       {%- if section.settings.show_share_buttons -%}
         <div class="ArticleToolbar__ShareList">
@@ -491,7 +496,7 @@
   .ArticleToolbar__FocusBtn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     background: none;
     border: none;
     color: rgba(255,255,255,0.7);
@@ -504,6 +509,17 @@
   }
   .ArticleToolbar__FocusBtn:hover { color: #fff; }
   .ArticleToolbar__FocusBtn--active { color: #fff; }
+  .ArticleToolbar__FocusIcon--closed { display: none; }
+  .ArticleToolbar__FocusBtn--active .ArticleToolbar__FocusIcon--open { display: none; }
+  .ArticleToolbar__FocusBtn--active .ArticleToolbar__FocusIcon--closed { display: inline; }
+  .ArticleToolbar__Sep {
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 16px;
+    vertical-align: middle;
+  }
 
   /* ---- Focus mode state ---- */
   .art-focus-mode .art-body-left,
@@ -513,6 +529,21 @@
     pointer-events: none;
     transition: opacity 0.4s ease;
   }
+  /* Dim sides outside the article body */
+  .art-focus-overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: calc((100vw - 800px) / 2);
+    background: rgba(0,0,0,0.04);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .art-focus-overlay--left { left: 0; }
+  .art-focus-overlay--right { right: 0; }
+  .art-focus-mode .art-focus-overlay { opacity: 1; }
 
   /* ---- Reading progress bar ---- */
   .Article__ProgressBar {
@@ -1781,8 +1812,6 @@
       focusBtn.addEventListener('click', function() {
         articleEl.classList.toggle('art-focus-mode');
         focusBtn.classList.toggle('ArticleToolbar__FocusBtn--active');
-        var label = focusBtn.querySelector('.ArticleToolbar__FocusLabel');
-        if (label) label.textContent = articleEl.classList.contains('art-focus-mode') ? 'Reading' : 'Focus';
       });
     }
 
