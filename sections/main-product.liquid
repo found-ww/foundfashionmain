@@ -1850,6 +1850,129 @@ button[class*="make-an-offer"]:hover,
         });
     }, 1000);
   });
+  /* Also update sticky bar button */
+  var stickyBtn = document.getElementById('ppv1-sticky-atc-btn');
+  if (stickyBtn) {
+    section.addEventListener('product:added', function() {
+      stickyBtn.setAttribute('disabled', 'disabled');
+      stickyBtn.classList.remove('Button--primary');
+      stickyBtn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+      stickyBtn.textContent = 'ADDED TO CART';
+    });
+  }
+})();
+</script>
+
+{%- comment -%} Sticky ATC bar (mobile only) {%- endcomment -%}
+{%- if product.selected_or_first_available_variant.available -%}
+<div class="ppv1-sticky-bar" id="ppv1-sticky-bar">
+  <div class="ppv1-sticky-bar__inner">
+    <div class="ppv1-sticky-bar__info">
+      <span class="ppv1-sticky-bar__title">{{ product.title }}</span>
+      <span class="ppv1-sticky-bar__price">{{ product.price | money }}</span>
+    </div>
+    {%- form 'product', product, class: 'ppv1-sticky-form' -%}
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
+      {%- if in_cart -%}
+        <button type="button" class="Button Button--secondary ppv1-sticky-atc-btn ppv1-atc-btn--added" id="ppv1-sticky-atc-btn" disabled>
+          ADDED TO CART
+        </button>
+      {%- else -%}
+        <button type="submit" class="Button Button--primary ppv1-sticky-atc-btn" data-action="add-to-cart" id="ppv1-sticky-atc-btn">
+          ADD TO CART
+        </button>
+      {%- endif -%}
+    {%- endform -%}
+  </div>
+</div>
+{%- endif -%}
+
+<style>
+  .ppv1-sticky-bar {
+    display: none;
+  }
+  @media screen and (max-width: 999px) {
+    .ppv1-sticky-bar {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      background: #fff;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      padding: 12px 20px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .ppv1-sticky-bar--visible {
+      transform: translateY(0);
+    }
+    .ppv1-sticky-bar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .ppv1-sticky-bar__info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+    .ppv1-sticky-bar__title {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #1b1b1c;
+    }
+    .ppv1-sticky-bar__price {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(27,27,28,0.6);
+    }
+    .ppv1-sticky-atc-btn {
+      white-space: nowrap;
+      padding: 12px 24px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+  }
+</style>
+<script>
+(function() {
+  var stickyBar = document.getElementById('ppv1-sticky-bar');
+  var mainCta = document.querySelector('.ppv1-cta-row');
+  if (!stickyBar || !mainCta) return;
+
+  /* Show sticky bar when main ATC scrolls out of view */
+  var stickyObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      stickyBar.classList.toggle('ppv1-sticky-bar--visible', !entry.isIntersecting);
+    });
+  }, { threshold: 0 });
+  stickyObserver.observe(mainCta);
+
+  /* Sync sticky bar ATC with main ATC state */
+  var stickyBtn = document.getElementById('ppv1-sticky-atc-btn');
+  if (stickyBtn && !stickyBtn.disabled) {
+    stickyBtn.addEventListener('click', function() {
+      /* Trigger the main form's ATC instead of submitting this form */
+      var mainBtn = document.getElementById('ppv1-atc-btn');
+      if (mainBtn && !mainBtn.disabled) {
+        mainBtn.click();
+      }
+    });
+    /* Prevent the sticky form from submitting (we use the main form) */
+    var stickyForm = stickyBar.querySelector('form');
+    if (stickyForm) {
+      stickyForm.addEventListener('submit', function(e) { e.preventDefault(); });
+    }
+  }
 })();
 </script>
 
