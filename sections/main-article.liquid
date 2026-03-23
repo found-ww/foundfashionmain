@@ -95,8 +95,8 @@
           <span class="ArticleToolbar__ShareLabel Heading Text--subdued u-h8">{{ 'blog.article.share' | t }}</span>
 
           <div class="HorizontalList">
-            <a class="HorizontalList__Item Text--subdued Link" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener">{%- render 'icon' with 'instagram' -%}</a>
-            <a class="HorizontalList__Item Text--subdued Link" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener">{%- render 'icon' with 'whatsapp' -%}</a>
+            <a class="HorizontalList__Item Text--subdued Link" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener" data-toolbar-share="instagram">{%- render 'icon' with 'instagram' -%}</a>
+            <a class="HorizontalList__Item Text--subdued Link" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-toolbar-share="whatsapp">{%- render 'icon' with 'whatsapp' -%}</a>
           </div>
         </div>
       {%- endif -%}
@@ -446,10 +446,10 @@
               <span class="Article__ShareCount"><span id="article-share-count">0</span> shares</span>
             </div>
             <div class="Article__ShareRow">
-              <a class="ShareButtons__Item ShareButtons__Item--instagram" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on Instagram">{%- render 'icon' with 'instagram' -%}</a>
-              <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on WhatsApp">{%- render 'icon' with 'whatsapp' -%}</a>
-              <a class="ShareButtons__Item ShareButtons__Item--facebook" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on Facebook">{%- render 'icon' with 'facebook' -%}</a>
-              <a class="ShareButtons__Item ShareButtons__Item--x" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on X">{%- render 'icon' with 'x' -%}</a>
+              <a class="ShareButtons__Item ShareButtons__Item--instagram" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener" data-share-btn="instagram" aria-label="Share on Instagram">{%- render 'icon' with 'instagram' -%}</a>
+              <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-share-btn="whatsapp" aria-label="Share on WhatsApp">{%- render 'icon' with 'whatsapp' -%}</a>
+              <a class="ShareButtons__Item ShareButtons__Item--facebook" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" data-share-btn="facebook" aria-label="Share on Facebook">{%- render 'icon' with 'facebook' -%}</a>
+              <a class="ShareButtons__Item ShareButtons__Item--x" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" data-share-btn="x" aria-label="Share on X">{%- render 'icon' with 'x' -%}</a>
               <button class="Article__CopyLinkBtn" id="article-copy-link" type="button" data-url="{{ share_url | escape }}">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
                 <span id="article-copy-label">Copy link</span>
@@ -1754,6 +1754,13 @@
           var idx = btn.getAttribute('data-pb-tab');
           btns.forEach(function(b) { b.classList.remove('art-pb-tabs__btn--active'); });
           btn.classList.add('art-pb-tabs__btn--active');
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            event: 'product_block_tab',
+            article_title: document.title,
+            tab_label: btn.textContent.trim(),
+            tab_index: idx
+          });
           cards.forEach(function(c) { c.classList.remove('art-pb-card--active'); });
           var target = block.querySelector('.art-product-block__card[data-pb-card="' + idx + '"]');
           if (target) { target.classList.add('art-pb-card--active', 'art-pb--in'); }
@@ -1773,6 +1780,12 @@
         hideTooltip();
         var label = dot.getAttribute('data-hs-label');
         if (!label) return;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'hotspot_interact',
+          article_title: document.title,
+          hotspot_label: label
+        });
         var tip = document.createElement('div');
         tip.className = 'art-hotspot__tooltip';
         tip.textContent = label;
@@ -1942,7 +1955,32 @@
         bar.style.width = barPct + '%';
         requestAnimationFrame(barRAF);
       }
-      window.addEventListener('scroll', updateBarTarget, { passive: true });
+      /* ---- Scroll depth tracking ---- */
+      var depthMilestones = { 25: false, 50: false, 75: false, 100: false };
+      var readCompleteFired = false;
+      function checkScrollDepth() {
+        var pct = Math.round(barTarget);
+        window.dataLayer = window.dataLayer || [];
+        [25, 50, 75, 100].forEach(function(m) {
+          if (pct >= m && !depthMilestones[m]) {
+            depthMilestones[m] = true;
+            window.dataLayer.push({
+              event: 'article_scroll_depth',
+              article_title: document.title,
+              scroll_depth: m
+            });
+          }
+        });
+        if (pct >= 98 && !readCompleteFired) {
+          readCompleteFired = true;
+          window.dataLayer.push({
+            event: 'article_read_complete',
+            article_title: document.title
+          });
+        }
+      }
+
+      window.addEventListener('scroll', function() { updateBarTarget(); checkScrollDepth(); }, { passive: true });
       updateBarTarget();
       barRAF();
     }
@@ -1967,7 +2005,16 @@
     }
     updateCountEl(getCount());
     document.querySelectorAll('[data-share-btn]').forEach(function(btn) {
-      btn.addEventListener('click', function() { updateCountEl(incrementCount()); });
+      btn.addEventListener('click', function() {
+        updateCountEl(incrementCount());
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'share_article',
+          article_title: document.title,
+          share_method: btn.getAttribute('data-share-btn') || 'unknown',
+          share_location: 'footer'
+        });
+      });
     });
 
     /* ---- Focus mode toggle ---- */
@@ -1978,6 +2025,12 @@
         var entering = !articleEl.classList.contains('art-focus-mode');
         articleEl.classList.toggle('art-focus-mode');
         focusBtn.classList.toggle('ArticleToolbar__FocusBtn--active');
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'toggle_focus_mode',
+          article_title: document.title,
+          focus_state: entering ? 'on' : 'off'
+        });
 
         /* Move H2s into/out of the right column */
         articleEl.querySelectorAll('.art-body-section-text').forEach(function(section) {
@@ -1995,6 +2048,19 @@
       });
     }
 
+    /* ---- Toolbar share link tracking ---- */
+    document.querySelectorAll('[data-toolbar-share]').forEach(function(link) {
+      link.addEventListener('click', function() {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'share_article',
+          article_title: document.title,
+          share_method: link.getAttribute('data-toolbar-share'),
+          share_location: 'toolbar'
+        });
+      });
+    });
+
     /* ---- Copy link button ---- */
     var copyBtn   = document.getElementById('article-copy-link');
     var copyLabel = document.getElementById('article-copy-label');
@@ -2005,6 +2071,11 @@
           copyLabel.textContent = 'Copied!';
           copyBtn.classList.add('Article__CopyLinkBtn--copied');
           updateCountEl(incrementCount());
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            event: 'copy_article_link',
+            article_title: document.title
+          });
           setTimeout(function() {
             copyLabel.textContent = 'Copy link';
             copyBtn.classList.remove('Article__CopyLinkBtn--copied');
@@ -2209,6 +2280,11 @@
     }, { passive: true });
     btn.addEventListener('click', function() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'back_to_top',
+        article_title: document.title
+      });
     });
   })();
 </script>
