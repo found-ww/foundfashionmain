@@ -1,0 +1,48 @@
+{% comment %}
+  embed-timeline-horizontal.liquid — Animated horizontal timeline.
+  Same metafield format as embed-timeline-cards: groups of 3 lines per entry
+  (date / [tag | headline] / body). Up to 8 entries.
+  Line draws itself, dots pop in, years count up, labels fade in.
+{% endcomment %}
+
+{%- assign _tl_id    = id | default: article.id -%}
+{%- assign _tl_lines = content | newline_to_br | split: '<br />' -%}
+
+{%- assign _tl_total = 0 -%}
+{%- for _i in (0..7) -%}
+  {%- assign _tl_i0    = _i | times: 3 -%}
+  {%- assign _tl_check = _tl_lines[_tl_i0] | strip -%}
+  {%- if _tl_check != blank -%}{%- assign _tl_total = _tl_total | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+
+{%- if _tl_total == 0 -%}{%- break -%}{%- endif -%}
+
+<div class="art-tl" id="art-tl-{{ _tl_id }}" data-tl-count="{{ _tl_total }}">
+  <div class="art-tl__line">
+    <div class="art-tl__line-fill"></div>
+  </div>
+  <div class="art-tl__entries">
+    {%- for _i in (0..7) -%}
+      {%- assign _tl_i0   = _i | times: 3 -%}
+      {%- assign _tl_i1   = _tl_i0 | plus: 1 -%}
+      {%- assign _tl_i2   = _tl_i0 | plus: 2 -%}
+      {%- assign _tl_date = _tl_lines[_tl_i0] | strip -%}
+      {%- assign _tl_raw2 = _tl_lines[_tl_i1] | strip -%}
+      {%- assign _tl_body = _tl_lines[_tl_i2] | strip -%}
+      {%- if _tl_date == blank -%}{%- break -%}{%- endif -%}
+      {%- assign _tl_head = _tl_raw2 -%}
+      {%- if _tl_raw2 contains '|' -%}
+        {%- assign _tl_parts = _tl_raw2 | split: '|' -%}
+        {%- assign _tl_head = _tl_parts[1] | strip -%}
+      {%- endif -%}
+      <div class="art-tl__entry" data-tl-index="{{ _i }}">
+        <div class="art-tl__dot"></div>
+        <span class="art-tl__year" data-tl-year="{{ _tl_date | escape }}">{{ _tl_date }}</span>
+        <span class="art-tl__label">{{ _tl_head }}</span>
+        {%- if _tl_body != blank -%}
+          <div class="art-tl__tip">{{ _tl_body }}</div>
+        {%- endif -%}
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
