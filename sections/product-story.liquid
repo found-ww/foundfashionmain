@@ -38,6 +38,9 @@
   {%- elsif ps_tag_lower == 'bolide' -%}
     {%- assign ps_tagged = true -%}
     {%- assign ps_tag_article = section.settings.bolide_article -%}
+  {%- elsif ps_tag_lower == 'kelly doll' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.kelly_doll_article -%}
   {%- endif -%}
   {%- if ps_tagged -%}{%- break -%}{%- endif -%}
 {%- endfor -%}
@@ -393,6 +396,16 @@
       "id": "bolide_article",
       "label": "Bolide blog article",
       "info": "Applied to products tagged 'Bolide'. Leave blank to hide the section for those products."
+    },
+    {
+      "type": "header",
+      "content": "Kelly Doll"
+    },
+    {
+      "type": "article",
+      "id": "kelly_doll_article",
+      "label": "Kelly Doll blog article",
+      "info": "Applied to products tagged 'Kelly Doll'. Leave blank to hide the section for those products."
     }
   ],
   "presets": [

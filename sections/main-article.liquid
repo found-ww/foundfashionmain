@@ -70,8 +70,6 @@
 
 <article class="Article" data-section-id="{{ section.id }}" data-section-type="article">
   <div class="Article__ProgressBar" id="article-progress-bar"></div>
-  <div class="art-focus-overlay art-focus-overlay--left"></div>
-  <div class="art-focus-overlay art-focus-overlay--right"></div>
 
   <aside class="ArticleToolbar hidden-phone">
     <div class="ArticleToolbar__Left">
@@ -93,9 +91,7 @@
           <span class="ArticleToolbar__ShareLabel Heading Text--subdued u-h8">{{ 'blog.article.share' | t }}</span>
 
           <div class="HorizontalList">
-            {%- if settings.social_instagram_link != blank -%}
-              <a class="HorizontalList__Item Text--subdued Link" href="{{ settings.social_instagram_link }}" target="_blank" rel="noopener">{%- render 'icon' with 'instagram' -%}</a>
-            {%- endif -%}
+            <a class="HorizontalList__Item Text--subdued Link" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener">{%- render 'icon' with 'instagram' -%}</a>
             <a class="HorizontalList__Item Text--subdued Link" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener">{%- render 'icon' with 'whatsapp' -%}</a>
           </div>
         </div>
@@ -491,6 +487,8 @@
   .ArticleToolbar__ArticleTitle { color: #fff; }
   .ArticleToolbar .Text--subdued { color: rgba(255,255,255,0.7); }
   .ArticleToolbar__ArticleTitle { max-width: none; width: auto; flex: 1; min-width: 0; }
+  .ArticleToolbar__Right { display: flex; align-items: center; }
+  .ArticleToolbar__ShareList { display: flex; align-items: center; }
 
   /* ---- Focus mode button ---- */
   .ArticleToolbar__FocusBtn {
@@ -529,21 +527,6 @@
     pointer-events: none;
     transition: opacity 0.4s ease;
   }
-  /* Dim sides outside the article body */
-  .art-focus-overlay {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: calc((100vw - 800px) / 2);
-    background: rgba(0,0,0,0.04);
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-  .art-focus-overlay--left { left: 0; }
-  .art-focus-overlay--right { right: 0; }
-  .art-focus-mode .art-focus-overlay { opacity: 1; }
 
   /* ---- Reading progress bar ---- */
   .Article__ProgressBar {
@@ -1860,18 +1843,25 @@
       if (siteHeader) {
         var lastScrollY = window.scrollY;
         var scrollThreshold = 80;
+        var scrollUpAccum = 0;
+        var scrollUpRequired = 120;
         window.addEventListener('scroll', function() {
           var currentY = window.scrollY;
           var artToolbar = document.querySelector('.ArticleToolbar');
           if (currentY < scrollThreshold) {
             siteHeader.classList.remove('art-header-hidden');
             if (artToolbar) artToolbar.classList.remove('art-toolbar-top');
+            scrollUpAccum = 0;
           } else if (currentY > lastScrollY) {
             siteHeader.classList.add('art-header-hidden');
             if (artToolbar) artToolbar.classList.add('art-toolbar-top');
+            scrollUpAccum = 0;
           } else {
-            siteHeader.classList.remove('art-header-hidden');
-            if (artToolbar) artToolbar.classList.remove('art-toolbar-top');
+            scrollUpAccum += lastScrollY - currentY;
+            if (scrollUpAccum >= scrollUpRequired) {
+              siteHeader.classList.remove('art-header-hidden');
+              if (artToolbar) artToolbar.classList.remove('art-toolbar-top');
+            }
           }
           lastScrollY = currentY;
         }, { passive: true });
