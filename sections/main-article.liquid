@@ -407,8 +407,14 @@
             </div>
           {%- endcapture -%}
           {%- assign _content = _content | replace: '<p>[stats_1]</p>', _st_html -%}
+          {%- assign _content = _content | replace: '<p> [stats_1] </p>', _st_html -%}
+          {%- assign _content = _content | replace: '<p>[stats_1] </p>', _st_html -%}
+          {%- assign _content = _content | replace: '<p> [stats_1]</p>', _st_html -%}
         {%- else -%}
           {%- assign _content = _content | replace: '<p>[stats_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [stats_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[stats_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [stats_1]</p>', '' -%}
         {%- endif -%}
 
         {{ _content }}
