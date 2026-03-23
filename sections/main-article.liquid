@@ -431,6 +431,43 @@
           {%- assign _content = _content | replace: '<p> [stats_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%}--- Dual image block ---{%- endcomment -%}
+        {%- assign _di_val = article.metafields.custom.dual_image_1.value -%}
+        {%- if _di_val != blank -%}
+          {%- assign _di_lines = _di_val | split: '
+' -%}
+          {%- capture _di_html -%}
+            <div class="art-dual-image">
+              {%- assign _di_i = 0 -%}
+              {%- for _line in _di_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped != '' -%}
+                  {%- assign _di_mod = _di_i | modulo: 2 -%}
+                  {%- if _di_mod == 0 -%}
+                    <div class="art-dual-image__item">
+                      <div class="art-dual-image__wrap">
+                        <img src="{{ _line_stripped }}" alt="" loading="lazy">
+                      </div>
+                  {%- else -%}
+                      <p class="art-dual-image__caption">{{ _line_stripped }}</p>
+                    </div>
+                  {%- endif -%}
+                  {%- assign _di_i = _di_i | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1]</p>', _di_html -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1] </p>', _di_html -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1] </p>', _di_html -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1]</p>', _di_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1]</p>', '' -%}
+        {%- endif -%}
+
         {%- comment -%}--- FAQ accordion block ---{%- endcomment -%}
         {%- assign _faq_val = article.metafields.custom.faq_1.value -%}
         {%- if _faq_val != blank -%}
@@ -1063,6 +1100,48 @@
     .art-stats { padding: 30px 0; gap: 8px; }
     .art-stats__number { font-size: 24px; }
     .art-stats__label { font-size: 10px; letter-spacing: 0.1em; }
+  }
+
+  /* Dual image block */
+  .art-dual-image {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 2em 0;
+  }
+  .art-dual-image__item {
+    display: flex;
+    flex-direction: column;
+  }
+  .art-dual-image__wrap {
+    overflow: hidden;
+    border-radius: 0;
+  }
+  .art-dual-image__wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 3 / 4;
+  }
+  .art-dual-image__caption {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(27, 27, 28, 0.45);
+    margin-top: 8px;
+    line-height: 1.3;
+  }
+  @media screen and (max-width: 768px) {
+    .art-dual-image {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .art-dual-image__caption {
+      font-size: 10px;
+      margin-top: 6px;
+    }
   }
 
   /* FAQ accordion */
