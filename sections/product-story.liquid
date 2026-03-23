@@ -9,41 +9,50 @@
 {%- assign ps_tagged = false -%}
 {%- assign ps_tag_article = blank -%}
 
+{%- comment -%} Priority pass: check for specific tags first (e.g. "Kelly Doll" before "Kelly") {%- endcomment -%}
 {%- for tag in product.tags -%}
   {%- assign ps_tag_lower = tag | downcase -%}
   {%- if ps_tag_lower == 'kelly doll' -%}
     {%- assign ps_tagged = true -%}
     {%- assign ps_tag_article = section.settings.kelly_doll_article -%}
-  {%- elsif ps_tag_lower == 'birkin' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.birkin_article -%}
-  {%- elsif ps_tag_lower == 'kelly' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.kelly_article -%}
-  {%- elsif ps_tag_lower == 'garden party' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.garden_party_article -%}
-  {%- elsif ps_tag_lower == 'picotin' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.picotin_article -%}
-  {%- elsif ps_tag_lower == 'herbag' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.herbag_article -%}
-  {%- elsif ps_tag_lower == 'medor' or ps_tag_lower == 'médor' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.medor_article -%}
-  {%- elsif ps_tag_lower == 'evelyne' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.evelyne_article -%}
-  {%- elsif ps_tag_lower == 'tablier' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.tablier_article -%}
-  {%- elsif ps_tag_lower == 'bolide' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.bolide_article -%}
+    {%- break -%}
   {%- endif -%}
-  {%- if ps_tagged -%}{%- break -%}{%- endif -%}
 {%- endfor -%}
+
+{%- unless ps_tagged -%}
+  {%- for tag in product.tags -%}
+    {%- assign ps_tag_lower = tag | downcase -%}
+    {%- if ps_tag_lower == 'birkin' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.birkin_article -%}
+    {%- elsif ps_tag_lower == 'kelly' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.kelly_article -%}
+    {%- elsif ps_tag_lower == 'garden party' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.garden_party_article -%}
+    {%- elsif ps_tag_lower == 'picotin' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.picotin_article -%}
+    {%- elsif ps_tag_lower == 'herbag' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.herbag_article -%}
+    {%- elsif ps_tag_lower == 'medor' or ps_tag_lower == 'médor' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.medor_article -%}
+    {%- elsif ps_tag_lower == 'evelyne' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.evelyne_article -%}
+    {%- elsif ps_tag_lower == 'tablier' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.tablier_article -%}
+    {%- elsif ps_tag_lower == 'bolide' -%}
+      {%- assign ps_tagged = true -%}
+      {%- assign ps_tag_article = section.settings.bolide_article -%}
+    {%- endif -%}
+    {%- if ps_tagged -%}{%- break -%}{%- endif -%}
+  {%- endfor -%}
+{%- endunless -%}
 
 {%- comment -%} Only render when a known bag tag has a configured article {%- endcomment -%}
 {%- if ps_tagged and ps_tag_article != blank -%}
