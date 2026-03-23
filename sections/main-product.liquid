@@ -1878,16 +1878,6 @@ button[class*="make-an-offer"]:hover,
 
 {%- comment -%} Sticky ATC bar (mobile only) — two-row layout {%- endcomment -%}
 <div class="ppv1-sticky-bar" id="ppv1-sticky-bar">
-  <div class="ppv1-sticky-bar__info">
-    <span class="ppv1-sticky-bar__title">{{ product.title }}</span>
-    <span class="ppv1-sticky-bar__price">
-      {%- if product.selected_or_first_available_variant.available -%}
-        {{ product.price | money }}
-      {%- else -%}
-        SOLD
-      {%- endif -%}
-    </span>
-  </div>
   <div class="ppv1-sticky-bar__actions">
     {%- if product.selected_or_first_available_variant.available -%}
       {%- form 'product', product, class: 'ppv1-sticky-form' -%}
@@ -1964,31 +1954,6 @@ button[class*="make-an-offer"]:hover,
     }
     .ppv1-sticky-bar--visible {
       transform: translateY(0);
-    }
-    .ppv1-sticky-bar__info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .ppv1-sticky-bar__title {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: #1b1b1c;
-      flex: 1;
-      min-width: 0;
-      padding-right: 12px;
-    }
-    .ppv1-sticky-bar__price {
-      font-size: 13px;
-      font-weight: 500;
-      color: #1b1b1c;
-      white-space: nowrap;
     }
     .ppv1-sticky-bar__actions {
       display: flex;
@@ -2105,12 +2070,16 @@ button[class*="make-an-offer"]:hover,
             mainBtn.textContent = 'ADDED TO CART';
           }
 
-          /* Silently update cart count without opening drawer */
+          /* Update cart count + dot in header without opening drawer */
           fetch('/cart.js', { credentials: 'same-origin' })
             .then(function(r) { return r.json(); })
             .then(function(cart) {
-              var countEls = document.querySelectorAll('.Header__CartCount, [data-cart-count]');
-              countEls.forEach(function(el) { el.textContent = cart.item_count; });
+              document.querySelectorAll('.Header__CartCount').forEach(function(el) {
+                el.textContent = cart.item_count;
+              });
+              document.querySelectorAll('.Header__CartDot').forEach(function(el) {
+                if (cart.item_count > 0) el.classList.add('is-visible');
+              });
             });
 
           /* Fire tracking */
@@ -2147,23 +2116,16 @@ button[class*="make-an-offer"]:hover,
   var offerBtn = document.getElementById('ppv1-sticky-offer-btn');
   if (offerBtn) {
     offerBtn.addEventListener('click', function() {
-      /* Try multiple approaches to open Offerly's modal */
-      var maoBtn = document.querySelector('.mao-button, .mao_button, button[class*="mao-"], button[class*="make-an-offer"], #mao-widget button, #mao_widget button, [id*="make-an-offer"] button, [class*="make_an_offer"] button');
+      /* Find any Offerly / Make an Offer element and trigger it */
+      var allMaoBtns = document.querySelectorAll('.mao-button, .mao_button, button[class*="mao-"], button[class*="make-an-offer"], #mao-widget button, #mao_widget button, [id*="make-an-offer"] button, [class*="make_an_offer"] button, [onclick*="make"], [data-mao]');
+      var maoBtn = allMaoBtns.length ? allMaoBtns[0] : null;
+
       if (maoBtn) {
-        /* Temporarily make it clickable */
-        var origStyles = maoBtn.getAttribute('style') || '';
-        maoBtn.setAttribute('style', 'visibility:visible!important;position:static!important;height:auto!important;pointer-events:auto!important;opacity:0!important;');
-        maoBtn.click();
-        setTimeout(function() {
-          maoBtn.setAttribute('style', origStyles);
-        }, 300);
-      } else {
-        /* Fallback: try to find Offerly's modal/overlay and open it directly */
-        var maoModal = document.querySelector('[class*="mao-modal"], [class*="mao_modal"], [id*="mao-modal"], [id*="mao_modal"], .offerly-modal, #offerly-modal');
-        if (maoModal) {
-          maoModal.style.display = 'block';
-          maoModal.classList.add('is-active', 'is-visible', 'open');
-        }
+        /* Remove all hiding styles, dispatch a real mouse click, then re-hide */
+        maoBtn.style.cssText = 'visibility:visible!important;position:static!important;height:auto!important;pointer-events:auto!important;overflow:visible!important;opacity:0!important;';
+        var clickEvt = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+        maoBtn.dispatchEvent(clickEvt);
+        setTimeout(function() { maoBtn.style.cssText = ''; }, 300);
       }
     });
   }
