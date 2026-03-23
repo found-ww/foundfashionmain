@@ -1888,7 +1888,7 @@ button[class*="make-an-offer"]:hover,
           </button>
         {%- else -%}
           <button type="submit" class="Button Button--primary ppv1-sticky-atc-btn" data-action="add-to-cart" id="ppv1-sticky-atc-btn">
-            ADD TO CART
+            ADD TO CART &bull; {{ atc_variant.price | money }}
           </button>
         {%- endif -%}
       {%- endform -%}
@@ -2103,11 +2103,11 @@ button[class*="make-an-offer"]:hover,
           } catch(err) {}
         } else {
           stickyBtn.removeAttribute('disabled');
-          stickyBtn.textContent = 'ADD TO CART';
+          stickyBtn.innerHTML = 'ADD TO CART &bull; {{ atc_variant.price | money }}';
         }
       }).catch(function() {
         stickyBtn.removeAttribute('disabled');
-        stickyBtn.textContent = 'ADD TO CART';
+        stickyBtn.innerHTML = 'ADD TO CART &bull; {{ atc_variant.price | money }}';
       });
     });
   }
@@ -2116,16 +2116,40 @@ button[class*="make-an-offer"]:hover,
   var offerBtn = document.getElementById('ppv1-sticky-offer-btn');
   if (offerBtn) {
     offerBtn.addEventListener('click', function() {
-      /* Find any Offerly / Make an Offer element and trigger it */
-      var allMaoBtns = document.querySelectorAll('.mao-button, .mao_button, button[class*="mao-"], button[class*="make-an-offer"], #mao-widget button, #mao_widget button, [id*="make-an-offer"] button, [class*="make_an_offer"] button, [onclick*="make"], [data-mao]');
-      var maoBtn = allMaoBtns.length ? allMaoBtns[0] : null;
+      /* Strategy 1: Find Offerly iframe and post message */
+      var maoIframe = document.querySelector('iframe[src*="make-an-offer"], iframe[src*="offerly"], iframe[src*="mao"]');
+      if (maoIframe) {
+        maoIframe.contentWindow.postMessage('open', '*');
+      }
 
+      /* Strategy 2: Find and click any MAO button (temporarily un-hide it) */
+      var selectors = [
+        '.mao-button', '.mao_button', 'button[class*="mao-"]',
+        'button[class*="make-an-offer"]', '#mao-widget button',
+        '#mao_widget button', '[id*="make-an-offer"] button',
+        '[class*="make_an_offer"] button', '[data-mao]',
+        'a[class*="mao-"]', 'a[class*="make-an-offer"]'
+      ];
+      var maoBtn = document.querySelector(selectors.join(', '));
       if (maoBtn) {
-        /* Remove all hiding styles, dispatch a real mouse click, then re-hide */
-        maoBtn.style.cssText = 'visibility:visible!important;position:static!important;height:auto!important;pointer-events:auto!important;overflow:visible!important;opacity:0!important;';
-        var clickEvt = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
-        maoBtn.dispatchEvent(clickEvt);
-        setTimeout(function() { maoBtn.style.cssText = ''; }, 300);
+        /* Fully restore the element temporarily */
+        var origCss = maoBtn.style.cssText;
+        var origParentCss = '';
+        var parent = maoBtn.parentElement;
+        if (parent) {
+          origParentCss = parent.style.cssText;
+          parent.style.cssText += ';visibility:visible!important;position:static!important;height:auto!important;overflow:visible!important;display:block!important;pointer-events:auto!important;';
+        }
+        maoBtn.style.cssText = 'visibility:visible!important;position:static!important;height:auto!important;pointer-events:auto!important;overflow:visible!important;display:block!important;';
+
+        /* Use both click methods */
+        maoBtn.click();
+        maoBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+
+        setTimeout(function() {
+          maoBtn.style.cssText = origCss;
+          if (parent) parent.style.cssText = origParentCss;
+        }, 500);
       }
     });
   }
