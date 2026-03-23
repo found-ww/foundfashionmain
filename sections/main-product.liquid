@@ -1840,12 +1840,25 @@ button[class*="make-an-offer"]:hover,
           var productId = {{ product.id }};
           var inCart = cart.items.some(function(item) { return item.product_id === productId; });
           if (!inCart) {
-            btn.removeAttribute('disabled');
-            btn.setAttribute('data-action', 'add-to-cart');
-            btn.setAttribute('type', 'submit');
-            btn.classList.remove('Button--secondary', 'ppv1-atc-btn--added');
-            btn.classList.add('Button--primary');
-            btn.textContent = 'ADD TO CART \u2022 ' + (btn.getAttribute('data-atc-price') || '');
+            /* Re-enable main ATC button */
+            if (btn) {
+              btn.removeAttribute('disabled');
+              btn.setAttribute('data-action', 'add-to-cart');
+              btn.setAttribute('type', 'submit');
+              btn.classList.remove('Button--secondary', 'ppv1-atc-btn--added');
+              btn.classList.add('Button--primary');
+              btn.textContent = 'ADD TO CART \u2022 ' + (btn.getAttribute('data-atc-price') || '');
+            }
+            /* Re-enable sticky ATC button */
+            var sBtn = document.getElementById('ppv1-sticky-atc-btn');
+            if (sBtn) {
+              sBtn.removeAttribute('disabled');
+              sBtn.setAttribute('data-action', 'add-to-cart');
+              sBtn.setAttribute('type', 'submit');
+              sBtn.classList.remove('Button--secondary', 'ppv1-atc-btn--added');
+              sBtn.classList.add('Button--primary');
+              sBtn.textContent = 'ADD TO CART';
+            }
           }
         });
     }, 1000);
@@ -1863,35 +1876,72 @@ button[class*="make-an-offer"]:hover,
 })();
 </script>
 
-{%- comment -%} Sticky ATC bar (mobile only) {%- endcomment -%}
-{%- if product.selected_or_first_available_variant.available -%}
+{%- comment -%} Sticky ATC bar (mobile only) — two-row layout {%- endcomment -%}
 <div class="ppv1-sticky-bar" id="ppv1-sticky-bar">
-  <div class="ppv1-sticky-bar__inner">
-    <div class="ppv1-sticky-bar__info">
-      <span class="ppv1-sticky-bar__title">{{ product.title }}</span>
-      <span class="ppv1-sticky-bar__price">{{ product.price | money }}</span>
-    </div>
-    {%- form 'product', product, class: 'ppv1-sticky-form' -%}
-      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
-      {%- if in_cart -%}
-        <button type="button" class="Button Button--secondary ppv1-sticky-atc-btn ppv1-atc-btn--added" id="ppv1-sticky-atc-btn" disabled>
-          ADDED TO CART
-        </button>
+  <div class="ppv1-sticky-bar__info">
+    <span class="ppv1-sticky-bar__title">{{ product.title }}</span>
+    <span class="ppv1-sticky-bar__price">
+      {%- if product.selected_or_first_available_variant.available -%}
+        {{ product.price | money }}
       {%- else -%}
-        <button type="submit" class="Button Button--primary ppv1-sticky-atc-btn" data-action="add-to-cart" id="ppv1-sticky-atc-btn">
-          ADD TO CART
+        SOLD
+      {%- endif -%}
+    </span>
+  </div>
+  <div class="ppv1-sticky-bar__actions">
+    {%- if product.selected_or_first_available_variant.available -%}
+      {%- form 'product', product, class: 'ppv1-sticky-form' -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
+        {%- if in_cart -%}
+          <button type="button" class="Button Button--secondary ppv1-sticky-atc-btn ppv1-atc-btn--added" id="ppv1-sticky-atc-btn" disabled>
+            ADDED TO CART
+          </button>
+        {%- else -%}
+          <button type="submit" class="Button Button--primary ppv1-sticky-atc-btn" data-action="add-to-cart" id="ppv1-sticky-atc-btn">
+            ADD TO CART
+          </button>
+        {%- endif -%}
+      {%- endform -%}
+      <button type="button" class="Button Button--secondary ppv1-sticky-offer-btn" id="ppv1-sticky-offer-btn">
+        MAKE AN OFFER
+      </button>
+    {%- else -%}
+      {%- if customer -%}
+        {%- assign wa_product_url = shop.url | append: product.url -%}
+        {%- assign wa_message_sticky = "Hi, I'm looking to source the " | append: product.title | append: ". Could you let me know if you're able to source one? " | append: wa_product_url | url_encode -%}
+        <a href="https://wa.me/447405520466?text={{ wa_message_sticky }}" class="Button Button--primary ppv1-sticky-source-btn" target="_blank" rel="noopener">
+          ASK OUR TEAM TO SOURCE
+        </a>
+      {%- else -%}
+        <button type="button" class="Button Button--primary ppv1-sticky-source-btn ppv1-source-trigger">
+          ASK OUR TEAM TO SOURCE
         </button>
       {%- endif -%}
-    {%- endform -%}
+    {%- endif -%}
   </div>
 </div>
-{%- endif -%}
 
 <style>
   .ppv1-sticky-bar {
     display: none;
   }
   @media screen and (max-width: 999px) {
+    /* Hide main CTA row on mobile — sticky bar replaces it */
+    .ppv1-cta-row {
+      display: none !important;
+    }
+    /* Also hide Offerly's injected button on mobile */
+    .mao-button,
+    .mao_button,
+    button[class*="mao-"],
+    button[class*="make-an-offer"],
+    #mao-widget,
+    #mao_widget,
+    [id*="make-an-offer"],
+    [class*="make_an_offer"] {
+      display: none !important;
+    }
+
     .ppv1-sticky-bar {
       display: block;
       position: fixed;
@@ -1901,24 +1951,18 @@ button[class*="make-an-offer"]:hover,
       z-index: 999;
       background: #fff;
       border-top: 1px solid rgba(0,0,0,0.08);
-      padding: 12px 20px;
+      padding: 12px 20px 14px;
       transform: translateY(100%);
       transition: transform 0.3s ease;
     }
     .ppv1-sticky-bar--visible {
       transform: translateY(0);
     }
-    .ppv1-sticky-bar__inner {
+    .ppv1-sticky-bar__info {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-    }
-    .ppv1-sticky-bar__info {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      flex: 1;
+      margin-bottom: 10px;
     }
     .ppv1-sticky-bar__title {
       font-size: 12px;
@@ -1929,84 +1973,117 @@ button[class*="make-an-offer"]:hover,
       overflow: hidden;
       text-overflow: ellipsis;
       color: #1b1b1c;
+      flex: 1;
+      min-width: 0;
+      padding-right: 12px;
     }
     .ppv1-sticky-bar__price {
       font-size: 13px;
-      font-weight: 400;
-      color: rgba(27,27,28,0.6);
-    }
-    .ppv1-sticky-atc-btn {
+      font-weight: 500;
+      color: #1b1b1c;
       white-space: nowrap;
-      padding: 12px 24px;
+    }
+    .ppv1-sticky-bar__actions {
+      display: flex;
+      gap: 8px;
+    }
+    .ppv1-sticky-bar__actions form {
+      flex: 1;
+    }
+    .ppv1-sticky-atc-btn,
+    .ppv1-sticky-offer-btn,
+    .ppv1-sticky-source-btn {
+      width: 100%;
+      white-space: nowrap;
+      padding: 12px 16px;
       font-size: 11px;
       letter-spacing: 0.08em;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ppv1-sticky-offer-btn {
+      flex: 1;
+      border: 1px solid #1a1a1a;
+      background: #fff;
+      color: #1a1a1a;
+      cursor: pointer;
+    }
+    .ppv1-sticky-source-btn {
+      flex: 1;
     }
     /* Push Tidio chat widget above sticky bar when visible */
-    .ppv1-sticky-bar--visible ~ #tidio-chat,
     body.ppv1-sticky-active #tidio-chat {
-      bottom: 70px !important;
+      bottom: 100px !important;
     }
   }
 </style>
 <script>
 (function() {
   var stickyBar = document.getElementById('ppv1-sticky-bar');
-  var mainCta = document.querySelector('.ppv1-cta-row');
-  if (!stickyBar || !mainCta) return;
+  if (!stickyBar) return;
 
-  /* Move Tidio chat widget to avoid overlap */
-  function moveTidio(up) {
-    document.querySelectorAll('#tidio-chat, [id^="tidio-"]').forEach(function(el) {
-      if (!el.style) return;
-      if (up) {
-        el.style.setProperty('bottom', '70px', 'important');
-      } else {
-        el.style.removeProperty('bottom');
-      }
-    });
-  }
+  var isMobile = window.matchMedia('(max-width: 999px)').matches;
 
-  /* Show sticky bar only after user scrolls PAST the main ATC (not before) */
-  var hasScrolledPastCta = false;
-  var stickyObserver = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (!entry.isIntersecting) {
-        /* Only show if the CTA is above the viewport (user scrolled past it) */
-        var rect = mainCta.getBoundingClientRect();
-        if (rect.bottom < 0) {
-          hasScrolledPastCta = true;
-          stickyBar.classList.add('ppv1-sticky-bar--visible');
-          document.body.classList.add('ppv1-sticky-active');
-          moveTidio(true);
-        }
-      } else {
-        /* CTA is back in view — hide sticky bar */
-        if (hasScrolledPastCta) {
-          stickyBar.classList.remove('ppv1-sticky-bar--visible');
-          document.body.classList.remove('ppv1-sticky-active');
-          moveTidio(false);
-        }
-      }
-    });
-  }, { threshold: 0 });
-  stickyObserver.observe(mainCta);
-
-  /* Sync sticky bar ATC with main ATC state */
-  var stickyBtn = document.getElementById('ppv1-sticky-atc-btn');
-  if (stickyBtn && !stickyBtn.disabled) {
-    stickyBtn.addEventListener('click', function() {
-      /* Trigger the main form's ATC instead of submitting this form */
-      var mainBtn = document.getElementById('ppv1-atc-btn');
-      if (mainBtn && !mainBtn.disabled) {
-        mainBtn.click();
-      }
-    });
-    /* Prevent the sticky form from submitting (we use the main form) */
-    var stickyForm = stickyBar.querySelector('form');
-    if (stickyForm) {
-      stickyForm.addEventListener('submit', function(e) { e.preventDefault(); });
+  if (isMobile) {
+    /* On mobile: show sticky bar immediately (main CTA is hidden) */
+    stickyBar.classList.add('ppv1-sticky-bar--visible');
+    document.body.classList.add('ppv1-sticky-active');
+  } else {
+    /* On desktop: show sticky bar when main CTA scrolls past */
+    var mainCta = document.querySelector('.ppv1-cta-row');
+    if (mainCta) {
+      var hasScrolledPastCta = false;
+      var stickyObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (!entry.isIntersecting) {
+            var rect = mainCta.getBoundingClientRect();
+            if (rect.bottom < 0) {
+              hasScrolledPastCta = true;
+              stickyBar.classList.add('ppv1-sticky-bar--visible');
+              document.body.classList.add('ppv1-sticky-active');
+            }
+          } else {
+            if (hasScrolledPastCta) {
+              stickyBar.classList.remove('ppv1-sticky-bar--visible');
+              document.body.classList.remove('ppv1-sticky-active');
+            }
+          }
+        });
+      }, { threshold: 0 });
+      stickyObserver.observe(mainCta);
     }
   }
+
+  /* Make an Offer button — trigger Offerly's modal */
+  var offerBtn = document.getElementById('ppv1-sticky-offer-btn');
+  if (offerBtn) {
+    offerBtn.addEventListener('click', function() {
+      /* Try to find and click Offerly's original button */
+      var maoBtn = document.querySelector('.mao-button, .mao_button, button[class*="mao-"], button[class*="make-an-offer"], #mao-widget button, #mao_widget button, [id*="make-an-offer"] button');
+      if (maoBtn) {
+        maoBtn.style.display = 'block';
+        maoBtn.click();
+        maoBtn.style.display = '';
+      }
+    });
+  }
+
+  /* Sync sticky bar ATC */
+  var stickyBtn = document.getElementById('ppv1-sticky-atc-btn');
+  if (stickyBtn && !stickyBtn.disabled && !isMobile) {
+    /* Desktop: proxy click to main ATC button */
+    stickyBtn.addEventListener('click', function() {
+      var mainBtn = document.getElementById('ppv1-atc-btn');
+      if (mainBtn && !mainBtn.disabled) mainBtn.click();
+    });
+    var stickyForm = stickyBar.querySelector('form');
+    if (stickyForm) stickyForm.addEventListener('submit', function(e) { e.preventDefault(); });
+  }
+  /* Mobile: the sticky button has data-action="add-to-cart" so the theme's
+     delegated click handler on the section element handles the AJAX add */
 })();
 </script>
 
