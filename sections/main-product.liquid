@@ -1953,8 +1953,10 @@ button[class*="make-an-offer"]:hover,
       left: 0;
       right: 0;
       z-index: 999;
-      background: #fff;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.85);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
       padding: 12px 20px 14px;
       padding-bottom: calc(14px + env(safe-area-inset-bottom));
       transform: translateY(100%);
@@ -2080,7 +2082,6 @@ button[class*="make-an-offer"]:hover,
       if (!variantId) return;
 
       stickyBtn.setAttribute('disabled', 'disabled');
-      stickyBtn.textContent = 'ADDING...';
 
       fetch((window.routes && window.routes.cartAddUrl || '/cart/add') + '.js', {
         method: 'POST',
@@ -2104,14 +2105,13 @@ button[class*="make-an-offer"]:hover,
             mainBtn.textContent = 'ADDED TO CART';
           }
 
-          /* Trigger cart drawer / mini-cart update */
-          var section = document.querySelector('[data-section-id="{{ section.id }}"]');
-          if (section) {
-            section.dispatchEvent(new CustomEvent('product:added', {
-              bubbles: true,
-              detail: { quantity: 1 }
-            }));
-          }
+          /* Silently update cart count without opening drawer */
+          fetch('/cart.js', { credentials: 'same-origin' })
+            .then(function(r) { return r.json(); })
+            .then(function(cart) {
+              var countEls = document.querySelectorAll('.Header__CartCount, [data-cart-count]');
+              countEls.forEach(function(el) { el.textContent = cart.item_count; });
+            });
 
           /* Fire tracking */
           try {
@@ -2147,20 +2147,23 @@ button[class*="make-an-offer"]:hover,
   var offerBtn = document.getElementById('ppv1-sticky-offer-btn');
   if (offerBtn) {
     offerBtn.addEventListener('click', function() {
-      /* Offerly's button is visually hidden on mobile — temporarily restore it to trigger click */
-      var maoBtn = document.querySelector('.mao-button, .mao_button, button[class*="mao-"], button[class*="make-an-offer"], #mao-widget button, #mao_widget button, [id*="make-an-offer"] button');
+      /* Try multiple approaches to open Offerly's modal */
+      var maoBtn = document.querySelector('.mao-button, .mao_button, button[class*="mao-"], button[class*="make-an-offer"], #mao-widget button, #mao_widget button, [id*="make-an-offer"] button, [class*="make_an_offer"] button');
       if (maoBtn) {
-        maoBtn.style.setProperty('visibility', 'visible', 'important');
-        maoBtn.style.setProperty('position', 'fixed', 'important');
-        maoBtn.style.setProperty('height', 'auto', 'important');
-        maoBtn.style.setProperty('pointer-events', 'auto', 'important');
+        /* Temporarily make it clickable */
+        var origStyles = maoBtn.getAttribute('style') || '';
+        maoBtn.setAttribute('style', 'visibility:visible!important;position:static!important;height:auto!important;pointer-events:auto!important;opacity:0!important;');
         maoBtn.click();
         setTimeout(function() {
-          maoBtn.style.removeProperty('visibility');
-          maoBtn.style.removeProperty('position');
-          maoBtn.style.removeProperty('height');
-          maoBtn.style.removeProperty('pointer-events');
-        }, 200);
+          maoBtn.setAttribute('style', origStyles);
+        }, 300);
+      } else {
+        /* Fallback: try to find Offerly's modal/overlay and open it directly */
+        var maoModal = document.querySelector('[class*="mao-modal"], [class*="mao_modal"], [id*="mao-modal"], [id*="mao_modal"], .offerly-modal, #offerly-modal');
+        if (maoModal) {
+          maoModal.style.display = 'block';
+          maoModal.classList.add('is-active', 'is-visible', 'open');
+        }
       }
     });
   }
