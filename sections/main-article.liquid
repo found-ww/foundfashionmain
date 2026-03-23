@@ -285,8 +285,29 @@
         {%- if _pb_val != blank -%}
           {%- assign _pb_clean = _pb_val | strip_html | strip -%}
           {%- assign _pb_lines = _pb_clean | newline_to_br | split: '<br />' -%}
+          {%- comment -%} Collect card titles for tab bar {%- endcomment -%}
+          {%- assign _pb_titles = '' -%}
+          {%- assign _pb_ti = 0 -%}
+          {%- for _line in _pb_lines -%}
+            {%- assign _line_stripped = _line | strip -%}
+            {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+            {%- assign _pb_field_t = _pb_ti | modulo: 6 -%}
+            {%- if _pb_field_t == 0 -%}
+              {%- if _pb_titles != '' -%}{%- assign _pb_titles = _pb_titles | append: '|||' -%}{%- endif -%}
+              {%- assign _pb_titles = _pb_titles | append: _line_stripped -%}
+            {%- endif -%}
+            {%- assign _pb_ti = _pb_ti | plus: 1 -%}
+          {%- endfor -%}
+          {%- assign _pb_title_arr = _pb_titles | split: '|||' -%}
           {%- capture _pb_html -%}
             <div class="art-product-block">
+              {%- if _pb_title_arr.size > 1 -%}
+                <div class="art-pb-tabs">
+                  {%- for _t in _pb_title_arr -%}
+                    <button class="art-pb-tabs__btn{% if forloop.first %} art-pb-tabs__btn--active{% endif %}" data-pb-tab="{{ forloop.index0 }}" type="button">{{ _t }}</button>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
               {%- assign _pb_i = 0 -%}
               {%- assign _pb_card_i = 0 -%}
               {%- for _line in _pb_lines -%}
@@ -294,7 +315,7 @@
                 {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
                 {%- assign _pb_field = _pb_i | modulo: 6 -%}
                 {%- if _pb_field == 0 -%}
-                  <div class="art-product-block__card">
+                  <div class="art-product-block__card" data-pb-card="{{ _pb_card_i }}">
                     <p class="art-product-block__title">{{ _line_stripped }}</p>
                     <div class="art-product-block__grid">
                 {%- elsif _pb_field == 1 -%}
@@ -324,6 +345,7 @@
                       <span class="art-product-block__value">{{ _line_stripped }}</span>
                     </div>
                   </div>
+                  {%- assign _pb_card_i = _pb_card_i | plus: 1 -%}
                 {%- endif -%}
                 {%- assign _pb_i = _pb_i | plus: 1 -%}
               {%- endfor -%}
@@ -803,13 +825,51 @@
     color: #6b6259;
     line-height: 1.6;
   }
+  /* Tab bar — hidden on desktop, shown on mobile */
+  .art-pb-tabs {
+    display: none;
+  }
+  .art-pb-tabs__btn {
+    background: transparent;
+    border: 1px solid #d4cec8;
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6b6259;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .art-pb-tabs__btn--active {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+
   @media screen and (max-width: 767px) {
     .art-product-block {
       grid-template-columns: 1fr;
       column-gap: 0;
-      row-gap: 1px;
+      row-gap: 0;
     }
-    .art-product-block__card { padding: 24px 20px; }
+    .art-pb-tabs {
+      display: flex;
+      margin-bottom: 0;
+    }
+    .art-pb-tabs__btn {
+      flex: 1;
+    }
+    .art-product-block__card {
+      padding: 24px 20px;
+    }
+    .art-product-block__card[data-pb-card] {
+      display: none;
+    }
+    .art-product-block__card.art-pb-card--active {
+      display: block;
+    }
   }
 
   /* ── Hotspot image embed ── */
@@ -1610,6 +1670,26 @@
         pbIo.observe(card);
       });
     }
+
+    /* ---- Product block tab switcher (mobile) ---- */
+    document.querySelectorAll('.art-pb-tabs').forEach(function(tabBar) {
+      var block = tabBar.closest('.art-product-block');
+      if (!block) return;
+      var cards = block.querySelectorAll('.art-product-block__card[data-pb-card]');
+      var btns = tabBar.querySelectorAll('.art-pb-tabs__btn');
+      /* Activate first card on load */
+      if (cards.length) cards[0].classList.add('art-pb-card--active', 'art-pb--in');
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = btn.getAttribute('data-pb-tab');
+          btns.forEach(function(b) { b.classList.remove('art-pb-tabs__btn--active'); });
+          btn.classList.add('art-pb-tabs__btn--active');
+          cards.forEach(function(c) { c.classList.remove('art-pb-card--active'); });
+          var target = block.querySelector('.art-product-block__card[data-pb-card="' + idx + '"]');
+          if (target) { target.classList.add('art-pb-card--active', 'art-pb--in'); }
+        });
+      });
+    });
 
     /* ---- Hotspot image ---- */
     document.querySelectorAll('.art-hotspot').forEach(function(hotspot) {
