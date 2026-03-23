@@ -1787,6 +1787,12 @@ button[class*="make-an-offer"]:hover,
 })();
 </script>
 
+{%- comment -%} Hide loading bar on ATC + suppress max quantity error {%- endcomment -%}
+<style>
+  .LoadingBar { display: none !important; }
+  .ProductForm__Error.Alert--error { display: none !important; }
+</style>
+
 {% schema %}
 {
   "name": "Product page",
