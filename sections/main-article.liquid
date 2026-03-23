@@ -1076,6 +1076,7 @@
       margin-top: 10px;
     }
     .art-body-section-h { font-size: 17px !important; font-weight: 600 !important; color: #0a0a0a !important; }
+    .art-body-left--empty { display: none; }
 
     /* Mobile share section */
     .Article__Footer { padding: 36px 20px; }
@@ -1603,6 +1604,8 @@
         if (sec.heading) {
           sec.heading.className = 'art-body-section-h';
           left.appendChild(sec.heading);
+        } else {
+          left.classList.add('art-body-left--empty');
         }
         var right = document.createElement('div');
         right.className = 'art-body-right';
