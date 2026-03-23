@@ -522,12 +522,10 @@
 
   /* ---- Focus mode state ---- */
   .art-focus-mode .art-body-left {
-    float: none;
-    width: auto;
-    margin-left: 0;
-    position: relative;
-    text-align: left;
-    margin-bottom: 16px;
+    display: none;
+  }
+  .art-focus-mode .art-body-right .art-body-section-h {
+    margin-bottom: 16px !important;
     opacity: 0;
     animation: art-focus-h2-in 0.6s cubic-bezier(0.16,1,0.3,1) 0.1s forwards;
   }
@@ -1807,8 +1805,23 @@
     var articleEl = document.querySelector('article.Article');
     if (focusBtn && articleEl) {
       focusBtn.addEventListener('click', function() {
+        var entering = !articleEl.classList.contains('art-focus-mode');
         articleEl.classList.toggle('art-focus-mode');
         focusBtn.classList.toggle('ArticleToolbar__FocusBtn--active');
+
+        /* Move H2s into/out of the right column */
+        articleEl.querySelectorAll('.art-body-section-text').forEach(function(section) {
+          var left = section.querySelector('.art-body-left');
+          var right = section.querySelector('.art-body-right');
+          if (!left || !right) return;
+          var heading = left.querySelector('.art-body-section-h');
+          if (!heading) return;
+          if (entering) {
+            right.insertBefore(heading, right.firstChild);
+          } else {
+            left.appendChild(heading);
+          }
+        });
       });
     }
 
