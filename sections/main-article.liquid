@@ -1783,17 +1783,25 @@
       bodyEl.querySelectorAll('img').forEach(function(img) {
         if (img.closest('.Article__ParallaxWrap')) return;
         if (img.closest('.art-product-card')) return;
-        if (img.closest('.art-hotspot')) return;
+        if (img.closest('.art-hotspot__img-wrap')) return;
         var wrap = document.createElement('div');
         wrap.className = 'Article__ParallaxWrap';
         img.parentNode.insertBefore(wrap, img);
         wrap.appendChild(img);
       });
 
+      /* Wrap each hotspot in a parallax container */
+      bodyEl.querySelectorAll('.art-hotspot__img-wrap').forEach(function(imgWrap) {
+        var parWrap = document.createElement('div');
+        parWrap.className = 'Article__ParallaxWrap';
+        imgWrap.parentNode.insertBefore(parWrap, imgWrap);
+        parWrap.appendChild(imgWrap);
+      });
+
       var parItems = [];
       bodyEl.querySelectorAll('.Article__ParallaxWrap').forEach(function(wrap) {
-        var img = wrap.querySelector('img');
-        if (img) parItems.push({ wrap: wrap, img: img, cur: 0, tgt: 0 });
+        var target = wrap.querySelector('.art-hotspot__img-wrap') || wrap.querySelector('img');
+        if (target) parItems.push({ wrap: wrap, img: target, cur: 0, tgt: 0 });
       });
 
       function parTick() {
