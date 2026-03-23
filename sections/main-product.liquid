@@ -1941,6 +1941,11 @@ button[class*="make-an-offer"]:hover,
       font-size: 11px;
       letter-spacing: 0.08em;
     }
+    /* Push Tidio chat widget above sticky bar when visible */
+    .ppv1-sticky-bar--visible ~ #tidio-chat,
+    body.ppv1-sticky-active #tidio-chat {
+      bottom: 70px !important;
+    }
   }
 </style>
 <script>
@@ -1949,10 +1954,34 @@ button[class*="make-an-offer"]:hover,
   var mainCta = document.querySelector('.ppv1-cta-row');
   if (!stickyBar || !mainCta) return;
 
-  /* Show sticky bar when main ATC scrolls out of view */
+  /* Move Tidio chat widget to avoid overlap */
+  function moveTidio(bottom) {
+    document.querySelectorAll('#tidio-chat, [id^="tidio-"]').forEach(function(el) {
+      if (el.style) el.style.setProperty('bottom', bottom, 'important');
+    });
+  }
+
+  /* Show sticky bar only after user scrolls PAST the main ATC (not before) */
+  var hasScrolledPastCta = false;
   var stickyObserver = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
-      stickyBar.classList.toggle('ppv1-sticky-bar--visible', !entry.isIntersecting);
+      if (!entry.isIntersecting) {
+        /* Only show if the CTA is above the viewport (user scrolled past it) */
+        var rect = mainCta.getBoundingClientRect();
+        if (rect.bottom < 0) {
+          hasScrolledPastCta = true;
+          stickyBar.classList.add('ppv1-sticky-bar--visible');
+          document.body.classList.add('ppv1-sticky-active');
+          moveTidio('70px');
+        }
+      } else {
+        /* CTA is back in view — hide sticky bar */
+        if (hasScrolledPastCta) {
+          stickyBar.classList.remove('ppv1-sticky-bar--visible');
+          document.body.classList.remove('ppv1-sticky-active');
+          moveTidio('');
+        }
+      }
     });
   }, { threshold: 0 });
   stickyObserver.observe(mainCta);
