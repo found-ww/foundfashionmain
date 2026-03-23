@@ -1654,6 +1654,10 @@
         var imgCol = document.createElement('div');
         imgCol.className = 'art-body-img-col';
         imgCol.appendChild(sec.el);
+        /* On mobile, put caption inside imgCol so overlay positioning works */
+        if (capWrap && window.innerWidth <= 768) {
+          imgCol.appendChild(capWrap);
+        }
         row.appendChild(imgCol);
         frag.appendChild(row);
         return;
@@ -1920,18 +1924,27 @@
     /* ---- Progress bar: tracks article content, not full page ---- */
     var bar     = document.getElementById('article-progress-bar');
     var content = document.querySelector('.Article__Content');
-    if (bar) {
-      function updateBar() {
+    if (bar && content) {
+      var barPct = 0;
+      var barTarget = 0;
+      function updateBarTarget() {
         var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        var pct = 0;
-        var docH = document.documentElement.scrollHeight - window.innerHeight;
-        if (docH > 0) {
-          pct = Math.min(100, (scrollTop / docH) * 100);
+        var contentTop = content.getBoundingClientRect().top + scrollTop;
+        var contentBottom = contentTop + content.offsetHeight;
+        var scrollEnd = contentBottom - window.innerHeight;
+        if (scrollEnd > 0) {
+          barTarget = Math.min(100, Math.max(0, (scrollTop / scrollEnd) * 100));
         }
-        bar.style.width = pct + '%';
       }
-      window.addEventListener('scroll', updateBar, { passive: true });
-      updateBar();
+      function barRAF() {
+        barPct += (barTarget - barPct) * 0.12;
+        if (Math.abs(barPct - barTarget) < 0.1) barPct = barTarget;
+        bar.style.width = barPct + '%';
+        requestAnimationFrame(barRAF);
+      }
+      window.addEventListener('scroll', updateBarTarget, { passive: true });
+      updateBarTarget();
+      barRAF();
     }
 
     /* ---- Share count (localStorage per article URL) ---- */
@@ -2191,7 +2204,7 @@
     window.addEventListener('scroll', function() {
       var totalHeight = content.scrollHeight;
       var scrolled = window.scrollY;
-      var show = scrolled > totalHeight * 0.5;
+      var show = scrolled > totalHeight * 0.4;
       btn.classList.toggle('art-back-top--visible', show);
     }, { passive: true });
     btn.addEventListener('click', function() {
