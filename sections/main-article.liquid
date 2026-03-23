@@ -489,6 +489,7 @@
   .ArticleToolbar__ArticleTitle { max-width: none; width: auto; flex: 1; min-width: 0; }
   .ArticleToolbar__Right { display: flex; align-items: center; }
   .ArticleToolbar__ShareList { display: flex; align-items: center; }
+  .ArticleToolbar__ShareList .HorizontalList { display: flex; align-items: center; }
 
   /* ---- Focus mode button ---- */
   .ArticleToolbar__FocusBtn {
@@ -520,7 +521,15 @@
   }
 
   /* ---- Focus mode state ---- */
-  .art-focus-mode .art-body-left,
+  .art-focus-mode .art-body-left {
+    float: none;
+    width: auto;
+    margin-left: 0;
+    position: static;
+    text-align: left;
+    margin-bottom: 16px;
+    transition: none;
+  }
   .art-focus-mode .art-body-caption-wrap,
   .art-focus-mode .art-product-anchor {
     opacity: 0;
