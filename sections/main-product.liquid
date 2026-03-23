@@ -346,7 +346,7 @@
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
           {%- if product.selected_or_first_available_variant.available -%}
             {%- assign atc_variant = product.selected_or_first_available_variant -%}
-            <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart" id="ppv1-atc-btn">
+            <button type="submit" class="Button Button--primary ppv1-atc-btn ProductForm__AddToCart" data-action="add-to-cart" id="ppv1-atc-btn">
               ADD TO CART &bull; {{ atc_variant.price | money }}
             </button>
           {%- else -%}
@@ -1743,46 +1743,47 @@ button[class*="make-an-offer"]:hover,
       currency: productData.currency
     });
   }
-  /* GA4 add_to_cart + Meta AddToCart on button click */
+})();
+</script>
+
+{%- comment -%} GA4 add_to_cart + Meta AddToCart — separate script to avoid breaking ATC {%- endcomment -%}
+<script>
+(function() {
   var atcBtn = document.getElementById('ppv1-atc-btn');
-  if (atcBtn) {
-    atcBtn.addEventListener('click', function() {
-      var variantId = {{ atc_variant.id | default: product.selected_or_first_available_variant.id | json }};
-      var variantTitle = {{ atc_variant.title | default: product.selected_or_first_available_variant.title | json }};
-      var variantPrice = {{ atc_variant.price | default: product.selected_or_first_available_variant.price | divided_by: 100.0 }};
+  if (!atcBtn) return;
+  atcBtn.addEventListener('click', function() {
+    try {
+      var currency = {{ shop.currency | json }};
+      var itemName = {{ product.title | json }};
+      var variantInput = atcBtn.closest('form').querySelector('[data-product-select]');
+      var variantId = variantInput ? variantInput.value : '';
+      var price = {{ product.price | divided_by: 100.0 }};
 
       if (typeof gtag === 'function') {
         gtag('event', 'add_to_cart', {
-          currency: productData.currency,
-          value: variantPrice,
-          items: [{
-            item_id: String(variantId),
-            item_name: productData.item_name,
-            item_variant: variantTitle,
-            price: variantPrice,
-            quantity: 1
-          }]
+          currency: currency,
+          value: price,
+          items: [{ item_id: String(variantId), item_name: itemName, price: price, quantity: 1 }]
         });
       }
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: 'add_to_cart',
-        currency: productData.currency,
-        value: variantPrice,
-        items: [{ item_id: String(variantId), item_name: productData.item_name }]
+        currency: currency,
+        value: price,
+        items: [{ item_id: String(variantId), item_name: itemName }]
       });
-
       if (typeof fbq === 'function') {
         fbq('track', 'AddToCart', {
-          content_name: productData.item_name,
+          content_name: itemName,
           content_ids: [String(variantId)],
           content_type: 'product',
-          value: variantPrice,
-          currency: productData.currency
+          value: price,
+          currency: currency
         });
       }
-    });
-  }
+    } catch(e) { /* tracking should never block ATC */ }
+  });
 })();
 </script>
 
