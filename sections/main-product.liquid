@@ -1920,21 +1920,8 @@ button[class*="make-an-offer"]:hover,
     .ppv1-cta-row {
       display: none !important;
     }
-    /* Hide Offerly's injected button on mobile (use visibility so handlers stay bound) */
-    .mao-button,
-    .mao_button,
-    button[class*="mao-"],
-    button[class*="make-an-offer"],
-    #mao-widget,
-    #mao_widget,
-    [id*="make-an-offer"],
-    [class*="make_an_offer"] {
-      visibility: hidden !important;
-      position: absolute !important;
-      height: 0 !important;
-      overflow: hidden !important;
-      pointer-events: none !important;
-    }
+    /* Offerly's button is inside .ppv1-cta-row which is display:none on mobile.
+       .click() still works on hidden elements so no extra hiding needed. */
 
     .ppv1-sticky-bar {
       display: block;
@@ -2112,45 +2099,12 @@ button[class*="make-an-offer"]:hover,
     });
   }
 
-  /* Make an Offer button — trigger Offerly's modal */
+  /* Make an Offer button — trigger Offerly's #offerButton */
   var offerBtn = document.getElementById('ppv1-sticky-offer-btn');
   if (offerBtn) {
     offerBtn.addEventListener('click', function() {
-      /* Strategy 1: Find Offerly iframe and post message */
-      var maoIframe = document.querySelector('iframe[src*="make-an-offer"], iframe[src*="offerly"], iframe[src*="mao"]');
-      if (maoIframe) {
-        maoIframe.contentWindow.postMessage('open', '*');
-      }
-
-      /* Strategy 2: Find and click any MAO button (temporarily un-hide it) */
-      var selectors = [
-        '.mao-button', '.mao_button', 'button[class*="mao-"]',
-        'button[class*="make-an-offer"]', '#mao-widget button',
-        '#mao_widget button', '[id*="make-an-offer"] button',
-        '[class*="make_an_offer"] button', '[data-mao]',
-        'a[class*="mao-"]', 'a[class*="make-an-offer"]'
-      ];
-      var maoBtn = document.querySelector(selectors.join(', '));
-      if (maoBtn) {
-        /* Fully restore the element temporarily */
-        var origCss = maoBtn.style.cssText;
-        var origParentCss = '';
-        var parent = maoBtn.parentElement;
-        if (parent) {
-          origParentCss = parent.style.cssText;
-          parent.style.cssText += ';visibility:visible!important;position:static!important;height:auto!important;overflow:visible!important;display:block!important;pointer-events:auto!important;';
-        }
-        maoBtn.style.cssText = 'visibility:visible!important;position:static!important;height:auto!important;pointer-events:auto!important;overflow:visible!important;display:block!important;';
-
-        /* Use both click methods */
-        maoBtn.click();
-        maoBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-
-        setTimeout(function() {
-          maoBtn.style.cssText = origCss;
-          if (parent) parent.style.cssText = origParentCss;
-        }, 500);
-      }
+      var maoBtn = document.getElementById('offerButton') || document.querySelector('.offerButton');
+      if (maoBtn) maoBtn.click();
     });
   }
 })();
