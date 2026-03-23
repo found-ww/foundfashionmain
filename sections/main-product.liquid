@@ -267,6 +267,12 @@
     <div class="ppv1-hero__info">
 
       <h1 class="ppv1-title Heading u-h2">{{ product.title }}</h1>
+      {%- if product.title contains 'Kelly Doll' -%}
+        <a class="ppv1-story-link" href="/blogs/found-magazine/tagged/kelly-doll">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          Product Story
+        </a>
+      {%- endif -%}
       <hr class="ppv1-divider">
 
       {%- comment -%} ─── Hero meta: category-specific fields ─── {%- endcomment -%}
@@ -724,6 +730,21 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
+.ppv1-story-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #947b69;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: color 0.2s;
+}
+.ppv1-story-link:hover { color: #1c1c1c; }
 
 .ppv1-divider {
   border: none;
