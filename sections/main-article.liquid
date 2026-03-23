@@ -1094,31 +1094,29 @@
     }
 
     /* Image captions as overlay on mobile */
+    .art-body-img-col {
+      position: relative;
+      order: 1;
+    }
     .art-body-caption-wrap {
       position: absolute !important;
       bottom: 0;
       left: 0;
       right: 0;
       margin-top: 0 !important;
-      padding: 24px 16px 12px;
-      background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 100%);
-      order: 2;
+      padding: 24px 16px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 100%);
+      order: 1;
       z-index: 2;
     }
     .art-body-caption {
       color: rgba(255,255,255,0.85) !important;
     }
-    .art-body-section-img {
-      position: relative;
-    }
-    .art-body-img-col {
-      position: relative;
-    }
 
-    /* Back to top button */
+    /* Back to top button — sits above Tidio widget */
     .art-back-top {
       position: fixed;
-      bottom: 24px;
+      bottom: 90px;
       right: 20px;
       width: 44px;
       height: 44px;
@@ -1926,17 +1924,9 @@
       function updateBar() {
         var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         var pct = 0;
-        if (content) {
-          var contentTop = content.getBoundingClientRect().top + scrollTop;
-          var scrollable = content.offsetHeight - window.innerHeight;
-          if (scrollable > 0) {
-            pct = Math.min(100, Math.max(0, (scrollTop - contentTop) / scrollable * 100));
-          } else {
-            pct = scrollTop >= contentTop ? 100 : 0;
-          }
-        } else {
-          var docH = document.documentElement.scrollHeight - window.innerHeight;
-          pct = docH > 0 ? Math.min(100, (scrollTop / docH) * 100) : 0;
+        var docH = document.documentElement.scrollHeight - window.innerHeight;
+        if (docH > 0) {
+          pct = Math.min(100, (scrollTop / docH) * 100);
         }
         bar.style.width = pct + '%';
       }
