@@ -11,7 +11,10 @@
 
 {%- for tag in product.tags -%}
   {%- assign ps_tag_lower = tag | downcase -%}
-  {%- if ps_tag_lower == 'birkin' -%}
+  {%- if ps_tag_lower == 'kelly doll' -%}
+    {%- assign ps_tagged = true -%}
+    {%- assign ps_tag_article = section.settings.kelly_doll_article -%}
+  {%- elsif ps_tag_lower == 'birkin' -%}
     {%- assign ps_tagged = true -%}
     {%- assign ps_tag_article = section.settings.birkin_article -%}
   {%- elsif ps_tag_lower == 'kelly' -%}
@@ -38,9 +41,6 @@
   {%- elsif ps_tag_lower == 'bolide' -%}
     {%- assign ps_tagged = true -%}
     {%- assign ps_tag_article = section.settings.bolide_article -%}
-  {%- elsif ps_tag_lower == 'kelly doll' -%}
-    {%- assign ps_tagged = true -%}
-    {%- assign ps_tag_article = section.settings.kelly_doll_article -%}
   {%- endif -%}
   {%- if ps_tagged -%}{%- break -%}{%- endif -%}
 {%- endfor -%}
