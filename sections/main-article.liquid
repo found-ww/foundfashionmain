@@ -1023,15 +1023,16 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-    .Article__ShareSection .ShareButtons__Item,
+    .Article__ShareSection .ShareButtons__Item {
+      height: 48px !important;
+      min-height: 48px;
+      flex: 1;
+    }
     .Article__CopyLinkBtn {
       height: 48px !important;
       min-height: 48px;
-      min-width: 48px;
-    }
-    .Article__CopyLinkBtn {
       padding: 0 24px;
-      flex: 1;
+      width: 100%;
     }
     .art-body-section-img {
       display: flex;
