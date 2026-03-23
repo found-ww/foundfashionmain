@@ -346,9 +346,22 @@
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
           {%- if product.selected_or_first_available_variant.available -%}
             {%- assign atc_variant = product.selected_or_first_available_variant -%}
-            <button type="submit" class="Button Button--primary ppv1-atc-btn ProductForm__AddToCart" data-action="add-to-cart" id="ppv1-atc-btn">
-              ADD TO CART &bull; {{ atc_variant.price | money }}
-            </button>
+            {%- assign in_cart = false -%}
+            {%- for item in cart.items -%}
+              {%- if item.product.id == product.id -%}
+                {%- assign in_cart = true -%}
+                {%- break -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {%- if in_cart -%}
+              <button type="button" class="Button Button--secondary ppv1-atc-btn ProductForm__AddToCart ppv1-atc-btn--added" id="ppv1-atc-btn" disabled>
+                ADDED TO CART
+              </button>
+            {%- else -%}
+              <button type="submit" class="Button Button--primary ppv1-atc-btn ProductForm__AddToCart" data-action="add-to-cart" id="ppv1-atc-btn" data-atc-price="{{ atc_variant.price | money }}">
+                ADD TO CART &bull; {{ atc_variant.price | money }}
+              </button>
+            {%- endif -%}
           {%- else -%}
             <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled style="flex:1;">SOLD</button>
             {%- if customer -%}
@@ -1787,11 +1800,58 @@ button[class*="make-an-offer"]:hover,
 })();
 </script>
 
-{%- comment -%} Hide loading bar on ATC + suppress max quantity error {%- endcomment -%}
+{%- comment -%} Hide loading bar on ATC + suppress max quantity error + added state {%- endcomment -%}
 <style>
   .LoadingBar { display: none !important; }
   .ProductForm__Error.Alert--error { display: none !important; }
+  .ppv1-atc-btn--added {
+    opacity: 0.7;
+    cursor: default;
+  }
 </style>
+<script>
+(function() {
+  var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+  if (!section) return;
+
+  /* After successful add, switch button to "Added to cart" */
+  section.addEventListener('product:added', function() {
+    var btn = document.getElementById('ppv1-atc-btn');
+    if (!btn) return;
+    btn.setAttribute('disabled', 'disabled');
+    btn.removeAttribute('data-action');
+    btn.setAttribute('type', 'button');
+    btn.classList.remove('Button--primary');
+    btn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+    btn.textContent = 'ADDED TO CART';
+  });
+
+  /* Listen for cart item removal — check cart when remove/quantity buttons are clicked */
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('[data-action="remove-item"], [data-action="update-item-quantity"]');
+    if (!target) return;
+    /* Delay to let the cart AJAX complete */
+    setTimeout(function() {
+      fetch('/cart.js', { credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(cart) {
+          var btn = document.getElementById('ppv1-atc-btn');
+          if (!btn || !btn.classList.contains('ppv1-atc-btn--added')) return;
+          var productId = {{ product.id }};
+          var inCart = cart.items.some(function(item) { return item.product_id === productId; });
+          if (!inCart) {
+            btn.removeAttribute('disabled');
+            btn.setAttribute('data-action', 'add-to-cart');
+            btn.setAttribute('type', 'submit');
+            btn.classList.remove('Button--secondary', 'ppv1-atc-btn--added');
+            btn.classList.add('Button--primary');
+            btn.textContent = 'ADD TO CART \u2022 ' + (btn.getAttribute('data-atc-price') || '');
+          }
+        });
+    }, 1000);
+  });
+})();
+</script>
 
 {% schema %}
 {
