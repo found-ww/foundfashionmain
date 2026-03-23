@@ -1754,9 +1754,7 @@
           var idx = btn.getAttribute('data-pb-tab');
           btns.forEach(function(b) { b.classList.remove('art-pb-tabs__btn--active'); });
           btn.classList.add('art-pb-tabs__btn--active');
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({
-            event: 'product_block_tab',
+          trackEvent('product_block_tab', {
             article_title: document.title,
             tab_label: btn.textContent.trim(),
             tab_index: idx
@@ -1780,12 +1778,7 @@
         hideTooltip();
         var label = dot.getAttribute('data-hs-label');
         if (!label) return;
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: 'hotspot_interact',
-          article_title: document.title,
-          hotspot_label: label
-        });
+        trackEvent('hotspot_interact', { article_title: document.title, hotspot_label: label });
         var tip = document.createElement('div');
         tip.className = 'art-hotspot__tooltip';
         tip.textContent = label;
@@ -1934,6 +1927,18 @@
 
   (function() {
 
+    /* ---- Analytics helper: fires both dataLayer (GTM) and gtag (GA4) ---- */
+    function trackEvent(eventName, params) {
+      params = params || {};
+      window.dataLayer = window.dataLayer || [];
+      var dlObj = { event: eventName };
+      for (var k in params) { if (params.hasOwnProperty(k)) dlObj[k] = params[k]; }
+      window.dataLayer.push(dlObj);
+      if (typeof gtag === 'function') {
+        gtag('event', eventName, params);
+      }
+    }
+
     /* ---- Progress bar: tracks article content, not full page ---- */
     var bar     = document.getElementById('article-progress-bar');
     var content = document.querySelector('.Article__Content');
@@ -1960,23 +1965,15 @@
       var readCompleteFired = false;
       function checkScrollDepth() {
         var pct = Math.round(barTarget);
-        window.dataLayer = window.dataLayer || [];
         [25, 50, 75, 100].forEach(function(m) {
           if (pct >= m && !depthMilestones[m]) {
             depthMilestones[m] = true;
-            window.dataLayer.push({
-              event: 'article_scroll_depth',
-              article_title: document.title,
-              scroll_depth: m
-            });
+            trackEvent('article_scroll_depth', { article_title: document.title, scroll_depth: m });
           }
         });
         if (pct >= 98 && !readCompleteFired) {
           readCompleteFired = true;
-          window.dataLayer.push({
-            event: 'article_read_complete',
-            article_title: document.title
-          });
+          trackEvent('article_read_complete', { article_title: document.title });
         }
       }
 
@@ -2007,9 +2004,7 @@
     document.querySelectorAll('[data-share-btn]').forEach(function(btn) {
       btn.addEventListener('click', function() {
         updateCountEl(incrementCount());
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: 'share_article',
+        trackEvent('share_article', {
           article_title: document.title,
           share_method: btn.getAttribute('data-share-btn') || 'unknown',
           share_location: 'footer'
@@ -2025,9 +2020,7 @@
         var entering = !articleEl.classList.contains('art-focus-mode');
         articleEl.classList.toggle('art-focus-mode');
         focusBtn.classList.toggle('ArticleToolbar__FocusBtn--active');
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: 'toggle_focus_mode',
+        trackEvent('toggle_focus_mode', {
           article_title: document.title,
           focus_state: entering ? 'on' : 'off'
         });
@@ -2051,9 +2044,7 @@
     /* ---- Toolbar share link tracking ---- */
     document.querySelectorAll('[data-toolbar-share]').forEach(function(link) {
       link.addEventListener('click', function() {
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: 'share_article',
+        trackEvent('share_article', {
           article_title: document.title,
           share_method: link.getAttribute('data-toolbar-share'),
           share_location: 'toolbar'
@@ -2071,11 +2062,7 @@
           copyLabel.textContent = 'Copied!';
           copyBtn.classList.add('Article__CopyLinkBtn--copied');
           updateCountEl(incrementCount());
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({
-            event: 'copy_article_link',
-            article_title: document.title
-          });
+          trackEvent('copy_article_link', { article_title: document.title });
           setTimeout(function() {
             copyLabel.textContent = 'Copy link';
             copyBtn.classList.remove('Article__CopyLinkBtn--copied');
@@ -2280,11 +2267,7 @@
     }, { passive: true });
     btn.addEventListener('click', function() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: 'back_to_top',
-        article_title: document.title
-      });
+      trackEvent('back_to_top', { article_title: document.title });
     });
   })();
 </script>
