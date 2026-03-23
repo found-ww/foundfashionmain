@@ -431,6 +431,46 @@
           {%- assign _content = _content | replace: '<p> [stats_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%}--- FAQ accordion block ---{%- endcomment -%}
+        {%- assign _faq_val = article.metafields.custom.faq_1.value -%}
+        {%- if _faq_val != blank -%}
+          {%- assign _faq_lines = _faq_val | split: '
+' -%}
+          {%- capture _faq_html -%}
+            <div class="art-faq">
+              {%- assign _faq_i = 0 -%}
+              {%- for _line in _faq_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped != '' -%}
+                  {%- assign _faq_mod = _faq_i | modulo: 2 -%}
+                  {%- if _faq_mod == 0 -%}
+                    <div class="art-faq__item">
+                      <button class="art-faq__question" type="button" aria-expanded="false">
+                        <span>{{ _line_stripped }}</span>
+                        <svg class="art-faq__icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><line x1="7" y1="2" x2="7" y2="12" class="art-faq__vline"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+                      </button>
+                  {%- else -%}
+                      <div class="art-faq__answer">
+                        <p>{{ _line_stripped }}</p>
+                      </div>
+                    </div>
+                  {%- endif -%}
+                  {%- assign _faq_i = _faq_i | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[faq_1]</p>', _faq_html -%}
+          {%- assign _content = _content | replace: '<p> [faq_1] </p>', _faq_html -%}
+          {%- assign _content = _content | replace: '<p>[faq_1] </p>', _faq_html -%}
+          {%- assign _content = _content | replace: '<p> [faq_1]</p>', _faq_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[faq_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [faq_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[faq_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [faq_1]</p>', '' -%}
+        {%- endif -%}
+
         {{ _content }}
       </div>
 
@@ -1023,6 +1063,75 @@
     .art-stats { padding: 30px 0; gap: 8px; }
     .art-stats__number { font-size: 24px; }
     .art-stats__label { font-size: 10px; letter-spacing: 0.1em; }
+  }
+
+  /* FAQ accordion */
+  .art-faq {
+    margin: 3em 0;
+    border-top: 0.5px solid #e5e0da;
+  }
+  .art-faq__item {
+    border-bottom: 0.5px solid #e5e0da;
+  }
+  .art-faq__question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #1b1b1c;
+    line-height: 1.4;
+    font-family: inherit;
+  }
+  .art-faq__question:hover {
+    color: #947b69;
+  }
+  .art-faq__icon {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: rgba(0,0,0,0.35);
+  }
+  .art-faq__vline {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-origin: center;
+  }
+  .art-faq__item--open .art-faq__vline {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  .art-faq__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
+    padding: 0 0 0 0;
+  }
+  .art-faq__item--open .art-faq__answer {
+    padding: 0 0 24px 0;
+  }
+  .art-faq__answer p {
+    font-size: 16px;
+    line-height: 1.75;
+    color: rgba(27, 27, 28, 0.7);
+    margin: 0;
+    padding-right: 40px;
+  }
+  @media screen and (max-width: 768px) {
+    .art-faq__question {
+      font-size: 14px;
+      padding: 18px 0;
+    }
+    .art-faq__answer p {
+      font-size: 15px;
+      padding-right: 20px;
+    }
   }
 
   /* Image column */
@@ -1870,6 +1979,35 @@
         });
       }, { threshold: 0.4 });
       stIo.observe(block);
+    });
+
+    /* ---- FAQ accordion ---- */
+    document.querySelectorAll('.art-faq__question').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.closest('.art-faq__item');
+        var answer = item.querySelector('.art-faq__answer');
+        var isOpen = item.classList.contains('art-faq__item--open');
+
+        /* Close all others in same FAQ block */
+        var faq = item.closest('.art-faq');
+        faq.querySelectorAll('.art-faq__item--open').forEach(function(openItem) {
+          if (openItem !== item) {
+            openItem.classList.remove('art-faq__item--open');
+            openItem.querySelector('.art-faq__question').setAttribute('aria-expanded', 'false');
+            openItem.querySelector('.art-faq__answer').style.maxHeight = '0';
+          }
+        });
+
+        if (isOpen) {
+          item.classList.remove('art-faq__item--open');
+          btn.setAttribute('aria-expanded', 'false');
+          answer.style.maxHeight = '0';
+        } else {
+          item.classList.add('art-faq__item--open');
+          btn.setAttribute('aria-expanded', 'true');
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+        }
+      });
     });
 
     /* ---- Horizontal timeline animation ---- */
