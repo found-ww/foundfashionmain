@@ -369,6 +369,53 @@
   {%- endif -%}
 </section>
 
+{%- comment -%} GA4 search event + Meta Search {%- endcomment -%}
+{%- if search.performed -%}
+<script>
+(function() {
+  var searchTerm = {{ search.terms | json }};
+  var resultsCount = {{ search.results_count }};
+
+  /* GA4 search */
+  if (typeof gtag === 'function') {
+    gtag('event', 'search', { search_term: searchTerm });
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: 'search', search_term: searchTerm, results_count: resultsCount });
+
+  /* Meta Pixel Search */
+  if (typeof fbq === 'function') {
+    fbq('track', 'Search', {
+      search_string: searchTerm,
+      content_type: 'product'
+    });
+  }
+
+  /* GA4 view_item_list for search results */
+  {%- if search.results_count > 0 -%}
+    var items = [];
+    {%- for result in search.results -%}
+      {%- if result.object_type == 'product' -%}
+        items.push({
+          item_id: {{ result.id | json }},
+          item_name: {{ result.title | json }},
+          price: {{ result.price | divided_by: 100.0 }},
+          index: {{ forloop.index0 }}
+        });
+      {%- endif -%}
+    {%- endfor -%}
+    if (items.length && typeof gtag === 'function') {
+      gtag('event', 'view_item_list', {
+        item_list_id: 'search_results',
+        item_list_name: 'Search: ' + searchTerm,
+        items: items
+      });
+    }
+  {%- endif -%}
+})();
+</script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "Search",

@@ -347,7 +347,7 @@
           {%- if product.selected_or_first_available_variant.available -%}
             {%- assign atc_variant = product.selected_or_first_available_variant -%}
             <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart"
-              onclick="gtag('event','add_to_cart',{'currency':'{{ shop.currency }}','value':{{ atc_variant.price | divided_by: 100.0 }},'items':[{'item_id':'{{ atc_variant.id }}','item_name':{{ product.title | json }},'item_variant':{{ atc_variant.title | json }},'price':{{ atc_variant.price | divided_by: 100.0 }},'quantity':1}]})">
+              onclick="gtag('event','add_to_cart',{'currency':'{{ shop.currency }}','value':{{ atc_variant.price | divided_by: 100.0 }},'items':[{'item_id':'{{ atc_variant.id }}','item_name':{{ product.title | json }},'item_variant':{{ atc_variant.title | json }},'price':{{ atc_variant.price | divided_by: 100.0 }},'quantity':1}]});window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'add_to_cart',currency:'{{ shop.currency }}',value:{{ atc_variant.price | divided_by: 100.0 }},items:[{item_id:'{{ atc_variant.id }}',item_name:{{ product.title | json }}}]});if(typeof fbq==='function'){fbq('track','AddToCart',{content_name:{{ product.title | json }},content_ids:['{{ atc_variant.id }}'],content_type:'product',value:{{ atc_variant.price | divided_by: 100.0 }},currency:'{{ shop.currency }}'})}">
               ADD TO CART &bull; {{ atc_variant.price | money }}
             </button>
           {%- else -%}
@@ -1705,6 +1705,47 @@ button[class*="make-an-offer"]:hover,
 })();
 </script>
 {%- endunless -%}
+
+{%- comment -%} GA4 view_item + Meta ViewContent on product page load {%- endcomment -%}
+<script>
+(function() {
+  var productData = {
+    item_id: {{ product.id | json }},
+    item_name: {{ product.title | json }},
+    item_brand: {{ product.vendor | json }},
+    item_category: {{ product.type | json }},
+    price: {{ product.price | divided_by: 100.0 }},
+    currency: {{ shop.currency | json }}
+  };
+
+  /* GA4 view_item */
+  if (typeof gtag === 'function') {
+    gtag('event', 'view_item', {
+      currency: productData.currency,
+      value: productData.price,
+      items: [productData]
+    });
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'view_item',
+    currency: productData.currency,
+    value: productData.price,
+    items: [productData]
+  });
+
+  /* Meta Pixel ViewContent */
+  if (typeof fbq === 'function') {
+    fbq('track', 'ViewContent', {
+      content_name: productData.item_name,
+      content_ids: [String(productData.item_id)],
+      content_type: 'product',
+      value: productData.price,
+      currency: productData.currency
+    });
+  }
+})();
+</script>
 
 {% schema %}
 {

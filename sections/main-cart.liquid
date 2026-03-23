@@ -116,6 +116,49 @@
   {%- endif -%}
 </section>
 
+{%- comment -%} GA4 view_cart + begin_checkout + Meta InitiateCheckout {%- endcomment -%}
+{%- if cart.item_count > 0 -%}
+<script>
+(function() {
+  var cartItems = [];
+  {%- for line_item in cart.items -%}
+    cartItems.push({
+      item_id: {{ line_item.product.id | json }},
+      item_name: {{ line_item.product.title | json }},
+      item_variant: {{ line_item.variant.title | json }},
+      price: {{ line_item.final_price | divided_by: 100.0 }},
+      quantity: {{ line_item.quantity }}
+    });
+  {%- endfor -%}
+
+  var cartValue = {{ cart.total_price | divided_by: 100.0 }};
+  var cartCurrency = {{ shop.currency | json }};
+
+  if (typeof gtag === 'function') {
+    gtag('event', 'view_cart', { currency: cartCurrency, value: cartValue, items: cartItems });
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: 'view_cart', currency: cartCurrency, value: cartValue, items: cartItems });
+
+  document.querySelector('.Cart__Checkout').addEventListener('click', function() {
+    if (typeof gtag === 'function') {
+      gtag('event', 'begin_checkout', { currency: cartCurrency, value: cartValue, items: cartItems });
+    }
+    window.dataLayer.push({ event: 'begin_checkout', currency: cartCurrency, value: cartValue, items: cartItems });
+    if (typeof fbq === 'function') {
+      fbq('track', 'InitiateCheckout', {
+        content_ids: cartItems.map(function(i) { return String(i.item_id); }),
+        content_type: 'product',
+        num_items: {{ cart.item_count }},
+        value: cartValue,
+        currency: cartCurrency
+      });
+    }
+  });
+})();
+</script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "Cart page",
