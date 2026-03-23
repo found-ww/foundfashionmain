@@ -381,6 +381,36 @@
           {%- assign _content = _content | replace: '<p>[hotspot_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%} ── Stat counter embed ── {%- endcomment -%}
+        {%- assign _st_val = article.metafields.custom.stats_1.value -%}
+        {%- if _st_val != blank -%}
+          {%- assign _st_clean = _st_val | strip_html | strip -%}
+          {%- assign _st_lines = _st_clean | newline_to_br | split: '<br />' -%}
+          {%- capture _st_html -%}
+            <div class="art-stats">
+              {%- assign _st_i = 0 -%}
+              {%- for _line in _st_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _st_mod = _st_i | modulo: 2 -%}
+                {%- if _st_mod == 0 -%}
+                  <div class="art-stats__item">
+                    <span class="art-stats__number" data-stat-target="{{ _line_stripped | escape }}">0</span>
+                {%- else -%}
+                    <span class="art-stats__label">{{ _line_stripped }}</span>
+                  </div>
+                {%- endif -%}
+                {%- assign _st_i = _st_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- assign _st_mod_end = _st_i | modulo: 2 -%}
+              {%- if _st_mod_end == 1 -%}</div>{%- endif -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[stats_1]</p>', _st_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[stats_1]</p>', '' -%}
+        {%- endif -%}
+
         {{ _content }}
       </div>
 
@@ -849,6 +879,46 @@
   @media screen and (max-width: 768px) {
     .art-hotspot__dot { width: 18px; height: 18px; }
     .art-hotspot__tooltip { font-size: 10px; padding: 8px 12px; }
+  }
+
+  /* ── Stat counter embed ── */
+  .art-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 3em 0;
+    width: 100%;
+    padding: 40px 0;
+    border-top: 0.5px solid #e5e0da;
+    border-bottom: 0.5px solid #e5e0da;
+  }
+  .art-stats__item {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .art-stats__number {
+    font-size: clamp(32px, 3vw, 42px);
+    font-weight: 500;
+    color: #0f0f0f;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .art-stats__label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(0,0,0,0.38);
+    line-height: 1.3;
+  }
+  @media screen and (max-width: 768px) {
+    .art-stats { padding: 30px 0; gap: 16px; flex-wrap: wrap; }
+    .art-stats__item { min-width: 40%; }
+    .art-stats__number { font-size: 28px; }
   }
 
   /* Image column */
@@ -1603,6 +1673,47 @@
         });
       }, { threshold: 0.3 });
       hsIo.observe(wrap);
+    });
+
+    /* ---- Stat counter ---- */
+    document.querySelectorAll('.art-stats').forEach(function(block) {
+      var items = block.querySelectorAll('.art-stats__number');
+      if (!items.length) return;
+      var fired = false;
+
+      function animateNumber(el, delay) {
+        var raw = el.getAttribute('data-stat-target');
+        var match = raw.match(/^([\d,]+)(.*)/);
+        if (!match) { el.textContent = raw; return; }
+        var target = parseInt(match[1].replace(/,/g, ''), 10);
+        var suffix = match[2] || '';
+        var duration = 1800;
+
+        setTimeout(function() {
+          var start = performance.now();
+          function tick(now) {
+            var t = Math.min((now - start) / duration, 1);
+            /* ease-out cubic */
+            var ease = 1 - Math.pow(1 - t, 3);
+            var current = Math.round(target * ease);
+            el.textContent = current.toLocaleString() + suffix;
+            if (t < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        }, delay);
+      }
+
+      var stIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (!e.isIntersecting || fired) return;
+          fired = true;
+          stIo.disconnect();
+          items.forEach(function(el, i) {
+            animateNumber(el, i * 150);
+          });
+        });
+      }, { threshold: 0.4 });
+      stIo.observe(block);
     });
   })();
 
