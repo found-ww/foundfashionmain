@@ -1955,9 +1955,14 @@ button[class*="make-an-offer"]:hover,
   if (!stickyBar || !mainCta) return;
 
   /* Move Tidio chat widget to avoid overlap */
-  function moveTidio(bottom) {
+  function moveTidio(up) {
     document.querySelectorAll('#tidio-chat, [id^="tidio-"]').forEach(function(el) {
-      if (el.style) el.style.setProperty('bottom', bottom, 'important');
+      if (!el.style) return;
+      if (up) {
+        el.style.setProperty('bottom', '70px', 'important');
+      } else {
+        el.style.removeProperty('bottom');
+      }
     });
   }
 
@@ -1972,14 +1977,14 @@ button[class*="make-an-offer"]:hover,
           hasScrolledPastCta = true;
           stickyBar.classList.add('ppv1-sticky-bar--visible');
           document.body.classList.add('ppv1-sticky-active');
-          moveTidio('70px');
+          moveTidio(true);
         }
       } else {
         /* CTA is back in view — hide sticky bar */
         if (hasScrolledPastCta) {
           stickyBar.classList.remove('ppv1-sticky-bar--visible');
           document.body.classList.remove('ppv1-sticky-active');
-          moveTidio('');
+          moveTidio(false);
         }
       }
     });
