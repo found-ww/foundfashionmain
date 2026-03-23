@@ -1007,8 +1007,13 @@
       width: auto;
       margin-left: 0;
       position: static;
-      text-align: left;
-      margin-bottom: 24px;
+      text-align: center;
+      margin-bottom: 0;
+      padding: 0 0 20px;
+      border-top: 0.5px solid rgba(0,0,0,0.12);
+      border-bottom: 0.5px solid rgba(0,0,0,0.12);
+      padding-top: 20px;
+      margin-top: 10px;
     }
     .art-body-section-h { font-size: 17px !important; font-weight: 600 !important; color: #0a0a0a !important; }
     .art-body-section-img {
@@ -1157,6 +1162,20 @@
   }
   @media screen and (max-width: 640px) {
     .Article__ParallaxWrap img { min-height: 72vw; object-fit: cover; }
+  }
+
+  /* ── Contextual cursors (desktop only) ── */
+  @media screen and (min-width: 769px) {
+    .Article__Body .Article__ParallaxWrap,
+    .Article__Body .art-body-img-col img {
+      cursor: zoom-in;
+    }
+    .art-hotspot {
+      cursor: crosshair;
+    }
+    .art-hotspot__dot {
+      cursor: pointer;
+    }
   }
 
   /* ── Editorial header — full-width two-column ── */
