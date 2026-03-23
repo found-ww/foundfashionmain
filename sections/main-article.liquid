@@ -1808,7 +1808,7 @@
           var left = section.querySelector('.art-body-left');
           var right = section.querySelector('.art-body-right');
           if (!left || !right) return;
-          var heading = left.querySelector('.art-body-section-h');
+          var heading = section.querySelector('.art-body-section-h');
           if (!heading) return;
           if (entering) {
             right.insertBefore(heading, right.firstChild);
