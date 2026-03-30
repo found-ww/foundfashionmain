@@ -507,6 +507,55 @@
           {%- assign _content = _content | replace: '<p> [info_box_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%}--- Steps block ---{%- endcomment -%}
+        {%- capture _steps_html -%}
+          <div class="art-steps">
+            <div class="art-step">
+              <div class="art-step__num">1</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Location</p>
+                <p class="art-step__body">The system works best on French WiFi, but some people including UK visitors do apply successfully before travelling. Always worth trying early, and apply every day once you arrive.</p>
+              </div>
+            </div>
+            <div class="art-step">
+              <div class="art-step__num">2</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Visit the website</p>
+                <p class="art-step__body">Go to <strong>rendezvousparis.hermes.com</strong> on your smartphone between <strong>10:30 and 19:00 Paris time</strong>, the day before your desired appointment.</p>
+              </div>
+            </div>
+            <div class="art-step">
+              <div class="art-step__num">3</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Fill in the form</p>
+                <p class="art-step__body">Enter your name, passport number, phone number, email address and preferred store.</p>
+              </div>
+            </div>
+            <div class="art-step art-step--accent">
+              <div class="art-step__num">4</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Confirm via email - do not skip this</p>
+                <p class="art-step__body">You will receive a "Welcome to Hermès" email - this is <strong>not</strong> a confirmation. Find the second email titled "Please confirm your appointment request" and click the blue link. If you skip this, your entry is void.</p>
+              </div>
+            </div>
+            <div class="art-step">
+              <div class="art-step__num">5</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Wait for results</p>
+                <p class="art-step__body">Results come by email in the evening. No email means no appointment - try again tomorrow. If you do get one, keep checking on the day as your time slot can change.</p>
+              </div>
+            </div>
+            <div class="art-step-note">
+              <p class="art-step-note__label">Important - Sundays &amp; Public Holidays</p>
+              <p class="art-step-note__body">All three boutiques are closed on Sundays. Apply on Saturday for a Monday appointment. On French public holidays, try applying two days in advance.</p>
+            </div>
+          </div>
+        {%- endcapture -%}
+        {%- assign _content = _content | replace: '<p>[steps_1]</p>', _steps_html -%}
+        {%- assign _content = _content | replace: '<p> [steps_1] </p>', _steps_html -%}
+        {%- assign _content = _content | replace: '<p>[steps_1] </p>', _steps_html -%}
+        {%- assign _content = _content | replace: '<p> [steps_1]</p>', _steps_html -%}
+
         {%- comment -%}--- Callout block ---{%- endcomment -%}
         {%- assign _callout_val = article.metafields.custom.callout_1.value -%}
         {%- if _callout_val != blank -%}
@@ -540,32 +589,30 @@
               </div>
               <div class="art-store-card__body">
                 <div class="art-store-card__meta">
-                  <span>24 Rue du Faubourg Saint-Honoré</span>
-                  <span>75008 Paris</span>
-                  <span>Mon–Sat 10:30–18:30</span>
+                  <span>24 Rue du Faubourg Saint-Honoré, 75008 Paris</span>
+                  <span>Mon-Sat 10:30-18:30</span>
                 </div>
-                <p class="art-store-card__desc">The largest stock of the three and the greatest likelihood of a quota bag offer. Grand, historic, and busy. Your best bet for Birkin or Kelly selection.</p>
+                <p class="art-store-card__desc">The biggest store with the most stock. This is the best place to find a Birkin or Kelly. It is busy and popular, but has more bags than the other two stores.</p>
                 <div class="art-store-card__divider"></div>
                 <p class="art-store-card__best-label">Best for</p>
-                <p class="art-store-card__best-val">Widest selection of quota bags</p>
+                <p class="art-store-card__best-val">Best chance of finding a Birkin or Kelly</p>
               </div>
             </div>
 
             <div class="art-store-card">
               <div class="art-store-card__header">
-                <span class="art-store-card__badge">Right Bank</span>
+                <span class="art-store-card__badge">Near Champs-Élysées</span>
                 <p class="art-store-card__name">George V</p>
               </div>
               <div class="art-store-card__body">
                 <div class="art-store-card__meta">
-                  <span>42 Avenue George V</span>
-                  <span>75008 Paris</span>
-                  <span>Mon–Sat 10:30–18:30</span>
+                  <span>42 Avenue George V, 75008 Paris</span>
+                  <span>Mon-Sat 10:30-18:30</span>
                 </div>
-                <p class="art-store-card__desc">A smaller version of the flagship, conveniently placed near the Champs-Élysées. Good option if you are staying on the right bank. Less hectic than FSH.</p>
+                <p class="art-store-card__desc">A smaller store close to the Champs-Élysées. A good option if you are staying nearby. Less busy than the flagship store.</p>
                 <div class="art-store-card__divider"></div>
                 <p class="art-store-card__best-label">Best for</p>
-                <p class="art-store-card__best-val">Right bank location, quieter atmosphere</p>
+                <p class="art-store-card__best-val">Central location, less busy</p>
               </div>
             </div>
 
@@ -576,19 +623,18 @@
               </div>
               <div class="art-store-card__body">
                 <div class="art-store-card__meta">
-                  <span>17 Rue de Sèvres</span>
-                  <span>75006 Paris (Left Bank)</span>
-                  <span>Mon–Sat 10:30–19:00</span>
+                  <span>17 Rue de Sèvres, 75006 Paris</span>
+                  <span>Mon-Sat 10:30-19:00</span>
                 </div>
-                <p class="art-store-card__desc">Built inside a 1935 Art Deco swimming pool. Has a café, bookstore, and is the only store worldwide to permanently carry Petit H. Most seasoned clients rate it the best experience.</p>
+                <p class="art-store-card__desc">Built inside a beautiful 1935 swimming pool. Has a café, a bookstore, and is the only Hermès store in the world to sell the Petit H collection. Most experienced Hermès shoppers say this is their favourite.</p>
                 <div class="art-store-card__divider"></div>
                 <p class="art-store-card__best-label">Best for</p>
-                <p class="art-store-card__best-val">Experience, Petit H, open latest</p>
+                <p class="art-store-card__best-val">Best atmosphere, unique products, open the latest</p>
               </div>
             </div>
 
           </div>
-          <p class="art-store-tip">Tip: select "No Preference" when applying to enter all three pools at once.</p>
+          <p class="art-store-tip">Tip: Choose "No Preference" when applying to be entered into all three stores at the same time.</p>
         {%- endcapture -%}
         {%- assign _content = _content | replace: '<p>[store_cards]</p>', _sc_html -%}
         {%- assign _content = _content | replace: '<p> [store_cards] </p>', _sc_html -%}
@@ -1315,10 +1361,15 @@
   /* FAQ accordion */
   .art-faq {
     margin: 3em 0;
-    border-top: 0.5px solid #e5e0da;
+    border: 1px solid #e8e3de;
+    border-radius: 10px;
+    overflow: hidden;
   }
   .art-faq__item {
-    border-bottom: 0.5px solid #e5e0da;
+    border-bottom: 1px solid #e8e3de;
+  }
+  .art-faq__item:last-child {
+    border-bottom: none;
   }
   .art-faq__question {
     width: 100%;
@@ -1381,11 +1432,91 @@
     }
   }
 
+  /* Steps block */
+  .art-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 2em 0;
+  }
+  .art-step {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #e8e3de;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .art-step__num {
+    width: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #c5bab4;
+    border-right: 1px solid #e8e3de;
+    flex-shrink: 0;
+    padding: 20px 0;
+  }
+  .art-step__content {
+    padding: 18px 22px;
+    flex: 1;
+  }
+  .art-step__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1b1b1c;
+    margin: 0 0 5px !important;
+  }
+  .art-step__body {
+    font-size: 14px;
+    line-height: 1.65;
+    color: rgba(27, 27, 28, 0.68);
+    margin: 0 !important;
+  }
+  .art-step--accent {
+    border-color: #e8c97a;
+    border-left: 3px solid #c9961a;
+    background: #fdf9ee;
+  }
+  .art-step--accent .art-step__num {
+    color: #c9961a;
+    border-right-color: #e8c97a;
+  }
+  .art-step-note {
+    border: 1px solid #e8e3de;
+    border-radius: 10px;
+    background: #f8f6f3;
+    padding: 18px 22px;
+  }
+  .art-step-note__label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #947b69;
+    margin: 0 0 8px !important;
+  }
+  .art-step-note__body {
+    font-size: 14px;
+    line-height: 1.65;
+    color: rgba(27, 27, 28, 0.72);
+    margin: 0 !important;
+  }
+  @media screen and (max-width: 768px) {
+    .art-step__num { width: 44px; font-size: 17px; }
+    .art-step__content { padding: 14px 16px; }
+    .art-step__title { font-size: 14px; }
+    .art-step-note { padding: 14px 16px; }
+  }
+
   /* Info box (At a Glance) */
   .art-info-box {
     margin: 2.5em 0;
-    border: 0.5px solid #d4c9bf;
+    border: 1px solid #e8e3de;
     border-left: 3px solid #947b69;
+    border-radius: 10px;
     background: #faf7f4;
     padding: 24px 28px;
   }
@@ -1438,8 +1569,9 @@
   /* Warning callout */
   .art-callout {
     margin: 2.5em 0;
-    border: 0.5px solid #e8c97a;
+    border: 1px solid #e8c97a;
     border-left: 3px solid #c9961a;
+    border-radius: 10px;
     background: #fdf9ee;
     padding: 20px 24px;
     display: flex;
@@ -1471,13 +1603,15 @@
   }
   .art-store-card {
     background: #fff;
-    border: 0.5px solid #e0d9d2;
+    border: 1px solid #e8e3de;
+    border-radius: 10px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
   .art-store-card__header {
     padding: 14px 16px 12px;
-    border-bottom: 0.5px solid #e0d9d2;
+    border-bottom: 1px solid #e8e3de;
   }
   .art-store-card__badge {
     display: inline-block;
@@ -1524,8 +1658,8 @@
     flex: 1;
   }
   .art-store-card__divider {
-    height: 0.5px;
-    background: #e0d9d2;
+    height: 1px;
+    background: #e8e3de;
     margin: 12px 0;
   }
   .art-store-card__best-label {
