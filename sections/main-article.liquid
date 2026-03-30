@@ -468,6 +468,67 @@
           {%- assign _content = _content | replace: '<p> [dual_image_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%}--- Info box block (At a Glance) ---{%- endcomment -%}
+        {%- assign _ib_val = article.metafields.custom.info_box_1.value -%}
+        {%- if _ib_val != blank -%}
+          {%- assign _ib_lines = _ib_val | newline_to_br | split: '<br />' -%}
+          {%- capture _ib_html -%}
+            <div class="art-info-box">
+              <p class="art-info-box__label">At a Glance</p>
+              <dl class="art-info-box__list">
+                {%- for _ib_line in _ib_lines -%}
+                  {%- assign _ib_line_s = _ib_line | strip -%}
+                  {%- if _ib_line_s == blank -%}{%- continue -%}{%- endif -%}
+                  {%- assign _ib_parts = _ib_line_s | split: ':' -%}
+                  {%- if _ib_parts.size >= 2 -%}
+                    {%- assign _ib_key = _ib_parts.first | strip -%}
+                    {%- assign _ib_val_rest = _ib_line_s | remove_first: _ib_parts.first | remove_first: ':' | strip -%}
+                    <div class="art-info-box__row">
+                      <dt class="art-info-box__key">{{ _ib_key }}</dt>
+                      <dd class="art-info-box__val">{{ _ib_val_rest }}</dd>
+                    </div>
+                  {%- else -%}
+                    <div class="art-info-box__row art-info-box__row--full">
+                      <dd class="art-info-box__val">{{ _ib_line_s }}</dd>
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
+              </dl>
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1]</p>', _ib_html -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1] </p>', _ib_html -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1] </p>', _ib_html -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1]</p>', _ib_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%}--- Warning callout block ---{%- endcomment -%}
+        {%- assign _warn_val = article.metafields.custom.warning_1.value -%}
+        {%- if _warn_val != blank -%}
+          {%- capture _warn_html -%}
+            <div class="art-warning">
+              <div class="art-warning__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5L14.5 13H1.5L8 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="8" y1="6" x2="8" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.6" fill="currentColor"/></svg>
+              </div>
+              <div class="art-warning__body">{{ _warn_val | newline_to_br }}</div>
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[warning_1]</p>', _warn_html -%}
+          {%- assign _content = _content | replace: '<p> [warning_1] </p>', _warn_html -%}
+          {%- assign _content = _content | replace: '<p>[warning_1] </p>', _warn_html -%}
+          {%- assign _content = _content | replace: '<p> [warning_1]</p>', _warn_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[warning_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [warning_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[warning_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [warning_1]</p>', '' -%}
+        {%- endif -%}
+
         {%- comment -%}--- FAQ accordion block ---{%- endcomment -%}
         {%- assign _faq_val = article.metafields.custom.faq_1.value -%}
         {%- if _faq_val != blank -%}
@@ -1252,6 +1313,87 @@
       font-size: 15px;
       padding-right: 20px;
     }
+  }
+
+  /* Info box (At a Glance) */
+  .art-info-box {
+    margin: 2.5em 0;
+    border: 0.5px solid #d4c9bf;
+    border-left: 3px solid #947b69;
+    background: #faf7f4;
+    padding: 24px 28px;
+  }
+  .art-info-box__label {
+    font-size: 9px !important;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #947b69;
+    margin: 0 0 16px !important;
+    padding: 0 !important;
+  }
+  .art-info-box__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .art-info-box__row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .art-info-box__row--full {
+    grid-template-columns: 1fr;
+  }
+  .art-info-box__key {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1b1b1c;
+    margin: 0;
+  }
+  .art-info-box__val {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(27, 27, 28, 0.75);
+    margin: 0;
+  }
+  @media screen and (max-width: 768px) {
+    .art-info-box { padding: 20px; }
+    .art-info-box__row { grid-template-columns: 1fr; gap: 2px; }
+    .art-info-box__key { font-size: 10px; }
+    .art-info-box__val { font-size: 13px; }
+  }
+
+  /* Warning callout */
+  .art-warning {
+    margin: 2.5em 0;
+    border: 0.5px solid #e8c97a;
+    border-left: 3px solid #c9961a;
+    background: #fdf9ee;
+    padding: 20px 24px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .art-warning__icon {
+    flex-shrink: 0;
+    color: #c9961a;
+    margin-top: 2px;
+  }
+  .art-warning__body {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(27, 27, 28, 0.8);
+  }
+  .art-warning__body strong { color: #1b1b1c; }
+  @media screen and (max-width: 768px) {
+    .art-warning { padding: 16px 18px; gap: 12px; }
+    .art-warning__body { font-size: 14px; }
   }
 
   /* Image column */
