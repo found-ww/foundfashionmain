@@ -20,47 +20,47 @@ or change the format of some info
 
   {%- comment -%}
     Resolve metafields for schema.
-    Pipe every value through | escape | strip to force string conversion.
+    Pipe every value through | append: '' | strip to force plain-string conversion.
     Without this, reference / list metafields output {"error":"json not allowed for this object"}
     which corrupts the entire JSON-LD block.
   {%- endcomment -%}
   {%- assign _mf = product.metafields -%}
-  {%- assign schema_brand = _mf.custom.brand_name | default: product.vendor | escape | strip -%}
+  {%- assign schema_brand = _mf.custom.brand_name | default: product.vendor | append: '' | strip -%}
   {%- assign schema_condition_raw = _mf.custom.condition | downcase -%}
-  {%- assign schema_material = _mf.custom.main_material | default: _mf.custom.material | escape | strip -%}
-  {%- assign schema_colour = _mf.shopify['color-pattern'].value.label | default: _mf.shopify['color-pattern'].value | escape | strip -%}
-  {%- assign schema_model = _mf.custom.model | escape | strip -%}
-  {%- assign schema_year = _mf.custom.year | escape | strip -%}
-  {%- assign schema_dimensions = _mf.custom.dimensions | escape | strip -%}
-  {%- assign schema_hardware = _mf.custom.hardware_material | escape | strip -%}
-  {%- assign schema_stamp = _mf.custom.bag_stamp | escape | strip -%}
-  {%- assign schema_strap_length = _mf.custom.strap_length | escape | strip -%}
-  {%- assign schema_handle_drop = _mf.custom.handle_drop | escape | strip -%}
-  {%- assign schema_chain_length = _mf.custom.chain_length | escape | strip -%}
-  {%- assign schema_designer = _mf.custom.designer | default: _mf.custom.scarf_designer | escape | strip -%}
-  {%- assign schema_capacity = _mf.custom.capacity | escape | strip -%}
-  {%- assign schema_weight = _mf.custom.weight | escape | strip -%}
-  {%- assign schema_sole = _mf.custom.sole_material | escape | strip -%}
-  {%- assign schema_heel = _mf.custom.heel_sole_height | escape | strip -%}
-  {%- assign schema_face_mat = _mf.custom.face_material | escape | strip -%}
-  {%- assign schema_strap_mat = _mf.custom.strap_material | escape | strip -%}
-  {%- assign schema_dial = _mf.custom.dial_face | escape | strip -%}
-  {%- assign schema_movement = _mf.custom.movement | escape | strip -%}
-  {%- assign schema_reference = _mf.custom.reference | escape | strip -%}
-  {%- assign schema_case_width = _mf.custom.case_width | escape | strip -%}
-  {%- assign schema_diamonds = _mf.custom.diamonds | escape | strip -%}
-  {%- assign schema_back_length = _mf.custom.back_length | escape | strip -%}
-  {%- assign schema_sound = _mf.custom.sound_features | escape | strip -%}
-  {%- assign schema_clothing_size = _mf.custom.clothing_size | escape | strip -%}
-  {%- assign schema_eu_size = _mf.custom.eu_size | escape | strip -%}
-  {%- assign schema_uk_size = _mf.custom.uk_size | escape | strip -%}
-  {%- assign schema_belt_size = _mf.custom.belt_size | escape | strip -%}
-  {%- assign schema_belt_width = _mf.custom.belt_width | escape | strip -%}
-  {%- assign schema_ring_size = _mf.custom.ring_size | escape | strip -%}
-  {%- assign schema_bracelet_size = _mf.custom.bracelet_size | escape | strip -%}
-  {%- assign schema_bracelet_width = _mf.custom.bracelet_width | escape | strip -%}
-  {%- assign schema_wrist_size = _mf.custom.wrist_size | escape | strip -%}
-  {%- assign schema_charm_type = _mf.custom.charm_type | escape | strip -%}
+  {%- assign schema_material = _mf.custom.main_material | default: _mf.custom.material | append: '' | strip -%}
+  {%- assign schema_colour = _mf.shopify['color-pattern'].value.label | default: _mf.shopify['color-pattern'].value | append: '' | strip -%}
+  {%- assign schema_model = _mf.custom.model | append: '' | strip -%}
+  {%- assign schema_year = _mf.custom.year | append: '' | strip -%}
+  {%- assign schema_dimensions = _mf.custom.dimensions | append: '' | strip -%}
+  {%- assign schema_hardware = _mf.custom.hardware_material | append: '' | strip -%}
+  {%- assign schema_stamp = _mf.custom.bag_stamp | append: '' | strip -%}
+  {%- assign schema_strap_length = _mf.custom.strap_length | append: '' | strip -%}
+  {%- assign schema_handle_drop = _mf.custom.handle_drop | append: '' | strip -%}
+  {%- assign schema_chain_length = _mf.custom.chain_length | append: '' | strip -%}
+  {%- assign schema_designer = _mf.custom.designer | default: _mf.custom.scarf_designer | append: '' | strip -%}
+  {%- assign schema_capacity = _mf.custom.capacity | append: '' | strip -%}
+  {%- assign schema_weight = _mf.custom.weight | append: '' | strip -%}
+  {%- assign schema_sole = _mf.custom.sole_material | append: '' | strip -%}
+  {%- assign schema_heel = _mf.custom.heel_sole_height | append: '' | strip -%}
+  {%- assign schema_face_mat = _mf.custom.face_material | append: '' | strip -%}
+  {%- assign schema_strap_mat = _mf.custom.strap_material | append: '' | strip -%}
+  {%- assign schema_dial = _mf.custom.dial_face | append: '' | strip -%}
+  {%- assign schema_movement = _mf.custom.movement | append: '' | strip -%}
+  {%- assign schema_reference = _mf.custom.reference | append: '' | strip -%}
+  {%- assign schema_case_width = _mf.custom.case_width | append: '' | strip -%}
+  {%- assign schema_diamonds = _mf.custom.diamonds | append: '' | strip -%}
+  {%- assign schema_back_length = _mf.custom.back_length | append: '' | strip -%}
+  {%- assign schema_sound = _mf.custom.sound_features | append: '' | strip -%}
+  {%- assign schema_clothing_size = _mf.custom.clothing_size | append: '' | strip -%}
+  {%- assign schema_eu_size = _mf.custom.eu_size | append: '' | strip -%}
+  {%- assign schema_uk_size = _mf.custom.uk_size | append: '' | strip -%}
+  {%- assign schema_belt_size = _mf.custom.belt_size | append: '' | strip -%}
+  {%- assign schema_belt_width = _mf.custom.belt_width | append: '' | strip -%}
+  {%- assign schema_ring_size = _mf.custom.ring_size | append: '' | strip -%}
+  {%- assign schema_bracelet_size = _mf.custom.bracelet_size | append: '' | strip -%}
+  {%- assign schema_bracelet_width = _mf.custom.bracelet_width | append: '' | strip -%}
+  {%- assign schema_wrist_size = _mf.custom.wrist_size | append: '' | strip -%}
+  {%- assign schema_charm_type = _mf.custom.charm_type | append: '' | strip -%}
 
   {%- comment -%} Map condition text to schema.org URL {%- endcomment -%}
   {%- if schema_condition_raw contains 'new' -%}
