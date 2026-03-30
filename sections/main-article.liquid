@@ -508,6 +508,47 @@
           {%- assign _content = _content | replace: '<p> [faq_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%}--- FAQPage structured data ---{%- endcomment -%}
+        {%- assign _faq_schema_val = article.metafields.custom.faq_1.value -%}
+        {%- if _faq_schema_val != blank -%}
+          {%- assign _faq_schema_lines = _faq_schema_val | split: '
+' -%}
+          {%- assign _faq_schema_i = 0 -%}
+          {%- assign _faq_schema_q = '' -%}
+          {%- assign _faq_schema_sep = '' -%}
+          {%- capture _faq_schema_items -%}
+            {%- for _line in _faq_schema_lines -%}
+              {%- assign _line_s = _line | strip -%}
+              {%- if _line_s != '' -%}
+                {%- assign _faq_s_mod = _faq_schema_i | modulo: 2 -%}
+                {%- if _faq_s_mod == 0 -%}
+                  {%- assign _faq_schema_q = _line_s -%}
+                {%- else -%}
+                  {{ _faq_schema_sep }}{
+                    "@type": "Question",
+                    "name": {{ _faq_schema_q | json }},
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": {{ _line_s | json }}
+                    }
+                  }
+                  {%- assign _faq_schema_sep = ',' -%}
+                {%- endif -%}
+                {%- assign _faq_schema_i = _faq_schema_i | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+          {%- if _faq_schema_items != blank -%}
+            <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [{{ _faq_schema_items }}]
+            }
+            </script>
+          {%- endif -%}
+        {%- endif -%}
+
         {{ _content }}
       </div>
 
