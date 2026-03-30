@@ -529,6 +529,72 @@
           {%- assign _content = _content | replace: '<p> [callout_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%}--- Store cards block ---{%- endcomment -%}
+        {%- capture _sc_html -%}
+          <div class="art-store-grid">
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge art-store-card__badge--featured">Flagship</span>
+                <p class="art-store-card__name">Faubourg Saint-Honoré</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>24 Rue du Faubourg Saint-Honoré</span>
+                  <span>75008 Paris</span>
+                  <span>Mon–Sat 10:30–18:30</span>
+                </div>
+                <p class="art-store-card__desc">The largest stock of the three and the greatest likelihood of a quota bag offer. Grand, historic, and busy. Your best bet for Birkin or Kelly selection.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Widest selection of quota bags</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Right Bank</span>
+                <p class="art-store-card__name">George V</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>42 Avenue George V</span>
+                  <span>75008 Paris</span>
+                  <span>Mon–Sat 10:30–18:30</span>
+                </div>
+                <p class="art-store-card__desc">A smaller version of the flagship, conveniently placed near the Champs-Élysées. Good option if you are staying on the right bank. Less hectic than FSH.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Right bank location, quieter atmosphere</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Hidden Gem</span>
+                <p class="art-store-card__name">Sèvres</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>17 Rue de Sèvres</span>
+                  <span>75006 Paris (Left Bank)</span>
+                  <span>Mon–Sat 10:30–19:00</span>
+                </div>
+                <p class="art-store-card__desc">Built inside a 1935 Art Deco swimming pool. Has a café, bookstore, and is the only store worldwide to permanently carry Petit H. Most seasoned clients rate it the best experience.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Experience, Petit H, open latest</p>
+              </div>
+            </div>
+
+          </div>
+          <p class="art-store-tip">Tip: select "No Preference" when applying to enter all three pools at once.</p>
+        {%- endcapture -%}
+        {%- assign _content = _content | replace: '<p>[store_cards]</p>', _sc_html -%}
+        {%- assign _content = _content | replace: '<p> [store_cards] </p>', _sc_html -%}
+        {%- assign _content = _content | replace: '<p>[store_cards] </p>', _sc_html -%}
+        {%- assign _content = _content | replace: '<p> [store_cards]</p>', _sc_html -%}
+
         {%- comment -%}--- FAQ accordion block ---{%- endcomment -%}
         {%- assign _faq_val = article.metafields.custom.faq_1.value -%}
         {%- if _faq_val != blank -%}
@@ -1394,6 +1460,96 @@
   @media screen and (max-width: 768px) {
     .art-callout { padding: 16px 18px; gap: 12px; }
     .art-callout__body { font-size: 14px; }
+  }
+
+  /* Store cards */
+  .art-store-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 2em 0 0.5em;
+  }
+  .art-store-card {
+    background: #fff;
+    border: 0.5px solid #e0d9d2;
+    display: flex;
+    flex-direction: column;
+  }
+  .art-store-card__header {
+    padding: 14px 16px 12px;
+    border-bottom: 0.5px solid #e0d9d2;
+  }
+  .art-store-card__badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    margin-bottom: 8px;
+    background: #f2ede8;
+    color: #6b5c52;
+    border: 0.5px solid #d4c9bf;
+  }
+  .art-store-card__badge--featured {
+    background: #947b69;
+    color: #fff;
+    border-color: #947b69;
+  }
+  .art-store-card__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b1b1c;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+  .art-store-card__body {
+    padding: 14px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .art-store-card__meta {
+    font-size: 11px;
+    color: #7a7069;
+    line-height: 1.7;
+    margin: 0 0 10px;
+  }
+  .art-store-card__meta span { display: block; }
+  .art-store-card__desc {
+    font-size: 13px;
+    color: #1b1b1c;
+    line-height: 1.65;
+    margin: 0;
+    flex: 1;
+  }
+  .art-store-card__divider {
+    height: 0.5px;
+    background: #e0d9d2;
+    margin: 12px 0;
+  }
+  .art-store-card__best-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9a8f86;
+    margin: 0 0 3px;
+  }
+  .art-store-card__best-val {
+    font-size: 12px;
+    color: #1b1b1c;
+    margin: 0;
+    line-height: 1.4;
+  }
+  .art-store-tip {
+    font-size: 12px;
+    color: #9a8f86;
+    margin: 6px 0 2em !important;
+    padding: 0 2px;
+  }
+  @media screen and (max-width: 900px) {
+    .art-store-grid { grid-template-columns: 1fr; gap: 8px; }
   }
 
   /* Image column */
