@@ -532,7 +532,9 @@
               </div>
             </div>
             <div class="art-step art-step--accent">
-              <div class="art-step__num">4</div>
+              <div class="art-step__num art-step__num--icon">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5L14.5 13H1.5L8 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="8" y1="6" x2="8" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.6" fill="currentColor"/></svg>
+              </div>
               <div class="art-step__content">
                 <p class="art-step__title">Confirm via email - do not skip this</p>
                 <p class="art-step__body">You will receive a "Welcome to Hermès" email - this is <strong>not</strong> a confirmation. Find the second email titled "Please confirm your appointment request" and click the blue link. If you skip this, your entry is void.</p>
@@ -545,7 +547,6 @@
                 <p class="art-step__body">Results come by email in the evening. No email means no appointment - try again tomorrow. If you do get one, keep checking on the day as your time slot can change.</p>
               </div>
             </div>
-            <p class="art-step-note"><span class="art-step-note__label">Important - Sundays &amp; Public Holidays</span> <span class="art-step-note__body">All three boutiques are closed on Sundays. Apply on Saturday for a Monday appointment. On French public holidays, try applying two days in advance.</span></p>
           </div>
         {%- endcapture -%}
         {%- assign _content = _content | replace: '<p>[steps_1]</p>', _steps_html -%}
@@ -1483,25 +1484,8 @@
     color: #c9961a;
     border-right-color: #e8c97a;
   }
-  .art-step-note {
-    font-size: 12px;
-    color: #9a8f86;
-    line-height: 1.6;
-    margin: 8px 0 0 2px !important;
-  }
-  .art-step-note__label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #947b69;
-    margin: 0 0 4px !important;
-  }
-  .art-step-note__body {
-    font-size: 12px;
-    line-height: 1.6;
-    color: #9a8f86;
-    margin: 0 !important;
+  .art-step__num--icon {
+    font-size: 0;
   }
   @media screen and (max-width: 768px) {
     .art-step__num { width: 40px; }
