@@ -70,11 +70,12 @@ or change the format of some info
 
   {%- capture main_entity_microdata -%}
     "@type": "Product",
+    "name": {{ product.title | json }},
     "offers": [
       {%- for variant in product.variants -%}
         {
           "@type": "Offer",
-          "name": {{ variant.title | json }},
+          "name": {{ variant.title | default: product.title | json }},
           "availability": {%- if variant.available -%}"https://schema.org/InStock"{%- else -%}"https://schema.org/OutOfStock"{%- endif -%},
           "price": {{ variant.price | divided_by: 100.0 | json }},
           "priceCurrency": {{ cart.currency.iso_code | json }},
@@ -127,13 +128,14 @@ or change the format of some info
         }{% unless forloop.last %},{% endunless %}
       {%- endfor -%}
     ],
-    {%- if product.metafields.reviews.rating.value != blank -%}
+    {%- assign _review_count = product.metafields.reviews.rating_count.value | plus: 0 -%}
+    {%- if product.metafields.reviews.rating.value != blank and _review_count > 0 -%}
       "aggregateRating": {
         "@type": "AggregateRating",
-        "ratingValue": "{{ product.metafields.reviews.rating.value }}",
-        "reviewCount": "{{ product.metafields.reviews.rating_count.value }}",
-        "worstRating": "{{ product.metafields.reviews.rating.value.scale_min }}",
-        "bestRating": "{{ product.metafields.reviews.rating.value.scale_max }}"
+        "ratingValue": {{ product.metafields.reviews.rating.value | times: 1.0 | json }},
+        "reviewCount": {{ _review_count | json }},
+        "bestRating": {{ product.metafields.reviews.rating.value.scale_max | default: 5 | json }},
+        "worstRating": {{ product.metafields.reviews.rating.value.scale_min | default: 1 | json }}
       },
     {%- endif -%}
     {%- if is_barcode_available and is_valid_gtin_length %}
@@ -147,7 +149,6 @@ or change the format of some info
       "@type": "Brand",
       "name": {{ schema_brand | json }}
     },
-    "name": {{ product.title | json }},
     "description": {{ product.description | strip_html | json }},
     "category": {{ product.type | json }},
     "url": "{{ shop.url }}{{ product.url }}",
