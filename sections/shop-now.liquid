@@ -14,7 +14,7 @@
     {%- capture product_panel -%}
       <div class="Panel Panel--flush Panel--withArrows">
         {%- if section.settings.title != blank -%}
-          <h2 class="Panel__Title Heading u-h2">{{ section.settings.title | escape }}</h2>
+          <p class="Panel__Title Heading u-h2">{{ section.settings.title | escape }}</p>
         {%- endif -%}
 
         <div class="Panel__Content">

@@ -245,7 +245,7 @@
 
       <div class="Article__CommentFormWrapper">
         <span class="Anchor" id="comment_form"></span>
-        <h2 class="Heading u-h1">{{ 'blog.comments.form_title' | t }}</h2>
+        <p class="Heading u-h1">{{ 'blog.comments.form_title' | t }}</p>
 
         {%- form 'new_comment', article, class: 'Article__CommentForm Form', id: '' -%}
           {%- if form.posted_successfully? -%}
@@ -303,7 +303,7 @@
           <span class="Anchor" id="comments"></span>
 
           <div class="Article__CommentsHeader">
-            <h2 class="Heading u-h1">Comments</h2>
+            <p class="Heading u-h1">Comments</p>
             <div class="Article__SortWrap">
               <select class="Article__SortSelect" id="article-comment-sort" aria-label="Sort comments">
                 <option value="top">Top rated</option>

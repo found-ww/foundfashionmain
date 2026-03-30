@@ -319,10 +319,11 @@ or change the format of some info
     "keywords": "{{ article.tags | join: ', ' }}",
     "headline": {{ article.title | json }},
     "description": {{ article.excerpt_or_content | strip_html | truncatewords: 25 | json }},
+    "articleBody": {{ article.content | strip_html | strip_newlines | truncatewords: 200 | json }},
     "wordCount": {{ article.content | strip_html | split: ' ' | size }},
     "dateCreated": "{{ article.created_at | date: '%Y-%m-%dT%T' }}",
     "datePublished": "{{ article.published_at | date: '%Y-%m-%dT%T' }}",
-    "dateModified": "{{ article.updated_at | default: article.published_at | date: '%Y-%m-%dT%T' }}",
+    "dateModified": "{{ article.published_at | date: '%Y-%m-%dT%T' }}",
     {%- if article.image -%}
     "image": {
       "@type": "ImageObject",
@@ -340,7 +341,14 @@ or change the format of some info
     },
     "publisher": {
       "@type": "Organization",
-      "name": {{ shop.name | json }}
+      "name": {{ shop.name | json }},
+      {%- if settings.logo -%}
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:{{ settings.logo | img_url: '500x' }}"
+      },
+      {%- endif -%}
+      "url": {{ shop.url | json }}
     },
     "commentCount": {{ article.comments_count }},
     "comment": [
