@@ -577,6 +577,64 @@
         {%- endif -%}
 
         {%- comment -%}--- Store cards block ---{%- endcomment -%}
+        {%- if article.handle == 'hermes-appointment-london' -%}
+        {%- capture _sc_html -%}
+          <div class="art-store-grid">
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge art-store-card__badge--featured">Flagship</span>
+                <p class="art-store-card__name">Bond Street</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>179 New Bond Street, W1S 4RL</span>
+                  <span>Mon-Sat 10:00-18:30, Sun 12:00-18:00</span>
+                </div>
+                <p class="art-store-card__desc">The London flagship. The largest selection in the city but also the most competitive. A strong base of high-spending local regulars means first-time visitors rarely receive quota bags here.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Established clients, widest selection</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Quieter</span>
+                <p class="art-store-card__name">Sloane Street</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>41 Sloane Street, SW1X 9LP</span>
+                  <span>Mon-Sat 10:00-18:30</span>
+                </div>
+                <p class="art-store-card__desc">Smaller and less busy than Bond Street. A better environment if you are building a relationship and do not visit London every month. The SAs have more time and the atmosphere is calmer.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Building a relationship, less competitive</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Department Store</span>
+                <p class="art-store-card__name">Harrods</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>87-135 Brompton Road, SW1X 7XL</span>
+                  <span>Mon-Sat 10:00-21:00, Sun 11:30-18:00</span>
+                </div>
+                <p class="art-store-card__desc">Worth visiting if you are already in Knightsbridge. Can occasionally have non-quota bags available and benefits from longer opening hours than the standalone boutiques.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Non-quota bags, longest opening hours</p>
+              </div>
+            </div>
+
+          </div>
+        {%- endcapture -%}
+        {%- else -%}
         {%- capture _sc_html -%}
           <div class="art-store-grid">
 
@@ -634,6 +692,7 @@
           </div>
           <p class="art-store-tip">Tip: Choose "No Preference" when applying to be entered into all three stores at the same time.</p>
         {%- endcapture -%}
+        {%- endif -%}
         {%- assign _content = _content | replace: '<p>[store_cards]</p>', _sc_html -%}
         {%- assign _content = _content | replace: '<p> [store_cards] </p>', _sc_html -%}
         {%- assign _content = _content | replace: '<p>[store_cards] </p>', _sc_html -%}
