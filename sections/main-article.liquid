@@ -576,6 +576,23 @@
           {%- assign _content = _content | replace: '<p> [callout_1]</p>', '' -%}
         {%- endif -%}
 
+        {%- comment -%}--- Large word block ---{%- endcomment -%}
+        {%- assign _lw_val = article.metafields.custom.large_word.value -%}
+        {%- if _lw_val != blank -%}
+          {%- capture _lw_html -%}
+            <div class="art-large-word" aria-hidden="true">{{ _lw_val | escape }}</div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[large_word]</p>', _lw_html -%}
+          {%- assign _content = _content | replace: '<p> [large_word] </p>', _lw_html -%}
+          {%- assign _content = _content | replace: '<p>[large_word] </p>', _lw_html -%}
+          {%- assign _content = _content | replace: '<p> [large_word]</p>', _lw_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[large_word]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [large_word] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[large_word] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [large_word]</p>', '' -%}
+        {%- endif -%}
+
         {%- comment -%}--- Store cards block (Paris) ---{%- endcomment -%}
         {%- capture _sc_html -%}
           <div class="art-store-grid">
@@ -1631,6 +1648,18 @@
   @media screen and (max-width: 768px) {
     .art-callout { padding: 16px 18px; gap: 12px; }
     .art-callout__body { font-size: 14px; }
+  }
+
+  /* Large word */
+  .art-large-word {
+    margin: 1.8em 0;
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #e0d9d2;
+    text-align: center;
+    user-select: none;
   }
 
   /* Store cards */
