@@ -803,15 +803,15 @@
         {%- if _content contains _gate_marker -%}
           {%- assign _content_parts = _content | split: _gate_marker -%}
           {{ _content_parts[0] }}
-          <div class="art-gate" data-logged-in="{{ customer.id | default: '' }}">
+          <div class="art-gate" id="article-gate" data-logged-in="{{ customer.id | default: '' }}">
             <div class="art-gate__content">{{ _content_parts[1] }}</div>
             <div class="art-gate__overlay" hidden>
               <div class="art-gate__box">
                 <p class="art-gate__eyebrow">Members only</p>
                 <p class="art-gate__title">Continue reading</p>
                 <p class="art-gate__body">Create an account or login to read the full article.</p>
-                <a href="/account/login?return_url={{ request.path | url_encode }}" class="art-gate__btn">Log in</a>
-                <a href="/account/register?return_url={{ request.path | url_encode }}" class="art-gate__link">Create a free account</a>
+                <a href="/account/register?return_url={{ request.path | url_encode }}%23article-gate" class="art-gate__btn">Create a free account</a>
+                <a href="/account/login?return_url={{ request.path | url_encode }}%23article-gate" class="art-gate__link">Already have an account? Log in</a>
               </div>
             </div>
           </div>
