@@ -57,6 +57,22 @@ window.addEventListener('load', function() {
 
     <link rel="canonical" href="{{ canonical_url }}">
 
+    {%- comment -%} SEO: noindex low-value pages {%- endcomment -%}
+    {%- if request.page_type == 'page' and page.handle == 'data-sharing-opt-out' -%}
+      <meta name="robots" content="noindex, nofollow">
+    {%- endif -%}
+    {%- if request.page_type == 'collection' and collection.handle == 'frontpage' -%}
+      <meta name="robots" content="noindex, follow">
+    {%- endif -%}
+
+    {%- comment -%} Redirects: empty/duplicate pages {%- endcomment -%}
+    {%- if request.page_type == 'page' and page.handle == 'list-an-item' -%}
+      <script>window.location.replace('/pages/submit-an-item');</script>
+    {%- endif -%}
+    {%- if request.page_type == 'blog' and blog.handle == 'news' -%}
+      <script>window.location.replace('/blogs/found-magazine');</script>
+    {%- endif -%}
+
     {%- if request.page_type == 'product' and product.featured_media -%}
       <link rel="preload" as="image" href="{{ product.featured_media | img_url: '800x' }}" fetchpriority="high">
     {%- endif -%}
