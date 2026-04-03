@@ -141,6 +141,30 @@
   {%- endif -%}
 </style>
 
+{%- if blog.articles_count > 0 -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": {{ blog.title | json }},
+  "description": "Hermès guides, news and insider advice from Found Fashion",
+  "url": "{{ shop.url }}/blogs/{{ blog.handle }}",
+  "itemListElement": [
+    {%- for article in blog.articles -%}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.index }},
+      "url": "{{ shop.url }}{{ article.url }}",
+      "name": {{ article.title | json }}{%- if article.image -%},
+      "image": "{{ article.image | img_url: '800x' }}"{%- endif -%}{%- if article.excerpt_or_content != blank -%},
+      "description": {{ article.excerpt_or_content | strip_html | truncate: 160 | json }}{%- endif -%}
+    }{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  ]
+}
+</script>
+{%- endif -%}
+
 {% schema %}
 {
   "name": "Blog page",
