@@ -72,6 +72,17 @@ window.addEventListener('load', function() {
     {%- if request.page_type == 'blog' and blog.handle == 'news' -%}
       <script>window.location.replace('/blogs/found-magazine');</script>
     {%- endif -%}
+    {%- if request.page_type == 'article' and blog.handle == 'news' -%}
+      <script>window.location.replace('/blogs/found-magazine/{{ article.handle }}');</script>
+    {%- endif -%}
+    {%- comment -%} Redirects: catch any remaining /blogs/news/ 404s {%- endcomment -%}
+    <script>
+      (function(){
+        if(window.location.pathname.indexOf('/blogs/news/') === 0){
+          window.location.replace(window.location.pathname.replace('/blogs/news/','/blogs/found-magazine/'));
+        }
+      })();
+    </script>
 
     {%- if request.page_type == 'product' and product.featured_media -%}
       <link rel="preload" as="image" href="{{ product.featured_media | img_url: '800x' }}" fetchpriority="high">
