@@ -823,6 +823,11 @@
               if (!loggedIn) {
                 gate.classList.add('art-gate--locked');
                 gate.querySelector('.art-gate__overlay').hidden = false;
+                gate.querySelectorAll('.art-gate__btn, .art-gate__link').forEach(function(el){
+                  el.addEventListener('click', function(){
+                    try { sessionStorage.setItem('gateReturn', window.location.pathname); } catch(e){}
+                  });
+                });
               }
             })();
           </script>

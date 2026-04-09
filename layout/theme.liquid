@@ -75,6 +75,21 @@ window.addEventListener('load', function() {
     {%- if request.page_type == 'article' and blog.handle == 'news' -%}
       <script>window.location.replace('/blogs/found-magazine/{{ article.handle }}');</script>
     {%- endif -%}
+    {%- comment -%} Login gate: redirect back to article after new customer account login {%- endcomment -%}
+    {%- if customer and request.page_type == 'customers/account' -%}
+      <script>
+        (function(){
+          try {
+            var returnUrl = sessionStorage.getItem('gateReturn');
+            if (returnUrl) {
+              sessionStorage.removeItem('gateReturn');
+              window.location.replace(returnUrl);
+            }
+          } catch(e){}
+        })();
+      </script>
+    {%- endif -%}
+
     {%- comment -%} Redirects: catch any remaining /blogs/news/ 404s {%- endcomment -%}
     <script>
       (function(){
