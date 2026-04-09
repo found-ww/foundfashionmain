@@ -3168,6 +3168,44 @@
   })();
 </script>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getDatabase, ref, get, runTransaction } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAqT2WNOv3pGJbni6segQWcOR5xs7PoNzA",
+    authDomain: "found-collective.firebaseapp.com",
+    databaseURL: "https://found-collective-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "found-collective",
+    storageBucket: "found-collective.firebasestorage.app",
+    messagingSenderId: "763528791139",
+    appId: "1:763528791139:web:5ba5620fe45bc6161ca456"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const articleHandle = {{ article.handle | json }};
+  const shareRef = ref(db, 'shares/' + articleHandle);
+
+  get(shareRef).then(function(snapshot) {
+    var count = snapshot.exists() ? (snapshot.val().count || 0) : 0;
+    var el = document.getElementById('article-share-count');
+    if (el) el.textContent = count;
+  }).catch(function(){});
+
+  window.firebaseIncrementShare = function() {
+    runTransaction(shareRef, function(current) {
+      return { count: ((current && current.count) || 0) + 1 };
+    }).then(function(result) {
+      if (result.committed) {
+        var count = result.snapshot.val().count || 0;
+        var el = document.getElementById('article-share-count');
+        if (el) el.textContent = count;
+      }
+    }).catch(function(){});
+  };
+</script>
+
 {% schema %}
 {
   "name": "Blog post page",
@@ -3211,46 +3249,4 @@
     }
   ]
 }
-{%- if request.page_type == 'article' -%}
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getDatabase, ref, get, runTransaction } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAqT2WNOv3pGJbni6segQWcOR5xs7PoNzA",
-    authDomain: "found-collective.firebaseapp.com",
-    databaseURL: "https://found-collective-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "found-collective",
-    storageBucket: "found-collective.firebasestorage.app",
-    messagingSenderId: "763528791139",
-    appId: "1:763528791139:web:5ba5620fe45bc6161ca456"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
-  const articleHandle = {{ article.handle | json }};
-  const shareRef = ref(db, 'shares/' + articleHandle);
-
-  /* Load current count on page load */
-  get(shareRef).then(function(snapshot) {
-    var count = snapshot.exists() ? (snapshot.val().count || 0) : 0;
-    var el = document.getElementById('article-share-count');
-    if (el) el.textContent = count;
-  }).catch(function(){});
-
-  /* Expose increment function to non-module scripts */
-  window.firebaseIncrementShare = function() {
-    runTransaction(shareRef, function(current) {
-      return { count: ((current && current.count) || 0) + 1 };
-    }).then(function(result) {
-      if (result.committed) {
-        var count = result.snapshot.val().count || 0;
-        var el = document.getElementById('article-share-count');
-        if (el) el.textContent = count;
-      }
-    }).catch(function(){});
-  };
-</script>
-{%- endif -%}
-
 {% endschema %}
