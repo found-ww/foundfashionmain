@@ -2870,28 +2870,14 @@
       barRAF();
     }
 
-    /* ---- Share count (localStorage per article URL) ---- */
-    var SHARE_KEY  = 'ff_shares';
-    var articleUrl = window.location.pathname;
-    function getCount() {
-      try { return (JSON.parse(localStorage.getItem(SHARE_KEY) || '{}')[articleUrl]) || 0; } catch(e) { return 0; }
-    }
-    function incrementCount() {
-      try {
-        var data = JSON.parse(localStorage.getItem(SHARE_KEY) || '{}');
-        data[articleUrl] = (data[articleUrl] || 0) + 1;
-        localStorage.setItem(SHARE_KEY, JSON.stringify(data));
-        return data[articleUrl];
-      } catch(e) { return 0; }
-    }
+    /* ---- Share count (Firebase Realtime Database) ---- */
     function updateCountEl(n) {
       var el = document.getElementById('article-share-count');
       if (el) el.textContent = n;
     }
-    updateCountEl(getCount());
     document.querySelectorAll('[data-share-btn]').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        updateCountEl(incrementCount());
+        if (window.firebaseIncrementShare) window.firebaseIncrementShare();
         trackEvent('share_article', {
           article_title: document.title,
           share_method: btn.getAttribute('data-share-btn') || 'unknown',
@@ -2949,7 +2935,7 @@
         function onCopied() {
           copyLabel.textContent = 'Copied!';
           copyBtn.classList.add('Article__CopyLinkBtn--copied');
-          updateCountEl(incrementCount());
+          if (window.firebaseIncrementShare) window.firebaseIncrementShare();
           trackEvent('copy_article_link', { article_title: document.title });
           setTimeout(function() {
             copyLabel.textContent = 'Copy link';
@@ -2974,7 +2960,9 @@
         var title = nativeShareBtn.getAttribute('data-title') || document.title;
         var url   = nativeShareBtn.getAttribute('data-url') || window.location.href;
         if (navigator.share) {
-          navigator.share({ title: title, url: url }).catch(function(){});
+          navigator.share({ title: title, url: url }).then(function() {
+            if (window.firebaseIncrementShare) window.firebaseIncrementShare();
+          }).catch(function(){});
         } else {
           /* Desktop fallback — copy link */
           if (navigator.clipboard) {
@@ -3223,4 +3211,46 @@
     }
   ]
 }
+{%- if request.page_type == 'article' -%}
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getDatabase, ref, get, runTransaction } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAqT2WNOv3pGJbni6segQWcOR5xs7PoNzA",
+    authDomain: "found-collective.firebaseapp.com",
+    databaseURL: "https://found-collective-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "found-collective",
+    storageBucket: "found-collective.firebasestorage.app",
+    messagingSenderId: "763528791139",
+    appId: "1:763528791139:web:5ba5620fe45bc6161ca456"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const articleHandle = {{ article.handle | json }};
+  const shareRef = ref(db, 'shares/' + articleHandle);
+
+  /* Load current count on page load */
+  get(shareRef).then(function(snapshot) {
+    var count = snapshot.exists() ? (snapshot.val().count || 0) : 0;
+    var el = document.getElementById('article-share-count');
+    if (el) el.textContent = count;
+  }).catch(function(){});
+
+  /* Expose increment function to non-module scripts */
+  window.firebaseIncrementShare = function() {
+    runTransaction(shareRef, function(current) {
+      return { count: ((current && current.count) || 0) + 1 };
+    }).then(function(result) {
+      if (result.committed) {
+        var count = result.snapshot.val().count || 0;
+        var el = document.getElementById('article-share-count');
+        if (el) el.textContent = count;
+      }
+    }).catch(function(){});
+  };
+</script>
+{%- endif -%}
+
 {% endschema %}
