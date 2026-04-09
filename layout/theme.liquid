@@ -218,7 +218,7 @@ window.addEventListener('load', function() {
     </script>
 
     {% render 'microdata-schema' %}
-  {% render 'bon-loyalty' %}{% capture boostersnippet %}{% include "booster-apps-common" %}{% endcapture %}{% unless boostersnippet contains "Liquid error" %}{{ boostersnippet }}{% endunless %}
+  {% render 'bon-loyalty' %}
 </head>
 
   {%- capture classes -%}features--heading-{{ settings.heading_size }}{%- endcapture -%}
@@ -289,7 +289,6 @@ window.addEventListener('load', function() {
 {% include 'swymSnippet' %}
 
 <script src="{{ 'seedgrow-whatsapp-init.js' | asset_url }}" defer="defer"></script><script src="{{ 'seedgrow-whatsapp-lib.js' | asset_url }}" defer="defer"></script>{{'tiny-img-link-preloader.js' | asset_url | script_tag }}
-{{ '//cdn.shopify.com/s/files/1/0194/1736/6592/t/1/assets/booster-page-speed-optimizer.js?23' | script_tag }}
 </body>
 </html>
         <!-- Start-MakeAnOffer version: 7 -->
