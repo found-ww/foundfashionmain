@@ -996,6 +996,14 @@
     position: relative;
     margin-bottom: 60px;
   }
+  /* Tighter spacing when a section contains only a block element (no prose) */
+  .art-body-section-text:has(.art-body-right > .art-card-block:only-child),
+  .art-body-section-text:has(.art-body-right > .art-info-box:only-child),
+  .art-body-section-text:has(.art-body-right > .art-callout:only-child),
+  .art-body-section-text:has(.art-body-right > .epq:only-child),
+  .art-body-section-text:has(.art-body-right > .art-stats:only-child) {
+    margin-bottom: 24px;
+  }
   .art-body-section-text::after,
   .art-body-section-img::after {
     content: '';
