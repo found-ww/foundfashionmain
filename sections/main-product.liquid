@@ -1678,11 +1678,22 @@ button[class*="make-an-offer"]:hover,
       var slide = track.querySelector('.ppv1-strip__slide');
       return slide ? slide.offsetWidth + 10 : track.offsetWidth / 3;
     }
+    function getSlideCount() {
+      return track.querySelectorAll('.ppv1-strip__slide').length;
+    }
+    function getCurrentIndex() {
+      return Math.round(track.scrollLeft / getSlideWidth());
+    }
+    function scrollToIndex(i) {
+      var count = getSlideCount();
+      var target = ((i % count) + count) % count;
+      track.scrollTo({ left: target * getSlideWidth(), behavior: 'smooth' });
+    }
     prevBtn.addEventListener('click', function() {
-      track.scrollBy({ left: -getSlideWidth(), behavior: 'smooth' });
+      scrollToIndex(getCurrentIndex() - 1);
     });
     nextBtn.addEventListener('click', function() {
-      track.scrollBy({ left: getSlideWidth(), behavior: 'smooth' });
+      scrollToIndex(getCurrentIndex() + 1);
     });
   }
 })();
