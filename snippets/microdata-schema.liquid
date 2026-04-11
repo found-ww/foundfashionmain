@@ -150,6 +150,8 @@ or change the format of some info
     {%- elsif is_barcode_available %}
       "mpn": {{ product.selected_or_first_available_variant.barcode | json }},
       "productId": {{ product.selected_or_first_available_variant.barcode | json }},
+    {%- else %}
+      "identifier_exists": false,
     {%- endif %}
     "brand": {
       "@type": "Brand",
@@ -462,7 +464,7 @@ or change the format of some info
 {% if main_entity_microdata != blank %}
   <script type="application/ld+json">
   {
-    "@context": "http://schema.org",
+    "@context": "https://schema.org",
     {{ main_entity_microdata }}
   }
   </script>
@@ -471,7 +473,7 @@ or change the format of some info
 {% if breadcrumb_entity_microdata != blank %}
   <script type="application/ld+json">
   {
-    "@context": "http://schema.org",
+    "@context": "https://schema.org",
     {{ breadcrumb_entity_microdata }}
   }
   </script>
