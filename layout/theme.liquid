@@ -289,6 +289,26 @@ window.addEventListener('load', function() {
 {% include 'swymSnippet' %}
 
 <script src="{{ 'seedgrow-whatsapp-init.js' | asset_url }}" defer="defer"></script><script src="{{ 'seedgrow-whatsapp-lib.js' | asset_url }}" defer="defer"></script>{{'tiny-img-link-preloader.js' | asset_url | script_tag }}
+
+{%- comment -%} Google Customer Reviews — fires on account order pages {%- endcomment -%}
+{%- if request.page_type == 'order' -%}
+  {%- assign _gcr_delivery = 'now' | date: '%s' | plus: 432000 | date: '%Y-%m-%d' -%}
+  <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+  <script>
+    window.renderOptIn = function() {
+      window.gapi.load('surveyoptin', function() {
+        window.gapi.surveyoptin.render({
+          "merchant_id": 571334423,
+          "order_id": "{{ order.order_number }}",
+          "email": "{{ customer.email | escape }}",
+          "delivery_country": "{{ order.shipping_address.country_code | default: 'GB' }}",
+          "estimated_delivery_date": "{{ _gcr_delivery }}"
+        });
+      });
+    }
+  </script>
+{%- endif -%}
+
 </body>
 </html>
         <!-- Start-MakeAnOffer version: 7 -->
