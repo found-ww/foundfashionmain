@@ -127,6 +127,12 @@
 
     <div class="par-hero" id="par-hero">
       <div class="par-img-wrap" id="par-img">
+        {%- if article.handle == 'hermes-166-new-bond-street-london' -%}
+        <img src="https://cdn.shopify.com/s/files/1/0987/8080/7432/files/found-fashion-new-bond-street_1.jpg?v=1776024385"
+             loading="eager"
+             fetchpriority="high"
+             alt="{{ article.image.alt | default: article.title | escape }}">
+        {%- else -%}
         <img src="{{ article.image | img_url: '1600x' }}"
              srcset="{{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1600x' }} 1600w"
              sizes="100vw"
@@ -135,6 +141,7 @@
              loading="eager"
              fetchpriority="high"
              alt="{{ article.image.alt | default: article.title | escape }}">
+        {%- endif -%}
       </div>
     </div>
 
