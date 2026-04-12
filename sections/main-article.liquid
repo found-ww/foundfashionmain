@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <div class="par-hero" id="par-hero">
+    <div class="par-hero{% if article.handle == 'hermes-166-new-bond-street-london' %} par-hero--hermes-bond{% endif %}" id="par-hero">
       <div class="par-img-wrap" id="par-img">
         <img src="{{ article.image | img_url: '1600x' }}"
              srcset="{{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1600x' }} 1600w"
@@ -2260,6 +2260,12 @@
     object-position: center 30%;
     display: block;
   }
+  /* ── Hermès Bond Street override ── */
+  .par-hero--hermes-bond .par-img-wrap img { object-position: center 95%; }
+  @media screen and (max-width: 640px) {
+    .par-hero--hermes-bond { height: 22vh; min-height: 200px; }
+  }
+
   @media screen and (max-width: 640px) {
     .par-hero { height: 30vh; min-height: 270px; margin-top: 10px; margin-bottom: 1.5rem; }
     .par-fg { padding: 0 24px 40px; }
