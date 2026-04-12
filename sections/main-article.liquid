@@ -125,15 +125,13 @@
       </div>
     </div>
 
-    <div class="par-hero{% if article.handle == 'hermes-166-new-bond-street-london' %} par-hero--hermes-bond{% endif %}" id="par-hero">
+    <div class="par-hero" id="par-hero">
       <div class="par-img-wrap" id="par-img">
         <img src="{{ article.image | img_url: '1600x' }}"
-             {%- unless article.handle == 'hermes-166-new-bond-street-london' %}
              srcset="{{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1600x' }} 1600w"
              sizes="100vw"
              width="{{ article.image.width }}"
              height="{{ article.image.height }}"
-             {%- endunless %}
              loading="eager"
              fetchpriority="high"
              alt="{{ article.image.alt | default: article.title | escape }}">
@@ -2262,29 +2260,6 @@
     object-position: center 30%;
     display: block;
   }
-  /* ── Hermès Bond Street override ── */
-  .par-hero--hermes-bond { height: clamp(500px, 45vw, 75vh); }
-  .par-hero--hermes-bond .par-img-wrap {
-    position: absolute;
-    inset: 0;
-    transform: none !important;
-    pointer-events: none;
-  }
-  .par-hero--hermes-bond .par-img-wrap img {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    object-fit: initial;
-    object-position: initial;
-    transform: none !important;
-    transition: none !important;
-  }
-  @media screen and (max-width: 640px) {
-    .par-hero--hermes-bond { height: 22vh; min-height: 200px; }
-  }
-
   @media screen and (max-width: 640px) {
     .par-hero { height: 30vh; min-height: 270px; margin-top: 10px; margin-bottom: 1.5rem; }
     .par-fg { padding: 0 24px 40px; }
@@ -3050,9 +3025,7 @@
     var parImg   = document.getElementById('par-img');
     var parCtaEl = document.getElementById('par-cta');
 
-    var noParallax = parHero && parHero.classList.contains('par-hero--hermes-bond');
-
-    if (parHero && parImg && !noParallax && !window.matchMedia('(hover: hover)').matches) {
+    if (parHero && parImg && !window.matchMedia('(hover: hover)').matches) {
       /* Mobile: scroll-driven vertical parallax */
       function mobileParallax() {
         var rect  = parHero.getBoundingClientRect();
@@ -3063,7 +3036,7 @@
       mobileParallax();
     }
 
-    if (parHero && parImg && !noParallax && window.matchMedia('(hover: hover)').matches) {
+    if (parHero && parImg && window.matchMedia('(hover: hover)').matches) {
       var pMouse  = { x: 0, y: 0 };
       var imgT    = { x: 0, y: 0 };
       var imgC    = { x: 0, y: 0 };
