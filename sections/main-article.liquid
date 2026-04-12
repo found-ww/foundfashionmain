@@ -128,11 +128,7 @@
     <div class="par-hero{% if article.handle == 'hermes-166-new-bond-street-london' %} par-hero--hermes-bond{% endif %}" id="par-hero">
       <div class="par-img-wrap" id="par-img">
         {%- if article.handle == 'hermes-166-new-bond-street-london' -%}
-        <img src="{{ article.image | img_url: '1600x', crop: 'bottom' }}"
-             srcset="{{ article.image | img_url: '800x', crop: 'bottom' }} 800w, {{ article.image | img_url: '1200x', crop: 'bottom' }} 1200w, {{ article.image | img_url: '1600x', crop: 'bottom' }} 1600w"
-             sizes="100vw"
-             width="{{ article.image.width }}"
-             height="{{ article.image.height }}"
+        <img src="{{ article.image | img_url: '1600x900', crop: 'bottom' }}"
              loading="eager"
              fetchpriority="high"
              alt="{{ article.image.alt | default: article.title | escape }}">
