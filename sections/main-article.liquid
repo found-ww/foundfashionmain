@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <div class="par-hero" id="par-hero">
+    <div class="par-hero{% if article.handle == 'hermes-166-new-bond-street-london' %} par-hero--hermes-bond{% endif %}" id="par-hero">
       <div class="par-img-wrap" id="par-img">
         {%- if article.handle == 'hermes-166-new-bond-street-london' -%}
         <img src="https://cdn.shopify.com/s/files/1/0987/8080/7432/files/found-fashion-new-bond-street_1_2.jpg?v=1776024923"
@@ -2269,6 +2269,7 @@
     display: block;
   }
   @media screen and (max-width: 640px) {
+    .par-hero--hermes-bond { height: 20vh; min-height: 200px; }
     .par-hero { height: 30vh; min-height: 270px; margin-top: 10px; margin-bottom: 1.5rem; }
     .par-fg { padding: 0 24px 40px; }
     .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; line-height: 1.22; }
