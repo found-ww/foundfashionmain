@@ -3109,7 +3109,10 @@
         if (target) parItems.push({ wrap: wrap, img: target, cur: 0, tgt: 0 });
       });
 
+      var isMobile = window.innerWidth <= 640;
+
       function parTick() {
+        if (isMobile) { requestAnimationFrame(parTick); return; }
         var vH = window.innerHeight;
         parItems.forEach(function(item) {
           var rect  = item.wrap.getBoundingClientRect();
