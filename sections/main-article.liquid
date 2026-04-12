@@ -2164,8 +2164,8 @@
     transform-origin: center center;
   }
   @media screen and (max-width: 640px) {
-    .Article__ParallaxWrap { overflow: visible; }
-    .Article__ParallaxWrap img { transform: none; will-change: auto; }
+    .Article__ParallaxWrap { overflow: hidden; display: flex; }
+    .Article__ParallaxWrap img { transform: none !important; will-change: auto; }
   }
 
   /* ── Editorial header — full-width two-column ── */
