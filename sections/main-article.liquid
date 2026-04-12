@@ -2262,6 +2262,7 @@
   }
   /* ── Hermès Bond Street override ── */
   .par-hero--hermes-bond .par-img-wrap img { object-position: center 95%; }
+  .par-hero--hermes-bond .par-img-wrap { inset: 0; }
   @media screen and (max-width: 640px) {
     .par-hero--hermes-bond { height: 22vh; min-height: 200px; }
   }
@@ -3031,7 +3032,9 @@
     var parImg   = document.getElementById('par-img');
     var parCtaEl = document.getElementById('par-cta');
 
-    if (parHero && parImg && !window.matchMedia('(hover: hover)').matches) {
+    var noParallax = parHero && parHero.classList.contains('par-hero--hermes-bond');
+
+    if (parHero && parImg && !noParallax && !window.matchMedia('(hover: hover)').matches) {
       /* Mobile: scroll-driven vertical parallax */
       function mobileParallax() {
         var rect  = parHero.getBoundingClientRect();
@@ -3042,7 +3045,7 @@
       mobileParallax();
     }
 
-    if (parHero && parImg && window.matchMedia('(hover: hover)').matches) {
+    if (parHero && parImg && !noParallax && window.matchMedia('(hover: hover)').matches) {
       var pMouse  = { x: 0, y: 0 };
       var imgT    = { x: 0, y: 0 };
       var imgC    = { x: 0, y: 0 };
