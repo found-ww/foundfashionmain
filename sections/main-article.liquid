@@ -2269,8 +2269,23 @@
   }
   /* ── Hermès Bond Street override ── */
   .par-hero--hermes-bond { height: clamp(500px, 45vw, 75vh); }
-  .par-hero--hermes-bond .par-img-wrap { position: absolute; inset: 0; }
-  .par-hero--hermes-bond .par-img-wrap img { width: 100%; height: auto; min-height: 100%; object-fit: cover; object-position: center bottom; }
+  .par-hero--hermes-bond .par-img-wrap {
+    position: absolute;
+    inset: 0;
+    transform: none !important;
+    pointer-events: none;
+  }
+  .par-hero--hermes-bond .par-img-wrap img {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    object-fit: initial;
+    object-position: initial;
+    transform: none !important;
+    transition: none !important;
+  }
   @media screen and (max-width: 640px) {
     .par-hero--hermes-bond { height: 22vh; min-height: 200px; }
   }
