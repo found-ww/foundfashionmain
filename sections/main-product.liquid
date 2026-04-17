@@ -2115,6 +2115,16 @@ button[class*="make-an-offer"]:hover,
     });
   }
 
+  /* When inline CTA is clicked, update sticky button to "Added" state too */
+  document.addEventListener('product:added', function() {
+    if (stickyBtn) {
+      stickyBtn.setAttribute('disabled', 'disabled');
+      stickyBtn.classList.remove('Button--primary');
+      stickyBtn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+      stickyBtn.textContent = 'ADDED TO CART';
+    }
+  });
+
   /* Make an Offer button — trigger Offerly's #offerButton */
   var offerBtn = document.getElementById('ppv1-sticky-offer-btn');
   if (offerBtn) {
