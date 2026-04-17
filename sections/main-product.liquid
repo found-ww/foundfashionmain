@@ -2040,7 +2040,7 @@ button[class*="make-an-offer"]:hover,
 
   /* Sticky ATC button — use AJAX add to cart directly */
   var stickyBtn = document.getElementById('ppv1-sticky-atc-btn');
-  if (stickyBtn && !stickyBtn.disabled) {
+  if (stickyBtn) {
     stickyBtn.addEventListener('click', function(e) {
       e.preventDefault();
       if (stickyBtn.disabled) return;
@@ -2057,7 +2057,9 @@ button[class*="make-an-offer"]:hover,
         headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         body: JSON.stringify({ id: parseInt(variantId), quantity: 1 })
       }).then(function(response) {
-        if (response.ok) {
+        return response.json().then(function(data) { return { ok: response.ok, data: data }; });
+      }).then(function(result) {
+        if (result.ok) {
           /* Update both buttons to "Added" state */
           stickyBtn.classList.remove('Button--primary');
           stickyBtn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
@@ -2073,7 +2075,10 @@ button[class*="make-an-offer"]:hover,
             mainBtn.textContent = 'ADDED TO CART';
           }
 
-          /* Update cart count + dot in header without opening drawer */
+          /* Dispatch product:added so cart drawer opens */
+          document.dispatchEvent(new CustomEvent('product:added', { bubbles: true, detail: { product: result.data } }));
+
+          /* Update cart count + dot in header */
           fetch('/cart.js', { credentials: 'same-origin' })
             .then(function(r) { return r.json(); })
             .then(function(cart) {
