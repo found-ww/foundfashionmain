@@ -1932,12 +1932,7 @@ button[class*="make-an-offer"]:hover,
     display: none;
   }
   @media screen and (max-width: 999px) {
-    /* Hide main CTA row on mobile — sticky bar replaces it */
-    .ppv1-cta-row {
-      display: none !important;
-    }
-    /* Offerly's button is inside .ppv1-cta-row which is display:none on mobile.
-       .click() still works on hidden elements so no extra hiding needed. */
+    /* Keep main CTA row visible on mobile alongside sticky bar */
 
     .ppv1-sticky-bar {
       display: block;
