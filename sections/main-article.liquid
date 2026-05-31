@@ -71,6 +71,10 @@
 <article class="Article" data-section-id="{{ section.id }}" data-section-type="article">
   <div class="Article__ProgressBar" id="article-progress-bar"></div>
 
+  <button class="art-back-top" id="art-back-top" type="button" aria-label="Back to top">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
   <aside class="ArticleToolbar hidden-phone">
     <div class="ArticleToolbar__Left">
       <span class="Heading Text--subdued u-h8 hidden-tablet">{{ 'blog.article.now_reading' | t }}</span>
@@ -78,34 +82,22 @@
     </div>
 
     <div class="ArticleToolbar__Right">
+      <button class="ArticleToolbar__FocusBtn Heading Text--subdued u-h8" id="art-focus-toggle" type="button" aria-label="Toggle focus mode">
+        <svg class="ArticleToolbar__FocusIcon--open" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <svg class="ArticleToolbar__FocusIcon--closed" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-10-7-10-7a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        <span class="ArticleToolbar__FocusLabel">Focus</span>
+      </button>
+
+      <span class="ArticleToolbar__Sep"></span>
+
       {%- if section.settings.show_share_buttons -%}
         <div class="ArticleToolbar__ShareList">
           <span class="ArticleToolbar__ShareLabel Heading Text--subdued u-h8">{{ 'blog.article.share' | t }}</span>
 
           <div class="HorizontalList">
-            {%- if settings.social_instagram_link != blank -%}
-              <a class="HorizontalList__Item Text--subdued Link" href="{{ settings.social_instagram_link }}" target="_blank" rel="noopener">{%- render 'icon' with 'instagram' -%}</a>
-            {%- endif -%}
-            <a class="HorizontalList__Item Text--subdued Link" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener">{%- render 'icon' with 'whatsapp' -%}</a>
-            <a class="HorizontalList__Item Text--subdued Link" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'facebook' -%}</a>
-            <a class="HorizontalList__Item Text--subdued Link" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener">{%- render 'icon' with 'x' -%}</a>
+            <a class="HorizontalList__Item Text--subdued Link" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener" data-toolbar-share="instagram">{%- render 'icon' with 'instagram' -%}</a>
+            <a class="HorizontalList__Item Text--subdued Link" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-toolbar-share="whatsapp">{%- render 'icon' with 'whatsapp' -%}</a>
           </div>
-        </div>
-      {%- endif -%}
-
-      {%- if blog.next_article or blog.previous_article -%}
-        <div class="ArticleToolbar__Nav">
-          {%- if blog.next_article -%}
-            <a href="{{ blog.next_article }}" class="ArticleToolbar__NavItem ArticleToolbar__NavItem--next Heading Text--subdued Link u-h8">{% render 'icon' with 'select-arrow-left' %} {{ 'blog.article.previous' | t }}</a>
-          {%- endif -%}
-
-          {%- if blog.previous_article and blog.next_article -%}
-            <span class="ArticleToolbar__NavItemSeparator"></span>
-          {%- endif -%}
-
-          {%- if blog.previous_article -%}
-            <a href="{{ blog.previous_article }}" class="ArticleToolbar__NavItem ArticleToolbar__NavItem--prev Heading Text--subdued Link u-h8">{{ 'blog.article.next' | t }} {% render 'icon' with 'select-arrow-right' %}</a>
-          {%- endif -%}
         </div>
       {%- endif -%}
     </div>
@@ -133,8 +125,14 @@
       </div>
     </div>
 
-    <div class="par-hero" id="par-hero">
+    <div class="par-hero{% if article.handle == 'hermes-166-new-bond-street-london' %} par-hero--hermes-bond{% endif %}" id="par-hero">
       <div class="par-img-wrap" id="par-img">
+        {%- if article.handle == 'hermes-166-new-bond-street-london' -%}
+        <img src="https://cdn.shopify.com/s/files/1/0987/8080/7432/files/found-fashion-new-bond-street_1_2.jpg?v=1776024923"
+             loading="eager"
+             fetchpriority="high"
+             alt="{{ article.image.alt | default: article.title | escape }}">
+        {%- else -%}
         <img src="{{ article.image | img_url: '1600x' }}"
              srcset="{{ article.image | img_url: '800x' }} 800w, {{ article.image | img_url: '1200x' }} 1200w, {{ article.image | img_url: '1600x' }} 1600w"
              sizes="100vw"
@@ -143,6 +141,7 @@
              loading="eager"
              fetchpriority="high"
              alt="{{ article.image.alt | default: article.title | escape }}">
+        {%- endif -%}
       </div>
     </div>
 
@@ -169,8 +168,6 @@
 
       <div class="Article__Body Rte">
         {%- comment -%} ── Embed marker replacement ── {%- endcomment -%}
-        {%- assign _img1 = article.metafields.custom.duel_parallax_img_1.value -%}
-        {%- assign _img2 = article.metafields.custom.duel_parallax_img_2.value -%}
         {%- assign _quote = article.metafields.custom.large_quote.value -%}
         {%- assign _timeline = article.metafields.custom.timeline.value -%}
         {%- assign _quote2 = article.metafields.custom.large_quote_2.value -%}
@@ -179,12 +176,7 @@
 
         {%- assign _content = article.content -%}
 
-        {%- if _img1 != blank and _img2 != blank -%}
-          {%- capture _pdi_html -%}{%- render 'embed-parallax-dual', img_left: _img1, img_right: _img2 -%}{%- endcapture -%}
-          {%- assign _content = _content | replace: '<p>[parallax]</p>', _pdi_html -%}
-        {%- else -%}
-          {%- assign _content = _content | replace: '<p>[parallax]</p>', '' -%}
-        {%- endif -%}
+        {%- assign _content = _content | replace: '<p>[parallax]</p>', '' -%}
 
         {%- if _quote != blank -%}
           {%- capture _pq_html -%}{%- render 'embed-pull-quote', quote: _quote -%}{%- endcapture -%}
@@ -215,13 +207,640 @@
         {%- endif -%}
 
         {%- if _timeline != blank -%}
-          {%- capture _tc_html -%}{%- render 'embed-timeline-cards', content: _timeline, id: article.id -%}{%- endcapture -%}
+          {%- capture _tc_html -%}{%- render 'embed-timeline-horizontal', content: _timeline, id: article.id -%}{%- endcapture -%}
           {%- assign _content = _content | replace: '<p>[timeline]</p>', _tc_html -%}
         {%- else -%}
           {%- assign _content = _content | replace: '<p>[timeline]</p>', '' -%}
         {%- endif -%}
 
-        {{ _content }}
+        {%- comment -%} ── Product margin annotations ── {%- endcomment -%}
+        {%- for _pi in (1..4) -%}
+          {%- assign _p_key = 'product_' | append: _pi -%}
+          {%- assign _p_val = article.metafields.custom[_p_key].value -%}
+          {%- assign _p_marker = '[product_' | append: _pi | append: ']' -%}
+          {%- assign _p_marker_tag = '<p>' | append: _p_marker | append: '</p>' -%}
+          {%- if _p_val != blank -%}
+            {%- assign _p_clean = _p_val | strip_html | strip -%}
+            {%- assign _p_lines = _p_clean | newline_to_br | split: '<br />' -%}
+            {%- assign _p_img = _p_lines[0] | strip -%}
+            {%- assign _p_caption = _p_lines[1] | strip -%}
+            {%- assign _p_sub = _p_lines[2] | strip -%}
+            {%- capture _p_anchor -%}<span class="art-product-anchor" data-p-img="{{ _p_img | escape }}" data-p-caption="{{ _p_caption | escape }}" data-p-sub="{{ _p_sub | escape }}"></span>{%- endcapture -%}
+            {%- assign _content = _content | replace: _p_marker_tag, _p_anchor -%}
+          {%- else -%}
+            {%- assign _content = _content | replace: _p_marker_tag, '' -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- comment -%} ── Card block embed ── {%- endcomment -%}
+        {%- assign _cb_val = article.metafields.custom.card_block_1.value -%}
+        {%- if _cb_val != blank -%}
+          {%- assign _cb_clean = _cb_val | strip_html | strip -%}
+          {%- assign _cb_lines = _cb_clean | newline_to_br | split: '<br />' -%}
+          {%- capture _cb_html -%}
+            <div class="art-card-block">
+              {%- assign _cb_i = 0 -%}
+              {%- for _line in _cb_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _cb_mod = _cb_i | modulo: 2 -%}
+                {%- if _cb_mod == 0 -%}
+                  <div class="art-card-block__card">
+                    <p class="art-card-block__title">{{ _line_stripped }}</p>
+                {%- else -%}
+                    <p class="art-card-block__body">{{ _line_stripped }}</p>
+                  </div>
+                {%- endif -%}
+                {%- assign _cb_i = _cb_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- assign _cb_mod_end = _cb_i | modulo: 2 -%}
+              {%- if _cb_mod_end == 1 -%}</div>{%- endif -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[card_block_1]</p>', _cb_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[card_block_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- assign _cb2_val = article.metafields.custom.card_block_2.value -%}
+        {%- if _cb2_val != blank -%}
+          {%- assign _cb2_clean = _cb2_val | strip_html | strip -%}
+          {%- assign _cb2_lines = _cb2_clean | newline_to_br | split: '<br />' -%}
+          {%- capture _cb2_html -%}
+            <div class="art-card-block">
+              {%- assign _cb2_i = 0 -%}
+              {%- for _line in _cb2_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _cb2_mod = _cb2_i | modulo: 2 -%}
+                {%- if _cb2_mod == 0 -%}
+                  <div class="art-card-block__card">
+                    <p class="art-card-block__title">{{ _line_stripped }}</p>
+                {%- else -%}
+                    <p class="art-card-block__body">{{ _line_stripped }}</p>
+                  </div>
+                {%- endif -%}
+                {%- assign _cb2_i = _cb2_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- assign _cb2_mod_end = _cb2_i | modulo: 2 -%}
+              {%- if _cb2_mod_end == 1 -%}</div>{%- endif -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[card_block_2]</p>', _cb2_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[card_block_2]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%} ── Product block embed ── {%- endcomment -%}
+        {%- assign _pb_val = article.metafields.custom.product_block_1.value -%}
+        {%- if _pb_val != blank -%}
+          {%- assign _pb_clean = _pb_val | strip_html | strip -%}
+          {%- assign _pb_lines = _pb_clean | newline_to_br | split: '<br />' -%}
+          {%- comment -%} Collect card titles for tab bar {%- endcomment -%}
+          {%- assign _pb_titles = '' -%}
+          {%- assign _pb_ti = 0 -%}
+          {%- for _line in _pb_lines -%}
+            {%- assign _line_stripped = _line | strip -%}
+            {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+            {%- assign _pb_field_t = _pb_ti | modulo: 6 -%}
+            {%- if _pb_field_t == 0 -%}
+              {%- if _pb_titles != '' -%}{%- assign _pb_titles = _pb_titles | append: '|||' -%}{%- endif -%}
+              {%- assign _pb_titles = _pb_titles | append: _line_stripped -%}
+            {%- endif -%}
+            {%- assign _pb_ti = _pb_ti | plus: 1 -%}
+          {%- endfor -%}
+          {%- assign _pb_title_arr = _pb_titles | split: '|||' -%}
+          {%- capture _pb_html -%}
+            <div class="art-product-block">
+              {%- if _pb_title_arr.size > 1 -%}
+                <div class="art-pb-tabs">
+                  {%- for _t in _pb_title_arr -%}
+                    <button class="art-pb-tabs__btn{% if forloop.first %} art-pb-tabs__btn--active{% endif %}" data-pb-tab="{{ forloop.index0 }}" type="button">{{ _t }}</button>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+              {%- assign _pb_i = 0 -%}
+              {%- assign _pb_card_i = 0 -%}
+              {%- for _line in _pb_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _pb_field = _pb_i | modulo: 6 -%}
+                {%- if _pb_field == 0 -%}
+                  <div class="art-product-block__card" data-pb-card="{{ _pb_card_i }}">
+                    <p class="art-product-block__title">{{ _line_stripped }}</p>
+                    <div class="art-product-block__grid">
+                {%- elsif _pb_field == 1 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Year</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                {%- elsif _pb_field == 2 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Leather</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                {%- elsif _pb_field == 3 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Construction</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                {%- elsif _pb_field == 4 -%}
+                      <div class="art-product-block__cell">
+                        <span class="art-product-block__label">Features</span>
+                        <span class="art-product-block__value">{{ _line_stripped }}</span>
+                      </div>
+                    </div>
+                {%- elsif _pb_field == 5 -%}
+                    <div class="art-product-block__footer">
+                      <span class="art-product-block__label">Best for</span>
+                      <span class="art-product-block__value">{{ _line_stripped }}</span>
+                    </div>
+                  </div>
+                  {%- assign _pb_card_i = _pb_card_i | plus: 1 -%}
+                {%- endif -%}
+                {%- assign _pb_i = _pb_i | plus: 1 -%}
+              {%- endfor -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[product_block_1]</p>', _pb_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[product_block_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%} ── Hotspot image embed ── {%- endcomment -%}
+        {%- assign _hs_val = article.metafields.custom.hotspot_1.value -%}
+        {%- if _hs_val != blank -%}
+          {%- assign _hs_clean = _hs_val | strip_html | strip -%}
+          {%- assign _hs_lines = _hs_clean | newline_to_br | split: '<br />' -%}
+          {%- assign _hs_img = _hs_lines[0] | strip -%}
+          {%- capture _hs_html -%}
+            <div class="art-hotspot">
+              <div class="art-hotspot__img-wrap">
+                <img class="art-hotspot__img" src="{{ _hs_img }}" alt="" loading="lazy">
+                {%- assign _hs_i = 0 -%}
+                {%- for _line in _hs_lines -%}
+                  {%- if forloop.index0 == 0 -%}{%- continue -%}{%- endif -%}
+                  {%- assign _line_stripped = _line | strip -%}
+                  {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                  {%- assign _hs_mod = _hs_i | modulo: 2 -%}
+                  {%- if _hs_mod == 0 -%}
+                    {%- assign _hs_coords = _line_stripped | split: ',' -%}
+                    {%- assign _hs_x = _hs_coords[0] | strip -%}
+                    {%- assign _hs_y = _hs_coords[1] | strip -%}
+                  {%- else -%}
+                    <button class="art-hotspot__dot" style="left:{{ _hs_x }}%;top:{{ _hs_y }}%" data-hs-label="{{ _line_stripped | escape }}" type="button" aria-label="{{ _line_stripped | escape }}">
+                      <span class="art-hotspot__pulse"></span>
+                    </button>
+                  {%- endif -%}
+                  {%- assign _hs_i = _hs_i | plus: 1 -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[hotspot_1]</p>', _hs_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[hotspot_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%} ── Stat counter embed ── {%- endcomment -%}
+        {%- assign _st_val = article.metafields.custom.stats_1.value -%}
+        {%- if _st_val != blank -%}
+          {%- assign _st_clean = _st_val | strip_html | strip -%}
+          {%- assign _st_lines = _st_clean | newline_to_br | split: '<br />' -%}
+          {%- capture _st_html -%}
+            <div class="art-stats">
+              {%- assign _st_i = 0 -%}
+              {%- for _line in _st_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped == blank -%}{%- continue -%}{%- endif -%}
+                {%- assign _st_mod = _st_i | modulo: 2 -%}
+                {%- if _st_mod == 0 -%}
+                  <div class="art-stats__item">
+                    <span class="art-stats__number" data-stat-target="{{ _line_stripped | escape }}">0</span>
+                {%- else -%}
+                    <span class="art-stats__label">{{ _line_stripped }}</span>
+                  </div>
+                {%- endif -%}
+                {%- assign _st_i = _st_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- assign _st_mod_end = _st_i | modulo: 2 -%}
+              {%- if _st_mod_end == 1 -%}</div>{%- endif -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[stats_1]</p>', _st_html -%}
+          {%- assign _content = _content | replace: '<p> [stats_1] </p>', _st_html -%}
+          {%- assign _content = _content | replace: '<p>[stats_1] </p>', _st_html -%}
+          {%- assign _content = _content | replace: '<p> [stats_1]</p>', _st_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[stats_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [stats_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[stats_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [stats_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%}--- Dual image block ---{%- endcomment -%}
+        {%- assign _di_val = article.metafields.custom.dual_image_1.value -%}
+        {%- if _di_val != blank -%}
+          {%- assign _di_lines = _di_val | split: '
+' -%}
+          {%- capture _di_html -%}
+            <div class="art-dual-image">
+              {%- assign _di_i = 0 -%}
+              {%- for _line in _di_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped != '' -%}
+                  {%- assign _di_mod = _di_i | modulo: 2 -%}
+                  {%- if _di_mod == 0 -%}
+                    <div class="art-dual-image__item">
+                      <div class="art-dual-image__wrap">
+                        <img src="{{ _line_stripped }}" alt="" loading="lazy">
+                      </div>
+                  {%- else -%}
+                      <p class="art-dual-image__caption">{{ _line_stripped }}</p>
+                    </div>
+                  {%- endif -%}
+                  {%- assign _di_i = _di_i | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1]</p>', _di_html -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1] </p>', _di_html -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1] </p>', _di_html -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1]</p>', _di_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[dual_image_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [dual_image_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%}--- Info box block (At a Glance) ---{%- endcomment -%}
+        {%- assign _ib_val = article.metafields.custom.info_box_1.value -%}
+        {%- if _ib_val != blank -%}
+          {%- assign _ib_lines = _ib_val | newline_to_br | split: '<br />' -%}
+          {%- capture _ib_html -%}
+            <div class="art-info-box">
+              <p class="art-info-box__label">At a Glance</p>
+              <dl class="art-info-box__list">
+                {%- for _ib_line in _ib_lines -%}
+                  {%- assign _ib_line_s = _ib_line | strip -%}
+                  {%- if _ib_line_s == blank -%}{%- continue -%}{%- endif -%}
+                  {%- assign _ib_parts = _ib_line_s | split: ':' -%}
+                  {%- if _ib_parts.size >= 2 -%}
+                    {%- assign _ib_key = _ib_parts.first | strip -%}
+                    {%- assign _ib_val_rest = _ib_line_s | remove_first: _ib_parts.first | remove_first: ':' | strip -%}
+                    <div class="art-info-box__row">
+                      <dt class="art-info-box__key">{{ _ib_key }}</dt>
+                      <dd class="art-info-box__val">{{ _ib_val_rest }}</dd>
+                    </div>
+                  {%- else -%}
+                    <div class="art-info-box__row art-info-box__row--full">
+                      <dd class="art-info-box__val">{{ _ib_line_s }}</dd>
+                    </div>
+                  {%- endif -%}
+                {%- endfor -%}
+              </dl>
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1]</p>', _ib_html -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1] </p>', _ib_html -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1] </p>', _ib_html -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1]</p>', _ib_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[info_box_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [info_box_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%}--- Steps block ---{%- endcomment -%}
+        {%- capture _steps_html -%}
+          <div class="art-steps">
+            <div class="art-step">
+              <div class="art-step__num">1</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Location</p>
+                <p class="art-step__body">The system works best on French WiFi, but some people including UK visitors do apply successfully before travelling. Always worth trying early, and apply every day once you arrive.</p>
+              </div>
+            </div>
+            <div class="art-step">
+              <div class="art-step__num">2</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Visit the website</p>
+                <p class="art-step__body">Go to <a href="https://rendezvousparis.hermes.com" target="_blank" rel="noopener">rendezvousparis.hermes.com</a> on your smartphone between <strong>10:30 and 19:00 Paris time</strong>, the day before your desired appointment.</p>
+              </div>
+            </div>
+            <div class="art-step">
+              <div class="art-step__num">3</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Fill in the form</p>
+                <p class="art-step__body">Enter your name, passport number, phone number, email address and preferred store.</p>
+              </div>
+            </div>
+            <div class="art-step art-step--accent">
+              <div class="art-step__num art-step__num--icon">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5L14.5 13H1.5L8 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="8" y1="6" x2="8" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.6" fill="currentColor"/></svg>
+              </div>
+              <div class="art-step__content">
+                <p class="art-step__title">Confirm via email - do not skip this</p>
+                <p class="art-step__body">You will receive a "Welcome to Hermès" email - this is <strong>not</strong> a confirmation. Find the second email titled "Please confirm your appointment request" and click the blue link. If you skip this, your entry is void.</p>
+              </div>
+            </div>
+            <div class="art-step">
+              <div class="art-step__num">5</div>
+              <div class="art-step__content">
+                <p class="art-step__title">Wait for results</p>
+                <p class="art-step__body">Results come by email in the evening. No email means no appointment - try again tomorrow. If you do get one, keep checking on the day as your time slot can change.</p>
+              </div>
+            </div>
+          </div>
+        {%- endcapture -%}
+        {%- assign _content = _content | replace: '<p>[steps_1]</p>', _steps_html -%}
+        {%- assign _content = _content | replace: '<p> [steps_1] </p>', _steps_html -%}
+        {%- assign _content = _content | replace: '<p>[steps_1] </p>', _steps_html -%}
+        {%- assign _content = _content | replace: '<p> [steps_1]</p>', _steps_html -%}
+
+        {%- comment -%}--- Callout block ---{%- endcomment -%}
+        {%- assign _callout_val = article.metafields.custom.callout_1.value -%}
+        {%- if _callout_val != blank -%}
+          {%- capture _callout_html -%}
+            <div class="art-callout">
+              <div class="art-callout__icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5L14.5 13H1.5L8 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><line x1="8" y1="6" x2="8" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.6" fill="currentColor"/></svg>
+              </div>
+              <div class="art-callout__body">{{ _callout_val | newline_to_br }}</div>
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[callout_1]</p>', _callout_html -%}
+          {%- assign _content = _content | replace: '<p> [callout_1] </p>', _callout_html -%}
+          {%- assign _content = _content | replace: '<p>[callout_1] </p>', _callout_html -%}
+          {%- assign _content = _content | replace: '<p> [callout_1]</p>', _callout_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[callout_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [callout_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[callout_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [callout_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%}--- Large word block ---{%- endcomment -%}
+        {%- assign _lw_val = article.metafields.custom.large_word.value -%}
+        {%- if _lw_val != blank -%}
+          {%- capture _lw_html -%}
+            <div class="art-large-word" aria-hidden="true">{{ _lw_val | escape }}</div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[large_word]</p>', _lw_html -%}
+          {%- assign _content = _content | replace: '<p> [large_word] </p>', _lw_html -%}
+          {%- assign _content = _content | replace: '<p>[large_word] </p>', _lw_html -%}
+          {%- assign _content = _content | replace: '<p> [large_word]</p>', _lw_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[large_word]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [large_word] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[large_word] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [large_word]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%}--- Store cards block (Paris) ---{%- endcomment -%}
+        {%- capture _sc_html -%}
+          <div class="art-store-grid">
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge art-store-card__badge--featured">Flagship</span>
+                <p class="art-store-card__name">Faubourg Saint-Honoré</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>24 Rue du Faubourg Saint-Honoré, 75008 Paris</span>
+                  <span>Mon-Sat 10:30-18:30</span>
+                </div>
+                <p class="art-store-card__desc">The biggest store with the most stock. This is the best place to find a Birkin or Kelly. It is busy and popular, but has more bags than the other two stores.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Best chance of finding a Birkin or Kelly</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Near Champs-Élysées</span>
+                <p class="art-store-card__name">George V</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>42 Avenue George V, 75008 Paris</span>
+                  <span>Mon-Sat 10:30-18:30</span>
+                </div>
+                <p class="art-store-card__desc">A smaller store close to the Champs-Élysées. A good option if you are staying nearby. Less busy than the flagship store.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Central location, less busy</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Hidden Gem</span>
+                <p class="art-store-card__name">Sèvres</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>17 Rue de Sèvres, 75006 Paris</span>
+                  <span>Mon-Sat 10:30-19:00</span>
+                </div>
+                <p class="art-store-card__desc">Built inside a beautiful 1935 swimming pool. Has a café, a bookstore, and is the only Hermès store in the world to sell the Petit H collection. Most experienced Hermès shoppers say this is their favourite.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Best atmosphere, unique products, open the latest</p>
+              </div>
+            </div>
+
+          </div>
+          <p class="art-store-tip">Tip: Choose "No Preference" when applying to be entered into all three stores at the same time.</p>
+        {%- endcapture -%}
+        {%- assign _content = _content | replace: '<p>[store_cards]</p>', _sc_html -%}
+        {%- assign _content = _content | replace: '<p> [store_cards] </p>', _sc_html -%}
+        {%- assign _content = _content | replace: '<p>[store_cards] </p>', _sc_html -%}
+        {%- assign _content = _content | replace: '<p> [store_cards]</p>', _sc_html -%}
+
+        {%- comment -%}--- Store cards block (London) ---{%- endcomment -%}
+        {%- capture _sc_london_html -%}
+          <div class="art-store-grid">
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge art-store-card__badge--featured">Flagship</span>
+                <p class="art-store-card__name">Bond Street</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>179 New Bond Street, W1S 4RL</span>
+                  <span>Mon-Sat 10:00-18:30, Sun 12:00-18:00</span>
+                </div>
+                <p class="art-store-card__desc">The London flagship. The largest selection in the city but also the most competitive. A strong base of high-spending local regulars means first-time visitors rarely receive quota bags here.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Established clients, widest selection</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Quieter</span>
+                <p class="art-store-card__name">Sloane Street</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>41 Sloane Street, SW1X 9LP</span>
+                  <span>Mon-Sat 10:00-18:30</span>
+                </div>
+                <p class="art-store-card__desc">Smaller and less busy than Bond Street. A better environment if you are building a relationship and do not visit London every month. The SAs have more time and the atmosphere is calmer.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Building a relationship, less competitive</p>
+              </div>
+            </div>
+
+            <div class="art-store-card">
+              <div class="art-store-card__header">
+                <span class="art-store-card__badge">Department Store</span>
+                <p class="art-store-card__name">Harrods</p>
+              </div>
+              <div class="art-store-card__body">
+                <div class="art-store-card__meta">
+                  <span>87-135 Brompton Road, SW1X 7XL</span>
+                  <span>Mon-Sat 10:00-21:00, Sun 11:30-18:00</span>
+                </div>
+                <p class="art-store-card__desc">Worth visiting if you are already in Knightsbridge. Can occasionally have non-quota bags available and benefits from longer opening hours than the standalone boutiques.</p>
+                <div class="art-store-card__divider"></div>
+                <p class="art-store-card__best-label">Best for</p>
+                <p class="art-store-card__best-val">Non-quota bags, longest opening hours</p>
+              </div>
+            </div>
+
+          </div>
+        {%- endcapture -%}
+        {%- assign _content = _content | replace: '<p>[store_cards_london]</p>', _sc_london_html -%}
+        {%- assign _content = _content | replace: '<p> [store_cards_london] </p>', _sc_london_html -%}
+        {%- assign _content = _content | replace: '<p>[store_cards_london] </p>', _sc_london_html -%}
+        {%- assign _content = _content | replace: '<p> [store_cards_london]</p>', _sc_london_html -%}
+
+        {%- comment -%}--- FAQ accordion block ---{%- endcomment -%}
+        {%- assign _faq_val = article.metafields.custom.faq_1.value -%}
+        {%- if _faq_val != blank -%}
+          {%- assign _faq_lines = _faq_val | split: '
+' -%}
+          {%- capture _faq_html -%}
+            <div class="art-faq">
+              {%- assign _faq_i = 0 -%}
+              {%- for _line in _faq_lines -%}
+                {%- assign _line_stripped = _line | strip -%}
+                {%- if _line_stripped != '' -%}
+                  {%- assign _faq_mod = _faq_i | modulo: 2 -%}
+                  {%- if _faq_mod == 0 -%}
+                    <div class="art-faq__item">
+                      <button class="art-faq__question" type="button" aria-expanded="false">
+                        <span>{{ _line_stripped }}</span>
+                        <svg class="art-faq__icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><line x1="7" y1="2" x2="7" y2="12" class="art-faq__vline"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+                      </button>
+                  {%- else -%}
+                      <div class="art-faq__answer">
+                        <p>{{ _line_stripped }}</p>
+                      </div>
+                    </div>
+                  {%- endif -%}
+                  {%- assign _faq_i = _faq_i | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endcapture -%}
+          {%- assign _content = _content | replace: '<p>[faq_1]</p>', _faq_html -%}
+          {%- assign _content = _content | replace: '<p> [faq_1] </p>', _faq_html -%}
+          {%- assign _content = _content | replace: '<p>[faq_1] </p>', _faq_html -%}
+          {%- assign _content = _content | replace: '<p> [faq_1]</p>', _faq_html -%}
+        {%- else -%}
+          {%- assign _content = _content | replace: '<p>[faq_1]</p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [faq_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p>[faq_1] </p>', '' -%}
+          {%- assign _content = _content | replace: '<p> [faq_1]</p>', '' -%}
+        {%- endif -%}
+
+        {%- comment -%}--- FAQPage structured data ---{%- endcomment -%}
+        {%- assign _faq_schema_val = article.metafields.custom.faq_1.value -%}
+        {%- if _faq_schema_val != blank -%}
+          {%- assign _faq_schema_lines = _faq_schema_val | split: '
+' -%}
+          {%- assign _faq_schema_i = 0 -%}
+          {%- assign _faq_schema_q = '' -%}
+          {%- assign _faq_schema_sep = '' -%}
+          {%- capture _faq_schema_items -%}
+            {%- for _line in _faq_schema_lines -%}
+              {%- assign _line_s = _line | strip -%}
+              {%- if _line_s != '' -%}
+                {%- assign _faq_s_mod = _faq_schema_i | modulo: 2 -%}
+                {%- if _faq_s_mod == 0 -%}
+                  {%- assign _faq_schema_q = _line_s -%}
+                {%- else -%}
+                  {{ _faq_schema_sep }}{
+                    "@type": "Question",
+                    "name": {{ _faq_schema_q | json }},
+                    "acceptedAnswer": {
+                      "@type": "Answer",
+                      "text": {{ _line_s | json }}
+                    }
+                  }
+                  {%- assign _faq_schema_sep = ',' -%}
+                {%- endif -%}
+                {%- assign _faq_schema_i = _faq_schema_i | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endcapture -%}
+          {%- if _faq_schema_items != blank -%}
+            <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": [{{ _faq_schema_items }}]
+            }
+            </script>
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- assign _gate_marker = '<p>[login_gate]</p>' -%}
+        {%- if _content contains _gate_marker -%}
+          {%- assign _content_parts = _content | split: _gate_marker -%}
+          {{ _content_parts[0] }}
+          <div class="art-gate" id="article-gate" data-logged-in="{{ customer.id | default: '' }}">
+            <div class="art-gate__content">{{ _content_parts[1] }}</div>
+            <div class="art-gate__overlay" hidden>
+              <div class="art-gate__box">
+                <p class="art-gate__eyebrow">Members only</p>
+                <p class="art-gate__title">Continue reading</p>
+                <p class="art-gate__body">Create an account or login to read the full article.</p>
+                <a href="/account/register?return_url={{ request.path }}" class="art-gate__btn">Create a free account</a>
+                <a href="/account/login?return_url={{ request.path }}" class="art-gate__link">Already have an account? Log in</a>
+              </div>
+            </div>
+          </div>
+          <script>
+            (function(){
+              var gate = document.querySelector('.art-gate');
+              if (!gate) return;
+              var loggedIn = gate.dataset.loggedIn !== '';
+              if (!loggedIn) {
+                gate.classList.add('art-gate--locked');
+                gate.querySelector('.art-gate__overlay').hidden = false;
+                gate.querySelectorAll('.art-gate__btn, .art-gate__link').forEach(function(el){
+                  el.addEventListener('click', function(){
+                    try { sessionStorage.setItem('gateReturn', window.location.pathname); } catch(e){}
+                  });
+                });
+              }
+            })();
+          </script>
+        {%- else -%}
+          {{ _content }}
+        {%- endif -%}
       </div>
 
       {%- capture article_footer -%}
@@ -236,10 +855,10 @@
               <span class="Article__ShareCount"><span id="article-share-count">0</span> shares</span>
             </div>
             <div class="Article__ShareRow">
-              <a class="ShareButtons__Item ShareButtons__Item--instagram" href="{{ settings.social_instagram_link | default: 'https://www.instagram.com/' }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on Instagram">{%- render 'icon' with 'instagram' -%}</a>
-              <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on WhatsApp">{%- render 'icon' with 'whatsapp' -%}</a>
-              <a class="ShareButtons__Item ShareButtons__Item--facebook" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on Facebook">{%- render 'icon' with 'facebook' -%}</a>
-              <a class="ShareButtons__Item ShareButtons__Item--x" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" data-share-btn aria-label="Share on X">{%- render 'icon' with 'x' -%}</a>
+              <button class="ShareButtons__Item ShareButtons__Item--instagram" type="button" id="article-native-share" data-title="{{ article.title | escape }}" data-url="{{ share_url | escape }}" aria-label="Share">{%- render 'icon' with 'instagram' -%}</button>
+              <a class="ShareButtons__Item ShareButtons__Item--whatsapp" href="https://wa.me/?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}" target="_blank" rel="noopener" data-share-btn="whatsapp" aria-label="Share on WhatsApp">{%- render 'icon' with 'whatsapp' -%}</a>
+              <a class="ShareButtons__Item ShareButtons__Item--facebook" href="https://www.facebook.com/sharer.php?u={{ share_url }}" target="_blank" rel="noopener" data-share-btn="facebook" aria-label="Share on Facebook">{%- render 'icon' with 'facebook' -%}</a>
+              <a class="ShareButtons__Item ShareButtons__Item--x" href="https://twitter.com/share?{% if twitter_text != blank %}text={{ twitter_text }}&{% endif %}url={{ share_url }}" target="_blank" rel="noopener" data-share-btn="x" aria-label="Share on X">{%- render 'icon' with 'x' -%}</a>
               <button class="Article__CopyLinkBtn" id="article-copy-link" type="button" data-url="{{ share_url | escape }}">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
                 <span id="article-copy-label">Copy link</span>
@@ -303,6 +922,52 @@
   .ArticleToolbar__ArticleTitle { color: #fff; }
   .ArticleToolbar .Text--subdued { color: rgba(255,255,255,0.7); }
   .ArticleToolbar__ArticleTitle { max-width: none; width: auto; flex: 1; min-width: 0; }
+  .ArticleToolbar__Right { display: flex; align-items: center; }
+  .ArticleToolbar__ShareList { display: flex; align-items: center; }
+  .ArticleToolbar__ShareList .HorizontalList { display: flex; align-items: center; }
+
+  /* ---- Focus mode button ---- */
+  .ArticleToolbar__FocusBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.2s;
+    padding: 0;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ArticleToolbar__FocusBtn:hover { color: #fff; }
+  .ArticleToolbar__FocusBtn--active { color: #fff; }
+  .ArticleToolbar__FocusIcon--closed { display: none; }
+  .ArticleToolbar__FocusBtn--active .ArticleToolbar__FocusIcon--open { display: none; }
+  .ArticleToolbar__FocusBtn--active .ArticleToolbar__FocusIcon--closed { display: inline; }
+  .ArticleToolbar__Sep {
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 16px;
+    vertical-align: middle;
+  }
+
+  /* ---- Focus mode state ---- */
+  .art-focus-mode .art-body-left {
+    display: none;
+  }
+  .art-focus-mode .art-body-right .art-body-section-h {
+    margin-bottom: 16px !important;
+  }
+  .art-focus-mode .art-body-caption-wrap,
+  .art-focus-mode .art-product-anchor {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
 
   /* ---- Reading progress bar ---- */
   .Article__ProgressBar {
@@ -321,31 +986,46 @@
   .ShareButtons__Item--whatsapp:hover { background: #25D366; color: #ffffff; border-color: #25D366; outline: 1.5px solid #25D366; }
   .ShareButtons__Item--x:hover { color: #ffffff; background: #000000; border-color: #000000; outline: 1.5px solid #000000; }
   .ShareButtons__Item--instagram:hover { background: #e1306c; color: #ffffff; border-color: #e1306c; outline: 1.5px solid #e1306c; }
+  .no-supports-hover .ShareButtons__Item--facebook { background: #fff !important; color: inherit !important; border-color: #d4cec8 !important; outline: none !important; }
 
   /* ---- Article width + body font size ---- */
-  .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 20px; margin-bottom: 0; font-size: max(15px, 1.1vw); }
+  .Article__Wrapper { max-width: none; width: 100%; padding-left: 20px; padding-right: 20px; margin-bottom: 0 !important; padding-bottom: 0 !important; font-size: 17px; }
+  article.Article { margin-bottom: 0; padding-bottom: 0; }
   @media screen and (min-width: 641px) { .Article__Wrapper { margin-bottom: 0; } }
   @media screen and (min-width: 1008px) { .Article__Wrapper { max-width: none; margin-bottom: 0; } }
   .Article__Body, .Article__Body.Rte { font-size: 1em !important; line-height: 1.65; }
 
-  /* ── Two-column article body layout ── */
-  .art-body-section-text {
-    display: grid;
-    grid-template-columns: 5fr 7fr;
-    gap: 80px;
-    margin-bottom: 30px;
-    align-items: start;
-  }
+  /* ── Centered article body with margin annotations ── */
+  .Article__Body { max-width: 800px; margin-left: auto; margin-right: auto; position: relative; }
+
+  .art-body-section-text,
   .art-body-section-img {
-    display: grid;
-    grid-template-columns: 5fr 7fr;
-    gap: 80px;
-    margin-bottom: 0;
-    align-items: start;
+    position: relative;
+    margin-bottom: 40px;
   }
+  /* Tighter spacing when a section contains only a block element (no prose) */
+  .art-body-section-text:has(.art-body-right > .art-card-block:only-child),
+  .art-body-section-text:has(.art-body-right > .art-info-box:only-child),
+  .art-body-section-text:has(.art-body-right > .art-callout:only-child),
+  .art-body-section-text:has(.art-body-right > .epq:only-child),
+  .art-body-section-text:has(.art-body-right > .art-stats:only-child) {
+    margin-bottom: 24px;
+  }
+  .art-body-section-text::after,
+  .art-body-section-img::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+
+  /* H2 heading — floated into left margin, sticky within section */
   .art-body-left {
+    float: left;
+    width: 180px;
+    margin-left: calc(-180px - 60px);
     position: sticky;
     top: 80px;
+    text-align: right;
   }
   .art-body-section-h {
     font-size: 16px !important;
@@ -358,50 +1038,864 @@
     font-family: inherit !important;
     font-style: normal !important;
   }
-  .art-body-right { min-width: 0; padding-right: 10vw; }
-  @media screen and (min-width: 1440px) { .art-body-right { padding-right: 15vw; } }
-  @media screen and (min-width: 1600px) { .art-body-right { padding-right: 18vw; } }
-  @media screen and (min-width: 1920px) { .art-body-right { padding-right: 22vw; } }
+
+  /* Body text — fills centered column */
+  .art-body-right { min-width: 0; }
   .art-body-right > p:first-child,
   .art-body-right > h3:first-child { margin-top: 0 !important; }
   .art-body-right h3 {
-    font-size: 13px !important;
-    font-weight: 500 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.12em !important;
-    color: #190d04 !important;
+    letter-spacing: 0.14em !important;
+    color: #0f0f0f !important;
     line-height: 1.4 !important;
-    margin: 0 0 1em !important;
+    margin: 2em 0 0.8em !important;
     font-family: inherit !important;
     font-style: normal !important;
   }
-  .art-body-caption-col {
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-  }
-  .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
-  .art-body-caption-inner {
-    max-width: clamp(9rem, 10vw, 14rem);
-    text-align: right;
-    margin-right: -60px;
+  .art-body-right > h3:first-child { margin-top: 0 !important; }
+
+  /* Image caption — floated into right margin, sticky */
+  .art-body-caption-wrap {
+    float: right;
+    width: clamp(120px, 10vw, 180px);
+    margin-right: calc(-1 * clamp(120px, 10vw, 180px) - 48px);
+    margin-top: 0;
+    text-align: left;
+    position: sticky;
+    top: 80px;
   }
   .art-body-caption {
-    font-size: 0.78em;
-    font-weight: 400;
-    color: rgba(27,27,28,0.35);
-    line-height: 1.3;
-    letter-spacing: -0.02em;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #1a1a1a;
+    line-height: 1.4;
     margin: 0;
   }
-  .art-body-img-col { min-width: 0; }
-  .art-body-rule {
-    border: none;
-    border-top: 0.5px solid #e8e3db;
-    width: calc(100vw - 40px);
-    margin-left: calc(50% - 50vw + 20px);
-    margin-bottom: 30px;
+
+  /* Product margin annotation cards */
+  /* Product margin annotation cards (timeline-style) */
+  .art-product-anchor { display: block; position: relative; height: 0; overflow: visible; }
+  .art-product-card {
+    position: absolute;
+    right: calc(-1 * clamp(120px, 10vw, 180px) - 55px);
+    top: 0;
+    width: clamp(120px, 10vw, 180px);
+    text-decoration: none;
+    color: inherit;
+    display: block;
   }
+  .Rte .art-product-card__img,
+  .art-product-card__img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+    margin: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+  }
+  .art-product-card__caption,
+  .art-product-card__sub {
+    display: block;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .art-product-card__caption {
+    margin-top: 12px !important;
+    margin-bottom: 6px !important;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+  .art-product-card__sub {
+    font-size: 11px;
+    font-weight: 400;
+    color: rgba(0,0,0,0.38);
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+  }
+  @media screen and (max-width: 768px) {
+    .art-product-anchor { display: none; }
+  }
+
+  /* ── Card block embed ── */
+  .art-card-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    column-gap: 1px;
+    background: #e5e0da;
+    margin: 0 0 1em;
+    width: 100%;
+    border: 1px solid #e5e0da;
+  }
+  .art-card-block__card {
+    background: #fff;
+    padding: 40px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-card-block__card.art-cb--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .art-card-block__card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.07);
+    z-index: 1;
+    position: relative;
+  }
+  .art-card-block__title {
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #0f0f0f;
+    font-weight: 500;
+    margin: 0 0 14px !important;
+    line-height: 1.4;
+  }
+  .art-card-block__body {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: #6b6259;
+    margin: 0 !important;
+  }
+  @media screen and (max-width: 767px) {
+    .art-card-block {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      row-gap: 1px;
+      margin-bottom: 1em;
+    }
+    .art-card-block__card { padding: 36px 24px; }
+  }
+
+  /* ── Product block embed ── */
+  .art-product-block {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    column-gap: 1px;
+    background: #e5e0da;
+    margin: 2em 0;
+    width: 100%;
+    border: 1px solid #e5e0da;
+  }
+  .art-product-block__card {
+    background: #fff;
+    padding: 40px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-product-block__card.art-pb--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .art-product-block__title {
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #0f0f0f;
+    line-height: 1.4;
+    margin: 0 0 24px !important;
+  }
+  .art-product-block__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .art-product-block__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .art-product-block__label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(0,0,0,0.38);
+    display: block;
+  }
+  .art-product-block__value {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #1a1a1a;
+    display: block;
+  }
+  .art-product-block__footer {
+    border-top: 0.5px solid #e5e0da;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .art-product-block__footer .art-product-block__value {
+    font-style: italic;
+    color: #6b6259;
+    line-height: 1.6;
+  }
+  /* Tab bar — hidden on desktop, shown on mobile */
+  .art-pb-tabs {
+    display: none;
+  }
+  .art-pb-tabs__btn {
+    background: transparent;
+    border: 1px solid #d4cec8;
+    padding: 10px 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6b6259;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .art-pb-tabs__btn--active {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+
+  @media screen and (max-width: 767px) {
+    .art-product-block {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      row-gap: 0;
+    }
+    .art-pb-tabs {
+      display: flex;
+      margin-bottom: 0;
+    }
+    .art-pb-tabs__btn {
+      flex: 1;
+    }
+    .art-product-block__card {
+      padding: 24px 20px;
+    }
+    .art-product-block__card[data-pb-card] {
+      display: none;
+    }
+    .art-product-block__card.art-pb-card--active {
+      display: block;
+    }
+  }
+
+  /* ── Hotspot image embed ── */
+  .art-hotspot {
+    margin: 2em 0;
+    width: 100%;
+    overflow: hidden;
+  }
+  .art-hotspot__img-wrap {
+    position: relative;
+    display: block;
+    line-height: 0;
+    transform: scale(1.12);
+    transform-origin: center center;
+    will-change: transform;
+  }
+  .art-hotspot__img {
+    width: 100%;
+    display: block;
+  }
+  .art-hotspot__dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid rgba(255,255,255,0.9);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    cursor: pointer;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s ease;
+    padding: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .art-hotspot__dot:hover { transform: translate(-50%, -50%) scale(1.3); }
+  .art-hotspot__pulse {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.7);
+    animation: art-hs-pulse 2s cubic-bezier(0.4,0,0.2,1) infinite;
+    pointer-events: none;
+  }
+  @keyframes art-hs-pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  .art-hotspot__tooltip {
+    position: absolute;
+    z-index: 3;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    padding: 10px 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -100%) translateY(-14px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .art-hotspot__tooltip--visible {
+    opacity: 1;
+    transform: translate(-50%, -100%) translateY(-18px);
+  }
+  .art-hotspot__tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #fff;
+  }
+  /* Tooltip below dot (when near top) */
+  .art-hotspot__tooltip--below {
+    transform: translate(-50%, 0%) translateY(14px);
+  }
+  .art-hotspot__tooltip--below.art-hotspot__tooltip--visible {
+    transform: translate(-50%, 0%) translateY(18px);
+  }
+  .art-hotspot__tooltip--below::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: #fff;
+  }
+  /* Dot entrance animation */
+  .art-hotspot__dot {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  .art-hotspot__dot.art-hs--in {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    transition: opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-hotspot__dot.art-hs--in:hover {
+    transform: translate(-50%, -50%) scale(1.3);
+  }
+  @media screen and (max-width: 768px) {
+    .art-hotspot__dot { width: 18px; height: 18px; }
+    .art-hotspot__tooltip { font-size: 10px; padding: 8px 12px; }
+  }
+
+  /* ── Stat counter embed ── */
+  .art-stats {
+    display: flex;
+    justify-content: space-between;
+    margin: 3em 0;
+    width: 100%;
+    padding: 40px 0;
+    border-top: 0.5px solid #e5e0da;
+    border-bottom: 0.5px solid #e5e0da;
+  }
+  .art-stats__item {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .art-stats__number {
+    font-size: clamp(32px, 3vw, 42px);
+    font-weight: 500;
+    color: #0f0f0f;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .art-stats__label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(0,0,0,0.38);
+    line-height: 1.3;
+  }
+  @media screen and (max-width: 768px) {
+    .art-stats { padding: 30px 0; gap: 8px; }
+    .art-stats__number { font-size: 24px; }
+    .art-stats__label { font-size: 10px; letter-spacing: 0.1em; }
+  }
+
+  /* Dual image block */
+  .art-dual-image {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 2em 0;
+  }
+  .art-dual-image__item {
+    display: flex;
+    flex-direction: column;
+  }
+  .art-dual-image__wrap {
+    overflow: hidden;
+    border-radius: 0;
+  }
+  .art-dual-image__wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 3 / 4;
+  }
+  .art-dual-image__caption {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(27, 27, 28, 0.45);
+    margin-top: 8px;
+    line-height: 1.3;
+  }
+  @media screen and (max-width: 768px) {
+    .art-dual-image {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .art-dual-image__caption {
+      font-size: 10px;
+      margin-top: 6px;
+    }
+  }
+
+  /* FAQ accordion */
+  .art-faq {
+    margin: 2.5em 0;
+    border: 1px solid #e8e3de;
+  }
+  .art-faq__item {
+    border-bottom: 1px solid #e8e3de;
+  }
+  .art-faq__item:last-child {
+    border-bottom: none;
+  }
+  .art-faq__question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #1b1b1c;
+    line-height: 1.4;
+    font-family: inherit;
+  }
+  .art-faq__question:hover {
+    color: #947b69;
+  }
+  .art-faq__icon {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: rgba(0,0,0,0.3);
+  }
+  .art-faq__vline {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-origin: center;
+  }
+  .art-faq__item--open .art-faq__vline {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  .art-faq__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
+    padding: 0;
+  }
+  .art-faq__item--open .art-faq__answer {
+    padding: 12px 20px 28px;
+  }
+  .art-faq__answer p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(27, 27, 28, 0.65);
+    margin: 0;
+    padding-right: 28px;
+  }
+  @media screen and (max-width: 768px) {
+    .art-faq__question {
+      font-size: 13px;
+      padding: 14px 16px;
+    }
+    .art-faq__answer p {
+      font-size: 13px;
+      padding-right: 12px;
+    }
+  }
+
+  /* Login gate */
+  .art-gate {
+    position: relative;
+    margin: 2em 0;
+  }
+  .art-gate__content {
+    transition: filter 0.3s ease;
+  }
+  .art-gate--locked .art-gate__content {
+    max-height: 320px;
+    overflow: hidden;
+    filter: blur(5px);
+    user-select: none;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+  }
+  .art-gate__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .art-gate__box {
+    background: #fff;
+    border: 1px solid #e0d9d2;
+    padding: 32px 36px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+  }
+  .art-gate__eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #947b69;
+    margin: 0 0 10px !important;
+  }
+  .art-gate__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1b1b1c;
+    margin: 0 0 8px !important;
+  }
+  .art-gate__body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6b6157;
+    margin: 0 0 24px !important;
+  }
+  .art-gate__btn {
+    display: block;
+    background: #1b1b1c;
+    color: #fff !important;
+    padding: 13px 24px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none !important;
+    letter-spacing: 0.04em;
+    margin: 0 0 12px;
+    transition: background 0.2s ease;
+  }
+  .art-gate__btn:hover {
+    background: #947b69;
+  }
+  .art-gate__link {
+    font-size: 12px;
+    color: #947b69 !important;
+    text-decoration: underline !important;
+  }
+  @media screen and (max-width: 600px) {
+    .art-gate__box { padding: 24px 20px; }
+    .art-gate__title { font-size: 17px; }
+  }
+
+  /* Steps block */
+  .art-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 2em 0 0.5em;
+  }
+  .art-step {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #e8e3de;
+    background: #fff;
+  }
+  .art-step__num {
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #b8aea8;
+    border-right: 1px solid #e8e3de;
+    flex-shrink: 0;
+  }
+  .art-step__content {
+    padding: 14px 18px;
+    flex: 1;
+  }
+  .art-step__title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #1b1b1c;
+    margin: 0 0 4px !important;
+  }
+  .art-step__body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(27, 27, 28, 0.65);
+    margin: 0 !important;
+  }
+  .art-step__body a { color: #947b69; text-decoration: underline; }
+  .art-step--accent {
+    border-color: #e8c97a;
+    border-left: 3px solid #c9961a;
+    background: #fdf9ee;
+  }
+  .art-step--accent .art-step__num {
+    color: #c9961a;
+    border-right-color: #e8c97a;
+  }
+  .art-step__num--icon {
+    font-size: 0;
+  }
+  @media screen and (max-width: 768px) {
+    .art-step__num { width: 40px; }
+    .art-step__content { padding: 12px 14px; }
+  }
+
+  /* Info box (At a Glance) */
+  .art-info-box {
+    margin: 0 0 1em;
+    border: 1px solid #e8e3de;
+    border-left: 3px solid #947b69;
+    border-radius: 0;
+    background: #faf7f4;
+    padding: 24px 28px;
+  }
+  .art-info-box__label {
+    font-size: 9px !important;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #947b69;
+    margin: 0 0 16px !important;
+    padding: 0 !important;
+  }
+  .art-info-box__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .art-info-box__row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .art-info-box__row--full {
+    grid-template-columns: 1fr;
+  }
+  .art-info-box__key {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1b1b1c;
+    margin: 0;
+  }
+  .art-info-box__val {
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(27, 27, 28, 0.75);
+    margin: 0;
+  }
+  @media screen and (max-width: 768px) {
+    .art-info-box { padding: 20px; }
+    .art-info-box__row { grid-template-columns: 1fr; gap: 2px; }
+    .art-info-box__key { font-size: 10px; }
+    .art-info-box__val { font-size: 13px; }
+  }
+
+  /* Warning callout */
+  .art-callout {
+    margin: 2.5em 0;
+    border: 1px solid #e8c97a;
+    border-left: 3px solid #c9961a;
+    border-radius: 0;
+    background: #fdf9ee;
+    padding: 20px 24px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .art-callout__icon {
+    flex-shrink: 0;
+    color: #c9961a;
+    margin-top: 2px;
+  }
+  .art-callout__body {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(27, 27, 28, 0.8);
+  }
+  .art-callout__body strong { color: #1b1b1c; }
+  @media screen and (max-width: 768px) {
+    .art-callout { padding: 16px 18px; gap: 12px; }
+    .art-callout__body { font-size: 14px; }
+  }
+
+  /* Large word */
+  .art-large-word {
+    margin: 1.8em 0;
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: #e0d9d2;
+    text-align: center;
+    user-select: none;
+  }
+
+  /* Store cards */
+  .art-store-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 2em 0 0.5em;
+  }
+  .art-store-card {
+    background: #fff;
+    border: 1px solid #e8e3de;
+    border-radius: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .art-store-card__header {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid #e8e3de;
+  }
+  .art-store-card__badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    margin-bottom: 8px;
+    background: #f2ede8;
+    color: #6b5c52;
+    border: 0.5px solid #d4c9bf;
+  }
+  .art-store-card__badge--featured {
+    background: #947b69;
+    color: #fff;
+    border-color: #947b69;
+  }
+  .art-store-card__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1b1b1c;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+  .art-store-card__body {
+    padding: 14px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .art-store-card__meta {
+    font-size: 11px;
+    color: #7a7069;
+    line-height: 1.7;
+    margin: 0 0 10px;
+  }
+  .art-store-card__meta span { display: block; }
+  .art-store-card__desc {
+    font-size: 13px;
+    color: #1b1b1c;
+    line-height: 1.65;
+    margin: 0;
+    flex: 1;
+  }
+  .art-store-card__divider {
+    height: 1px;
+    background: #e8e3de;
+    margin: 12px 0;
+  }
+  .art-store-card__best-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9a8f86;
+    margin: 0 0 3px;
+  }
+  .art-store-card__best-val {
+    font-size: 12px;
+    color: #1b1b1c;
+    margin: 0;
+    line-height: 1.4;
+  }
+  .art-store-tip {
+    font-size: 12px;
+    color: #9a8f86;
+    margin: 6px 0 2em !important;
+    padding: 0 2px;
+  }
+  @media screen and (max-width: 900px) {
+    .art-store-grid { grid-template-columns: 1fr; gap: 8px; }
+  }
+
+  /* Image column */
+  .art-body-img-col { min-width: 0; }
+  .art-body-img-col .Article__ParallaxWrap { margin-top: 0; }
+
+
+  /* Pull quotes / large text within body column */
+  .art-body-right .epq,
+  .Article__Body > .epq {
+    max-width: 100%;
+  }
+
   /* Fade-in */
   .art-fade-in {
     opacity: 0;
@@ -412,19 +1906,145 @@
     opacity: 1;
     transform: translateY(0);
   }
-  /* Mobile */
+
+  /* Mid-range screens — shrink margin annotations */
+  @media screen and (max-width: 1200px) and (min-width: 769px) {
+    .Article__Body { max-width: 600px; }
+    .art-body-left {
+      width: 140px;
+      margin-left: calc(-140px - 32px);
+    }
+    .art-body-caption-wrap {
+      width: 120px;
+      margin-right: calc(-120px - 32px);
+    }
+  }
+
+  /* Mobile — stack everything */
   @media screen and (max-width: 768px) {
     .Article__Wrapper { padding-left: 20px; padding-right: 20px; }
+    .Article__Body { max-width: none; }
     .art-body-section-text,
-    .art-body-section-img { grid-template-columns: 1fr; gap: 16px; margin-bottom: 36px; }
-    .art-body-img-col { margin-right: 0; }
-    .art-body-right { padding-right: 0; }
-    .art-body-caption-col { justify-content: flex-start; }
-    .art-body-caption-inner { text-align: left; max-width: none; }
-    .art-body-left { position: static; }
-    .art-body-caption-col { justify-content: flex-start; }
-    .art-body-caption-inner { text-align: left; max-width: none; }
-    .art-body-rule { width: calc(100vw - 40px); margin-left: calc(50% - 50vw + 20px); margin-bottom: 36px; }
+    .art-body-section-img { margin-bottom: 30px; }
+    .art-body-section-text:has(.art-body-right > .art-card-block:only-child),
+    .art-body-section-text:has(.art-body-right > .art-info-box:only-child),
+    .art-body-section-text:has(.art-body-right > .art-callout:only-child),
+    .art-body-section-text:has(.art-body-right > .art-stats:only-child) { margin-bottom: 20px; }
+    .art-card-block + * { margin-top: 5px !important; }
+    .art-body-left {
+      float: none;
+      width: auto;
+      margin-left: 0;
+      position: static;
+      text-align: left;
+      margin-bottom: 28px;
+      padding: 0 0 20px;
+      border-top: 0.5px solid rgba(0,0,0,0.12);
+      border-bottom: 0.5px solid rgba(0,0,0,0.12);
+      padding-top: 20px;
+      margin-top: 10px;
+    }
+    .art-body-section-h { font-size: 17px !important; font-weight: 600 !important; color: #0a0a0a !important; }
+    .art-body-left--empty { display: none; }
+
+    /* Progress bar thicker on mobile */
+    .Article__ProgressBar { height: 3px; }
+
+    /* Pull quotes — full-width tinted band on mobile */
+    .epq {
+      background: #f5f1ed;
+      margin-left: -20px;
+      margin-right: -20px;
+      padding: 32px 20px 32px !important;
+    }
+    .epq + * { margin-top: 50px !important; }
+
+    /* Image captions as overlay on mobile */
+    .art-body-img-col {
+      position: relative;
+      order: 1;
+    }
+    .art-body-caption-wrap {
+      position: absolute !important;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin-top: 0 !important;
+      padding: 24px 16px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 100%);
+      order: 1;
+      z-index: 2;
+    }
+    .art-body-caption {
+      color: rgba(255,255,255,0.85) !important;
+    }
+
+    /* Back to top button — sits above Tidio widget */
+    .art-back-top {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #1c1c1c;
+      color: #fff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .art-back-top--visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    /* Mobile share section */
+    .Article__Footer { padding: 36px 20px; }
+    .Article__ShareRow {
+      flex-wrap: wrap;
+      gap: 10px;
+      row-gap: 25px;
+    }
+    .Article__ShareSection .ShareButtons__Item {
+      height: 48px !important;
+      min-height: 48px;
+      flex: 1;
+    }
+    .Article__ShareRow .Article__CopyLinkBtn {
+      height: 48px !important;
+      min-height: 48px;
+      padding: 0 24px;
+      width: 100%;
+      margin-top: 8px !important;
+    }
+    .art-body-section-img {
+      display: flex;
+      flex-direction: column;
+    }
+    .art-body-caption-wrap {
+      float: none;
+      width: auto;
+      margin-right: 0;
+      text-align: left;
+      margin-bottom: 0;
+      margin-top: 8px;
+      order: 2;
+      position: static;
+    }
+    .art-body-caption { color: rgba(0,0,0,0.38); }
+    .art-body-img-col { order: 1; }
+    .art-body-right h3 { margin-top: 2em !important; margin-bottom: 1em !important; }
+    .epq__text { font-size: 24px !important; }
+    .art-card-block__card { padding: 24px 20px; }
   }
 
   /* ---- New badge ---- */
@@ -438,17 +2058,26 @@
 
   /* ---- Share This Story section ---- */
   .Article__Footer {
-    margin-top: 48px;
-    padding-top: 24px;
-    border-top: 1px solid #e5e0da;
+    max-width: none;
+    margin-top: 0;
+    padding: 48px 20px;
+    border-top: none;
+    background: #f5f1ed;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
   }
   .Article__ShareSection {
     flex: 1;
     width: 100%;
-    max-width: 1250px;
+    max-width: 1075px;
     min-width: 0;
     margin-left: auto;
     margin-right: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    box-sizing: border-box;
   }
   .Article__ShareHeader {
     display: flex !important;
@@ -505,34 +2134,24 @@
   .Article__CopyLinkBtn:hover,
   .Article__CopyLinkBtn--copied { background: #1c1c1c; color: #fff; }
 
-  /* ---- Pull quote / blockquote ---- */
+  /* ---- Blockquote ---- */
   .Article__Body blockquote {
     margin: 56px auto;
-    max-width: 680px;
+    max-width: none;
     padding: 0;
     text-align: left;
   }
-  .Article__Body blockquote::before {
-    content: '\201C';
-    display: block;
-    font-size: clamp(100px, 14vw, 160px);
-    line-height: 0.5;
-    margin-bottom: 1rem;
-    color: #947b69;
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-style: italic;
-    font-weight: 300;
-    opacity: 0.22;
-  }
+  .Article__Body blockquote::before { display: none; }
   .Article__Body blockquote,
   .Article__Body blockquote p {
-    font-size: clamp(1.4rem, 3vw, 2.4rem);
-    font-style: italic;
-    line-height: 1.3;
-    color: #12100e;
-    letter-spacing: -0.01em;
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 300;
+    font-family: inherit;
+    font-size: clamp(18px, 1.8vw, 26px);
+    font-weight: 500;
+    font-style: normal;
+    line-height: 1.4;
+    color: #0f0f0f;
+    letter-spacing: 0.02em;
+    text-transform: none;
   }
 
   /* ---- Parallax image wrapper ---- */
@@ -540,8 +2159,8 @@
     overflow: hidden;
     display: block;
     line-height: 0;
-    margin-top: 2.4em;
-    margin-bottom: 2.4em;
+    margin-top: 0;
+    margin-bottom: 0;
   }
   .Article__ParallaxWrap img {
     width: 100%;
@@ -552,7 +2171,8 @@
     transform-origin: center center;
   }
   @media screen and (max-width: 640px) {
-    .Article__ParallaxWrap img { min-height: 72vw; object-fit: cover; }
+    .Article__ParallaxWrap { overflow: hidden; display: flex; }
+    .Article__ParallaxWrap img { transform: none !important; will-change: auto; }
   }
 
   /* ── Editorial header — full-width two-column ── */
@@ -560,14 +2180,17 @@
     width: 100vw;
     margin-left: calc(50% - 50vw);
     padding: calc(3.5rem + 50px) 0 0;
-    border-bottom: 0.5px solid rgba(25,13,4,0.08);
+    border-bottom: none;
   }
   .art-editorial-header__grid {
     display: grid;
     grid-template-columns: 2.3fr 3fr;
     gap: 2rem;
     align-items: start;
-    padding: 0 20px calc(2.5rem + 40px);
+    max-width: 80vw;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px 2rem;
   }
   .art-editorial-header__left {
     display: flex;
@@ -596,7 +2219,7 @@
   }
   .art-headline {
     font-family: inherit;
-    font-size: clamp(2.8rem, 3.8vw, 7.5rem);
+    font-size: 3.2rem;
     font-weight: 500;
     font-style: normal;
     line-height: 1.08;
@@ -607,7 +2230,7 @@
     padding: 0;
     align-self: start;
   }
-  .art-editorial-header__right { align-self: start; padding-top: 0; }
+  .art-editorial-header__right { align-self: start; padding-top: 0; text-align: right; }
   @media screen and (max-width: 767px) {
     .art-editorial-header {
       padding-top: 35px;
@@ -616,9 +2239,11 @@
       grid-template-columns: 1fr;
       gap: 25px;
       padding: 0 5vw 35px;
+      max-width: 100vw;
     }
     .art-editorial-header__left { flex-direction: row; flex-wrap: wrap; gap: 0.4rem 1.2rem; padding-left: 0; }
-    .art-editorial-header__right { padding-top: 20px; }
+    .art-editorial-header__right { padding-top: 20px; text-align: left; }
+    .art-headline { font-size: 2.5rem; }
   }
 
   /* ── Parallax hero — clean image, no overlay ── */
@@ -626,9 +2251,10 @@
     position: relative;
     width: calc(100vw - 40px);
     margin-left: calc(50% - 50vw + 20px);
-    height: clamp(460px, 45vw, 85vh);
+    height: clamp(400px, 36vw, 65vh);
     overflow: hidden;
     background: #12100e;
+    margin-top: 24px;
     margin-bottom: 1.2rem;
   }
   .par-img-wrap {
@@ -643,7 +2269,9 @@
     display: block;
   }
   @media screen and (max-width: 640px) {
-    .par-hero { height: 35vh; min-height: 220px; margin-top: 25px; margin-bottom: 1.5rem; }
+    .par-hero { height: 25vh; min-height: 230px; margin-top: 10px; margin-bottom: 1.5rem; }
+    .par-img-wrap { inset: -20px; }
+    .par-img-wrap img { object-position: center center; }
     .par-fg { padding: 0 24px 40px; }
     .par-title { font-size: clamp(1.6rem, 6vw, 2.4rem); padding-right: 3.5rem; line-height: 1.22; }
     .par-sub { padding-right: 3.5rem; }
@@ -651,226 +2279,146 @@
     .ppv1-breadcrumb { display: none; }
   }
 
-  /* ── Embed: Parallax Dual Image ── */
-  .epd { margin: 0; width: 100%; }
-  .epd__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    gap: 10px;
-  }
-  .epd__slot--b { margin-top: 0; }
-  .epd__wrap {
-    overflow: hidden;
-    line-height: 0;
-    aspect-ratio: 3 / 4;
-  }
-  .epd__wrap img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: cover;
-    transform: scale(1.1);
-    will-change: transform;
-  }
-  @media screen and (max-width: 640px) {
-    .epd__grid { grid-template-columns: 1fr; }
-    .epd__slot--b { display: none; }
-  }
-
-  /* ── Timeline: vertical scroll-jacking ── */
-  .tl-h-outer {
+  /* ── Horizontal timeline ── */
+  .art-tl {
     position: relative;
+    margin: 3em 0;
+    padding: 60px 0 0;
     width: 100%;
   }
-  .tl-h-sticky {
-    position: sticky;
-    top: 80px;
-    margin-top: 80px;
-    height: clamp(380px, 46vh, 520px);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .tl-h-progress {
-    height: 1.5px;
-    background: rgba(25,13,4,0.08);
-    margin-bottom: 18px;
-    border-radius: 1px;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-  .tl-h-progress-fill {
-    height: 100%;
-    background: #947b69;
-    width: 0%;
-    border-radius: 1px;
-  }
-  .tl-h-track {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-    min-height: 0;
-  }
-  .tl-h-card {
+  .art-tl__line {
     position: absolute;
-    inset: 0;
-    background: none;
-    border: 0.5px solid rgba(0,0,0,0.08);
-    padding: 26px 30px 22px;
-    box-sizing: border-box;
+    top: 60px;
+    left: 0;
+    right: 0;
+    height: 0.5px;
+    background: #e5e0da;
+  }
+  .art-tl__line-fill {
+    height: 100%;
+    width: 0%;
+    background: #1a1a1a;
+    transition: width 2s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-tl__entries {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+  .art-tl__entry {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    transform: translateY(100%);
-    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 0 8px;
   }
-  .tl-h-card--active { transform: translateY(0); }
-  .tl-h-card--prev   { transform: translateY(-100%); }
-  .tl-h-date {
-    font-size: clamp(28px, 2.6vw, 42px);
-    font-style: italic;
+  .art-tl__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    margin-top: -4px;
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 0.4s cubic-bezier(0.16,1,0.3,1), transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .art-tl__dot.art-tl--in {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .art-tl__year {
+    font-size: clamp(22px, 2vw, 32px);
     font-weight: 500;
-    color: #1a1a1a;
-    line-height: 1.1;
-    margin: 0 0 6px;
-    font-family: inherit;
-    padding: 0;
-    display: inline-block;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: default;
+    color: #0f0f0f;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    font-variant-numeric: tabular-nums;
   }
-  .tl-h-date:hover { transform: scale(1.06); }
-  .tl-h-rule {
-    border: none;
-    border-top: 0.5px solid rgba(0,0,0,0.1);
-    margin: 0 0 12px;
-    width: 100%;
-    flex-shrink: 0;
+  .art-tl__year.art-tl--in {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .tl-h-tag {
+  .art-tl__label {
     font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: rgba(0,0,0,0.38);
-    margin: 0 0 7px;
-    font-family: inherit;
-    font-style: normal;
-    padding: 0;
-    flex-shrink: 0;
+    line-height: 1.3;
+    max-width: 140px;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
   }
-  .tl-h-head {
-    font-size: 13px;
-    font-style: normal;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.13em;
-    line-height: 1.4;
+  .art-tl__label.art-tl--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Tooltip on hover */
+  .art-tl__tip {
+    position: absolute;
+    bottom: calc(100% + 24px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #fff;
     color: #1a1a1a;
-    margin: 0 0 10px;
-    font-family: inherit;
-    padding: 0;
-    flex-shrink: 0;
-  }
-  .tl-h-body {
-    font-size: 0.88em;
-    line-height: 1.6;
-    color: rgba(0,0,0,0.5);
-    margin: 0;
-    padding: 0;
-    font-family: inherit;
+    font-size: 13px;
     font-weight: 400;
-    font-style: normal;
-    flex: 1;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 7;
-    -webkit-box-orient: vertical;
+    line-height: 1.5;
+    padding: 14px 18px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    white-space: nowrap;
+    max-width: 260px;
+    white-space: normal;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 5;
   }
-  .tl-h-dots {
-    display: flex;
-    gap: 7px;
-    padding-top: 14px;
-    align-items: center;
-    flex-shrink: 0;
+  .art-tl__tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #fff;
   }
-  .tl-h-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(25,13,4,0.3);
-    padding: 0;
-    cursor: pointer;
-    transition: background 0.25s ease, transform 0.25s ease;
+  .art-tl__entry:hover .art-tl__tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
-  .tl-h-dot--active {
-    background: #2a2a2a;
-    transform: scale(1.5);
-  }
-  @media screen and (max-width: 767px) {
-    .tl-h-outer { height: auto !important; }
-    .tl-h-sticky {
-      position: relative !important;
-      top: 0 !important;
-      height: auto !important;
-      overflow: visible;
-    }
-    .tl-h-track {
-      overflow-x: visible !important;
-      overflow-y: auto !important;
-      scroll-snap-type: y mandatory;
-      -webkit-overflow-scrolling: touch;
-    }
-    .tl-h-card {
-      position: relative !important;
-      inset: auto !important;
-      transform: none !important;
-      transition: none !important;
-      height: auto !important;
-      min-height: 260px;
-      display: none;
-    }
-    .tl-h-card--active {
-      display: flex !important;
-    }
+  @media screen and (max-width: 768px) {
+    .art-tl { padding: 50px 0 0; }
+    .art-tl__line { top: 50px; }
+    .art-tl__year { font-size: 18px; }
+    .art-tl__label { font-size: 9px; letter-spacing: 0.1em; max-width: 80px; }
+    .art-tl__dot { width: 6px; height: 6px; margin-top: -3px; margin-bottom: 12px; }
+    .art-tl__entry { padding: 0 4px; }
+    .art-tl__tip { display: none; }
   }
 
-  /* ── Embed: Pull Quote ── */
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300&display=swap');
+  /* ── Embed: Pull Quote / Large Text ── */
   .epq {
     margin: 0;
-    padding: 48px 0;
-  }
-  .epq__mark {
-    font-family: inherit;
-    font-size: clamp(130px, 19vw, 200px);
-    line-height: 0.5;
-    color: #947b69;
-    font-style: normal;
-    font-weight: 300;
-    display: block;
-    margin-bottom: 0.4rem;
-    user-select: none;
-    /* scroll-in start state */
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
-  }
-  .epq__mark.epq--in {
-    opacity: 0.2;
-    transform: translateY(0);
+    padding: 16px 0 20px;
   }
   .epq__text {
     font-family: inherit;
-    font-size: clamp(24px, 3.5vw, 44px);
-    font-weight: 300;
-    font-style: italic;
-    line-height: 1.3;
-    color: #12100e;
+    font-size: clamp(18px, 1.8vw, 26px);
+    font-weight: 500;
+    font-style: normal;
+    line-height: 1.4;
+    color: #0f0f0f;
     letter-spacing: 0.02em;
+    text-transform: none;
     margin: 0;
   }
   .epq__word {
@@ -899,7 +2447,7 @@
 </style>
 
 <script>
-  /* ── Two-column article body restructure ── */
+  /* ── Centered article body restructure ── */
   (function() {
     var body = document.querySelector('.Article__Body');
     if (!body) return;
@@ -921,8 +2469,6 @@
       var t = n.tagName.toLowerCase();
       if (t === 'img') return true;
       if (t === 'figure') return true;
-      if (n.classList.contains('epd')) return true;
-      if (n.classList.contains('tl-h-outer')) return true;
       /* div/p wrapping only an img (editor sometimes does this) */
       if ((t === 'div' || t === 'p') && n.children.length === 1 && n.querySelector('img') &&
           !n.classList.contains('epq') &&
@@ -943,11 +2489,7 @@
           cur = { type: 'text', heading: n, right: [] };
           return;
         }
-        if (tag === 'hr') {
-          flush();
-          sections.push({ type: 'rule' });
-          return;
-        }
+        if (tag === 'hr') { return; /* skip dividers */ }
         if (isImgNode(n)) {
           flush();
           var img = n.tagName.toLowerCase() === 'img' ? n : n.querySelector('img');
@@ -965,58 +2507,32 @@
     if (!sections.length) return;
 
     var frag = document.createDocumentFragment();
-
     sections.forEach(function(sec, i) {
-      if (sec.type === 'rule') {
-        var hr = document.createElement('hr');
-        hr.className = 'art-body-rule';
-        frag.appendChild(hr);
-        return;
-      }
-      if (sec.type === 'embed') {
-        if (frag.childNodes.length > 0) {
-          var embedRule = document.createElement('hr');
-          embedRule.className = 'art-body-rule';
-          frag.appendChild(embedRule);
-        }
-        frag.appendChild(sec.el);
-        if (true) {
-          var embedRuleAfter = document.createElement('hr');
-          embedRuleAfter.className = 'art-body-rule';
-          frag.appendChild(embedRuleAfter);
-        }
-        return;
-      }
       if (sec.type === 'img') {
         var row = document.createElement('div');
         row.className = 'art-body-section-img art-fade-in';
-        var capCol = document.createElement('div');
-        capCol.className = 'art-body-caption-col';
         if (sec.alt) {
-          var inner = document.createElement('div');
-          inner.className = 'art-body-caption-inner';
+          var capWrap = document.createElement('div');
+          capWrap.className = 'art-body-caption-wrap';
           var cp = document.createElement('p');
           cp.className = 'art-body-caption';
           cp.textContent = sec.alt;
-          inner.appendChild(cp);
-          capCol.appendChild(inner);
+          capWrap.appendChild(cp);
+          row.appendChild(capWrap);
         }
         var imgCol = document.createElement('div');
         imgCol.className = 'art-body-img-col';
         imgCol.appendChild(sec.el);
-        row.appendChild(capCol);
+        /* On mobile, put caption inside imgCol so overlay positioning works */
+        if (capWrap && window.innerWidth <= 768) {
+          imgCol.appendChild(capWrap);
+        }
         row.appendChild(imgCol);
         frag.appendChild(row);
         return;
       }
       if (sec.type === 'text') {
         if (!sec.heading && !sec.right.length) return;
-        /* Auto divider before each new H2 section (except the first) */
-        if (sec.heading && frag.childNodes.length > 0) {
-          var autoRule = document.createElement('hr');
-          autoRule.className = 'art-body-rule';
-          frag.appendChild(autoRule);
-        }
         var row = document.createElement('div');
         row.className = 'art-body-section-text art-fade-in';
         var left = document.createElement('div');
@@ -1024,6 +2540,8 @@
         if (sec.heading) {
           sec.heading.className = 'art-body-section-h';
           left.appendChild(sec.heading);
+        } else {
+          left.classList.add('art-body-left--empty');
         }
         var right = document.createElement('div');
         right.className = 'art-body-right';
@@ -1047,56 +2565,376 @@
       el.style.transitionDelay = (i * 0.05) + 's';
       io.observe(el);
     });
+
+    /* ---- Product margin annotations ---- */
+    document.querySelectorAll('.art-product-anchor').forEach(function(anchor) {
+      var img = anchor.getAttribute('data-p-img');
+      var caption = anchor.getAttribute('data-p-caption');
+      var sub = anchor.getAttribute('data-p-sub');
+      if (!img && !caption) return;
+      var card = document.createElement('div');
+      card.className = 'art-product-card';
+      var html = '';
+      if (img) html += '<img class="art-product-card__img" src="' + img + '" alt="' + (caption || '').replace(/"/g, '&quot;') + '" loading="lazy">';
+      if (caption) html += '<span class="art-product-card__caption">' + caption + '</span>';
+      if (sub) html += '<span class="art-product-card__sub">' + sub + '</span>';
+      card.innerHTML = html;
+      anchor.appendChild(card);
+    });
+
+    /* ---- Card block scroll-in ---- */
+    var cbCards = document.querySelectorAll('.art-card-block__card');
+    if (cbCards.length) {
+      var cbIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('art-cb--in'); cbIo.unobserve(e.target); }
+        });
+      }, { threshold: 0.2 });
+      cbCards.forEach(function(card, i) {
+        card.style.transitionDelay = (0.1 * i) + 's';
+        cbIo.observe(card);
+      });
+    }
+
+    /* ---- Product block scroll-in ---- */
+    var pbCards = document.querySelectorAll('.art-product-block__card');
+    if (pbCards.length) {
+      var pbIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.classList.add('art-pb--in'); pbIo.unobserve(e.target); }
+        });
+      }, { threshold: 0.2 });
+      pbCards.forEach(function(card, i) {
+        card.style.transitionDelay = (0.1 * i) + 's';
+        pbIo.observe(card);
+      });
+    }
+
+    /* ---- Product block tab switcher (mobile) ---- */
+    document.querySelectorAll('.art-pb-tabs').forEach(function(tabBar) {
+      var block = tabBar.closest('.art-product-block');
+      if (!block) return;
+      var cards = block.querySelectorAll('.art-product-block__card[data-pb-card]');
+      var btns = tabBar.querySelectorAll('.art-pb-tabs__btn');
+      /* Activate first card on load */
+      if (cards.length) cards[0].classList.add('art-pb-card--active', 'art-pb--in');
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var idx = btn.getAttribute('data-pb-tab');
+          btns.forEach(function(b) { b.classList.remove('art-pb-tabs__btn--active'); });
+          btn.classList.add('art-pb-tabs__btn--active');
+          trackEvent('product_block_tab', {
+            article_title: document.title,
+            tab_label: btn.textContent.trim(),
+            tab_index: idx
+          });
+          cards.forEach(function(c) { c.classList.remove('art-pb-card--active'); });
+          var target = block.querySelector('.art-product-block__card[data-pb-card="' + idx + '"]');
+          if (target) { target.classList.add('art-pb-card--active', 'art-pb--in'); }
+        });
+      });
+    });
+
+    /* ---- Hotspot image ---- */
+    document.querySelectorAll('.art-hotspot').forEach(function(hotspot) {
+      var wrap = hotspot.querySelector('.art-hotspot__img-wrap');
+      if (!wrap) return;
+      var dots = wrap.querySelectorAll('.art-hotspot__dot');
+      var isMobile = !window.matchMedia('(hover: hover)').matches;
+      var activeTooltip = null;
+
+      function showTooltip(dot) {
+        hideTooltip();
+        var label = dot.getAttribute('data-hs-label');
+        if (!label) return;
+        trackEvent('hotspot_interact', { article_title: document.title, hotspot_label: label });
+        var tip = document.createElement('div');
+        tip.className = 'art-hotspot__tooltip';
+        tip.textContent = label;
+        tip.style.left = dot.style.left;
+        tip.style.top = dot.style.top;
+        /* Position below if dot is near top */
+        var yPct = parseFloat(dot.style.top);
+        if (yPct < 25) tip.classList.add('art-hotspot__tooltip--below');
+        wrap.appendChild(tip);
+        activeTooltip = tip;
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            tip.classList.add('art-hotspot__tooltip--visible');
+          });
+        });
+      }
+
+      function hideTooltip() {
+        if (activeTooltip) { activeTooltip.remove(); activeTooltip = null; }
+      }
+
+      dots.forEach(function(dot) {
+        if (isMobile) {
+          dot.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (activeTooltip && activeTooltip._dot === dot) { hideTooltip(); return; }
+            showTooltip(dot);
+            if (activeTooltip) activeTooltip._dot = dot;
+          });
+        } else {
+          dot.addEventListener('mouseenter', function() { showTooltip(dot); });
+          dot.addEventListener('mouseleave', function() { hideTooltip(); });
+        }
+      });
+
+      if (isMobile) {
+        document.addEventListener('click', function() { hideTooltip(); });
+      }
+
+      /* Scroll-in: staggered dot appearance */
+      var hsIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (!e.isIntersecting) return;
+          hsIo.disconnect();
+          dots.forEach(function(dot, i) {
+            setTimeout(function() { dot.classList.add('art-hs--in'); }, 300 + i * 150);
+          });
+        });
+      }, { threshold: 0.3 });
+      hsIo.observe(wrap);
+    });
+
+    /* ---- Stat counter ---- */
+    document.querySelectorAll('.art-stats').forEach(function(block) {
+      var items = block.querySelectorAll('.art-stats__number');
+      if (!items.length) return;
+      var fired = false;
+
+      function animateNumber(el, delay) {
+        var raw = el.getAttribute('data-stat-target');
+        var match = raw.match(/^([\d,]+)(.*)/);
+        if (!match) { el.textContent = raw; return; }
+        var target = parseInt(match[1].replace(/,/g, ''), 10);
+        var suffix = match[2] || '';
+        var duration = 1800;
+
+        setTimeout(function() {
+          var start = performance.now();
+          function tick(now) {
+            var t = Math.min((now - start) / duration, 1);
+            /* ease-out cubic */
+            var ease = 1 - Math.pow(1 - t, 3);
+            var current = Math.round(target * ease);
+            el.textContent = current.toLocaleString() + suffix;
+            if (t < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        }, delay);
+      }
+
+      var stIo = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (!e.isIntersecting || fired) return;
+          fired = true;
+          stIo.disconnect();
+          items.forEach(function(el, i) {
+            animateNumber(el, i * 150);
+          });
+        });
+      }, { threshold: 0.4 });
+      stIo.observe(block);
+    });
+
+    /* ---- FAQ accordion ---- */
+    document.querySelectorAll('.art-faq__question').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.closest('.art-faq__item');
+        var answer = item.querySelector('.art-faq__answer');
+        var isOpen = item.classList.contains('art-faq__item--open');
+
+        /* Close all others in same FAQ block */
+        var faq = item.closest('.art-faq');
+        faq.querySelectorAll('.art-faq__item--open').forEach(function(openItem) {
+          if (openItem !== item) {
+            openItem.classList.remove('art-faq__item--open');
+            openItem.querySelector('.art-faq__question').setAttribute('aria-expanded', 'false');
+            openItem.querySelector('.art-faq__answer').style.maxHeight = '0';
+          }
+        });
+
+        if (isOpen) {
+          item.classList.remove('art-faq__item--open');
+          btn.setAttribute('aria-expanded', 'false');
+          answer.style.maxHeight = '0';
+        } else {
+          item.classList.add('art-faq__item--open');
+          btn.setAttribute('aria-expanded', 'true');
+          answer.style.maxHeight = '2000px';
+        }
+      });
+    });
+
+    /* ---- Horizontal timeline animation ---- */
+    document.querySelectorAll('.art-tl').forEach(function(tl) {
+      var fill = tl.querySelector('.art-tl__line-fill');
+      var entries = tl.querySelectorAll('.art-tl__entry');
+      var count = entries.length;
+      if (!count) return;
+      var fired = false;
+
+      function animateYear(el, delay) {
+        var raw = el.getAttribute('data-tl-year');
+        var match = raw.match(/^(\d+)(.*)/);
+        if (!match) { el.textContent = raw; return; }
+        var target = parseInt(match[1], 10);
+        var suffix = match[2] || '';
+        var duration = 1200;
+        setTimeout(function() {
+          var start = performance.now();
+          function tick(now) {
+            var t = Math.min((now - start) / duration, 1);
+            var ease = 1 - Math.pow(1 - t, 3);
+            el.textContent = Math.round(target * ease) + suffix;
+            if (t < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        }, delay);
+      }
+
+      var tlIo = new IntersectionObserver(function(es) {
+        es.forEach(function(e) {
+          if (!e.isIntersecting || fired) return;
+          fired = true;
+          tlIo.disconnect();
+          /* 1. Draw the line */
+          if (fill) fill.style.width = '100%';
+          /* 2. Stagger dots, years, labels */
+          entries.forEach(function(entry, i) {
+            var dot = entry.querySelector('.art-tl__dot');
+            var year = entry.querySelector('.art-tl__year');
+            var label = entry.querySelector('.art-tl__label');
+            var baseDelay = 400 + i * (1600 / count);
+            if (dot) setTimeout(function() { dot.classList.add('art-tl--in'); }, baseDelay);
+            if (year) {
+              setTimeout(function() { year.classList.add('art-tl--in'); }, baseDelay + 150);
+              animateYear(year, baseDelay + 150);
+            }
+            if (label) setTimeout(function() { label.classList.add('art-tl--in'); }, baseDelay + 350);
+          });
+        });
+      }, { threshold: 0.3 });
+      tlIo.observe(tl);
+    });
   })();
 
   (function() {
 
+    /* ---- Analytics helper: fires both dataLayer (GTM) and gtag (GA4) ---- */
+    function trackEvent(eventName, params) {
+      params = params || {};
+      window.dataLayer = window.dataLayer || [];
+      var dlObj = { event: eventName };
+      for (var k in params) { if (params.hasOwnProperty(k)) dlObj[k] = params[k]; }
+      window.dataLayer.push(dlObj);
+      if (typeof gtag === 'function') {
+        gtag('event', eventName, params);
+      }
+    }
+
     /* ---- Progress bar: tracks article content, not full page ---- */
     var bar     = document.getElementById('article-progress-bar');
     var content = document.querySelector('.Article__Content');
-    if (bar) {
-      function updateBar() {
+    if (bar && content) {
+      var barPct = 0;
+      var barTarget = 0;
+      function updateBarTarget() {
         var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        var pct = 0;
-        if (content) {
-          var contentTop = content.getBoundingClientRect().top + scrollTop;
-          var scrollable = content.offsetHeight - window.innerHeight;
-          if (scrollable > 0) {
-            pct = Math.min(100, Math.max(0, (scrollTop - contentTop) / scrollable * 100));
-          } else {
-            pct = scrollTop >= contentTop ? 100 : 0;
-          }
-        } else {
-          var docH = document.documentElement.scrollHeight - window.innerHeight;
-          pct = docH > 0 ? Math.min(100, (scrollTop / docH) * 100) : 0;
+        var contentTop = content.getBoundingClientRect().top + scrollTop;
+        var contentBottom = contentTop + content.offsetHeight;
+        var scrollEnd = contentBottom - window.innerHeight;
+        if (scrollEnd > 0) {
+          barTarget = Math.min(100, Math.max(0, (scrollTop / scrollEnd) * 100));
         }
-        bar.style.width = pct + '%';
       }
-      window.addEventListener('scroll', updateBar, { passive: true });
-      updateBar();
+      function barRAF() {
+        barPct += (barTarget - barPct) * 0.12;
+        if (Math.abs(barPct - barTarget) < 0.1) barPct = barTarget;
+        bar.style.width = barPct + '%';
+        requestAnimationFrame(barRAF);
+      }
+      /* ---- Scroll depth tracking ---- */
+      var depthMilestones = { 25: false, 50: false, 75: false, 100: false };
+      var readCompleteFired = false;
+      function checkScrollDepth() {
+        var pct = Math.round(barTarget);
+        [25, 50, 75, 100].forEach(function(m) {
+          if (pct >= m && !depthMilestones[m]) {
+            depthMilestones[m] = true;
+            trackEvent('article_scroll_depth', { article_title: document.title, scroll_depth: m });
+          }
+        });
+        if (pct >= 98 && !readCompleteFired) {
+          readCompleteFired = true;
+          trackEvent('article_read_complete', { article_title: document.title });
+        }
+      }
+
+      window.addEventListener('scroll', function() { updateBarTarget(); checkScrollDepth(); }, { passive: true });
+      updateBarTarget();
+      barRAF();
     }
 
-    /* ---- Share count (localStorage per article URL) ---- */
-    var SHARE_KEY  = 'ff_shares';
-    var articleUrl = window.location.pathname;
-    function getCount() {
-      try { return (JSON.parse(localStorage.getItem(SHARE_KEY) || '{}')[articleUrl]) || 0; } catch(e) { return 0; }
-    }
-    function incrementCount() {
-      try {
-        var data = JSON.parse(localStorage.getItem(SHARE_KEY) || '{}');
-        data[articleUrl] = (data[articleUrl] || 0) + 1;
-        localStorage.setItem(SHARE_KEY, JSON.stringify(data));
-        return data[articleUrl];
-      } catch(e) { return 0; }
-    }
+    /* ---- Share count (Firebase Realtime Database) ---- */
     function updateCountEl(n) {
       var el = document.getElementById('article-share-count');
       if (el) el.textContent = n;
     }
-    updateCountEl(getCount());
     document.querySelectorAll('[data-share-btn]').forEach(function(btn) {
-      btn.addEventListener('click', function() { updateCountEl(incrementCount()); });
+      btn.addEventListener('click', function() {
+        if (window.firebaseIncrementShare) window.firebaseIncrementShare();
+        trackEvent('share_article', {
+          article_title: document.title,
+          share_method: btn.getAttribute('data-share-btn') || 'unknown',
+          share_location: 'footer'
+        });
+      });
+    });
+
+    /* ---- Focus mode toggle ---- */
+    var focusBtn = document.getElementById('art-focus-toggle');
+    var articleEl = document.querySelector('article.Article');
+    if (focusBtn && articleEl) {
+      focusBtn.addEventListener('click', function() {
+        var entering = !articleEl.classList.contains('art-focus-mode');
+        articleEl.classList.toggle('art-focus-mode');
+        focusBtn.classList.toggle('ArticleToolbar__FocusBtn--active');
+        trackEvent('toggle_focus_mode', {
+          article_title: document.title,
+          focus_state: entering ? 'on' : 'off'
+        });
+
+        /* Move H2s into/out of the right column */
+        articleEl.querySelectorAll('.art-body-section-text').forEach(function(section) {
+          var left = section.querySelector('.art-body-left');
+          var right = section.querySelector('.art-body-right');
+          if (!left || !right) return;
+          var heading = section.querySelector('.art-body-section-h');
+          if (!heading) return;
+          if (entering) {
+            right.insertBefore(heading, right.firstChild);
+          } else {
+            left.appendChild(heading);
+          }
+        });
+      });
+    }
+
+    /* ---- Toolbar share link tracking ---- */
+    document.querySelectorAll('[data-toolbar-share]').forEach(function(link) {
+      link.addEventListener('click', function() {
+        if (window.firebaseIncrementShare) window.firebaseIncrementShare();
+        trackEvent('share_article', {
+          article_title: document.title,
+          share_method: link.getAttribute('data-toolbar-share'),
+          share_location: 'toolbar'
+        });
+      });
     });
 
     /* ---- Copy link button ---- */
@@ -1108,7 +2946,8 @@
         function onCopied() {
           copyLabel.textContent = 'Copied!';
           copyBtn.classList.add('Article__CopyLinkBtn--copied');
-          updateCountEl(incrementCount());
+          if (window.firebaseIncrementShare) window.firebaseIncrementShare();
+          trackEvent('copy_article_link', { article_title: document.title });
           setTimeout(function() {
             copyLabel.textContent = 'Copy link';
             copyBtn.classList.remove('Article__CopyLinkBtn--copied');
@@ -1121,6 +2960,28 @@
           ta.value = url; ta.style.cssText = 'position:fixed;opacity:0';
           document.body.appendChild(ta); ta.select(); document.execCommand('copy');
           document.body.removeChild(ta); onCopied();
+        }
+      });
+    }
+
+    /* ---- Native share (Instagram button) ---- */
+    var nativeShareBtn = document.getElementById('article-native-share');
+    if (nativeShareBtn) {
+      nativeShareBtn.addEventListener('click', function() {
+        var title = nativeShareBtn.getAttribute('data-title') || document.title;
+        var url   = nativeShareBtn.getAttribute('data-url') || window.location.href;
+        if (navigator.share) {
+          navigator.share({ title: title, url: url }).then(function() {
+            if (window.firebaseIncrementShare) window.firebaseIncrementShare();
+          }).catch(function(){});
+        } else {
+          /* Desktop fallback — copy link */
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function() {
+              nativeShareBtn.setAttribute('aria-label', 'Link copied!');
+              setTimeout(function() { nativeShareBtn.setAttribute('aria-label', 'Share'); }, 2000);
+            });
+          }
         }
       });
     }
@@ -1144,18 +3005,25 @@
       if (siteHeader) {
         var lastScrollY = window.scrollY;
         var scrollThreshold = 80;
+        var scrollUpAccum = 0;
+        var scrollUpRequired = 120;
         window.addEventListener('scroll', function() {
           var currentY = window.scrollY;
           var artToolbar = document.querySelector('.ArticleToolbar');
           if (currentY < scrollThreshold) {
             siteHeader.classList.remove('art-header-hidden');
             if (artToolbar) artToolbar.classList.remove('art-toolbar-top');
+            scrollUpAccum = 0;
           } else if (currentY > lastScrollY) {
             siteHeader.classList.add('art-header-hidden');
             if (artToolbar) artToolbar.classList.add('art-toolbar-top');
+            scrollUpAccum = 0;
           } else {
-            siteHeader.classList.remove('art-header-hidden');
-            if (artToolbar) artToolbar.classList.remove('art-toolbar-top');
+            scrollUpAccum += lastScrollY - currentY;
+            if (scrollUpAccum >= scrollUpRequired) {
+              siteHeader.classList.remove('art-header-hidden');
+              if (artToolbar) artToolbar.classList.remove('art-toolbar-top');
+            }
           }
           lastScrollY = currentY;
         }, { passive: true });
@@ -1229,19 +3097,32 @@
     if (bodyEl) {
       bodyEl.querySelectorAll('img').forEach(function(img) {
         if (img.closest('.Article__ParallaxWrap')) return;
+        if (img.closest('.art-product-card')) return;
+        if (img.closest('.art-hotspot__img-wrap')) return;
         var wrap = document.createElement('div');
         wrap.className = 'Article__ParallaxWrap';
         img.parentNode.insertBefore(wrap, img);
         wrap.appendChild(img);
       });
 
-      var parItems = [];
-      bodyEl.querySelectorAll('.Article__ParallaxWrap').forEach(function(wrap) {
-        var img = wrap.querySelector('img');
-        if (img) parItems.push({ wrap: wrap, img: img, cur: 0, tgt: 0 });
+      /* Wrap each hotspot in a parallax container */
+      bodyEl.querySelectorAll('.art-hotspot__img-wrap').forEach(function(imgWrap) {
+        var parWrap = document.createElement('div');
+        parWrap.className = 'Article__ParallaxWrap';
+        imgWrap.parentNode.insertBefore(parWrap, imgWrap);
+        parWrap.appendChild(imgWrap);
       });
 
+      var parItems = [];
+      bodyEl.querySelectorAll('.Article__ParallaxWrap').forEach(function(wrap) {
+        var target = wrap.querySelector('.art-hotspot__img-wrap') || wrap.querySelector('img');
+        if (target) parItems.push({ wrap: wrap, img: target, cur: 0, tgt: 0 });
+      });
+
+      var isMobile = window.innerWidth <= 640;
+
       function parTick() {
+        if (isMobile) { requestAnimationFrame(parTick); return; }
         var vH = window.innerHeight;
         parItems.forEach(function(item) {
           var rect  = item.wrap.getBoundingClientRect();
@@ -1260,35 +3141,6 @@
 
   })();
 
-  /* ── Embed: Parallax Dual Image init ── */
-  (function() {
-    function lerp(a,b,n){ return a+(b-a)*n; }
-    var pairs = {};
-    document.querySelectorAll('[data-epd-img]').forEach(function(img) {
-      var key = img.dataset.epdImg.replace(/-[ab]$/, '');
-      if (!pairs[key]) pairs[key] = {};
-      var side = img.dataset.epdImg.slice(-1); // 'a' or 'b'
-      pairs[key][side] = { el: img, cur: 0, tgt: 0 };
-    });
-    var keys = Object.keys(pairs);
-    if (!keys.length) return;
-    function tick() {
-      keys.forEach(function(k) {
-        ['a','b'].forEach(function(side) {
-          var s = pairs[k][side];
-          if (!s) return;
-          var rect = s.el.parentElement.getBoundingClientRect();
-          var prog = (window.innerHeight / 2 - (rect.top + rect.height / 2)) / window.innerHeight;
-          s.tgt = prog * rect.height * (side === 'a' ? -0.08 : 0.12);
-          s.cur = lerp(s.cur, s.tgt, 0.07);
-          s.el.style.transform = 'translateY(' + s.cur + 'px) scale(1.08)';
-        });
-      });
-      requestAnimationFrame(tick);
-    }
-    tick();
-  })();
-
   /* ── Embed: Pull Quote — scroll-in blur + stagger ── */
   (function() {
     document.querySelectorAll('[data-epq-id]').forEach(function(el) {
@@ -1297,7 +3149,6 @@
       }).join(' ');
 
       var block    = el.closest('.epq');
-      var mark     = block && block.querySelector('.epq__mark');
       var words    = el.querySelectorAll('.epq__word');
       var fired    = false;
 
@@ -1305,13 +3156,68 @@
         if (!entries[0].isIntersecting || fired) return;
         fired = true;
         obs.disconnect();
-        if (mark) mark.classList.add('epq--in');
         words.forEach(function(w, i) {
           setTimeout(function() { w.classList.add('epq--in'); }, 350 + i * 80);
         });
       }, { threshold: 0.25 }).observe(block || el);
     });
   })();
+
+  /* ---- Back to top button (mobile) ---- */
+  (function() {
+    var btn = document.getElementById('art-back-top');
+    if (!btn) return;
+    var content = document.querySelector('.Article__Content');
+    if (!content) return;
+    window.addEventListener('scroll', function() {
+      var totalHeight = content.scrollHeight;
+      var scrolled = window.scrollY;
+      var show = scrolled > totalHeight * 0.4;
+      btn.classList.toggle('art-back-top--visible', show);
+    }, { passive: true });
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      trackEvent('back_to_top', { article_title: document.title });
+    });
+  })();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getDatabase, ref, get, runTransaction } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAqT2WNOv3pGJbni6segQWcOR5xs7PoNzA",
+    authDomain: "found-collective.firebaseapp.com",
+    databaseURL: "https://found-collective-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "found-collective",
+    storageBucket: "found-collective.firebasestorage.app",
+    messagingSenderId: "763528791139",
+    appId: "1:763528791139:web:5ba5620fe45bc6161ca456"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const articleHandle = {{ article.handle | json }};
+  const shareRef = ref(db, 'shares/' + articleHandle);
+
+  get(shareRef).then(function(snapshot) {
+    var count = snapshot.exists() ? (snapshot.val().count || 0) : 0;
+    var el = document.getElementById('article-share-count');
+    if (el) el.textContent = count;
+  }).catch(function(){});
+
+  window.firebaseIncrementShare = function() {
+    runTransaction(shareRef, function(current) {
+      return { count: ((current && current.count) || 0) + 1 };
+    }).then(function(result) {
+      if (result.committed) {
+        var count = result.snapshot.val().count || 0;
+        var el = document.getElementById('article-share-count');
+        if (el) el.textContent = count;
+      }
+    }).catch(function(){});
+  };
 </script>
 
 {% schema %}

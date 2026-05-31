@@ -18,44 +18,50 @@ or change the format of some info
     {%- endif -%}
   {%- endif -%}
 
-  {%- comment -%} Resolve metafields for schema {%- endcomment -%}
+  {%- comment -%}
+    Resolve metafields for schema.
+    Pipe every value through | append: '' | strip to force plain-string conversion.
+    Without this, reference / list metafields output {"error":"json not allowed for this object"}
+    which corrupts the entire JSON-LD block.
+  {%- endcomment -%}
   {%- assign _mf = product.metafields -%}
-  {%- assign schema_brand = _mf.custom.brand_name | default: product.vendor -%}
+  {%- assign schema_brand = _mf.custom.brand_name.value | default: product.vendor | join: ', ' | append: '' | strip -%}
   {%- assign schema_condition_raw = _mf.custom.condition | downcase -%}
-  {%- assign schema_material = _mf.custom.main_material | default: _mf.custom.material -%}
-  {%- assign schema_colour = _mf.shopify['color-pattern'].value.label | default: _mf.shopify['color-pattern'].value -%}
-  {%- assign schema_model = _mf.custom.model -%}
-  {%- assign schema_year = _mf.custom.year -%}
-  {%- assign schema_dimensions = _mf.custom.dimensions -%}
-  {%- assign schema_hardware = _mf.custom.hardware_material -%}
-  {%- assign schema_stamp = _mf.custom.bag_stamp -%}
-  {%- assign schema_strap_length = _mf.custom.strap_length -%}
-  {%- assign schema_handle_drop = _mf.custom.handle_drop -%}
-  {%- assign schema_chain_length = _mf.custom.chain_length -%}
-  {%- assign schema_designer = _mf.custom.designer | default: _mf.custom.scarf_designer -%}
-  {%- assign schema_capacity = _mf.custom.capacity -%}
-  {%- assign schema_weight = _mf.custom.weight -%}
-  {%- assign schema_sole = _mf.custom.sole_material -%}
-  {%- assign schema_heel = _mf.custom.heel_sole_height -%}
-  {%- assign schema_face_mat = _mf.custom.face_material -%}
-  {%- assign schema_strap_mat = _mf.custom.strap_material -%}
-  {%- assign schema_dial = _mf.custom.dial_face -%}
-  {%- assign schema_movement = _mf.custom.movement -%}
-  {%- assign schema_reference = _mf.custom.reference -%}
-  {%- assign schema_case_width = _mf.custom.case_width -%}
-  {%- assign schema_diamonds = _mf.custom.diamonds -%}
-  {%- assign schema_back_length = _mf.custom.back_length -%}
-  {%- assign schema_sound = _mf.custom.sound_features -%}
-  {%- assign schema_clothing_size = _mf.custom.clothing_size -%}
-  {%- assign schema_eu_size = _mf.custom.eu_size -%}
-  {%- assign schema_uk_size = _mf.custom.uk_size -%}
-  {%- assign schema_belt_size = _mf.custom.belt_size -%}
-  {%- assign schema_belt_width = _mf.custom.belt_width -%}
-  {%- assign schema_ring_size = _mf.custom.ring_size -%}
-  {%- assign schema_bracelet_size = _mf.custom.bracelet_size -%}
-  {%- assign schema_bracelet_width = _mf.custom.bracelet_width -%}
-  {%- assign schema_wrist_size = _mf.custom.wrist_size -%}
-  {%- assign schema_charm_type = _mf.custom.charm_type -%}
+  {%- assign schema_material = _mf.custom.main_material.value | default: _mf.custom.material.value | join: ', ' | append: '' | strip -%}
+  {%- comment -%} Colour is a Shopify taxonomy list — access first item's label {%- endcomment -%}
+  {%- assign schema_colour = _mf.shopify['color-pattern'].value.first.label | default: _mf.shopify['color-pattern'].value.first | default: _mf.shopify['color-pattern'].value.label | default: '' | append: '' | strip -%}
+  {%- assign schema_model = _mf.custom.model.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_year = _mf.custom.year.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_dimensions = _mf.custom.dimensions.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_hardware = _mf.custom.hardware_material.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_stamp = _mf.custom.bag_stamp.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_strap_length = _mf.custom.strap_length.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_handle_drop = _mf.custom.handle_drop.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_chain_length = _mf.custom.chain_length.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_designer = _mf.custom.designer.value | default: _mf.custom.scarf_designer.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_capacity = _mf.custom.capacity.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_weight = _mf.custom.weight.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_sole = _mf.custom.sole_material.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_heel = _mf.custom.heel_sole_height.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_face_mat = _mf.custom.face_material.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_strap_mat = _mf.custom.strap_material.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_dial = _mf.custom.dial_face.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_movement = _mf.custom.movement.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_reference = _mf.custom.reference.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_case_width = _mf.custom.case_width.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_diamonds = _mf.custom.diamonds.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_back_length = _mf.custom.back_length.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_sound = _mf.custom.sound_features.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_clothing_size = _mf.custom.clothing_size.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_eu_size = _mf.custom.eu_size.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_uk_size = _mf.custom.uk_size.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_belt_size = _mf.custom.belt_size.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_belt_width = _mf.custom.belt_width.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_ring_size = _mf.custom.ring_size.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_bracelet_size = _mf.custom.bracelet_size.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_bracelet_width = _mf.custom.bracelet_width.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_wrist_size = _mf.custom.wrist_size.value | join: ', ' | append: '' | strip -%}
+  {%- assign schema_charm_type = _mf.custom.charm_type | append: '' | strip -%}
 
   {%- comment -%} Map condition text to schema.org URL {%- endcomment -%}
   {%- if schema_condition_raw contains 'new' -%}
@@ -70,11 +76,12 @@ or change the format of some info
 
   {%- capture main_entity_microdata -%}
     "@type": "Product",
+    "name": {{ product.title | json }},
     "offers": [
       {%- for variant in product.variants -%}
         {
           "@type": "Offer",
-          "name": {{ variant.title | json }},
+          "name": {{ variant.title | default: product.title | json }},
           "availability": {%- if variant.available -%}"https://schema.org/InStock"{%- else -%}"https://schema.org/OutOfStock"{%- endif -%},
           "price": {{ variant.price | divided_by: 100.0 | json }},
           "priceCurrency": {{ cart.currency.iso_code | json }},
@@ -127,13 +134,14 @@ or change the format of some info
         }{% unless forloop.last %},{% endunless %}
       {%- endfor -%}
     ],
-    {%- if product.metafields.reviews.rating.value != blank -%}
+    {%- assign _review_count = product.metafields.reviews.rating_count.value | plus: 0 -%}
+    {%- if product.metafields.reviews.rating.value != blank and _review_count > 0 -%}
       "aggregateRating": {
         "@type": "AggregateRating",
-        "ratingValue": "{{ product.metafields.reviews.rating.value }}",
-        "reviewCount": "{{ product.metafields.reviews.rating_count.value }}",
-        "worstRating": "{{ product.metafields.reviews.rating.value.scale_min }}",
-        "bestRating": "{{ product.metafields.reviews.rating.value.scale_max }}"
+        "ratingValue": {{ product.metafields.reviews.rating.value | times: 1.0 | json }},
+        "reviewCount": {{ _review_count | json }},
+        "bestRating": {{ product.metafields.reviews.rating.value.scale_max | default: 5 | json }},
+        "worstRating": {{ product.metafields.reviews.rating.value.scale_min | default: 1 | json }}
       },
     {%- endif -%}
     {%- if is_barcode_available and is_valid_gtin_length %}
@@ -142,12 +150,13 @@ or change the format of some info
     {%- elsif is_barcode_available %}
       "mpn": {{ product.selected_or_first_available_variant.barcode | json }},
       "productId": {{ product.selected_or_first_available_variant.barcode | json }},
+    {%- else %}
+      "identifier_exists": false,
     {%- endif %}
     "brand": {
       "@type": "Brand",
       "name": {{ schema_brand | json }}
     },
-    "name": {{ product.title | json }},
     "description": {{ product.description | strip_html | json }},
     "category": {{ product.type | json }},
     "url": "{{ shop.url }}{{ product.url }}",
@@ -312,10 +321,11 @@ or change the format of some info
     "keywords": "{{ article.tags | join: ', ' }}",
     "headline": {{ article.title | json }},
     "description": {{ article.excerpt_or_content | strip_html | truncatewords: 25 | json }},
+    "articleBody": {{ article.content | strip_html | strip_newlines | truncatewords: 200 | json }},
     "wordCount": {{ article.content | strip_html | split: ' ' | size }},
     "dateCreated": "{{ article.created_at | date: '%Y-%m-%dT%T' }}",
     "datePublished": "{{ article.published_at | date: '%Y-%m-%dT%T' }}",
-    "dateModified": "{{ article.updated_at | default: article.published_at | date: '%Y-%m-%dT%T' }}",
+    "dateModified": "{{ article.published_at | date: '%Y-%m-%dT%T' }}",
     {%- if article.image -%}
     "image": {
       "@type": "ImageObject",
@@ -333,7 +343,14 @@ or change the format of some info
     },
     "publisher": {
       "@type": "Organization",
-      "name": {{ shop.name | json }}
+      "name": {{ shop.name | json }},
+      {%- if settings.logo -%}
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https:{{ settings.logo | img_url: '500x' }}"
+      },
+      {%- endif -%}
+      "url": {{ shop.url | json }}
     },
     "commentCount": {{ article.comments_count }},
     "comment": [
@@ -447,7 +464,7 @@ or change the format of some info
 {% if main_entity_microdata != blank %}
   <script type="application/ld+json">
   {
-    "@context": "http://schema.org",
+    "@context": "https://schema.org",
     {{ main_entity_microdata }}
   }
   </script>
@@ -456,7 +473,7 @@ or change the format of some info
 {% if breadcrumb_entity_microdata != blank %}
   <script type="application/ld+json">
   {
-    "@context": "http://schema.org",
+    "@context": "https://schema.org",
     {{ breadcrumb_entity_microdata }}
   }
   </script>

@@ -707,8 +707,61 @@ document.addEventListener('shopify:section:load', function () {
   })();
 </script>
 
+{%- comment -%} GA4 view_item_list + Meta ViewContent (category) {%- endcomment -%}
+<script>
+(function() {
+  var items = [];
+  {%- for product in collection.products -%}
+    items.push({
+      item_id: {{ product.id | json }},
+      item_name: {{ product.title | json }},
+      item_brand: {{ product.vendor | json }},
+      item_category: {{ product.type | json }},
+      price: {{ product.price | divided_by: 100.0 }},
+      index: {{ forloop.index0 }}
+    });
+  {%- endfor -%}
 
+  /* GA4 view_item_list */
+  if (typeof gtag === 'function') {
+    gtag('event', 'view_item_list', {
+      item_list_id: {{ collection.handle | json }},
+      item_list_name: {{ collection.title | json }},
+      items: items
+    });
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'view_item_list',
+    item_list_id: {{ collection.handle | json }},
+    item_list_name: {{ collection.title | json }},
+    items: items
+  });
 
+  /* Meta Pixel ViewContent (category) */
+  if (typeof fbq === 'function') {
+    fbq('track', 'ViewContent', {
+      content_name: {{ collection.title | json }},
+      content_type: 'product_group',
+      content_ids: items.map(function(i) { return String(i.item_id); })
+    });
+  }
+
+  /* select_item: track product card clicks */
+  document.querySelectorAll('.ProductItem__ImageWrapper, .ProductItem__Title a').forEach(function(link, idx) {
+    link.addEventListener('click', function() {
+      var item = items[Math.floor(idx / 2)] || items[idx] || {};
+      if (typeof gtag === 'function') {
+        gtag('event', 'select_item', {
+          item_list_id: {{ collection.handle | json }},
+          item_list_name: {{ collection.title | json }},
+          items: [item]
+        });
+      }
+    });
+  });
+})();
+</script>
 
 {% schema %}
 {

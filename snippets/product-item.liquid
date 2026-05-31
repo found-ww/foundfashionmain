@@ -84,9 +84,9 @@
           <p class="ProductItem__Vendor Heading">{{ product.vendor }}</p>
         {%- endif -%}
 
-        <h2 class="ProductItem__Title Heading">
+        <p class="ProductItem__Title Heading">
           <a href="{{ product.url }}">{{ product.title }}</a>
-        </h2>
+        </p>
 
         {%- if settings.show_product_rating -%}
           {%- unless use_horizontal -%}

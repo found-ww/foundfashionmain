@@ -180,7 +180,7 @@
 {% schema %}
 {
   "name": "YOU MAY LIKE",
-  "class": "",
+  "class": "product-recommendations",
   "templates": ["product"],
   "settings": [
     {
@@ -188,6 +188,19 @@
       "id": "heading",
       "label": "Heading",
       "default": "YOU MAY LIKE"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
     }
   ],
   "presets": [
