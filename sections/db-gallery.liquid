@@ -58,7 +58,8 @@
       </div>
       <div class="db-gal__col db-gal__col--2">
         {%- for i in (4..6) -%}
-          {%- assign blk = section.blocks[forloop.index0 | plus: 3] -%}
+          {%- assign blkidx = forloop.index0 | plus: 3 -%}
+          {%- assign blk = section.blocks[blkidx] -%}
           <figure class="db-gal__fig" data-reveal data-cursor="VIEW">
             {%- if blk and blk.settings.image != blank -%}
               <img src="{{ blk.settings.image | img_url: '800x' }}" alt="{{ blk.settings.image.alt | escape }}" loading="lazy">

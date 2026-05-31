@@ -119,6 +119,7 @@
       {%- assign vendors = 'Hermès,Chanel,Louis Vuitton,Dior,Bottega Veneta,Gucci,Prada,Celine' | split: ',' -%}
       {%- for i in (1..8) -%}
         {%- assign pidx = i | modulo: 6 | plus: 1 -%}
+        {%- assign vidx = i | modulo: 8 -%}
         <a class="db-card" href="#" data-cursor="VIEW">
           <div class="db-card__media">
             {{ 'product-' | append: pidx | placeholder_svg_tag: 'placeholder-svg' }}
@@ -127,7 +128,7 @@
             <span class="db-card__quick">Quick view</span>
           </div>
           <div class="db-card__info">
-            <p class="db-card__vendor">{{ vendors[i | modulo: 8] }}</p>
+            <p class="db-card__vendor">{{ vendors[vidx] }}</p>
             <p class="db-card__name">Placeholder luxury piece {{ i }}</p>
             <span class="db-card__price">£{{ i | times: 850 | plus: 1200 }}</span>
           </div>

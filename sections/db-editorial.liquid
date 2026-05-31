@@ -70,12 +70,13 @@
     {%- else -%}
       {%- assign names = 'Bags,Shoes,Jewellery,Accessories' | split: ',' -%}
       {%- for i in (1..4) -%}
+        {%- assign nidx = i | minus: 1 -%}
         <a class="db-ed__tile" href="#" data-cursor="SHOP">
           {{ 'product-' | append: i | placeholder_svg_tag: 'placeholder-svg' }}
           <div class="db-ed__tile-overlay"></div>
           <div class="db-ed__tile-body">
             <p class="db-ed__tile-sub">The edit</p>
-            <h3 class="db-ed__tile-name">{{ names[i | minus: 1] }}</h3>
+            <h3 class="db-ed__tile-name">{{ names[nidx] }}</h3>
             <span class="db-ed__tile-cta">Shop now →</span>
           </div>
         </a>
