@@ -1,0 +1,312 @@
+{%- assign main_menu = linklists['main-menu'] -%}
+{%- assign sid = section.id -%}
+
+{% render 'db-anim' %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --db-ink: #191919;
+    --db-paper: #f4f0ea;
+    --db-header-h: 76px;
+  }
+
+  .db-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    height: var(--db-header-h);
+    display: flex;
+    align-items: center;
+    color: #fff;
+    transition: color 0.4s ease;
+  }
+  .db-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    background: rgba(244, 240, 234, 0);
+    transition: background 0.5s ease, backdrop-filter 0.5s ease, -webkit-backdrop-filter 0.5s ease;
+  }
+  .db-header.is-solid { color: var(--db-ink); }
+  .db-header.is-solid::before {
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    background: rgba(244, 240, 234, 0.82);
+    box-shadow: 0 1px 0 rgba(25,25,25,0.06);
+  }
+  .db-header.is-hidden { transform: translateY(-100%); }
+  .db-header { transition: transform 0.5s var(--db-ease), color 0.4s ease; }
+
+  .db-header__inner {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 clamp(18px, 4vw, 48px);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .db-header__logo {
+    grid-column: 2;
+    justify-self: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(20px, 2.4vw, 28px);
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    color: inherit;
+    line-height: 1;
+  }
+  .db-header__logo em { font-style: italic; }
+
+  .db-header__left { grid-column: 1; display: flex; align-items: center; gap: 28px; }
+  .db-header__right { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 22px; }
+
+  .db-header__link {
+    position: relative;
+    font-family: 'Figtree', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: inherit;
+    text-decoration: none;
+    background: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .db-header__link::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -5px;
+    width: 100%; height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s var(--db-ease);
+  }
+  .db-header__link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  .db-burger {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 26px; height: 26px;
+    background: none; border: 0; padding: 0; cursor: pointer;
+    color: inherit;
+  }
+  .db-burger span {
+    display: block; height: 1.5px; width: 100%;
+    background: currentColor;
+    transition: transform 0.4s var(--db-ease), opacity 0.3s ease;
+  }
+
+  @media (max-width: 900px) {
+    .db-header__left .db-header__link { display: none; }
+  }
+
+  /* ---------------- Overlay menu ---------------- */
+  .db-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: var(--db-ink);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(20px, 5vh, 56px) clamp(18px, 5vw, 64px);
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 0.8s var(--db-ease);
+    pointer-events: none;
+    overflow-y: auto;
+  }
+  .db-menu.is-open { clip-path: inset(0 0 0 0); pointer-events: auto; }
+
+  .db-menu__top { display: flex; align-items: center; justify-content: space-between; }
+  .db-menu__close {
+    font-family: 'Figtree', sans-serif; font-size: 12px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: #fff; background: none; border: 0; cursor: pointer;
+  }
+
+  .db-menu__nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(4px, 1vh, 12px);
+    padding: 6vh 0;
+  }
+  .db-menu__item { overflow: hidden; }
+  .db-menu__link {
+    display: inline-block;
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(38px, 8vw, 92px);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(110%);
+    transition: transform 0.7s var(--db-ease);
+  }
+  .db-menu.is-open .db-menu__link { transform: translateY(0); }
+  .db-menu__link .db-menu__char { display: inline-block; transition: transform 0.4s var(--db-ease); }
+  .db-menu__link:hover .db-menu__char { transform: translateY(-18%); }
+  .db-menu__link:hover { font-style: italic; }
+  .db-menu__index {
+    font-family: 'Figtree', sans-serif;
+    font-size: 11px; letter-spacing: 0.2em; vertical-align: super;
+    opacity: 0.4; margin-right: 14px;
+  }
+
+  .db-menu__foot {
+    display: flex; flex-wrap: wrap; gap: 28px;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    padding-top: 22px;
+  }
+  .db-menu__foot a, .db-menu__foot span {
+    font-family: 'Figtree', sans-serif; font-size: 12px; letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.7); text-decoration: none;
+  }
+  .db-menu__foot a:hover { color: #fff; }
+
+  body.db-menu-open { overflow: hidden; }
+</style>
+
+<header class="db-header" id="db-header-{{ sid }}" data-db-header>
+  <div class="db-header__inner">
+    <nav class="db-header__left">
+      <button class="db-header__link" type="button" data-db-menu-open data-cursor="MENU">Menu</button>
+      {%- if main_menu.links.size > 0 -%}
+        <a class="db-header__link" href="{{ main_menu.links[0].url }}">{{ main_menu.links[0].title }}</a>
+      {%- endif -%}
+    </nav>
+
+    <a class="db-header__logo" href="{{ routes.root_url }}">{{ shop.name }}</a>
+
+    <div class="db-header__right">
+      <a class="db-header__link" href="{{ routes.search_url }}">Search</a>
+      <a class="db-header__link" href="{{ routes.cart_url }}" data-cursor="VIEW BAG">Bag ({{ cart.item_count }})</a>
+      <button class="db-burger" type="button" data-db-menu-open aria-label="Open menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="db-menu" id="db-menu-{{ sid }}" aria-hidden="true">
+  <div class="db-menu__top">
+    <a class="db-header__logo" href="{{ routes.root_url }}" style="color:#fff;">{{ shop.name }}</a>
+    <button class="db-menu__close" type="button" data-db-menu-close>Close ✕</button>
+  </div>
+
+  <nav class="db-menu__nav">
+    {%- for link in main_menu.links -%}
+      <div class="db-menu__item">
+        <a class="db-menu__link db-menu-anim" href="{{ link.url }}" data-cursor="EXPLORE">
+          <span class="db-menu__index">0{{ forloop.index }}</span>{{ link.title }}
+        </a>
+      </div>
+    {%- else -%}
+      <div class="db-menu__item"><a class="db-menu__link db-menu-anim" href="{{ routes.all_products_collection_url }}">Shop All</a></div>
+    {%- endfor -%}
+  </nav>
+
+  <div class="db-menu__foot">
+    <a href="{{ routes.search_url }}">Search</a>
+    <a href="{{ routes.cart_url }}">Bag ({{ cart.item_count }})</a>
+    <a href="/pages/contact">Contact</a>
+    <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var header = document.getElementById('db-header-{{ sid }}');
+  var menu = document.getElementById('db-menu-{{ sid }}');
+  if (!header || !menu) return;
+
+  /* hide-on-scroll-down / show-on-up + solid background after hero */
+  var lastY = window.pageYOffset;
+  function onScroll() {
+    var y = window.pageYOffset;
+    header.classList.toggle('is-solid', y > 40);
+    if (y > 200 && y > lastY && !menu.classList.contains('is-open')) {
+      header.classList.add('is-hidden');
+    } else {
+      header.classList.remove('is-hidden');
+    }
+    lastY = y;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* split menu links into chars for hover flip */
+  menu.querySelectorAll('.db-menu-anim').forEach(function (link) {
+    var idx = link.querySelector('.db-menu__index');
+    var rest = link.childNodes;
+    // wrap text nodes (skip the index span) into per-char spans
+    Array.prototype.slice.call(rest).forEach(function (node) {
+      if (node.nodeType === 3 && node.textContent.trim()) {
+        var frag = document.createDocumentFragment();
+        node.textContent.split('').forEach(function (ch, i) {
+          var s = document.createElement('span');
+          s.className = 'db-menu__char';
+          s.textContent = ch === ' ' ? ' ' : ch;
+          s.style.transitionDelay = (i * 12) + 'ms';
+          frag.appendChild(s);
+        });
+        link.replaceChild(frag, node);
+      }
+    });
+  });
+
+  /* stagger link reveal when opening */
+  var items = menu.querySelectorAll('.db-menu__link');
+  function setStagger(open) {
+    items.forEach(function (el, i) {
+      el.style.transitionDelay = open ? (120 + i * 70) + 'ms' : '0ms';
+    });
+  }
+
+  function openMenu() {
+    setStagger(true);
+    menu.classList.add('is-open');
+    menu.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('db-menu-open');
+    if (window.dbLenis && window.dbLenis.stop) window.dbLenis.stop();
+  }
+  function closeMenu() {
+    setStagger(false);
+    menu.classList.remove('is-open');
+    menu.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('db-menu-open');
+    if (window.dbLenis && window.dbLenis.start) window.dbLenis.start();
+  }
+
+  document.querySelectorAll('[data-db-menu-open]').forEach(function (b) { b.addEventListener('click', openMenu); });
+  document.querySelectorAll('[data-db-menu-close]').forEach(function (b) { b.addEventListener('click', closeMenu); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "DB Header",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Redesigned fixed header with a full-screen overlay menu. Uses the 'main-menu' navigation. Renders the shared animation engine."
+    }
+  ]
+}
+{% endschema %}

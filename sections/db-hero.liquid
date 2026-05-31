@@ -1,0 +1,138 @@
+{%- assign sid = section.id -%}
+{%- assign s = section.settings -%}
+
+<style>
+  #db-hero-{{ sid }} {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 600px;
+    overflow: hidden;
+    background: #14110e;
+  }
+  .db-hero__media { position: absolute; inset: 0; }
+  .db-hero__media img,
+  .db-hero__media .placeholder-svg {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .db-hero__overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(20,17,14,0.45) 0%, rgba(20,17,14,0.05) 35%, rgba(20,17,14,0.55) 100%);
+  }
+  .db-hero__content {
+    position: relative; z-index: 2;
+    height: 100%;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    max-width: 1600px; margin: 0 auto;
+    padding: 0 clamp(18px, 4vw, 48px) clamp(48px, 10vh, 110px);
+    color: #fff;
+  }
+  .db-hero__eyebrow {
+    font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.28em; text-transform: uppercase; margin: 0 0 22px;
+    opacity: 0.9;
+  }
+  .db-hero__title {
+    font-family: 'Fraunces', serif; font-weight: 300;
+    font-size: clamp(44px, 8vw, 132px); line-height: 0.98;
+    letter-spacing: -0.02em; margin: 0; max-width: 16ch;
+  }
+  .db-hero__title em { font-style: italic; }
+  .db-hero__row {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+    gap: 28px; margin-top: clamp(28px, 5vh, 54px);
+  }
+  .db-hero__lede {
+    font-family: 'Figtree', sans-serif; font-size: clamp(15px, 1.3vw, 18px);
+    line-height: 1.55; max-width: 42ch; margin: 0; opacity: 0.92;
+  }
+  .db-hero__ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+  .db-hero__cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: #fff; text-decoration: none;
+    padding: 15px 26px; border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 999px;
+    transition: background 0.4s var(--db-ease), color 0.4s var(--db-ease), border-color 0.4s var(--db-ease);
+  }
+  .db-hero__cta:hover { background: #fff; color: #191919; border-color: #fff; }
+  .db-hero__cta--solid { background: #fff; color: #191919; border-color: #fff; }
+  .db-hero__cta--solid:hover { background: transparent; color: #fff; border-color: rgba(255,255,255,0.5); }
+
+  .db-hero__scroll {
+    position: absolute; left: 50%; bottom: 26px; z-index: 2;
+    transform: translateX(-50%);
+    font-family: 'Figtree', sans-serif; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.24em; text-transform: uppercase; color: #fff;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .db-hero__scroll::after {
+    content: ''; width: 1px; height: 42px; background: rgba(255,255,255,0.6);
+    transform-origin: top; animation: db-hero-line 2.2s var(--db-ease) infinite;
+  }
+  @keyframes db-hero-line { 0%{transform:scaleY(0);} 40%{transform:scaleY(1);} 100%{transform:scaleY(0); transform-origin: bottom;} }
+
+  @media (max-width: 700px) {
+    .db-hero__row { flex-direction: column; align-items: flex-start; }
+    .db-hero__scroll { display: none; }
+  }
+</style>
+
+<section id="db-hero-{{ sid }}">
+  <div class="db-hero__media" data-parallax="0.2">
+    <div data-parallax-inner style="position:absolute; inset:-6% 0;">
+      {%- if s.image != blank -%}
+        <img src="{{ s.image | img_url: '2000x' }}"
+             srcset="{{ s.image | img_url: '1200x' }} 1200w, {{ s.image | img_url: '2000x' }} 2000w"
+             sizes="100vw" alt="{{ s.image.alt | escape }}" loading="eager" fetchpriority="high">
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="db-hero__overlay"></div>
+
+  <div class="db-hero__content">
+    {%- if s.eyebrow != blank -%}
+      <p class="db-hero__eyebrow" data-reveal="up">{{ s.eyebrow | escape }}</p>
+    {%- endif -%}
+    <h1 class="db-hero__title" data-split>{{ s.title | escape }}</h1>
+
+    <div class="db-hero__row">
+      {%- if s.lede != blank -%}
+        <p class="db-hero__lede" data-reveal="up" data-reveal-delay="150">{{ s.lede | escape }}</p>
+      {%- endif -%}
+      <div class="db-hero__ctas" data-reveal="up" data-reveal-delay="250">
+        {%- if s.cta1_text != blank -%}
+          <a class="db-hero__cta db-hero__cta--solid" href="{{ s.cta1_link | default: routes.all_products_collection_url }}" data-cursor="SHOP">{{ s.cta1_text | escape }}</a>
+        {%- endif -%}
+        {%- if s.cta2_text != blank -%}
+          <a class="db-hero__cta" href="{{ s.cta2_link }}">{{ s.cta2_text | escape }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  {%- if s.scroll_text != blank -%}
+    <div class="db-hero__scroll">{{ s.scroll_text | escape }}</div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "DB Hero",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Background image", "info": "Wide, dark .jpg recommended (2000px)" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Pre-loved luxury, authenticated" },
+    { "type": "text", "id": "title", "label": "Title", "default": "Rare pieces for those who know" },
+    { "type": "textarea", "id": "lede", "label": "Lede", "default": "A curated edit of authenticated luxury — sourced, verified and ready to be found." },
+    { "type": "text", "id": "cta1_text", "label": "Primary CTA text", "default": "Shop new arrivals" },
+    { "type": "url", "id": "cta1_link", "label": "Primary CTA link" },
+    { "type": "text", "id": "cta2_text", "label": "Secondary CTA text", "default": "Sell with us" },
+    { "type": "url", "id": "cta2_link", "label": "Secondary CTA link" },
+    { "type": "text", "id": "scroll_text", "label": "Scroll cue", "default": "Scroll" }
+  ],
+  "presets": [ { "name": "DB Hero" } ]
+}
+{% endschema %}

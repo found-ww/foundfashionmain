@@ -277,7 +277,11 @@ window.addEventListener('load', function() {
 
     <div class="PageContainer">
       {% comment %}{% section 'announcement' %}{% endcomment %}
-      {% section 'header' %}
+      {%- if template.name == 'index' -%}
+        {% section 'db-header' %}
+      {%- else -%}
+        {% section 'header' %}
+      {%- endif -%}
 
       <main id="main" role="main">
         {{ content_for_layout }}

@@ -1,0 +1,154 @@
+{%- assign sid = section.id -%}
+{%- assign s = section.settings -%}
+{%- assign coll = collections[s.collection] -%}
+{%- assign count = s.products_count | default: 8 -%}
+
+<style>
+  #db-collection-{{ sid }} {
+    background: {{ s.bg_color }};
+    color: {{ s.text_color }};
+    padding: clamp(48px, 8vw, 110px) 0;
+  }
+  .db-coll__head {
+    max-width: 1600px; margin: 0 auto clamp(28px, 4vw, 52px);
+    padding: 0 clamp(18px, 4vw, 48px);
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+  }
+  .db-coll__eyebrow { font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; opacity: 0.55; margin: 0 0 12px; }
+  .db-coll__title { font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(30px, 4.5vw, 62px); line-height: 1; letter-spacing: -0.01em; margin: 0; }
+  .db-coll__title em { font-style: italic; }
+  .db-coll__viewall { font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: inherit; text-decoration: none; white-space: nowrap; padding-bottom: 4px; border-bottom: 1px solid currentColor; }
+
+  .db-coll__scroller {
+    display: flex; gap: clamp(12px, 1.4vw, 22px);
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 0 clamp(18px, 4vw, 48px) 8px;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .db-coll__scroller::-webkit-scrollbar { display: none; }
+
+  .db-card {
+    flex: 0 0 auto; width: clamp(220px, 24vw, 340px);
+    scroll-snap-align: start; text-decoration: none; color: inherit;
+  }
+  .db-card__media {
+    position: relative; overflow: hidden; border-radius: 4px;
+    aspect-ratio: 3 / 4; background: #ece6de;
+    transition: border-radius 0.5s var(--db-ease);
+  }
+  .db-card__media img, .db-card__media .placeholder-svg { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.7s var(--db-ease); }
+  .db-card__media .db-card__alt { position: absolute; inset: 0; opacity: 0; transition: opacity 0.6s ease; }
+  .db-card:hover .db-card__media { border-radius: 20px; }
+  .db-card:hover .db-card__media img:first-child { transform: scale(1.05); }
+  .db-card:hover .db-card__alt { opacity: 1; }
+  .db-card__overlay {
+    position: absolute; inset: 0; z-index: 2;
+    background: linear-gradient(180deg, rgba(25,25,25,0) 55%, rgba(25,25,25,0.45) 100%);
+    opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+  }
+  .db-card:hover .db-card__overlay { opacity: 1; }
+  .db-card__tag {
+    position: absolute; top: 12px; left: 12px; z-index: 3;
+    font-family: 'Figtree', sans-serif; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    background: #fff; color: #191919; padding: 6px 10px; border-radius: 999px;
+  }
+  .db-card__quick {
+    position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 3;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase; color: #191919;
+    background: #fff; padding: 12px; border-radius: 999px;
+    opacity: 0; transform: translateY(10px); transition: opacity 0.45s ease, transform 0.45s var(--db-ease);
+  }
+  .db-card:hover .db-card__quick { opacity: 1; transform: none; }
+
+  .db-card__info { padding: 16px 2px 0; }
+  .db-card__vendor { font-family: 'Figtree', sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.5; margin: 0 0 5px; }
+  .db-card__name { font-family: 'Figtree', sans-serif; font-size: 14px; line-height: 1.35; margin: 0 0 6px; }
+  .db-card__price { font-family: 'Figtree', sans-serif; font-size: 14px; font-weight: 600; }
+  .db-card__price s { opacity: 0.45; font-weight: 400; margin-right: 8px; }
+
+  @media (max-width: 700px) {
+    .db-coll__head { flex-direction: column; align-items: flex-start; }
+    .db-card { width: 72vw; }
+  }
+</style>
+
+<section id="db-collection-{{ sid }}">
+  <div class="db-coll__head" data-reveal="up">
+    <div>
+      {%- if s.eyebrow != blank -%}<p class="db-coll__eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+      <h2 class="db-coll__title">{{ s.title }}</h2>
+    </div>
+    {%- if coll != blank -%}
+      <a class="db-coll__viewall" href="{{ coll.url }}">{{ s.view_all_text | default: 'View all' }}</a>
+    {%- endif -%}
+  </div>
+
+  <div class="db-coll__scroller" data-reveal="fade">
+    {%- if coll != blank and coll.products.size > 0 -%}
+      {%- for product in coll.products limit: count -%}
+        <a class="db-card" href="{{ product.url }}" data-cursor="VIEW">
+          <div class="db-card__media">
+            {%- if product.featured_media -%}
+              <img src="{{ product.featured_media | img_url: '600x' }}" alt="{{ product.featured_media.alt | escape }}" loading="lazy">
+              {%- if product.media[1] -%}
+                <img class="db-card__alt" src="{{ product.media[1] | img_url: '600x' }}" alt="" loading="lazy">
+              {%- endif -%}
+            {%- else -%}
+              {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+            {%- if product.compare_at_price > product.price -%}<span class="db-card__tag">Sale</span>
+            {%- elsif product.tags contains 'new' -%}<span class="db-card__tag">New</span>{%- endif -%}
+            <div class="db-card__overlay"></div>
+            <span class="db-card__quick">Quick view</span>
+          </div>
+          <div class="db-card__info">
+            {%- if product.vendor != blank -%}<p class="db-card__vendor">{{ product.vendor }}</p>{%- endif -%}
+            <p class="db-card__name">{{ product.title }}</p>
+            <span class="db-card__price">
+              {%- if product.compare_at_price > product.price -%}<s>{{ product.compare_at_price | money }}</s>{%- endif -%}
+              {{ product.price | money }}
+            </span>
+          </div>
+        </a>
+      {%- endfor -%}
+    {%- else -%}
+      {%- comment -%} Placeholder cards when no collection is set {%- endcomment -%}
+      {%- assign vendors = 'Hermès,Chanel,Louis Vuitton,Dior,Bottega Veneta,Gucci,Prada,Celine' | split: ',' -%}
+      {%- for i in (1..8) -%}
+        {%- assign pidx = i | modulo: 6 | plus: 1 -%}
+        <a class="db-card" href="#" data-cursor="VIEW">
+          <div class="db-card__media">
+            {{ 'product-' | append: pidx | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- if i == 2 -%}<span class="db-card__tag">New</span>{%- elsif i == 5 -%}<span class="db-card__tag">Sale</span>{%- endif -%}
+            <div class="db-card__overlay"></div>
+            <span class="db-card__quick">Quick view</span>
+          </div>
+          <div class="db-card__info">
+            <p class="db-card__vendor">{{ vendors[i | modulo: 8] }}</p>
+            <p class="db-card__name">Placeholder luxury piece {{ i }}</p>
+            <span class="db-card__price">£{{ i | times: 850 | plus: 1200 }}</span>
+          </div>
+        </a>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "DB Collection",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Just in" },
+    { "type": "text", "id": "title", "label": "Title", "default": "New Arrivals" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "products_count", "label": "Products", "min": 4, "max": 16, "step": 1, "default": 8 },
+    { "type": "text", "id": "view_all_text", "label": "View all text", "default": "View all" },
+    { "type": "color", "id": "bg_color", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#191919" }
+  ],
+  "presets": [ { "name": "DB Collection" } ]
+}
+{% endschema %}

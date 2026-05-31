@@ -9,145 +9,117 @@
  */
 {
   "sections": {
-    "hero-split": {
-      "type": "hero-split",
+    "db-hero": {
+      "type": "db-hero",
       "settings": {
-        "image_a": "shopify://shop_images/29619D3F-DC90-4130-8A1D-E403471D8696_copy.jpg",
-        "image_b": "shopify://shop_images/IMG_8319.jpg",
-        "heading_text": "curated for those who know",
-        "scroll_text": "SCROLL TO EXPLORE",
-        "text_color": "#ffffff",
-        "overlay_color": "#000000",
-        "overlay_opacity": 15
+        "image": "shopify://shop_images/29619D3F-DC90-4130-8A1D-E403471D8696_copy.jpg",
+        "eyebrow": "Pre-loved luxury, authenticated",
+        "title": "Rare pieces for those who know",
+        "lede": "A curated edit of authenticated luxury — sourced, verified and ready to be found.",
+        "cta1_text": "Shop new arrivals",
+        "cta1_link": "shopify://collections/new-arrivals",
+        "cta2_text": "Sell with us",
+        "cta2_link": "shopify://pages/sell-with-us",
+        "scroll_text": "Scroll"
       }
     },
-    "new-arrivals": {
-      "type": "featured-collections",
-      "blocks": {
-        "new-arrivals-collection": {
-          "type": "collection",
-          "settings": {
-            "collection": "new-arrivals",
-            "title": "",
-            "grid_items_count": 12,
-            "button_text": ""
-          }
-        }
-      },
-      "block_order": [
-        "new-arrivals-collection"
-      ],
+    "db-marquee": {
+      "type": "db-marquee",
       "settings": {
-        "title": "NEW ARRIVALS",
-        "layout_mode": "carousel",
-        "show_product_info": true,
-        "show_vendor": false,
-        "show_color_swatch": false,
-        "grid_mobile_items_per_row": "2",
-        "grid_desktop_items_per_row": 4
+        "text": "Hermès · Chanel · Louis Vuitton · Dior · Bottega Veneta · Cartier",
+        "speed": 28,
+        "direction": "left",
+        "bg_color": "#f4f0ea",
+        "text_color": "#191919"
       }
     },
-    "editorial-trio": {
-      "type": "editorial-trio",
-      "blocks": {
-        "editorial-1": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/Hermes-Rock-Haut-a-courroies-Birkn-bag-2022-2-1.webp",
-            "link_url": "",
-            "button_text": "Shop bags"
-          }
-        },
-        "editorial-2": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/IMG_8602_jpg.webp",
-            "link_url": "",
-            "button_text": "Shop shoes"
-          }
-        },
-        "editorial-3": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/AAE6A3AF-6E4D-46CB-BF59-1469E1C5F3C4_jpg.webp",
-            "link_url": "",
-            "button_text": "Shop jewellery"
-          }
-        },
-        "editorial-4": {
-          "type": "image",
-          "settings": {
-            "image": "shopify://shop_images/IMG_9477_copy.jpg",
-            "link_url": "",
-            "button_text": "Shop accessories"
-          }
-        }
-      },
-      "block_order": [
-        "editorial-1",
-        "editorial-2",
-        "editorial-3",
-        "editorial-4"
-      ],
-      "settings": {}
-    },
-    "bags-shoes": {
-      "type": "featured-collections",
-      "blocks": {
-        "bags-tab": {
-          "type": "collection",
-          "settings": {
-            "collection": "bags",
-            "title": "",
-            "grid_items_count": 12,
-            "button_text": ""
-          }
-        },
-        "shoes-tab": {
-          "type": "collection",
-          "settings": {
-            "collection": "shoes",
-            "title": "",
-            "grid_items_count": 12,
-            "button_text": ""
-          }
-        }
-      },
-      "block_order": [
-        "bags-tab",
-        "shoes-tab"
-      ],
+    "db-new-arrivals": {
+      "type": "db-collection",
       "settings": {
-        "title": "",
-        "layout_mode": "carousel",
-        "show_product_info": true,
-        "show_vendor": false,
-        "show_color_swatch": false,
-        "grid_mobile_items_per_row": "2",
-        "grid_desktop_items_per_row": 4
+        "eyebrow": "Just in",
+        "title": "New Arrivals",
+        "collection": "new-arrivals",
+        "products_count": 10,
+        "view_all_text": "View all",
+        "bg_color": "#ffffff",
+        "text_color": "#191919"
       }
     },
-    "discover-story": {
-      "type": "discover-story",
+    "db-editorial": {
+      "type": "db-editorial",
+      "blocks": {
+        "tile-1": { "type": "tile", "settings": { "image": "shopify://shop_images/Hermes-Rock-Haut-a-courroies-Birkn-bag-2022-2-1.webp", "subheading": "The edit", "heading": "Bags", "cta": "Shop bags", "cursor": "SHOP", "link": "shopify://collections/bags" } },
+        "tile-2": { "type": "tile", "settings": { "image": "shopify://shop_images/IMG_8602_jpg.webp", "subheading": "The edit", "heading": "Shoes", "cta": "Shop shoes", "cursor": "SHOP", "link": "shopify://collections/shoes" } },
+        "tile-3": { "type": "tile", "settings": { "image": "shopify://shop_images/AAE6A3AF-6E4D-46CB-BF59-1469E1C5F3C4_jpg.webp", "subheading": "The edit", "heading": "Jewellery", "cta": "Shop jewellery", "cursor": "SHOP", "link": "shopify://collections/jewelry" } },
+        "tile-4": { "type": "tile", "settings": { "image": "shopify://shop_images/IMG_9477_copy.jpg", "subheading": "The edit", "heading": "Accessories", "cta": "Shop accessories", "cursor": "SHOP", "link": "shopify://collections/accessories" } }
+      },
+      "block_order": ["tile-1", "tile-2", "tile-3", "tile-4"],
       "settings": {
-        "left_image_1": "shopify://shop_images/Hermes-Picotin-White-1.jpg",
-        "left_link_1": "",
-        "left_btn_1": "READ MORE",
-        "right_image": "shopify://shop_images/Hermes-Birkin-Faubourg-Midnight-and-Snow.jpg",
-        "right_heading": "DISCOVER THE STORY",
-        "right_text": "<p>The Hermès Cargo Picotin 18 offers a modern interpretation of the classic Picotin silhouette, distinguished by its exterior pockets and functional detailing. This example is finished in Nata and Gold tones, paired with gold-plated hardware for a warm, contrasting finish.</p>",
-        "right_link": "",
-        "right_btn_text": "READ MORE",
-        "overlay_opacity": 35,
-        "right_bg_color": "#f0ebe5"
+        "eyebrow": "Shop by category",
+        "title": "The edit",
+        "bg_color": "#ffffff",
+        "text_color": "#191919"
+      }
+    },
+    "db-story": {
+      "type": "db-story",
+      "settings": {
+        "image": "shopify://shop_images/Hermes-Birkin-Faubourg-Midnight-and-Snow.jpg",
+        "image_position": "right",
+        "eyebrow": "Found Magazine",
+        "title": "Discover the story behind the piece",
+        "text": "<p>Every item in our collection carries a history. We trace provenance, verify authenticity, and tell the story of craftsmanship that endures — so you can buy with absolute confidence.</p>",
+        "link_text": "Read more",
+        "link": "shopify://blogs/found-magazine",
+        "bg_color": "#f0ebe5",
+        "text_color": "#191919"
+      }
+    },
+    "db-press": {
+      "type": "db-press",
+      "settings": {
+        "label": "As featured in",
+        "logos": "Vogue,Harper's Bazaar,GQ,Tatler,The Times,Elle",
+        "bg_color": "#ffffff",
+        "text_color": "#191919"
+      }
+    },
+    "db-pillars": {
+      "type": "db-pillars",
+      "blocks": {
+        "p1": { "type": "pillar", "settings": { "tag": "Guarantee", "heading": "Authentic & quality", "text": "Every item is 100% authenticated by our in-house experts before it reaches you.", "link_text": "Our promise", "link": "shopify://pages/authenticity" } },
+        "p2": { "type": "pillar", "settings": { "tag": "Consignment", "heading": "Sell with us", "text": "Turn your luxury pieces into value with our trusted global consignment network.", "link_text": "Start selling", "link": "shopify://pages/sell-with-us" } },
+        "p3": { "type": "pillar", "settings": { "tag": "Sourcing", "heading": "Let us source", "text": "Looking for something rare? Our personal shoppers will find it, wherever it is.", "link_text": "Make a request", "link": "shopify://pages/contact" } }
+      },
+      "block_order": ["p1", "p2", "p3"],
+      "settings": {
+        "eyebrow": "Why FoundFashion",
+        "title": "Trusted by collectors worldwide",
+        "bg_color": "#191919",
+        "text_color": "#f4f0ea"
+      }
+    },
+    "db-gallery": {
+      "type": "db-gallery",
+      "settings": {
+        "eyebrow": "The collection",
+        "title": "A gallery of the rare and the wanted",
+        "text": "From quota Birkins to discontinued classics — explore the pieces collectors search for.",
+        "link_text": "Browse all",
+        "link": "shopify://collections/all",
+        "bg_color": "#f4f0ea",
+        "text_color": "#191919"
       }
     }
   },
   "order": [
-    "hero-split",
-    "new-arrivals",
-    "editorial-trio",
-    "bags-shoes",
-    "discover-story"
+    "db-hero",
+    "db-marquee",
+    "db-new-arrivals",
+    "db-editorial",
+    "db-story",
+    "db-press",
+    "db-pillars",
+    "db-gallery"
   ]
 }

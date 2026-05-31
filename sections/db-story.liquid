@@ -1,0 +1,73 @@
+{%- assign sid = section.id -%}
+{%- assign s = section.settings -%}
+
+<style>
+  #db-story-{{ sid }} {
+    background: {{ s.bg_color }};
+    color: {{ s.text_color }};
+    display: grid;
+    grid-template-columns: {% if s.image_position == 'right' %}1fr 1.05fr{% else %}1.05fr 1fr{% endif %};
+    min-height: 86vh;
+  }
+  .db-story__media { position: relative; overflow: hidden; {% if s.image_position == 'right' %}order: 2;{% endif %} }
+  .db-story__media img, .db-story__media .placeholder-svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .db-story__body {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(40px, 7vw, 110px) clamp(24px, 6vw, 110px);
+    {% if s.image_position == 'right' %}order: 1;{% endif %}
+  }
+  .db-story__eyebrow { font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; opacity: 0.55; margin: 0 0 22px; }
+  .db-story__title { font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(32px, 4vw, 60px); line-height: 1.04; letter-spacing: -0.01em; margin: 0 0 24px; max-width: 18ch; }
+  .db-story__title em { font-style: italic; }
+  .db-story__text { font-family: 'Figtree', sans-serif; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.65; max-width: 46ch; margin: 0 0 32px; opacity: 0.85; }
+  .db-story__text p { margin: 0 0 1em; }
+  .db-story__link {
+    display: inline-flex; align-items: center; gap: 10px; align-self: flex-start;
+    font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    color: inherit; text-decoration: none; padding: 15px 28px; border: 1px solid currentColor; border-radius: 999px;
+    transition: background 0.4s var(--db-ease), color 0.4s var(--db-ease);
+  }
+  .db-story__link:hover { background: {{ s.text_color }}; color: {{ s.bg_color }}; }
+
+  @media (max-width: 800px) {
+    #db-story-{{ sid }} { grid-template-columns: 1fr; }
+    .db-story__media { order: 1 !important; min-height: 60vh; }
+    .db-story__body { order: 2 !important; }
+  }
+</style>
+
+<section id="db-story-{{ sid }}">
+  <div class="db-story__media" data-parallax="0.16">
+    <div data-parallax-inner style="position:absolute; inset:-7% 0;">
+      {%- if s.image != blank -%}
+        <img src="{{ s.image | img_url: '1400x' }}" alt="{{ s.image.alt | escape }}" loading="lazy">
+      {%- else -%}
+        {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="db-story__body">
+    {%- if s.eyebrow != blank -%}<p class="db-story__eyebrow" data-reveal="up">{{ s.eyebrow | escape }}</p>{%- endif -%}
+    <h2 class="db-story__title" data-reveal data-reveal-from="left">{{ s.title }}</h2>
+    {%- if s.text != blank -%}<div class="db-story__text" data-reveal="up" data-reveal-delay="120">{{ s.text }}</div>{%- endif -%}
+    {%- if s.link_text != blank -%}<a class="db-story__link" href="{{ s.link }}" data-reveal="up" data-reveal-delay="200" data-cursor="READ">{{ s.link_text | escape }}</a>{%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "DB Story",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "select", "id": "image_position", "label": "Image position", "options": [ {"value":"left","label":"Left"}, {"value":"right","label":"Right"} ], "default": "left" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Found Magazine" },
+    { "type": "text", "id": "title", "label": "Title", "default": "Discover the story behind the piece" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Every item in our collection carries a history. We trace provenance, verify authenticity, and tell the story of craftsmanship that endures.</p>" },
+    { "type": "text", "id": "link_text", "label": "Link text", "default": "Read more" },
+    { "type": "url", "id": "link", "label": "Link" },
+    { "type": "color", "id": "bg_color", "label": "Background", "default": "#f0ebe5" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#191919" }
+  ],
+  "presets": [ { "name": "DB Story" } ]
+}
+{% endschema %}

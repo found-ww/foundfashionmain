@@ -1,0 +1,344 @@
+{%- comment -%}
+  db-anim — shared animation engine for the homepage redesign.
+  Replicates the Longbow/Digital Butlers stack: Lenis smooth scroll + GSAP,
+  with graceful native fallbacks. Drives behaviour via data attributes:
+    data-reveal[="up|fade|wipe"]  — reveal on scroll into view (default: mask wipe)
+    data-reveal-from="left|right|center|top|bottom"  — wipe origin
+    data-stagger                  — stagger direct [data-reveal] children
+    data-parallax[="0.15"]        — vertical parallax on inner [data-parallax-inner]
+    data-split                    — split text into words, reveal upward on inview
+    data-marquee[="30"]           — seamless marquee (seconds per loop) on .db-marquee__track
+    data-cursor="LABEL"           — custom cursor follower label on hover
+  Rendered once per page (guarded). Respects prefers-reduced-motion.
+{%- endcomment -%}
+
+{%- unless db_anim_rendered -%}
+{%- assign db_anim_rendered = true -%}
+
+<style>
+  :root { --db-ease: cubic-bezier(0.22, 1, 0.36, 1); }
+
+  /* ---------- Reveal ---------- */
+  [data-reveal] { will-change: opacity, transform, mask-size; }
+
+  /* default = mask wipe */
+  [data-reveal=""],
+  [data-reveal="wipe"] {
+    opacity: 0;
+    -webkit-mask-image: linear-gradient(#000, #000);
+    mask-image: linear-gradient(#000, #000);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 0% 0%;
+    mask-size: 0% 0%;
+    -webkit-mask-position: left center;
+    mask-position: left center;
+    transition: -webkit-mask-size 1.25s var(--db-ease), mask-size 1.25s var(--db-ease), opacity 1.1s ease;
+  }
+  [data-reveal-from="right"]  { -webkit-mask-position: right center;  mask-position: right center; }
+  [data-reveal-from="center"] { -webkit-mask-position: center center; mask-position: center center; }
+  [data-reveal-from="top"]    { -webkit-mask-position: center top;    mask-position: center top; }
+  [data-reveal-from="bottom"] { -webkit-mask-position: center bottom; mask-position: center bottom; }
+  [data-reveal=""].is-in,
+  [data-reveal="wipe"].is-in {
+    opacity: 1;
+    -webkit-mask-size: 220% 220%;
+    mask-size: 220% 220%;
+  }
+
+  /* fade up */
+  [data-reveal="up"] {
+    opacity: 0;
+    transform: translateY(42px);
+    transition: opacity 0.9s ease, transform 0.9s var(--db-ease);
+  }
+  [data-reveal="up"].is-in { opacity: 1; transform: none; }
+
+  /* fade only */
+  [data-reveal="fade"] { opacity: 0; transition: opacity 1s ease; }
+  [data-reveal="fade"].is-in { opacity: 1; }
+
+  /* ---------- Split text ---------- */
+  [data-split] { visibility: hidden; }
+  [data-split].db-split-ready { visibility: visible; }
+  [data-split] .db-line { display: block; overflow: hidden; }
+  [data-split] .db-word {
+    display: inline-block;
+    transform: translateY(110%);
+    transition: transform 0.85s var(--db-ease);
+  }
+  [data-split].is-in .db-word { transform: none; }
+
+  /* ---------- Parallax ---------- */
+  [data-parallax] { overflow: hidden; }
+  [data-parallax-inner] { will-change: transform; height: 112%; }
+
+  /* ---------- Marquee ---------- */
+  .db-marquee { overflow: hidden; display: flex; width: 100%; }
+  .db-marquee__track {
+    display: flex;
+    flex: 0 0 auto;
+    min-width: 100%;
+    will-change: transform;
+    animation: db-marquee-scroll var(--db-marquee-dur, 30s) linear infinite;
+  }
+  .db-marquee[data-direction="right"] .db-marquee__track { animation-direction: reverse; }
+  .db-marquee:hover .db-marquee__track { animation-play-state: paused; }
+  @keyframes db-marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ---------- Cursor follower ---------- */
+  .db-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 9998;
+    display: grid;
+    place-items: center;
+    min-width: 12px;
+    height: 12px;
+    padding: 0;
+    border-radius: 999px;
+    background: #191919;
+    color: #fff;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease, min-width 0.35s var(--db-ease), height 0.35s var(--db-ease), padding 0.35s var(--db-ease);
+  }
+  .db-cursor.is-visible { opacity: 1; }
+  .db-cursor.is-label { min-width: 96px; height: 96px; padding: 0 14px; }
+  html.db-has-cursor, html.db-has-cursor * { cursor: none !important; }
+
+  @media (hover: none), (pointer: coarse) {
+    .db-cursor { display: none !important; }
+    html.db-has-cursor, html.db-has-cursor * { cursor: auto !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal], [data-split] { opacity: 1 !important; visibility: visible !important; transform: none !important; -webkit-mask-image: none !important; mask-image: none !important; }
+    [data-split] .db-word { transform: none !important; }
+    .db-marquee__track { animation: none !important; }
+    .db-cursor { display: none !important; }
+  }
+
+  /* No-JS / failure safety: never leave content hidden */
+  html.no-js [data-reveal], html.no-js [data-split],
+  [data-reveal].db-revealed-fallback, [data-split].db-revealed-fallback {
+    opacity: 1 !important; visibility: visible !important; transform: none !important;
+    -webkit-mask-image: none !important; mask-image: none !important;
+  }
+</style>
+
+<script>
+(function () {
+  if (window.__dbAnim) return;
+  window.__dbAnim = true;
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+  function loadScript(src) {
+    return new Promise(function (resolve) {
+      var s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.onload = function () { resolve(true); };
+      s.onerror = function () { resolve(false); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function init() {
+    try {
+      initReveal();
+      initSplit();
+      initMarquee();
+      if (!coarse) initCursor();
+      if (!reduce) initSmoothAndParallax();
+    } catch (err) {
+      // never leave content hidden if anything throws
+      document.querySelectorAll('[data-reveal], [data-split]').forEach(function (el) {
+        el.classList.add('db-revealed-fallback');
+      });
+      if (window.console) console.warn('db-anim init failed:', err);
+    }
+  }
+
+  /* ---------- Reveal (IntersectionObserver toggles .is-in) ---------- */
+  function initReveal() {
+    var els = Array.prototype.slice.call(document.querySelectorAll('[data-reveal]'));
+    if (reduce || !('IntersectionObserver' in window)) {
+      els.forEach(function (el) { el.classList.add('is-in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        io.unobserve(el);
+        var delay = parseFloat(el.getAttribute('data-reveal-delay')) || 0;
+        if (delay) el.style.transitionDelay = delay + 'ms';
+        el.classList.add('is-in');
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+
+    els.forEach(function (el) {
+      // auto-stagger direct reveal children of a [data-stagger] parent
+      if (el.hasAttribute('data-stagger')) {
+        var kids = el.querySelectorAll(':scope > [data-reveal]');
+        Array.prototype.forEach.call(kids, function (kid, i) {
+          kid.setAttribute('data-reveal-delay', (i * 90));
+        });
+      }
+      io.observe(el);
+    });
+  }
+
+  /* ---------- Split text ---------- */
+  function initSplit() {
+    var els = document.querySelectorAll('[data-split]');
+    Array.prototype.forEach.call(els, function (el) {
+      if (reduce) { el.classList.add('db-split-ready', 'is-in'); return; }
+      var words = el.textContent.trim().split(/\s+/);
+      var line = document.createElement('span');
+      line.className = 'db-line';
+      el.textContent = '';
+      words.forEach(function (w, i) {
+        var word = document.createElement('span');
+        word.className = 'db-word';
+        word.textContent = w;
+        word.style.transitionDelay = (i * 55) + 'ms';
+        line.appendChild(word);
+        if (i < words.length - 1) line.appendChild(document.createTextNode(' '));
+      });
+      el.appendChild(line);
+      el.classList.add('db-split-ready');
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+        }, { threshold: 0.2 });
+        io.observe(el);
+      } else {
+        el.classList.add('is-in');
+      }
+    });
+  }
+
+  /* ---------- Marquee (set duration, duplicate track for seamless loop) ---------- */
+  function initMarquee() {
+    var els = document.querySelectorAll('.db-marquee');
+    Array.prototype.forEach.call(els, function (el) {
+      var secs = parseFloat(el.getAttribute('data-marquee')) || 30;
+      el.style.setProperty('--db-marquee-dur', secs + 's');
+      var track = el.querySelector('.db-marquee__track');
+      if (track && !track.dataset.dbCloned) {
+        track.dataset.dbCloned = '1';
+        var base = track.innerHTML;
+        var copies = 2; // even count keeps the -50% loop seamless
+        track.innerHTML = base.repeat(copies);
+        while (track.scrollWidth < el.offsetWidth * 2 && copies < 16) {
+          copies += 2;
+          track.innerHTML = base.repeat(copies);
+        }
+      }
+    });
+  }
+
+  /* ---------- Cursor follower ---------- */
+  function initCursor() {
+    var cursor = document.createElement('div');
+    cursor.className = 'db-cursor';
+    document.body.appendChild(cursor);
+    document.documentElement.classList.add('db-has-cursor');
+
+    var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    var cx = mx, cy = my, raf;
+
+    function loop() {
+      cx += (mx - cx) * 0.18;
+      cy += (my - cy) * 0.18;
+      cursor.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%, -50%)';
+      raf = requestAnimationFrame(loop);
+    }
+    window.addEventListener('mousemove', function (e) {
+      mx = e.clientX; my = e.clientY;
+      cursor.classList.add('is-visible');
+    });
+    document.addEventListener('mouseleave', function () { cursor.classList.remove('is-visible'); });
+
+    document.querySelectorAll('[data-cursor]').forEach(function (el) {
+      el.addEventListener('mouseenter', function () {
+        var label = el.getAttribute('data-cursor');
+        if (label) { cursor.textContent = label; cursor.classList.add('is-label'); }
+      });
+      el.addEventListener('mouseleave', function () {
+        cursor.textContent = ''; cursor.classList.remove('is-label');
+      });
+    });
+    loop();
+  }
+
+  /* ---------- Smooth scroll (Lenis) + GSAP parallax, with native fallback ---------- */
+  function initSmoothAndParallax() {
+    var parallaxEls = Array.prototype.slice.call(document.querySelectorAll('[data-parallax]'));
+
+    Promise.all([
+      loadScript('https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js'),
+      loadScript('https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js')
+    ]).then(function (res) {
+      var hasLenis = res[0] && window.Lenis;
+      var hasGsap = res[1] && window.gsap;
+      var lenis = null;
+
+      if (hasLenis) {
+        lenis = new window.Lenis({ duration: 1.1, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 1.6 });
+        if (hasGsap) {
+          window.gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+          window.gsap.ticker.lagSmoothing(0);
+        } else {
+          var rafLoop = function (t) { lenis.raf(t); requestAnimationFrame(rafLoop); };
+          requestAnimationFrame(rafLoop);
+        }
+      }
+
+      function applyParallax() {
+        var vh = window.innerHeight;
+        for (var i = 0; i < parallaxEls.length; i++) {
+          var el = parallaxEls[i];
+          var inner = el.querySelector('[data-parallax-inner]') || el.firstElementChild;
+          if (!inner) continue;
+          var rect = el.getBoundingClientRect();
+          if (rect.bottom < -vh || rect.top > vh * 2) continue;
+          var speed = parseFloat(el.getAttribute('data-parallax')) || 0.15;
+          var progress = (rect.top + rect.height / 2 - vh / 2) / vh; // -1..1 around centre
+          var shift = -progress * speed * 100;
+          inner.style.transform = 'translate3d(0,' + shift.toFixed(2) + 'px,0)';
+        }
+      }
+
+      if (lenis) {
+        lenis.on('scroll', applyParallax);
+      } else {
+        var ticking = false;
+        window.addEventListener('scroll', function () {
+          if (!ticking) { ticking = true; requestAnimationFrame(function () { applyParallax(); ticking = false; }); }
+        }, { passive: true });
+      }
+      window.addEventListener('resize', applyParallax);
+      applyParallax();
+
+      // expose for sections that may want to pause (e.g. open overlay menu)
+      window.dbLenis = lenis;
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+{%- endunless -%}

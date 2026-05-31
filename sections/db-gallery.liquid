@@ -1,0 +1,92 @@
+{%- assign sid = section.id -%}
+{%- assign s = section.settings -%}
+
+<style>
+  #db-gallery-{{ sid }} {
+    background: {{ s.bg_color }};
+    color: {{ s.text_color }};
+    position: relative;
+  }
+  .db-gal__wrap { display: grid; grid-template-columns: 1fr 1.2fr; gap: 0; }
+  .db-gal__sticky {
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(40px, 6vw, 96px);
+  }
+  .db-gal__eyebrow { font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.24em; text-transform: uppercase; opacity: 0.55; margin: 0 0 18px; }
+  .db-gal__title { font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(34px, 4.5vw, 68px); line-height: 1.02; letter-spacing: -0.01em; margin: 0 0 24px; max-width: 14ch; }
+  .db-gal__title em { font-style: italic; }
+  .db-gal__text { font-family: 'Figtree', sans-serif; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.6; max-width: 40ch; opacity: 0.82; margin: 0 0 30px; }
+  .db-gal__link { display: inline-flex; align-self: flex-start; font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: inherit; text-decoration: none; padding: 15px 28px; border: 1px solid currentColor; border-radius: 999px; transition: background 0.4s var(--db-ease), color 0.4s var(--db-ease); }
+  .db-gal__link:hover { background: {{ s.text_color }}; color: {{ s.bg_color }}; }
+
+  .db-gal__scroll { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 1.2vw, 18px); padding: clamp(40px, 6vw, 96px) clamp(20px, 3vw, 48px); align-items: start; }
+  .db-gal__col { display: flex; flex-direction: column; gap: clamp(10px, 1.2vw, 18px); }
+  .db-gal__col--2 { margin-top: clamp(40px, 8vw, 120px); }
+  .db-gal__fig { overflow: hidden; border-radius: 6px; aspect-ratio: 3/4; }
+  .db-gal__fig img, .db-gal__fig .placeholder-svg { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s var(--db-ease); }
+  .db-gal__fig:hover img { transform: scale(1.05); }
+
+  @media (max-width: 800px) {
+    .db-gal__wrap { grid-template-columns: 1fr; }
+    .db-gal__sticky { position: static; height: auto; }
+    .db-gal__col--2 { margin-top: 0; }
+  }
+</style>
+
+<section id="db-gallery-{{ sid }}">
+  <div class="db-gal__wrap">
+    <div class="db-gal__sticky">
+      {%- if s.eyebrow != blank -%}<p class="db-gal__eyebrow" data-reveal="up">{{ s.eyebrow | escape }}</p>{%- endif -%}
+      <h2 class="db-gal__title" data-reveal data-reveal-from="left">{{ s.title }}</h2>
+      {%- if s.text != blank -%}<p class="db-gal__text" data-reveal="up" data-reveal-delay="120">{{ s.text | escape }}</p>{%- endif -%}
+      {%- if s.link_text != blank -%}<a class="db-gal__link" href="{{ s.link }}" data-reveal="up" data-reveal-delay="200" data-cursor="VIEW">{{ s.link_text | escape }}</a>{%- endif -%}
+    </div>
+
+    <div class="db-gal__scroll">
+      <div class="db-gal__col">
+        {%- for i in (1..3) -%}
+          {%- assign blk = section.blocks[forloop.index0] -%}
+          <figure class="db-gal__fig" data-reveal data-cursor="VIEW">
+            {%- if blk and blk.settings.image != blank -%}
+              <img src="{{ blk.settings.image | img_url: '800x' }}" alt="{{ blk.settings.image.alt | escape }}" loading="lazy">
+            {%- else -%}
+              {{ 'product-' | append: i | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+          </figure>
+        {%- endfor -%}
+      </div>
+      <div class="db-gal__col db-gal__col--2">
+        {%- for i in (4..6) -%}
+          {%- assign blk = section.blocks[forloop.index0 | plus: 3] -%}
+          <figure class="db-gal__fig" data-reveal data-cursor="VIEW">
+            {%- if blk and blk.settings.image != blank -%}
+              <img src="{{ blk.settings.image | img_url: '800x' }}" alt="{{ blk.settings.image.alt | escape }}" loading="lazy">
+            {%- else -%}
+              {{ 'product-' | append: i | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+          </figure>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "DB Gallery",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The collection" },
+    { "type": "text", "id": "title", "label": "Title", "default": "A gallery of the rare and the wanted" },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "From quota Birkins to discontinued classics — explore the pieces collectors search for." },
+    { "type": "text", "id": "link_text", "label": "Link text", "default": "Browse all" },
+    { "type": "url", "id": "link", "label": "Link" },
+    { "type": "color", "id": "bg_color", "label": "Background", "default": "#f4f0ea" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#191919" }
+  ],
+  "blocks": [
+    { "type": "image", "name": "Image", "settings": [ { "type": "image_picker", "id": "image", "label": "Image" } ] }
+  ],
+  "presets": [ { "name": "DB Gallery" } ]
+}
+{% endschema %}

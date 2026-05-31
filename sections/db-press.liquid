@@ -1,0 +1,46 @@
+{%- assign sid = section.id -%}
+{%- assign s = section.settings -%}
+
+<style>
+  #db-press-{{ sid }} {
+    background: {{ s.bg_color }};
+    color: {{ s.text_color }};
+    padding: clamp(40px, 6vw, 80px) clamp(18px, 4vw, 48px);
+    text-align: center;
+  }
+  .db-press__label { font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0.5; margin: 0 0 clamp(24px, 3vw, 44px); }
+  .db-press__row {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: clamp(28px, 6vw, 80px);
+  }
+  .db-press__logo {
+    font-family: 'Fraunces', serif; font-weight: 300; font-style: italic;
+    font-size: clamp(20px, 2.4vw, 34px); letter-spacing: 0.01em;
+    opacity: 0.55; transition: opacity 0.4s ease;
+  }
+  .db-press__logo:hover { opacity: 1; }
+</style>
+
+<section id="db-press-{{ sid }}">
+  <p class="db-press__label" data-reveal="fade">{{ s.label | escape }}</p>
+  <div class="db-press__row" data-reveal="up" data-stagger>
+    {%- assign logos = s.logos | default: "Vogue,Harper's Bazaar,GQ,Tatler,The Times,Elle" | split: ',' -%}
+    {%- for logo in logos -%}
+      <span class="db-press__logo" data-reveal="up">{{ logo | strip }}</span>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "DB Press",
+  "settings": [
+    { "type": "text", "id": "label", "label": "Label", "default": "As featured in" },
+    { "type": "text", "id": "logos", "label": "Logos (comma separated)", "default": "Vogue,Harper's Bazaar,GQ,Tatler,The Times,Elle" },
+    { "type": "color", "id": "bg_color", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#191919" }
+  ],
+  "presets": [ { "name": "DB Press" } ]
+}
+{% endschema %}
