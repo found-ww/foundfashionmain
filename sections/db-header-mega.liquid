@@ -1,0 +1,245 @@
+{%- assign main_menu = linklists['main-menu'] -%}
+{%- assign sid = section.id -%}
+
+{% render 'db-anim' %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --db-ink: #191919;
+    --db-paper: #f4f0ea;
+    --dbm-header-h: 64px;
+  }
+
+  .dbm-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; color: var(--db-ink); }
+  .dbm-bar {
+    position: relative; height: var(--dbm-header-h);
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+    padding: 0 clamp(18px, 4vw, 48px);
+    background: rgba(244, 240, 234, 0.86);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 1px 0 rgba(25,25,25,0.07);
+  }
+  .dbm-logo {
+    grid-column: 2; justify-self: center;
+    font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(20px, 2.2vw, 26px);
+    letter-spacing: 0.02em; text-decoration: none; color: inherit; line-height: 1;
+  }
+  .dbm-utils { grid-column: 3; display: flex; align-items: center; justify-content: flex-end; gap: 22px; }
+  .dbm-util {
+    font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.16em;
+    text-transform: uppercase; color: inherit; text-decoration: none;
+  }
+  .dbm-util:hover { opacity: 0.6; }
+
+  /* primary nav */
+  .dbm-nav { grid-column: 1; display: flex; align-items: center; gap: clamp(14px, 1.8vw, 30px); height: 100%; }
+  .dbm-item { position: static; height: 100%; display: flex; align-items: center; }
+  .dbm-top {
+    position: relative; display: inline-flex; align-items: center; height: 100%;
+    font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: inherit; text-decoration: none; cursor: pointer;
+  }
+  .dbm-top::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 18px; height: 1px;
+    background: currentColor; transform: scaleX(0); transform-origin: right;
+    transition: transform 0.35s var(--db-ease);
+  }
+  .dbm-item:hover .dbm-top::after, .dbm-item:focus-within .dbm-top::after { transform: scaleX(1); transform-origin: left; }
+
+  /* dropdown panel */
+  .dbm-panel {
+    position: absolute; left: 0; right: 0; top: var(--dbm-header-h);
+    background: var(--db-paper); color: var(--db-ink);
+    box-shadow: 0 24px 48px -24px rgba(25,25,25,0.3); border-top: 1px solid rgba(25,25,25,0.06);
+    opacity: 0; visibility: hidden; transform: translateY(-8px);
+    transition: opacity 0.35s ease, transform 0.45s var(--db-ease), visibility 0.35s;
+    pointer-events: none;
+  }
+  .dbm-item:hover .dbm-panel, .dbm-item:focus-within .dbm-panel { opacity: 1; visibility: visible; transform: none; pointer-events: auto; }
+  .dbm-panel__inner {
+    max-width: 1600px; margin: 0 auto; padding: clamp(28px, 3vw, 48px) clamp(18px, 4vw, 48px);
+    display: grid; grid-template-columns: 3fr 1.1fr; gap: clamp(24px, 4vw, 64px); align-items: start;
+  }
+  .dbm-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: clamp(20px, 2.5vw, 44px); }
+  .dbm-col__head {
+    font-family: 'Figtree', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.16em;
+    text-transform: uppercase; opacity: 0.5; margin: 0 0 14px;
+  }
+  .dbm-col__head a { color: inherit; text-decoration: none; }
+  .dbm-sub { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+  .dbm-sub a {
+    font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(15px, 1.2vw, 18px);
+    color: var(--db-ink); text-decoration: none; transition: opacity 0.25s ease, padding-left 0.3s var(--db-ease);
+    opacity: 0.82;
+  }
+  .dbm-sub a:hover { opacity: 1; padding-left: 6px; font-style: italic; }
+
+  .dbm-feature { display: block; text-decoration: none; color: var(--db-ink); }
+  .dbm-feature__media { aspect-ratio: 4/3; overflow: hidden; border-radius: 6px; background: #ddd; }
+  .dbm-feature__media img, .dbm-feature__media .placeholder-svg { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s var(--db-ease); }
+  .dbm-feature:hover .dbm-feature__media img { transform: scale(1.05); }
+  .dbm-feature__cap { font-family: 'Figtree', sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin: 12px 0 0; }
+  .dbm-feature__cap span { opacity: 0.5; }
+
+  /* burger (mobile) */
+  .dbm-burger { grid-column: 1; justify-self: start; display: none; flex-direction: column; gap: 5px; width: 26px; height: 26px; background: none; border: 0; padding: 0; cursor: pointer; color: inherit; }
+  .dbm-burger span { display: block; height: 1.5px; width: 100%; background: currentColor; }
+
+  @media (max-width: 1000px) {
+    .dbm-nav { display: none; }
+    .dbm-burger { display: inline-flex; }
+  }
+
+  /* ---------------- Mobile overlay ---------------- */
+  .dbm-mobile {
+    position: fixed; inset: 0; z-index: 1100; background: var(--db-ink); color: #fff;
+    padding: clamp(20px,5vh,48px) clamp(18px,6vw,40px);
+    clip-path: inset(0 0 100% 0); transition: clip-path 0.7s var(--db-ease);
+    pointer-events: none; overflow-y: auto;
+  }
+  .dbm-mobile.is-open { clip-path: inset(0 0 0 0); pointer-events: auto; }
+  .dbm-mobile__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6vh; }
+  .dbm-mobile__close { font-family: 'Figtree', sans-serif; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #fff; background: none; border: 0; cursor: pointer; }
+  .dbm-macc { border-bottom: 1px solid rgba(255,255,255,0.14); }
+  .dbm-macc__btn {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 0; background: none; border: 0; color: #fff; cursor: pointer;
+    font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(24px,7vw,34px); text-align: left;
+  }
+  .dbm-macc__btn[href] { text-decoration: none; }
+  .dbm-macc__plus { font-family: 'Figtree', sans-serif; font-size: 22px; transition: transform 0.4s var(--db-ease); }
+  .dbm-macc.is-open .dbm-macc__plus { transform: rotate(45deg); }
+  .dbm-macc__panel { max-height: 0; overflow: hidden; transition: max-height 0.5s var(--db-ease); }
+  .dbm-macc.is-open .dbm-macc__panel { max-height: 600px; }
+  .dbm-macc__panel ul { list-style: none; margin: 0; padding: 0 0 18px; display: flex; flex-direction: column; gap: 12px; }
+  .dbm-macc__panel a { font-family: 'Figtree', sans-serif; font-size: 15px; letter-spacing: 0.04em; color: rgba(255,255,255,0.78); text-decoration: none; }
+
+  body.db-menu-open { overflow: hidden; }
+</style>
+
+<header class="dbm-header" id="dbm-header-{{ sid }}">
+  <div class="dbm-bar">
+    <nav class="dbm-nav">
+      {%- for link in main_menu.links -%}
+        <div class="dbm-item">
+          <a class="dbm-top" href="{{ link.url }}" data-cursor="{% if link.links.size > 0 %}EXPLORE{% else %}SHOP{% endif %}">{{ link.title }}</a>
+          {%- if link.links.size > 0 -%}
+            {%- assign feat = section.blocks[forloop.index0] -%}
+            <div class="dbm-panel">
+              <div class="dbm-panel__inner">
+                <div class="dbm-cols">
+                  {%- for child in link.links -%}
+                    <div class="dbm-col">
+                      <p class="dbm-col__head"><a href="{{ child.url }}">{{ child.title }}</a></p>
+                      {%- if child.links.size > 0 -%}
+                        <ul class="dbm-sub">
+                          {%- for grand in child.links -%}
+                            <li><a href="{{ grand.url }}" data-cursor="VIEW">{{ grand.title }}</a></li>
+                          {%- endfor -%}
+                        </ul>
+                      {%- endif -%}
+                    </div>
+                  {%- endfor -%}
+                </div>
+                <a class="dbm-feature" href="{{ link.url }}" data-cursor="VIEW">
+                  <div class="dbm-feature__media">
+                    {%- if feat and feat.settings.image != blank -%}
+                      <img src="{{ feat.settings.image | img_url: '700x' }}" alt="{{ feat.settings.image.alt | escape }}" loading="lazy">
+                    {%- else -%}
+                      {%- assign ph = forloop.index0 | modulo: 6 | plus: 1 -%}
+                      {{ 'product-' | append: ph | placeholder_svg_tag: 'placeholder-svg' }}
+                    {%- endif -%}
+                  </div>
+                  <p class="dbm-feature__cap">{% if feat and feat.settings.caption != blank %}{{ feat.settings.caption | escape }}{% else %}Featured{% endif %} <span>— {{ link.title }}</span></p>
+                </a>
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </nav>
+
+    <button class="dbm-burger" type="button" data-dbm-open aria-label="Open menu"><span></span><span></span><span></span></button>
+
+    <a class="dbm-logo" href="{{ routes.root_url }}">{{ shop.name }}</a>
+
+    <div class="dbm-utils">
+      <a class="dbm-util" href="{{ routes.search_url }}">Search</a>
+      <a class="dbm-util" href="{{ routes.cart_url }}" data-cursor="VIEW BAG">Bag ({{ cart.item_count }})</a>
+    </div>
+  </div>
+</header>
+
+<div class="dbm-mobile" id="dbm-mobile-{{ sid }}" aria-hidden="true">
+  <div class="dbm-mobile__top">
+    <a class="dbm-logo" href="{{ routes.root_url }}" style="color:#fff;">{{ shop.name }}</a>
+    <button class="dbm-mobile__close" type="button" data-dbm-close>Close ✕</button>
+  </div>
+  {%- for link in main_menu.links -%}
+    {%- if link.links.size > 0 -%}
+      <div class="dbm-macc">
+        <button class="dbm-macc__btn" type="button" data-dbm-acc>{{ link.title }}<span class="dbm-macc__plus">+</span></button>
+        <div class="dbm-macc__panel">
+          <ul>
+            <li><a href="{{ link.url }}">All {{ link.title }}</a></li>
+            {%- for child in link.links -%}
+              <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      </div>
+    {%- else -%}
+      <div class="dbm-macc"><a class="dbm-macc__btn" href="{{ link.url }}">{{ link.title }}</a></div>
+    {%- endif -%}
+  {%- endfor -%}
+  <div class="dbm-macc"><a class="dbm-macc__btn" href="{{ routes.search_url }}">Search</a></div>
+  <div class="dbm-macc"><a class="dbm-macc__btn" href="{{ routes.cart_url }}">Bag ({{ cart.item_count }})</a></div>
+</div>
+
+<script>
+(function () {
+  var mobile = document.getElementById('dbm-mobile-{{ sid }}');
+  if (!mobile) return;
+
+  function openMenu() {
+    mobile.classList.add('is-open'); mobile.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('db-menu-open');
+    if (window.dbLenis && window.dbLenis.stop) window.dbLenis.stop();
+  }
+  function closeMenu() {
+    mobile.classList.remove('is-open'); mobile.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('db-menu-open');
+    if (window.dbLenis && window.dbLenis.start) window.dbLenis.start();
+  }
+  document.querySelectorAll('[data-dbm-open]').forEach(function (b) { b.addEventListener('click', openMenu); });
+  document.querySelectorAll('[data-dbm-close]').forEach(function (b) { b.addEventListener('click', closeMenu); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+
+  mobile.querySelectorAll('[data-dbm-acc]').forEach(function (btn) {
+    btn.addEventListener('click', function () { btn.parentNode.classList.toggle('is-open'); });
+  });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "DB Header Mega",
+  "settings": [
+    { "type": "paragraph", "content": "Persistent mega-menu bar. Sub-links come from nested items in the 'main-menu' navigation (add drop-down/child links in Navigation). Add a feature-image block per top-level item (in order) for the panel thumbnail." }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Panel feature image",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "caption", "label": "Caption", "default": "Featured" }
+      ]
+    }
+  ]
+}
+{% endschema %}

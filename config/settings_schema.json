@@ -582,5 +582,25 @@
         "info": "96 x 96px .png recommended"
       }
     ]
+  },
+  {
+    "name": "Homepage menu (redesign)",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Controls which redesigned header/menu renders on the homepage."
+      },
+      {
+        "type": "select",
+        "id": "homepage_menu_style",
+        "label": "Menu style",
+        "options": [
+          { "value": "split", "label": "Split overlay + image preview" },
+          { "value": "mega", "label": "Mega-menu bar" },
+          { "value": "fullscreen", "label": "Full-screen serif overlay" }
+        ],
+        "default": "split"
+      }
+    ]
   }
 ]

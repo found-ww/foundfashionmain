@@ -278,7 +278,11 @@ window.addEventListener('load', function() {
     <div class="PageContainer">
       {% comment %}{% section 'announcement' %}{% endcomment %}
       {%- if template.name == 'index' -%}
-        {% section 'db-header' %}
+        {%- case settings.homepage_menu_style -%}
+          {%- when 'mega' -%}{% section 'db-header-mega' %}
+          {%- when 'fullscreen' -%}{% section 'db-header' %}
+          {%- else -%}{% section 'db-header-split' %}
+        {%- endcase -%}
       {%- else -%}
         {% section 'header' %}
       {%- endif -%}
