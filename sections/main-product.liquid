@@ -343,7 +343,8 @@
       {%- comment -%} CTA row: Add to cart only — Offerly injects its button automatically {%- endcomment -%}
       {%- assign is_high_jewellery = false -%}
       {%- for tag in product.tags -%}
-        {%- if tag == 'high jewellery' -%}{%- assign is_high_jewellery = true -%}{%- break -%}{%- endif -%}
+        {%- assign tag_downcase = tag | downcase -%}
+        {%- if tag_downcase == 'high jewellery' -%}{%- assign is_high_jewellery = true -%}{%- break -%}{%- endif -%}
       {%- endfor -%}
 
       {%- if is_high_jewellery -%}
