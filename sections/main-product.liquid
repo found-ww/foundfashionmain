@@ -341,6 +341,25 @@
       {%- endif -%}
 
       {%- comment -%} CTA row: Add to cart only — Offerly injects its button automatically {%- endcomment -%}
+      {%- assign is_high_jewellery = false -%}
+      {%- for tag in product.tags -%}
+        {%- if tag == 'high jewellery' -%}{%- assign is_high_jewellery = true -%}{%- break -%}{%- endif -%}
+      {%- endfor -%}
+
+      {%- if is_high_jewellery -%}
+        {%- assign wa_product_url = shop.url | append: product.url -%}
+        {%- assign wa_message = "Hi, I'm interested in " | append: product.title | append: ". " | append: wa_product_url | url_encode -%}
+        <div class="ppv1-cta-row">
+          <a href="https://wa.me/447405520466?text={{ wa_message }}"
+             class="Button Button--primary ppv1-atc-btn"
+             target="_blank"
+             rel="noopener"
+             style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;">
+            MESSAGE OUR TEAM
+          </a>
+        </div>
+      {%- else -%}
+
       <div class="ppv1-cta-row">
         {%- form 'product', product, class: 'ppv1-form' -%}
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
@@ -385,6 +404,7 @@
           {%- endif -%}
         {%- endform -%}
       </div>
+      {%- endif -%}
     </div>
   </div>
 
