@@ -1,0 +1,86 @@
+{%- assign s = section.settings -%}
+{%- assign sid = section.id -%}
+
+<style>
+  #db-foot-{{ sid }}{background:var(--ink,#171513);color:var(--paper,#f4f0ea);font-family:"Figtree",sans-serif;padding:clamp(3.5rem,8vw,6rem) clamp(1.2rem,4vw,3rem) 2.5rem}
+  #db-foot-{{ sid }} .foot-top{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2.5rem}
+  #db-foot-{{ sid }} .foot-top h3{font-family:"Fraunces",serif;font-weight:300;font-size:clamp(1.6rem,4vw,2.6rem);line-height:1.15;max-width:18ch}
+  #db-foot-{{ sid }} .foot-top h3 em{font-style:italic}
+  #db-foot-{{ sid }} .foot-col h4{font-weight:600;text-transform:uppercase;letter-spacing:.2em;font-size:.62rem;opacity:.55;margin-bottom:1.2rem}
+  #db-foot-{{ sid }} .foot-col a{display:block;color:var(--paper,#f4f0ea);text-decoration:none;font-size:.92rem;opacity:.85;margin-bottom:.7rem;transition:opacity .3s}
+  #db-foot-{{ sid }} .foot-col a:hover{opacity:1}
+  #db-foot-{{ sid }} .foot-bot{max-width:1100px;margin:clamp(3rem,6vw,5rem) auto 0;padding-top:1.6rem;border-top:1px solid rgba(244,240,234,.15);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;text-transform:uppercase;letter-spacing:.18em;font-size:.6rem;opacity:.6}
+  #db-foot-{{ sid }} .rv{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform 1s cubic-bezier(.16,1,.3,1)}
+  #db-foot-{{ sid }} .rv.in{opacity:1;transform:none}
+  @media(max-width:760px){#db-foot-{{ sid }} .foot-top{grid-template-columns:1fr;gap:2.5rem}}
+  @media(prefers-reduced-motion:reduce){#db-foot-{{ sid }} .rv{opacity:1;transform:none}}
+</style>
+
+<footer id="db-foot-{{ sid }}">
+  <div class="foot-top">
+    <h3 class="rv">{{ s.headline | default: 'Found Fashion — a considered edit of the rare and the <em>coveted.</em>' }}</h3>
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'column' -%}
+        {%- assign col_menu = linklists[block.settings.menu] -%}
+        <div class="foot-col rv" {{ block.shopify_attributes }}>
+          <h4>{{ block.settings.heading | escape }}</h4>
+          {%- if col_menu != blank and col_menu.links.size > 0 -%}
+            {%- for link in col_menu.links -%}<a href="{{ link.url }}">{{ link.title }}</a>{%- endfor -%}
+          {%- else -%}
+            {%- assign labels = block.settings.links | newline_to_br | split: '<br />' -%}
+            {%- for label in labels -%}
+              {%- assign label = label | strip -%}
+              {%- if label != blank -%}<a href="{{ block.settings.link_url | default: '#' }}">{{ label }}</a>{%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+  <div class="foot-bot">
+    <span>{{ s.copyright | default: '© Found Fashion 2026' }}</span>
+    <span>{{ s.byline | default: 'London · By appointment' }}</span>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var root=document.getElementById('db-foot-{{ sid }}'); if(!root) return;
+    if(!('IntersectionObserver' in window)){ root.querySelectorAll('.rv').forEach(function(el){el.classList.add('in');}); return; }
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.18});
+    root.querySelectorAll('.rv').forEach(function(el){io.observe(el);});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "DB Home Footer",
+  "settings": [
+    { "type": "html", "id": "headline", "label": "Headline (HTML allowed)", "default": "Found Fashion — a considered edit of the rare and the <em>coveted.</em>" },
+    { "type": "text", "id": "copyright", "label": "Copyright", "default": "© Found Fashion 2026" },
+    { "type": "text", "id": "byline", "label": "Byline", "default": "London · By appointment" }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "Link column",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Shop" },
+        { "type": "link_list", "id": "menu", "label": "Menu", "info": "Pick a navigation menu, or leave blank and use the manual links below." },
+        { "type": "textarea", "id": "links", "label": "Manual links (one per line)", "default": "New Arrivals\nBags\nJewellery\nSale" },
+        { "type": "url", "id": "link_url", "label": "Manual links destination", "info": "All manual links point here (set a menu above for individual links)." }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "DB Home Footer",
+      "blocks": [
+        { "type": "column", "settings": { "heading": "Shop", "links": "New Arrivals\nBags\nJewellery\nSale" } },
+        { "type": "column", "settings": { "heading": "Studio", "links": "Sourcing\nAuthentication\nMagazine\nContact" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

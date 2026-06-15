@@ -277,21 +277,19 @@ window.addEventListener('load', function() {
 
     <div class="PageContainer">
       {% comment %}{% section 'announcement' %}{% endcomment %}
-      {%- if template.name == 'index' -%}
-        {%- case settings.homepage_menu_style -%}
-          {%- when 'mega' -%}{% section 'db-header-mega' %}
-          {%- when 'fullscreen' -%}{% section 'db-header' %}
-          {%- else -%}{% section 'db-header-split' %}
-        {%- endcase -%}
-      {%- else -%}
+      {%- comment -%} Homepage nav lives inside the db-home-top section; other templates use the theme header. {%- endcomment -%}
+      {%- unless template.name == 'index' -%}
         {% section 'header' %}
-      {%- endif -%}
+      {%- endunless -%}
 
       <main id="main" role="main">
         {{ content_for_layout }}
       {% capture bsscommerce_passcode_to_see_price_product_custom %}{% render 'bss-passcode-to-see-price-js.liquid' %}{% endcapture %}{% unless bsscommerce_passcode_to_see_price_product_custom contains "Liquid error" %}{% render 'bss-passcode-to-see-price-js.liquid' %}{% endunless %}{% capture bsscommerce_login_to_see_price_product_custom %}{% render 'bsscommerce-login-to-see-price-custom-js.liquid' %}{% endcapture %}{% unless bsscommerce_login_to_see_price_product_custom contains "Liquid error" %}{% render 'bsscommerce-login-to-see-price-custom-js.liquid' %}{% endunless %}</main>
 
-      {% section 'footer' %}
+      {%- comment -%} Homepage renders its own footer (db-home-footer) as the last section. {%- endcomment -%}
+      {%- unless template.name == 'index' -%}
+        {% section 'footer' %}
+      {%- endunless -%}
     </div>
 
 {% include 'swymSnippet' %}

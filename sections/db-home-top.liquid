@@ -1,0 +1,386 @@
+{%- assign s = section.settings -%}
+{%- assign main_menu = linklists['main-menu'] -%}
+{%- if s.hero_image != blank -%}
+  {%- assign hero_img = s.hero_image | img_url: '1600x' -%}
+{%- else -%}
+  {%- assign hero_img = 'https://cdn.shopify.com/s/files/1/0987/8080/7432/files/22e1779a-e856-4df4-867b-38c91eb5cbe4.png?v=1780233795' -%}
+{%- endif -%}
+{%- assign plimit = s.product_limit | default: 12 -%}
+{%- assign coll = collections[s.collection] -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/lenis@1/dist/lenis.min.js"></script>
+
+<style>
+  :root{--ink:#171513;--paper:#f4f0ea;--tile:#ece7df;--grey:#9a958c;--price:#6f6a61;
+    --line:rgba(23,21,19,.12);--line-soft:rgba(23,21,19,.07);--line-d:rgba(244,240,234,.14);
+    --ease:cubic-bezier(.76,0,.24,1);--ease-out:cubic-bezier(.16,1,.3,1)}
+  body.db-v2{font-family:"Figtree",sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden}
+  body.db-v2.open{overflow:hidden}
+  html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
+  .db-v2 .grain{position:fixed;inset:0;z-index:300;pointer-events:none;opacity:.04;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* ===== Apple-glass capsule nav ===== */
+  .db-v2 .bar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex}
+  .db-v2 .bar-row{position:relative;flex:1;display:flex;align-items:center;justify-content:space-between;gap:1rem;color:var(--paper);
+    padding:1.1rem clamp(1.2rem,4vw,2.4rem);background:transparent;border-bottom:1px solid transparent;
+    transition:background .45s ease,backdrop-filter .45s ease,border-color .45s ease}
+  .db-v2 .bar.solid .bar-row{background:rgba(23,21,19,.5);
+    -webkit-backdrop-filter:blur(22px) saturate(1.8);backdrop-filter:blur(22px) saturate(1.8);
+    border-bottom-color:rgba(244,240,234,.1)}
+  .db-v2 .wordmark{font-family:"Figtree";font-weight:600;text-transform:uppercase;letter-spacing:.34em;font-size:.8rem;text-decoration:none;color:inherit;display:flex;gap:.34em}
+  .db-v2 .wordmark span{font-weight:400;opacity:.7}
+  .db-v2 .nav{display:flex;gap:clamp(1rem,2vw,2.2rem);align-items:center}
+  .db-v2 .nav a{font-family:"Figtree";font-weight:500;text-transform:uppercase;letter-spacing:.18em;font-size:.7rem;color:inherit;text-decoration:none;position:relative;padding:.4rem 0;display:inline-flex}
+  .db-v2 .nav a::after{content:"";position:absolute;left:0;bottom:-.05rem;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+  .db-v2 .nav a:hover::after{transform:scaleX(1)}
+  .db-v2 .nav a .ch{position:relative;display:inline-block;overflow:hidden;height:1em;line-height:1;vertical-align:top}
+  .db-v2 .nav a .ch b{display:block;font-weight:inherit;line-height:1;transition:transform .5s var(--ease);transition-delay:calc(var(--i)*.025s)}
+  .db-v2 .nav a:hover .ch b{transform:translateY(-100%)}
+  .db-v2 .cta{font-weight:500;text-transform:uppercase;letter-spacing:.18em;font-size:.66rem;opacity:.85;white-space:nowrap}
+  .db-v2 .bar-right{display:flex;gap:1.3rem;align-items:center}
+  .db-v2 a.cta{text-decoration:none;color:inherit;transition:opacity .3s}.db-v2 a.cta:hover{opacity:1}
+  .db-v2 .menu-toggle{display:none;background:none;border:0;cursor:pointer;color:inherit;font-family:"Figtree";font-weight:500;text-transform:uppercase;letter-spacing:.22em;font-size:.7rem;align-items:center;gap:.7rem}
+  .db-v2 .menu-toggle .lines{position:relative;width:24px;height:8px}
+  .db-v2 .menu-toggle .lines i{position:absolute;left:0;right:0;height:1.4px;background:currentColor;transition:transform .45s var(--ease)}
+  .db-v2 .menu-toggle .lines i:nth-child(1){top:0}.db-v2 .menu-toggle .lines i:nth-child(2){bottom:0}
+
+  /* ===== WebGL silk hero ===== */
+  .db-v2 .hero{position:relative;height:100vh;min-height:600px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:radial-gradient(120% 90% at 50% 8%,#2a2724,#171513 60%,#0c0b0a)}
+  .db-v2 #silk{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}
+  .db-v2 .hero::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,8,8,.4),rgba(8,8,8,.12) 45%,rgba(8,8,8,.66))}
+  .db-v2 .hero-copy{position:relative;z-index:2;color:var(--paper);padding:0 1.4rem;will-change:transform,opacity}
+  .db-v2 .hero-copy small{display:block;text-transform:uppercase;letter-spacing:.32em;font-size:.66rem;opacity:.78;margin-bottom:1.4rem}
+  .db-v2 .hero-copy h1{font-family:"Fraunces";font-weight:300;font-size:clamp(2.6rem,8vw,6.2rem);line-height:1.02;letter-spacing:-.01em;text-shadow:0 8px 50px rgba(0,0,0,.35)}
+  .db-v2 .hero-copy h1 em{font-style:italic}
+  .db-v2 .cue{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:2;color:var(--paper);text-transform:uppercase;letter-spacing:.26em;font-size:.58rem;opacity:.75;display:flex;flex-direction:column;align-items:center;gap:.6rem}
+  .db-v2 .cue .r{width:1px;height:40px;background:var(--paper);opacity:.5;animation:db-v2-drop 2.4s var(--ease-out) infinite}
+  @keyframes db-v2-drop{0%{transform:scaleY(0);transform-origin:top}40%{transform:scaleY(1);transform-origin:top}60%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+  /* ===== New Arrivals — forced 2-row horizontal scroll ===== */
+  .db-v2 .arr-wrap{position:relative;background:var(--paper)}
+  .db-v2 .arr-sticky{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+  .db-v2 .arr-head{text-align:center;margin-bottom:clamp(2rem,4vw,3rem);z-index:5}
+  .db-v2 .arr-head .eyebrow{text-transform:uppercase;letter-spacing:.28em;font-size:.6rem;opacity:.5;margin-bottom:.9rem}
+  .db-v2 .arr-head h2{font-family:"Figtree";font-weight:500;text-transform:uppercase;letter-spacing:.24em;font-size:clamp(1.2rem,2.6vw,1.7rem);line-height:1.1}
+  .db-v2 .arr-track{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:clamp(170px,19vw,240px);
+    gap:clamp(1.4rem,2vw,2rem) clamp(1rem,1.6vw,1.6rem);padding:0 clamp(1.2rem,4vw,3rem);align-content:center;will-change:transform}
+  .db-v2 .pcard{cursor:pointer;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+  .db-v2 .pcard .img{position:relative;aspect-ratio:1/1;border-radius:3px;overflow:hidden;background:var(--tile)}
+  .db-v2 .pcard .img .ph{position:absolute;inset:0;transition:transform 1s var(--ease-out)}
+  .db-v2 .pcard .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform 1s var(--ease-out)}
+  .db-v2 .pcard:hover .img .ph,.db-v2 .pcard:hover .img img{transform:scale(1.05)}
+  .db-v2 .pcard .house{margin-top:.7rem;text-transform:uppercase;letter-spacing:.16em;font-size:.54rem;color:var(--grey)}
+  .db-v2 .pcard .name{margin-top:.3rem;text-transform:uppercase;letter-spacing:.04em;font-size:.64rem;line-height:1.4;font-weight:500}
+  .db-v2 .pcard .price{margin-top:.25rem;font-size:.66rem;color:var(--price)}
+
+  /* ===== Sourcing / Authentication sticky cross-fade ===== */
+  .db-v2 .svc-wrap{position:relative;height:200vh;background:radial-gradient(120% 100% at 30% 0%,#211e1b,#100f0d)}
+  .db-v2 .svc-sticky{position:sticky;top:0;height:100vh;overflow:hidden}
+  .db-v2 .svc-panel{position:absolute;inset:0;display:flex;align-items:center;color:var(--paper);padding:clamp(4rem,9vw,7rem) clamp(1.4rem,4vw,3rem);opacity:0;pointer-events:none;will-change:opacity,transform}
+  .db-v2 .svc-panel.p1{opacity:1;pointer-events:auto}
+  .db-v2 .svc-panel .inner{max-width:1100px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,5rem);align-items:center}
+  .db-v2 .svc-panel .pl{aspect-ratio:4/5;border-radius:4px;background:linear-gradient(158deg,#5a534a,#100f0d 120%)}
+  .db-v2 .svc-panel .pl2{background:linear-gradient(158deg,#6e675d,#100f0d 120%)}
+  .db-v2 .svc-panel small{display:block;text-transform:uppercase;letter-spacing:.28em;font-size:.62rem;opacity:.6;margin-bottom:1.4rem}
+  .db-v2 .svc-panel h2{font-family:"Fraunces";font-weight:300;font-size:clamp(2rem,4.5vw,3.4rem);line-height:1.1;letter-spacing:-.01em}
+  .db-v2 .svc-panel h2 em{font-style:italic}
+  .db-v2 .svc-panel p{margin-top:1.3rem;max-width:40ch;opacity:.78;line-height:1.7}
+  .db-v2 .svc-panel .actions{margin-top:2.2rem;display:flex;gap:1rem;flex-wrap:wrap}
+  .db-v2 .svc-dots{position:absolute;bottom:clamp(1.5rem,4vh,3rem);left:50%;transform:translateX(-50%);display:flex;gap:.6rem;z-index:6}
+  .db-v2 .svc-dots i{width:6px;height:6px;border-radius:50%;background:rgba(244,240,234,.3);transition:background .3s,transform .3s}
+  .db-v2 .svc-dots i.on{background:var(--paper);transform:scale(1.3)}
+  .db-v2 .btn{display:inline-block;text-transform:uppercase;letter-spacing:.2em;font-size:.66rem;font-weight:500;text-decoration:none;padding:1rem 1.8rem;border-radius:99px;transition:background .3s,color .3s}
+  .db-v2 .btn.solid{background:var(--paper);color:var(--ink)}.db-v2 .btn.solid:hover{background:#fff}
+  .db-v2 .btn.ghost{border:1px solid var(--line-d);color:var(--paper)}.db-v2 .btn.ghost:hover{background:rgba(244,240,234,.08)}
+  @media(max-width:760px){
+    .db-v2 .svc-wrap{height:auto!important}.db-v2 .svc-sticky{position:static;height:auto}
+    .db-v2 .svc-panel{position:relative;opacity:1!important;transform:none!important;pointer-events:auto!important;padding:clamp(3.5rem,9vw,6rem) clamp(1.4rem,4vw,3rem)}
+    .db-v2 .svc-panel .inner{grid-template-columns:1fr}.db-v2 .svc-dots{display:none}
+  }
+
+  /* ===== mobile sheet ===== */
+  .db-v2 .sheet{position:fixed;inset:0;z-index:90;background:var(--paper);transform:translateY(-101%);transition:transform .7s var(--ease);padding:6rem clamp(1.2rem,5vw,2rem) 2rem;overflow-y:auto}
+  body.db-v2.open .sheet{transform:translateY(0)}
+  .db-v2 .sheet a{display:block;font-family:"Fraunces";font-weight:300;font-size:2rem;color:var(--ink);text-decoration:none;padding:1rem 0;border-top:1px solid var(--line-soft)}
+  .db-v2 .sheet a:last-child{border-bottom:1px solid var(--line-soft)}
+
+  @media(max-width:820px){
+    .db-v2 .nav,.db-v2 .bar-right{display:none}.db-v2 .menu-toggle{display:flex}
+    body.db-v2.open .menu-toggle .lines i:nth-child(1){transform:translateY(3.3px) rotate(45deg)}
+    body.db-v2.open .menu-toggle .lines i:nth-child(2){transform:translateY(-3.3px) rotate(-45deg)}
+    .db-v2 .arr-wrap{height:auto!important}
+    .db-v2 .arr-sticky{position:static;height:auto;padding:6rem 0 3rem}
+    .db-v2 .arr-track{transform:none!important;overflow-x:auto;height:auto;grid-auto-columns:64vw;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:1rem}
+    .db-v2 .arr-track .pcard{scroll-snap-align:start}
+    .db-v2 .arr-head{position:static;padding:0 clamp(1.2rem,4vw,3rem) 1.5rem}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .db-v2 .cue .r{animation:none}
+    .db-v2 .arr-wrap{height:auto!important}.db-v2 .arr-sticky{position:static;height:auto;padding:6rem 0}.db-v2 .arr-track{transform:none!important;overflow-x:auto;height:auto}
+    .db-v2 .svc-wrap{height:auto!important}.db-v2 .svc-sticky{position:static;height:auto}.db-v2 .svc-panel{position:relative;opacity:1!important;transform:none!important;pointer-events:auto!important}.db-v2 .svc-dots{display:none}
+  }
+</style>
+
+<div class="db-v2">
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="bar" id="bar">
+    <div class="bar-row">
+      <a href="{{ routes.root_url }}" class="wordmark">{{ shop.name | split: ' ' | first }} <span>{{ shop.name | split: ' ' | last }}</span></a>
+      <nav class="nav" aria-label="Primary">
+        {%- for link in main_menu.links -%}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {%- endfor -%}
+        <a href="#sourcing">Sourcing</a>
+        <a href="#magazine">Magazine</a>
+      </nav>
+      <div class="bar-right">
+        <a href="{{ routes.account_url }}" class="cta">Account</a>
+        <a href="{{ routes.cart_url }}" class="cta">Bag · {{ cart.item_count }}</a>
+      </div>
+      <button class="menu-toggle" id="toggle" aria-expanded="false" aria-controls="sheet"><span id="toggle-label">Menu</span><span class="lines" aria-hidden="true"><i></i><i></i></span></button>
+    </div>
+  </header>
+
+  <div class="sheet" id="sheet">
+    {%- for link in main_menu.links -%}<a href="{{ link.url }}">{{ link.title }}</a>{%- endfor -%}
+    <a href="#sourcing">Sourcing</a>
+    <a href="#magazine">Magazine</a>
+    <a href="{{ routes.account_url }}">Account</a>
+  </div>
+
+  <header class="hero">
+    <canvas id="silk"></canvas>
+    <div class="hero-copy" id="heroCopy">
+      {%- if s.hero_eyebrow != blank -%}<small>{{ s.hero_eyebrow }}</small>{%- endif -%}
+      <h1>{{ s.hero_title | default: 'The rare, the discontinued,<br>the <em>quietly coveted.</em>' }}</h1>
+    </div>
+    <div class="cue"><span>{{ s.scroll_label | default: 'Scroll' }}</span><span class="r"></span></div>
+  </header>
+
+  <section class="arr-wrap" id="arrivals">
+    <div class="arr-sticky">
+      <div class="arr-head">
+        {%- if s.arr_eyebrow != blank -%}<div class="eyebrow">{{ s.arr_eyebrow }}</div>{%- endif -%}
+        <h2>{{ s.arr_heading | default: 'New Arrivals' }}</h2>
+      </div>
+      <div class="arr-track" id="track">
+        {%- if coll != blank and coll.products.size > 0 -%}
+          {%- for product in coll.products limit: plimit -%}
+            <a class="pcard" href="{{ product.url }}">
+              <div class="img">
+                {%- if product.featured_image -%}
+                  <img src="{{ product.featured_image | img_url: '600x600', crop: 'center' }}" alt="{{ product.featured_image.alt | escape }}" loading="lazy">
+                {%- else -%}
+                  <div class="ph" style="background:radial-gradient(circle at 50% 36%,#fff,#cdbfa6 130%)"></div>
+                {%- endif -%}
+              </div>
+              <div class="house">{{ product.vendor | escape }}</div>
+              <div class="name">{{ product.title | escape }}</div>
+              <div class="price">{{ product.price | money }}</div>
+            </a>
+          {%- endfor -%}
+        {%- else -%}
+          {%- assign ph_h = 'Hermès,Chanel,Hermès,Van Cleef,Hermès,Cartier,Dior,Hermès,Chanel,Hermès,Cartier,Hermès' | split: ',' -%}
+          {%- assign ph_n = 'Mini Lindy Etoupe;Classic Flap;Neo Garden 23 Écru;Alhambra 5-motif;Kelly Pochette;Tank Louis;Lady Dior Medium;Carré 90 silk;Card Holder;Constance 18;Love Cuff;Oran Sandal' | split: ';' -%}
+          {%- assign ph_p = '£7,950;£6,950;£3,700;£3,200;£9,800;£5,900;£2,400;£295;£380;£11,400;£4,800;£540' | split: ';' -%}
+          {%- assign ph_t = '#b8ad9c,#cfc7ba,#d8cdb8,#d8cdb0,#a89d8c,#c8c2b4,#c6bfb2,#d9c9b2,#ccc4b4,#9aa1a6,#e4d3a8,#cdbfa6' | split: ',' -%}
+          {%- for i in (0..11) -%}
+            <a class="pcard" href="{{ s.fallback_link | default: '#' }}">
+              <div class="img"><div class="ph" style="background:radial-gradient(circle at 50% 36%,#fff,{{ ph_t[i] }} 130%)"></div></div>
+              <div class="house">{{ ph_h[i] }}</div>
+              <div class="name">{{ ph_n[i] }}</div>
+              <div class="price">{{ ph_p[i] }}</div>
+            </a>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </section>
+
+  <section class="svc-wrap" id="sourcing">
+    <div class="svc-sticky">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'panel' -%}
+          <div class="svc-panel {% if forloop.first %}p1{% else %}p2{% endif %}" {{ block.shopify_attributes }}>
+            <div class="inner">
+              <div class="pl{% unless forloop.first %} pl2{% endunless %}"{% if block.settings.image != blank %} style="background-image:url('{{ block.settings.image | img_url: '900x' }}');background-size:cover;background-position:center"{% endif %}></div>
+              <div>
+                {%- if block.settings.eyebrow != blank -%}<small>{{ block.settings.eyebrow | escape }}</small>{%- endif -%}
+                <h2>{{ block.settings.title }}</h2>
+                {%- if block.settings.text != blank -%}<p>{{ block.settings.text | escape }}</p>{%- endif -%}
+                <div class="actions">
+                  {%- if block.settings.cta1_text != blank -%}<a class="btn solid" href="{{ block.settings.cta1_url | default: '#' }}">{{ block.settings.cta1_text | escape }}</a>{%- endif -%}
+                  {%- if block.settings.cta2_text != blank -%}<a class="btn ghost" href="{{ block.settings.cta2_url | default: '#' }}">{{ block.settings.cta2_text | escape }}</a>{%- endif -%}
+                </div>
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+      <div class="svc-dots">
+        {%- for block in section.blocks -%}{%- if block.type == 'panel' -%}<i{% if forloop.first %} class="on"{% endif %}></i>{%- endif -%}{%- endfor -%}
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function(){
+    var body=document.body; body.classList.add('db-v2');
+    var header=document.getElementById('bar'), toggle=document.getElementById('toggle'), tlabel=document.getElementById('toggle-label');
+    var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var small=function(){return matchMedia('(max-width:820px)').matches;};
+
+    var heroCopy=document.getElementById('heroCopy'), heroEl=document.querySelector('.db-v2 .hero');
+
+    /* forced 2-row horizontal scroll */
+    var wrap=document.getElementById('arrivals'), sticky=wrap.querySelector('.arr-sticky'), track=document.getElementById('track');
+    var maxX=0, enabled=false, cur=0, target=0;
+    var svc=document.getElementById('sourcing'), sp=svc?svc.querySelectorAll('.svc-panel'):[], sdot=svc?svc.querySelectorAll('.svc-dots i'):[], svcEnabled=false;
+    function size(){
+      svcEnabled = !reduce && !small();
+      enabled = !reduce && !small();
+      if(!enabled){ wrap.style.height=''; track.style.transform=''; return; }
+      maxX=Math.max(0, track.scrollWidth - sticky.clientWidth + (window.innerWidth*0.04));
+      wrap.style.height=(window.innerHeight + maxX)+'px';
+    }
+    size(); window.addEventListener('resize',size);
+
+    function tick(){
+      header.classList.toggle('solid',(window.scrollY||0) > (heroEl.offsetHeight - 80));
+      if(!reduce){
+        var hp=Math.min(1,(window.scrollY||0)/(heroEl.offsetHeight||1));
+        heroCopy.style.transform='translateY('+(hp*40).toFixed(1)+'px)';
+        heroCopy.style.opacity=(1-hp*1.1).toFixed(2);
+      }
+      if(enabled){
+        var total=wrap.offsetHeight-window.innerHeight;
+        var scrolled=Math.min(Math.max(-wrap.getBoundingClientRect().top,0),total);
+        var p=total>0?scrolled/total:0;
+        target=p*maxX; cur+=(target-cur)*0.12; if(Math.abs(target-cur)<0.1)cur=target;
+        track.style.transform='translate3d('+(-cur).toFixed(2)+'px,0,0)';
+      }
+      if(svc && svcEnabled && sp.length>1){
+        var sr=svc.getBoundingClientRect(), st=svc.offsetHeight-window.innerHeight;
+        var ss=Math.min(Math.max(-sr.top,0),st), pp=st>0?ss/st:0;
+        var a2=Math.min(1,Math.max(0,(pp-0.3)/0.4));
+        sp[0].style.opacity=(1-a2).toFixed(3); sp[1].style.opacity=a2.toFixed(3);
+        sp[0].style.transform='translateY('+(a2*-18).toFixed(1)+'px)'; sp[1].style.transform='translateY('+((1-a2)*18).toFixed(1)+'px)';
+        sp[0].style.pointerEvents=a2<0.5?'auto':'none'; sp[1].style.pointerEvents=a2>=0.5?'auto':'none';
+        if(sdot.length>1){ sdot[0].classList.toggle('on',a2<0.5); sdot[1].classList.toggle('on',a2>=0.5); }
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    /* WebGL silk hero image */
+    (function(){
+      var canvas=document.getElementById('silk'); if(!canvas) return;
+      if(typeof THREE==='undefined'){ canvas.style.display='none'; return; }
+      var renderer; try{ renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true}); }catch(e){ canvas.style.display='none'; return; }
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+      if(THREE.sRGBEncoding!==undefined) renderer.outputEncoding=THREE.sRGBEncoding;
+      var sc=new THREE.Scene(), cam=new THREE.PerspectiveCamera(42,1,0.1,100); cam.position.set(0,0,6.4);
+      sc.add(new THREE.AmbientLight(0x8a857d,0.6));
+      var key=new THREE.DirectionalLight(0xffffff,0.38); key.position.set(2.5,3.5,5); sc.add(key);
+      var rim=new THREE.PointLight(0xb9a98a,0.22,60); rim.position.set(-5,-2.5,4.5); sc.add(rim);
+      var SEG=88, geo=new THREE.PlaneGeometry(13,9,SEG,SEG), baseP=geo.attributes.position.array.slice(0);
+      var mat=new THREE.MeshStandardMaterial({color:0x2a251f,roughness:0.5,metalness:0.12,side:THREE.DoubleSide});
+      var mesh=new THREE.Mesh(geo,mat); mesh.rotation.x=-0.28; sc.add(mesh);
+      var clk=new THREE.Clock(), run=true, mxv=0,myv=0,tmx=0,tmy=0;
+      var IMG={{ hero_img | json }};
+      new THREE.TextureLoader().load(IMG,function(tx){ if(THREE.sRGBEncoding!==undefined) tx.encoding=THREE.sRGBEncoding;
+        var pa=13/9, ia=(tx.image && tx.image.width/tx.image.height)||pa;
+        if(ia>pa){tx.repeat.set(pa/ia,1);tx.offset.set((1-pa/ia)/2,0);}else{tx.repeat.set(1,ia/pa);tx.offset.set(0,(1-ia/pa)/2);}
+        mat.map=tx; mat.color.set(0xdedad2); mat.metalness=0; mat.roughness=0.85; mat.needsUpdate=true; },undefined,function(){});
+      function rs(){ var w=heroEl.clientWidth,h=heroEl.clientHeight; renderer.setSize(w,h,false); cam.aspect=w/h; cam.updateProjectionMatrix(); }
+      rs(); window.addEventListener('resize',rs);
+      window.addEventListener('mousemove',function(e){ tmx=(e.clientX/window.innerWidth-0.5); tmy=(e.clientY/window.innerHeight-0.5); });
+      new IntersectionObserver(function(es){ run=es[0].isIntersecting; },{threshold:0}).observe(heroEl);
+      function fr(){
+        var t=clk.getElapsedTime(), pos=geo.attributes.position, arr=pos.array;
+        for(var i=0;i<pos.count;i++){ var ix=i*3, x=baseP[ix], y=baseP[ix+1];
+          arr[ix+2]=Math.sin(x*0.5+t*0.55)*0.16+Math.sin(y*0.45-t*0.45)*0.13+Math.sin((x+y)*0.38+t*0.35)*0.08+Math.sin((x-y)*0.6-t*0.3)*0.05; }
+        pos.needsUpdate=true; geo.computeVertexNormals();
+        mxv+=(tmx-mxv)*0.05; myv+=(tmy-myv)*0.05; cam.position.x=mxv*0.35; cam.position.y=-myv*0.2; cam.lookAt(0,0,0);
+        var sy=window.scrollY||0, hp=Math.min(1,sy/(heroEl.clientHeight||1));
+        mesh.position.y=-hp*2.2; mesh.rotation.x=-0.28-hp*0.2; canvas.style.opacity=(1-hp*0.95).toFixed(3);
+        renderer.render(sc,cam);
+      }
+      function an(){ requestAnimationFrame(an); if(run) fr(); }
+      if(reduce){ var pos=geo.attributes.position,arr=pos.array; for(var i=0;i<pos.count;i++){var ix=i*3;arr[ix+2]=Math.sin(baseP[ix]*0.5)*0.12+Math.sin(baseP[ix+1]*0.45)*0.1;} pos.needsUpdate=true; geo.computeVertexNormals(); renderer.render(sc,cam); }
+      else an();
+    })();
+
+    /* Lenis smooth scroll */
+    if(typeof Lenis!=='undefined' && !reduce && !window.__dbV2Lenis){ var lenis=new Lenis({lerp:0.09}); window.__dbV2Lenis=lenis; (function raf(t){lenis.raf(t);requestAnimationFrame(raf);})(); }
+
+    /* mobile sheet */
+    toggle.addEventListener('click',function(){ var o=body.classList.toggle('open'); toggle.setAttribute('aria-expanded',o); tlabel.textContent=o?'Close':'Menu'; });
+    document.querySelectorAll('#sheet a').forEach(function(a){ a.addEventListener('click',function(){ body.classList.remove('open'); tlabel.textContent='Menu'; }); });
+
+    /* nav letter-flip on hover */
+    document.querySelectorAll('.db-v2 .nav a').forEach(function(a){
+      var text=a.textContent; a.textContent=''; var i=0;
+      for(var k=0;k<text.length;k++){ var c=text[k];
+        if(c===' '){ a.appendChild(document.createTextNode(' ')); continue; }
+        var ch=document.createElement('span'); ch.className='ch'; ch.style.setProperty('--i', i++);
+        var b1=document.createElement('b'); b1.textContent=c;
+        var b2=document.createElement('b'); b2.textContent=c;
+        ch.appendChild(b1); ch.appendChild(b2); a.appendChild(ch);
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "DB Home Top",
+  "settings": [
+    { "type": "paragraph", "content": "New homepage: glass capsule nav + WebGL silk hero + New Arrivals (2-row horizontal scroll) + Sourcing/Authentication sticky cross-fade. Nav uses the 'main-menu' navigation plus on-page Sourcing/Magazine anchors." },
+    { "type": "header", "content": "Hero" },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero texture image", "info": "Mapped onto the undulating silk plane. A wide image works best." },
+    { "type": "text", "id": "hero_eyebrow", "label": "Hero eyebrow", "default": "Rare & pre-owned · London" },
+    { "type": "html", "id": "hero_title", "label": "Hero title (HTML allowed)", "default": "The rare, the discontinued,<br>the <em>quietly coveted.</em>" },
+    { "type": "text", "id": "scroll_label", "label": "Scroll cue label", "default": "Scroll" },
+    { "type": "header", "content": "New Arrivals" },
+    { "type": "text", "id": "arr_eyebrow", "label": "Eyebrow", "default": "Freshly authenticated" },
+    { "type": "text", "id": "arr_heading", "label": "Heading", "default": "New Arrivals" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "product_limit", "label": "Max products", "min": 6, "max": 24, "step": 2, "default": 12 },
+    { "type": "url", "id": "fallback_link", "label": "Placeholder card link", "info": "Used only when no collection is set." }
+  ],
+  "blocks": [
+    {
+      "type": "panel",
+      "name": "Service panel",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Personal shopping & sourcing" },
+        { "type": "text", "id": "title", "label": "Title (HTML allowed)", "default": "Hunting a specific piece? <em>We'll find it.</em>" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Tell us the bag, the colour, the hardware. We work quietly through trusted private clients and store relationships to source the pieces that rarely surface." },
+        { "type": "text", "id": "cta1_text", "label": "Primary button text", "default": "Start a request →" },
+        { "type": "url", "id": "cta1_url", "label": "Primary button link" },
+        { "type": "text", "id": "cta2_text", "label": "Secondary button text" },
+        { "type": "url", "id": "cta2_url", "label": "Secondary button link" }
+      ]
+    }
+  ],
+  "max_blocks": 2,
+  "presets": [
+    {
+      "name": "DB Home Top",
+      "blocks": [
+        { "type": "panel", "settings": { "eyebrow": "Personal shopping & sourcing", "title": "Hunting a specific piece? <em>We'll find it.</em>", "text": "Tell us the bag, the colour, the hardware. We work quietly through trusted private clients and store relationships to source the pieces that rarely surface.", "cta1_text": "Start a request →", "cta2_text": "Book an appointment" } },
+        { "type": "panel", "settings": { "eyebrow": "Authentication", "title": "Every piece, <em>verified in-house.</em>", "text": "We check date stamps, blind stamps, hardware, stitching and leather against our reference archive — and grade condition honestly. Nothing reaches you unauthenticated.", "cta1_text": "How we authenticate →" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
