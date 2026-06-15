@@ -1,0 +1,493 @@
+{%- assign sid = section.id -%}
+{%- assign s = section.settings -%}
+{%- assign salon = 'db-salon.png' | asset_url -%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+<style>
+  #db-vitrine-{{ sid }} {
+    font-family: 'Space Grotesk', sans-serif;
+    color: #1b1916;
+    background: #efe9df;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  #db-vitrine-{{ sid }} ::selection { background: #1b1916; color: #f4f0e8; }
+  @keyframes gw-cue-{{ sid }} { 0%{transform:translateY(0);opacity:.25} 50%{opacity:1} 100%{transform:translateY(9px);opacity:.25} }
+
+  .gw-intro { padding: 70px 44px 40px; max-width: 1320px; margin: 0 auto; }
+  .gw-intro__eyebrow { font-size: 12px; letter-spacing: .34em; color: #6f6859; }
+  .gw-intro__title { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(34px,5vw,72px); line-height: .98; letter-spacing: -0.01em; margin: 18px 0 0; max-width: 1080px; }
+  .gw-intro__title em { font-style: italic; }
+
+  .gw-section { position: relative; background: #e8dccd; }
+  .gw-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  .gw-bg { position: absolute; inset: 0; background-size: cover; background-position: center 42%; transform-origin: 54% 46%; will-change: transform; }
+  .gw-vignette { position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 42%,rgba(244,236,224,0) 45%,rgba(232,214,196,0.42) 100%); pointer-events: none; }
+  .gw-grad { position: absolute; inset: 0; background: linear-gradient(180deg,rgba(247,240,230,0.30) 0%,rgba(247,240,230,0) 22%,rgba(247,240,230,0) 60%,rgba(60,46,36,0.30) 100%); pointer-events: none; }
+  .gw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: default; }
+
+  .gw-corner-tl { position: absolute; top: 96px; left: 44px; z-index: 10; pointer-events: none; }
+  .gw-corner-tl__h { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 34px; line-height: 1; color: #2b2118; text-shadow: 0 1px 18px rgba(247,240,230,.7); }
+  .gw-corner-tl__s { font-size: 11px; letter-spacing: .28em; color: #6a5848; margin-top: 10px; text-shadow: 0 1px 12px rgba(247,240,230,.7); }
+
+  .gw-caption { position: absolute; bottom: 46px; left: 44px; z-index: 10; pointer-events: none; max-width: 560px; }
+  .gw-caption__eyebrow { font-size: 11px; letter-spacing: .26em; color: #f3e7d6; min-height: 14px; text-shadow: 0 1px 12px rgba(40,28,18,.6); }
+  .gw-caption__title { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(30px,3.4vw,52px); line-height: 1.0; color: #fff; margin-top: 8px; text-shadow: 0 2px 22px rgba(40,28,18,.55); }
+
+  .gw-cue { position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none; text-align: center; }
+  .gw-cue__t { font-size: 10px; letter-spacing: .3em; color: #f0e2d0; text-shadow: 0 1px 10px rgba(40,28,18,.6); }
+  .gw-cue__bar { width: 1px; height: 26px; background: #f0e2d0; margin: 10px auto 0; animation: gw-cue-{{ sid }} 1.8s ease-in-out infinite; }
+
+  .gw-rail { position: absolute; top: 50%; right: 40px; transform: translateY(-50%); z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
+  .gw-rail__count { font-size: 11px; letter-spacing: .2em; color: #6a5848; }
+  .gw-rail__line { position: relative; width: 1px; height: 170px; background: rgba(60,46,36,.28); }
+  .gw-rail__dot { position: absolute; left: -2px; top: 0; width: 5px; height: 5px; border-radius: 50%; background: #3c2e24; }
+  .gw-rail__total { font-size: 11px; letter-spacing: .2em; color: #9a8674; }
+
+  .gw-meta { position: absolute; top: 96px; right: 44px; z-index: 10; pointer-events: none; font-size: 10px; letter-spacing: .24em; color: #6a5848; text-align: right; text-shadow: 0 1px 10px rgba(247,240,230,.6); }
+  .gw-meta span { color: #9a8674; }
+
+  /* Static fallback (reduced motion / no WebGL) */
+  .gw-static { display: none; position: absolute; inset: 0; z-index: 11; align-items: flex-end; padding: 46px 44px; }
+  .gw-static__inner { max-width: 620px; }
+  .gw-static__eyebrow { font-size: 11px; letter-spacing: .26em; color: #f3e7d6; text-shadow: 0 1px 12px rgba(40,28,18,.6); }
+  .gw-static__title { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(30px,3.4vw,52px); line-height: 1.02; color: #fff; margin: 8px 0 0; text-shadow: 0 2px 22px rgba(40,28,18,.55); }
+  #db-vitrine-{{ sid }}.is-static .gw-section { height: auto; }
+  #db-vitrine-{{ sid }}.is-static .gw-pin { position: static; }
+  #db-vitrine-{{ sid }}.is-static .gw-canvas,
+  #db-vitrine-{{ sid }}.is-static .gw-rail,
+  #db-vitrine-{{ sid }}.is-static .gw-cue,
+  #db-vitrine-{{ sid }}.is-static .gw-caption { display: none; }
+  #db-vitrine-{{ sid }}.is-static .gw-static { display: flex; }
+
+  .gw-stories { padding: 90px 44px 110px; max-width: 1320px; margin: 0 auto; }
+  .gw-stories__head { display: flex; align-items: flex-end; justify-content: space-between; border-top: 1px solid rgba(27,25,22,.14); padding-top: 30px; }
+  .gw-stories__h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 46px; margin: 0; }
+  .gw-stories__link { font-size: 11px; letter-spacing: .24em; border-bottom: 1px solid #1b1916; padding-bottom: 5px; color: inherit; text-decoration: none; }
+  .gw-stories__grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; margin-top: 36px; }
+  .gw-card { color: inherit; text-decoration: none; display: block; }
+  .gw-card__media { height: 230px; border-radius: 3px; overflow: hidden; }
+  .gw-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s cubic-bezier(.16,1,.3,1); }
+  .gw-card:hover .gw-card__media img { transform: scale(1.04); }
+  .gw-card__cat { font-size: 10px; letter-spacing: .24em; color: #9a9182; margin: 16px 0 6px; }
+  .gw-card__title { font-family: 'Cormorant Garamond', serif; font-size: 24px; }
+
+  @media (max-width: 800px) {
+    .gw-intro { padding: 48px 22px 28px; }
+    .gw-corner-tl, .gw-meta { left: 22px; right: 22px; top: 80px; }
+    .gw-caption, .gw-static { left: 22px; padding-left: 22px; }
+    .gw-rail { right: 18px; }
+    .gw-stories { padding: 60px 22px 80px; }
+    .gw-stories__grid { grid-template-columns: 1fr; gap: 22px; }
+    .gw-stories__h2 { font-size: 34px; }
+  }
+</style>
+
+<section id="db-vitrine-{{ sid }}" data-direction="{{ s.direction | default: 'Crystal lens' }}" data-scroll-vh="{{ s.scroll_height | default: 520 }}">
+
+  {%- if s.title != blank or s.eyebrow != blank -%}
+    <div class="gw-intro">
+      {%- if s.eyebrow != blank -%}<div class="gw-intro__eyebrow">{{ s.eyebrow | escape }}</div>{%- endif -%}
+      {%- if s.title != blank -%}<h2 class="gw-intro__title">{{ s.title }}</h2>{%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <div class="gw-section" data-gw-section style="height:{{ s.scroll_height | default: 520 }}vh;">
+    <div class="gw-pin">
+      <div class="gw-bg" data-gw-bg style="background-image:url('{{ salon }}');"></div>
+      <div class="gw-vignette"></div>
+      <div class="gw-grad"></div>
+
+      <canvas class="gw-canvas" data-gw-canvas></canvas>
+
+      <div class="gw-corner-tl">
+        <div class="gw-corner-tl__h">{{ s.corner_title | default: 'From the Magazine' }}</div>
+        <div class="gw-corner-tl__s">{{ s.corner_sub | default: 'THROUGH FROSTED GLASS' }}</div>
+      </div>
+
+      <div class="gw-caption">
+        <div class="gw-caption__eyebrow" data-gw-eyebrow></div>
+        <div class="gw-caption__title" data-gw-title></div>
+      </div>
+
+      <div class="gw-cue">
+        <div class="gw-cue__t">SCROLL TO EXPLORE</div>
+        <div class="gw-cue__bar"></div>
+      </div>
+
+      <div class="gw-rail">
+        <div class="gw-rail__count" data-gw-count>01</div>
+        <div class="gw-rail__line"><div class="gw-rail__dot" data-gw-progress></div></div>
+        <div class="gw-rail__total" data-gw-total>08</div>
+      </div>
+
+      <div class="gw-meta">◈ FROSTED GLASS · REFRACTING THE ROOM<br><span>MOVE TO LOOK · HOVER TO CLEAR</span></div>
+
+      <div class="gw-static">
+        <div class="gw-static__inner">
+          <div class="gw-static__eyebrow">FROM THE MAGAZINE</div>
+          <div class="gw-static__title">{{ s.title | default: 'Stories from the salon' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gw-stories">
+    <div class="gw-stories__head">
+      <h2 class="gw-stories__h2">{{ s.stories_heading | default: 'All stories' }}</h2>
+      <a class="gw-stories__link" href="{{ s.stories_link | default: '#' }}">{{ s.stories_link_text | default: 'VISIT THE MAGAZINE →' }}</a>
+    </div>
+    <div class="gw-stories__grid">
+      {%- assign grads = 'radial-gradient(70% 60% at 54% 42%,#fff,#efe6d6 55%,#d6c6a9),radial-gradient(70% 60% at 54% 42%,#fff,#e7e9ec 55%,#cdd2d6),radial-gradient(70% 60% at 54% 42%,#fff,#f1e9da 55%,#d8c8ad)' | split: '),' -%}
+      {%- assign shown = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if shown < 3 -%}
+          {%- assign gi = forloop.index0 -%}
+          {%- assign grad = grads[gi] -%}
+          {%- unless grad contains ')' -%}{%- assign grad = grad | append: ')' -%}{%- endunless -%}
+          <a class="gw-card" href="{{ block.settings.link | default: s.stories_link | default: '#' }}" {{ block.shopify_attributes }}>
+            <div class="gw-card__media" style="background:{{ grad }};">
+              {%- if block.settings.image != blank -%}
+                <img src="{{ block.settings.image | img_url: '700x' }}" alt="{{ block.settings.image.alt | escape }}" loading="lazy">
+              {%- endif -%}
+            </div>
+            <div class="gw-card__cat">{{ block.settings.label | escape }}</div>
+            <div class="gw-card__title">{{ block.settings.title | escape }}</div>
+          </a>
+          {%- assign shown = shown | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var root = document.getElementById('db-vitrine-{{ sid }}');
+  if (!root) return;
+
+  var DEFAULT_STORIES = [
+    ['Hermès · Guide', 'The Garden Party, Decoded'],
+    ['Flagship', 'Inside 166 New Bond Street'],
+    ['Guide', 'Quota Bags, Explained'],
+    ['Relationships', 'Building an SA Relationship'],
+    ['Care', 'The Patina Question'],
+    ['Authentication', 'Reading a Blind Stamp'],
+    ['Leathers', 'Box vs Togo vs Epsom'],
+    ['Heritage', 'A Short History of the Kelly']
+  ];
+  var BLOCK_STORIES = [
+    {%- for block in section.blocks -%}
+      [{{ block.settings.label | json }}, {{ block.settings.title | json }}]{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ];
+  var STORIES = BLOCK_STORIES.length ? BLOCK_STORIES : DEFAULT_STORIES;
+  var SALON = {{ salon | json }};
+  var SALON_W = 1774, SALON_H = 887;
+
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function hasWebGL() {
+    try { var c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); }
+    catch (e) { return false; }
+  }
+  if (prefersReduced || !hasWebGL()) { root.classList.add('is-static'); return; }
+
+  var _p = 0, _raf = null, running = false;
+
+  function makeInk(THREE, label, title) {
+    var cv = document.createElement('canvas'); cv.width = 512; cv.height = 668;
+    var ctx = cv.getContext('2d');
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#3a2e22'; ctx.font = '400 19px "Space Grotesk", sans-serif';
+    ctx.fillText(label.toUpperCase(), 50, 78);
+    ctx.strokeStyle = 'rgba(40,30,20,0.4)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(50, 100); ctx.lineTo(180, 100); ctx.stroke();
+    ctx.fillStyle = '#1b1410'; ctx.font = '500 56px "Cormorant Garamond", serif';
+    var words = title.split(' '), line = '', lines = [];
+    words.forEach(function (w) { var t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > 410 && line) { lines.push(line); line = w; } else line = t; });
+    if (line) lines.push(line);
+    var sy = 600 - (lines.length - 1) * 58;
+    lines.forEach(function (ln, i) { ctx.fillText(ln, 50, sy + i * 58); });
+    var tex = new THREE.CanvasTexture(cv); tex.anisotropy = 8;
+    return tex;
+  }
+
+  function shadowTex(THREE) {
+    var cv = document.createElement('canvas'); cv.width = 256; cv.height = 256;
+    var ctx = cv.getContext('2d');
+    var g = ctx.createRadialGradient(128, 128, 10, 128, 128, 128);
+    g.addColorStop(0, 'rgba(38,26,16,0.34)'); g.addColorStop(1, 'rgba(38,26,16,0)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 256, 256);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  function dirPreset() {
+    var d = root.getAttribute('data-direction') || 'Frosted plaque';
+    var M = {
+      'Frosted plaque': { frost: 12, frostDrop: 5, refr: 0.02, tint: [0.97, 0.94, 0.88], tintAmt: 0.44, ink: [0.10, 0.08, 0.06], wobble: 0 },
+      'Crystal lens': { frost: 2, frostDrop: 1, refr: 0.17, tint: [0.98, 0.96, 0.92], tintAmt: 0.13, ink: [0.10, 0.08, 0.06], wobble: 0 },
+      'Smoked amber': { frost: 7, frostDrop: 3, refr: 0.05, tint: [0.24, 0.17, 0.10], tintAmt: 0.64, ink: [0.96, 0.88, 0.70], wobble: 0 },
+      'Liquid': { frost: 5, frostDrop: 2.5, refr: 0.09, tint: [0.95, 0.93, 0.87], tintAmt: 0.28, ink: [0.10, 0.08, 0.06], wobble: 0.017 }
+    };
+    return M[d] || M['Frosted plaque'];
+  }
+
+  function waitForThree(cb, n) {
+    n = n || 0;
+    if (window.THREE) return cb();
+    if (n > 120) { root.classList.add('is-static'); return; }
+    setTimeout(function () { waitForThree(cb, n + 1); }, 50);
+  }
+
+  function initScene() {
+    var canvas = root.querySelector('[data-gw-canvas]'); if (!canvas) return;
+    var THREE = window.THREE;
+    var loader = new THREE.TextureLoader();
+    loader.load(SALON, function (bgTex) {
+      if (THREE.sRGBEncoding) bgTex.encoding = THREE.sRGBEncoding;
+      build(THREE, canvas, bgTex);
+    }, undefined, function () { root.classList.add('is-static'); });
+  }
+
+  function build(THREE, canvas, bgTex) {
+    var W = canvas.clientWidth || 1280, H = canvas.clientHeight || 720;
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+    renderer.setSize(W, H, false);
+    if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
+
+    var scene = new THREE.Scene();
+    var cam = new THREE.PerspectiveCamera(38, W / H, 0.1, 100);
+    cam.position.set(0, 0, 5);
+
+    var stories = STORIES;
+    var N = stories.length;
+    var spacing = 5.0, focalZ = -3;
+    var xs = [-2.2, 2.1, -1.0, 2.4, -2.4, 1.3, -1.7, 1.9];
+    var ys = [0.3, -0.3, 0.5, -0.2, 0.25, 0.45, -0.35, 0.1];
+    var shadowT = shadowTex(THREE);
+
+    var vert = 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }';
+    var frag = [
+      'precision highp float;',
+      'uniform sampler2D uBg; uniform sampler2D uInk; uniform vec2 uRes;',
+      'uniform float uImgAspect, uScale, uOffY, uFrost, uRefr, uOpacity, uFocus, uTintAmt, uWobble, uTime; uniform vec3 uTint, uInkColor;',
+      'varying vec2 vUv;',
+      'vec2 coverUV(vec2 s){ float va=uRes.x/uRes.y; vec2 uv=s;',
+      ' if(va>uImgAspect){ uv.y=(s.y-0.5)*(uImgAspect/va)+0.5; } else { uv.x=(s.x-0.5)*(va/uImgAspect)+0.5; }',
+      ' uv=(uv-0.5)/uScale+0.5; uv.y+=uOffY; return uv; }',
+      'void main(){ vec2 s=gl_FragCoord.xy/uRes; vec2 c=vUv-0.5;',
+      ' float edge=pow(max(abs(c.x),abs(c.y))*2.0,2.0);',
+      ' vec2 refr=c*uRefr*(0.35+edge)+vec2(sin(uTime*1.3+vUv.y*9.0),cos(uTime*1.1+vUv.x*9.0))*uWobble;',
+      ' vec2 base=coverUV(s+vec2(refr.x,-refr.y));',
+      ' vec3 col=vec3(0.0); float tot=0.0;',
+      ' for(int i=-1;i<=1;i++){ for(int j=-1;j<=1;j++){ vec2 o=vec2(float(i),float(j))*uFrost/uRes; col+=texture2D(uBg,base+o).rgb; tot+=1.0; } }',
+      ' col/=tot;',
+      ' col=mix(col,uTint,uTintAmt-uFocus*0.12); col+=0.03;',
+      ' vec2 Pp=(vUv-0.5)*vec2(2.36,3.06); vec2 hf=vec2(1.18,1.53); float rr=0.52;',
+      ' vec2 qq=abs(Pp)-(hf-rr); float sd=length(max(qq,0.0))+min(max(qq.x,qq.y),0.0)-rr;',
+      ' float rim=smoothstep(-0.10,0.0,sd);',
+      ' col+=rim*vec3(0.55,0.5,0.43)*0.55;',
+      ' float sheen=smoothstep(0.7,0.0,abs(c.x-c.y*0.6))*0.06; col+=sheen;',
+      ' vec4 ink=texture2D(uInk,vUv); col=mix(col,uInkColor,ink.a*(0.55+uFocus*0.45));',
+      ' float mask=1.0-smoothstep(0.0,0.02,sd);',
+      ' gl_FragColor=vec4(col,uOpacity*mask); }'
+    ].join('\n');
+
+    var group = new THREE.Group(); scene.add(group);
+    var plates = [], mats = [];
+    var geo = new THREE.PlaneGeometry(2.36, 3.06);
+    for (var i = 0; i < N; i++) {
+      var baseZ = -3 - i * spacing;
+      var g = new THREE.Group();
+      g.position.set(xs[i % 8], ys[i % 8], baseZ);
+      g.rotation.y = (i % 2 ? -1 : 1) * 0.07;
+      g.scale.setScalar(0.82 + (i % 4) * 0.13);
+      var sh = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 3.9), new THREE.MeshBasicMaterial({ map: shadowT, transparent: true, depthWrite: false }));
+      sh.position.set(0.16, -0.2, -0.06); g.add(sh);
+      var ink = makeInk(THREE, stories[i][0], stories[i][1]);
+      var mat = new THREE.ShaderMaterial({
+        uniforms: {
+          uBg: { value: bgTex }, uInk: { value: ink }, uRes: { value: new THREE.Vector2(W, H) },
+          uImgAspect: { value: SALON_W / SALON_H }, uScale: { value: 1.04 }, uOffY: { value: -0.04 },
+          uFrost: { value: 7.0 }, uRefr: { value: 0.05 }, uOpacity: { value: 1.0 }, uFocus: { value: 0.0 },
+          uTint: { value: new THREE.Color(0.96, 0.93, 0.86) }, uTintAmt: { value: 0.44 },
+          uWobble: { value: 0.0 }, uTime: { value: 0.0 }, uInkColor: { value: new THREE.Color(0.10, 0.08, 0.06) }
+        },
+        vertexShader: vert, fragmentShader: frag, transparent: true, depthWrite: false
+      });
+      var card = new THREE.Mesh(geo, mat); g.add(card);
+      g.userData = { baseY: ys[i % 8], phase: i * 1.2, label: stories[i][0], title: stories[i][1], mat: mat, smat: sh.material, card: card };
+      group.add(g); plates.push(g); mats.push(mat);
+    }
+    var cards = plates.map(function (p) { return p.userData.card; });
+    var travel = 3 + (N - 1) * spacing;
+
+    var mx = 0, my = 0, tmx = 0, tmy = 0;
+    var ray = new THREE.Raycaster(); var ndc = new THREE.Vector2(-2, -2);
+    canvas.addEventListener('pointermove', function (e) {
+      var r = canvas.getBoundingClientRect();
+      tmx = ((e.clientX - r.left) / r.width - 0.5);
+      tmy = ((e.clientY - r.top) / r.height - 0.5);
+      ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    });
+    canvas.addEventListener('pointerleave', function () { ndc.set(-2, -2); });
+
+    var bg = root.querySelector('[data-gw-bg]');
+    var sectionEl = root.querySelector('[data-gw-section]');
+    function onScroll() {
+      if (!sectionEl) return;
+      var rect = sectionEl.getBoundingClientRect();
+      var total = rect.height - window.innerHeight;
+      _p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+    function onResize() {
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+      mats.forEach(function (m) { m.uniforms.uRes.value.set(w, h); });
+    }
+    window.addEventListener('resize', onResize);
+
+    var eyebrowEl = root.querySelector('[data-gw-eyebrow]');
+    var titleEl = root.querySelector('[data-gw-title]');
+    var countEl = root.querySelector('[data-gw-count]');
+    var progEl = root.querySelector('[data-gw-progress]');
+    var totalEl = root.querySelector('[data-gw-total]');
+    if (totalEl) totalEl.textContent = String(N).padStart(2, '0');
+
+    // Run the loop only while the section is on screen.
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { running = e.isIntersecting; });
+      }, { rootMargin: '200px' });
+      io.observe(root.querySelector('.gw-section') || root);
+    } else { running = true; }
+
+    var t = 0;
+    function loop() {
+      _raf = requestAnimationFrame(loop);
+      if (!running) return;
+      t += 0.016;
+      var p = _p || 0;
+      mx += (tmx - mx) * 0.06; my += (tmy - my) * 0.06;
+
+      group.position.z = p * travel;
+      cam.position.x = mx * 0.9; cam.position.y = -my * 0.5;
+      cam.lookAt(mx * 0.4, -my * 0.25, -6);
+
+      var sc = 1.04 + p * 0.16;
+      if (bg) bg.style.transform = 'scale(' + sc.toFixed(3) + ') translate(' + (-mx * 1.4).toFixed(2) + '%,' + (-my * 1.2).toFixed(2) + '%)';
+
+      ray.setFromCamera(ndc, cam);
+      var hit = ray.intersectObjects(cards);
+      var hovered = (hit.length && hit[0].object.parent) ? hit[0].object.parent : null;
+
+      var focal = null, fd = 1e9, fIdx = 0;
+      plates.forEach(function (g, i) {
+        var wz = g.position.z + group.position.z;
+        var d = Math.abs(wz - focalZ);
+        if (d < fd) { fd = d; focal = g; fIdx = i; }
+        var op = 1;
+        if (wz < -20) op = Math.max(0, 1 - (-20 - wz) / 12);
+        if (wz > 3) op = Math.max(0, 1 - (wz - 3) / 3);
+        g.userData._op = op;
+        g.position.y = g.userData.baseY + Math.sin(t * 0.7 + g.userData.phase) * 0.05;
+        g.rotation.z = Math.sin(t * 0.5 + g.userData.phase) * 0.005;
+      });
+      var focusG = hovered || focal;
+      var P = dirPreset();
+      plates.forEach(function (g) {
+        var u = g.userData.mat.uniforms;
+        var tf = (g === focusG) ? 1 : 0;
+        u.uFocus.value += (tf - u.uFocus.value) * 0.1;
+        u.uScale.value = sc;
+        u.uFrost.value = P.frost - u.uFocus.value * P.frostDrop;
+        u.uRefr.value = P.refr;
+        u.uTintAmt.value = P.tintAmt;
+        u.uTint.value.setRGB(P.tint[0], P.tint[1], P.tint[2]);
+        u.uInkColor.value.setRGB(P.ink[0], P.ink[1], P.ink[2]);
+        u.uWobble.value = P.wobble;
+        u.uTime.value = t;
+        u.uOpacity.value = g.userData._op;
+        g.userData.smat.opacity = g.userData._op * 0.2;
+      });
+
+      if (focusG && eyebrowEl && titleEl) { eyebrowEl.textContent = focusG.userData.label.toUpperCase(); titleEl.textContent = focusG.userData.title; }
+      if (countEl) countEl.textContent = String(fIdx + 1).padStart(2, '0');
+      if (progEl) progEl.style.top = (p * 170) + 'px';
+      canvas.style.cursor = hovered ? 'pointer' : 'default';
+
+      renderer.render(scene, cam);
+    }
+    loop();
+  }
+
+  var ready = (window.document.fonts && window.document.fonts.ready) ? window.document.fonts.ready : Promise.resolve();
+  waitForThree(function () { ready.then(initScene); });
+})();
+</script>
+
+{% schema %}
+{
+  "name": "DB Vitrine",
+  "settings": [
+    { "type": "paragraph", "content": "Immersive 'From the Magazine' section: story plates float through a Parisian salon as frosted glass, refracting the room behind them. Scroll to walk through; hover a plate to clear it. Falls back to a static image + the stories grid when WebGL or reduced-motion applies." },
+    { "type": "header", "content": "Intro" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "FROM THE MAGAZINE" },
+    { "type": "text", "id": "title", "label": "Title", "default": "The rare, the discontinued, the quietly coveted." },
+    { "type": "header", "content": "Glass effect" },
+    {
+      "type": "select", "id": "direction", "label": "Glass style", "default": "Crystal lens",
+      "info": "Crystal lens = sharp refraction; Frosted plaque = heavy frost; Smoked amber = dark tinted glass + gold text; Liquid = animated ripple.",
+      "options": [
+        { "value": "Crystal lens", "label": "Crystal lens" },
+        { "value": "Frosted plaque", "label": "Frosted plaque" },
+        { "value": "Smoked amber", "label": "Smoked amber" },
+        { "value": "Liquid", "label": "Liquid" }
+      ]
+    },
+    { "type": "range", "id": "scroll_height", "label": "Scroll length (vh)", "min": 200, "max": 700, "step": 20, "default": 520, "info": "How far you scroll to walk through the gallery." },
+    { "type": "text", "id": "corner_title", "label": "Corner title", "default": "From the Magazine" },
+    { "type": "text", "id": "corner_sub", "label": "Corner subtitle", "default": "THROUGH FROSTED GLASS" },
+    { "type": "header", "content": "All stories grid" },
+    { "type": "text", "id": "stories_heading", "label": "Grid heading", "default": "All stories" },
+    { "type": "text", "id": "stories_link_text", "label": "Grid link text", "default": "VISIT THE MAGAZINE →" },
+    { "type": "url", "id": "stories_link", "label": "Grid link" }
+  ],
+  "blocks": [
+    {
+      "type": "story",
+      "name": "Story",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Category / eyebrow", "default": "Guide" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Story title" },
+        { "type": "image_picker", "id": "image", "label": "Grid image (first 3 blocks)" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "DB Vitrine",
+      "blocks": [
+        { "type": "story", "settings": { "label": "Hermès · Guide", "title": "The Garden Party, Decoded" } },
+        { "type": "story", "settings": { "label": "Flagship", "title": "Inside 166 New Bond Street" } },
+        { "type": "story", "settings": { "label": "Relationships", "title": "Building an SA Relationship" } },
+        { "type": "story", "settings": { "label": "Guide", "title": "Quota Bags, Explained" } },
+        { "type": "story", "settings": { "label": "Care", "title": "The Patina Question" } },
+        { "type": "story", "settings": { "label": "Authentication", "title": "Reading a Blind Stamp" } },
+        { "type": "story", "settings": { "label": "Leathers", "title": "Box vs Togo vs Epsom" } },
+        { "type": "story", "settings": { "label": "Heritage", "title": "A Short History of the Kelly" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

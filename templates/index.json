@@ -61,18 +61,29 @@
         "text_color": "#191919"
       }
     },
-    "db-story": {
-      "type": "db-story",
+    "db-vitrine": {
+      "type": "db-vitrine",
+      "blocks": {
+        "story-1": { "type": "story", "settings": { "label": "Hermès · Guide", "title": "The Garden Party, Decoded" } },
+        "story-2": { "type": "story", "settings": { "label": "Flagship", "title": "Inside 166 New Bond Street" } },
+        "story-3": { "type": "story", "settings": { "label": "Relationships", "title": "Building an SA Relationship" } },
+        "story-4": { "type": "story", "settings": { "label": "Guide", "title": "Quota Bags, Explained" } },
+        "story-5": { "type": "story", "settings": { "label": "Care", "title": "The Patina Question" } },
+        "story-6": { "type": "story", "settings": { "label": "Authentication", "title": "Reading a Blind Stamp" } },
+        "story-7": { "type": "story", "settings": { "label": "Leathers", "title": "Box vs Togo vs Epsom" } },
+        "story-8": { "type": "story", "settings": { "label": "Heritage", "title": "A Short History of the Kelly" } }
+      },
+      "block_order": ["story-1", "story-2", "story-3", "story-4", "story-5", "story-6", "story-7", "story-8"],
       "settings": {
-        "image": "shopify://shop_images/Hermes-Birkin-Faubourg-Midnight-and-Snow.jpg",
-        "image_position": "right",
-        "eyebrow": "Found Magazine",
-        "title": "Discover the story behind the piece",
-        "text": "<p>Every item in our collection carries a history. We trace provenance, verify authenticity, and tell the story of craftsmanship that endures — so you can buy with absolute confidence.</p>",
-        "link_text": "Read more",
-        "link": "shopify://blogs/found-magazine",
-        "bg_color": "#f0ebe5",
-        "text_color": "#191919"
+        "eyebrow": "FROM THE MAGAZINE",
+        "title": "The rare, the discontinued, the quietly coveted.",
+        "direction": "Crystal lens",
+        "scroll_height": 520,
+        "corner_title": "From the Magazine",
+        "corner_sub": "THROUGH FROSTED GLASS",
+        "stories_heading": "All stories",
+        "stories_link_text": "VISIT THE MAGAZINE →",
+        "stories_link": "shopify://blogs/found-magazine"
       }
     },
     "db-press": {
@@ -117,7 +128,7 @@
     "db-marquee",
     "db-new-arrivals",
     "db-editorial",
-    "db-story",
+    "db-vitrine",
     "db-press",
     "db-pillars",
     "db-gallery"
