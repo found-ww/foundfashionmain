@@ -27,71 +27,6 @@
         "fallback_link": "shopify://collections/new-arrivals"
       }
     },
-    "db-home-footer": {
-      "type": "db-home-footer",
-      "blocks": {
-        "col-1": { "type": "column", "settings": { "heading": "Shop", "links": "New Arrivals\nBags\nJewellery\nSale", "link_url": "shopify://collections/all" } },
-        "col-2": { "type": "column", "settings": { "heading": "Studio", "links": "Sourcing\nAuthentication\nMagazine\nContact", "link_url": "shopify://pages/contact" } }
-      },
-      "block_order": ["col-1", "col-2"],
-      "settings": {
-        "headline": "Found Fashion — a considered edit of the rare and the <em>coveted.</em>",
-        "copyright": "© Found Fashion 2026",
-        "byline": "London · By appointment"
-      }
-    },
-    "db-hero": {
-      "type": "db-hero",
-      "settings": {
-        "image": "shopify://shop_images/29619D3F-DC90-4130-8A1D-E403471D8696_copy.jpg",
-        "eyebrow": "Pre-loved luxury, authenticated",
-        "title": "Rare pieces for those who know",
-        "lede": "A curated edit of authenticated luxury — sourced, verified and ready to be found.",
-        "cta1_text": "Shop new arrivals",
-        "cta1_link": "shopify://collections/new-arrivals",
-        "cta2_text": "Sell with us",
-        "cta2_link": "shopify://pages/sell-with-us",
-        "scroll_text": "Scroll"
-      }
-    },
-    "db-marquee": {
-      "type": "db-marquee",
-      "settings": {
-        "text": "Hermès · Chanel · Louis Vuitton · Dior · Bottega Veneta · Cartier",
-        "speed": 28,
-        "direction": "left",
-        "bg_color": "#f4f0ea",
-        "text_color": "#191919"
-      }
-    },
-    "db-new-arrivals": {
-      "type": "db-collection",
-      "settings": {
-        "eyebrow": "Just in",
-        "title": "New Arrivals",
-        "collection": "new-arrivals",
-        "products_count": 10,
-        "view_all_text": "View all",
-        "bg_color": "#ffffff",
-        "text_color": "#191919"
-      }
-    },
-    "db-editorial": {
-      "type": "db-editorial",
-      "blocks": {
-        "tile-1": { "type": "tile", "settings": { "image": "shopify://shop_images/Hermes-Rock-Haut-a-courroies-Birkn-bag-2022-2-1.webp", "subheading": "The edit", "heading": "Bags", "cta": "Shop bags", "cursor": "SHOP", "link": "shopify://collections/bags" } },
-        "tile-2": { "type": "tile", "settings": { "image": "shopify://shop_images/IMG_8602_jpg.webp", "subheading": "The edit", "heading": "Shoes", "cta": "Shop shoes", "cursor": "SHOP", "link": "shopify://collections/shoes" } },
-        "tile-3": { "type": "tile", "settings": { "image": "shopify://shop_images/AAE6A3AF-6E4D-46CB-BF59-1469E1C5F3C4_jpg.webp", "subheading": "The edit", "heading": "Jewellery", "cta": "Shop jewellery", "cursor": "SHOP", "link": "shopify://collections/jewelry" } },
-        "tile-4": { "type": "tile", "settings": { "image": "shopify://shop_images/IMG_9477_copy.jpg", "subheading": "The edit", "heading": "Accessories", "cta": "Shop accessories", "cursor": "SHOP", "link": "shopify://collections/accessories" } }
-      },
-      "block_order": ["tile-1", "tile-2", "tile-3", "tile-4"],
-      "settings": {
-        "eyebrow": "Shop by category",
-        "title": "The edit",
-        "bg_color": "#ffffff",
-        "text_color": "#191919"
-      }
-    },
     "db-vitrine": {
       "type": "db-vitrine",
       "blocks": {
@@ -117,40 +52,17 @@
         "stories_link": "shopify://blogs/found-magazine"
       }
     },
-    "db-press": {
-      "type": "db-press",
-      "settings": {
-        "label": "As featured in",
-        "logos": "Vogue,Harper's Bazaar,GQ,Tatler,The Times,Elle",
-        "bg_color": "#ffffff",
-        "text_color": "#191919"
-      }
-    },
-    "db-pillars": {
-      "type": "db-pillars",
+    "db-home-footer": {
+      "type": "db-home-footer",
       "blocks": {
-        "p1": { "type": "pillar", "settings": { "tag": "Guarantee", "heading": "Authentic & quality", "text": "Every item is 100% authenticated by our in-house experts before it reaches you.", "link_text": "Our promise", "link": "shopify://pages/authenticity" } },
-        "p2": { "type": "pillar", "settings": { "tag": "Consignment", "heading": "Sell with us", "text": "Turn your luxury pieces into value with our trusted global consignment network.", "link_text": "Start selling", "link": "shopify://pages/sell-with-us" } },
-        "p3": { "type": "pillar", "settings": { "tag": "Sourcing", "heading": "Let us source", "text": "Looking for something rare? Our personal shoppers will find it, wherever it is.", "link_text": "Make a request", "link": "shopify://pages/contact" } }
+        "col-1": { "type": "column", "settings": { "heading": "Shop", "links": "New Arrivals\nBags\nJewellery\nSale", "link_url": "shopify://collections/all" } },
+        "col-2": { "type": "column", "settings": { "heading": "Studio", "links": "Sourcing\nAuthentication\nMagazine\nContact", "link_url": "shopify://pages/contact" } }
       },
-      "block_order": ["p1", "p2", "p3"],
+      "block_order": ["col-1", "col-2"],
       "settings": {
-        "eyebrow": "Why FoundFashion",
-        "title": "Trusted by collectors worldwide",
-        "bg_color": "#191919",
-        "text_color": "#f4f0ea"
-      }
-    },
-    "db-gallery": {
-      "type": "db-gallery",
-      "settings": {
-        "eyebrow": "The collection",
-        "title": "A gallery of the rare and the wanted",
-        "text": "From quota Birkins to discontinued classics — explore the pieces collectors search for.",
-        "link_text": "Browse all",
-        "link": "shopify://collections/all",
-        "bg_color": "#f4f0ea",
-        "text_color": "#191919"
+        "headline": "Found Fashion — a considered edit of the rare and the <em>coveted.</em>",
+        "copyright": "© Found Fashion 2026",
+        "byline": "London · By appointment"
       }
     }
   },
