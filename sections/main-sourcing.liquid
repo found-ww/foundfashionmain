@@ -529,12 +529,11 @@
   {%- comment -%} LEFT: 3×4 product grid {%- endcomment -%}
   <div class="SourcingPage__Grid">
 
-    {%- assign sourcing_collection = collections[section.settings.sourcing_collection] -%}
-    {%- assign sourcing_products = sourcing_collection.products | default: empty -%}
-
     <div class="SourcingGrid__Tiles" id="sourcing-grid">
       {%- assign rendered = 0 -%}
-      {%- for product in sourcing_products limit: 12 -%}
+      {%- for product in collections.all.products -%}
+        {%- unless product.tags contains 'Sourcing' -%}{%- continue -%}{%- endunless -%}
+        {%- if rendered >= 12 -%}{%- break -%}{%- endif -%}
         {%- assign rendered = rendered | plus: 1 -%}
         <div class="SourcingTile"
           data-product-title="{{ product.title | escape }}"
@@ -1038,12 +1037,6 @@
     {
       "type": "header",
       "content": "Grid panel"
-    },
-    {
-      "type": "collection",
-      "id": "sourcing_collection",
-      "label": "Sourcing collection",
-      "info": "Products from this collection fill the 3×4 grid."
     },
     {
       "type": "text",
