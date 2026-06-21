@@ -529,10 +529,20 @@
   {%- comment -%} LEFT: 3×4 product grid {%- endcomment -%}
   <div class="SourcingPage__Grid">
 
+    {%- comment -%} Use a dedicated sourcing collection if it exists, else scan all products {%- endcomment -%}
+    {%- if collections['sourcing'] != blank -%}
+      {%- assign sourcing_pool = collections['sourcing'].products -%}
+    {%- elsif collections['Sourcing'] != blank -%}
+      {%- assign sourcing_pool = collections['Sourcing'].products -%}
+    {%- else -%}
+      {%- assign sourcing_pool = collections.all.products -%}
+    {%- endif -%}
+
     <div class="SourcingGrid__Tiles" id="sourcing-grid">
       {%- assign rendered = 0 -%}
-      {%- for product in collections.all.products -%}
-        {%- unless product.tags contains 'Sourcing' -%}{%- continue -%}{%- endunless -%}
+      {%- for product in sourcing_pool -%}
+        {%- assign product_tags_down = product.tags | join: ',' | downcase -%}
+        {%- unless product_tags_down contains 'sourcing' -%}{%- continue -%}{%- endunless -%}
         {%- if rendered >= 12 -%}{%- break -%}{%- endif -%}
         {%- assign rendered = rendered | plus: 1 -%}
         <div class="SourcingTile"
