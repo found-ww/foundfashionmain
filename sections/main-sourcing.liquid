@@ -457,9 +457,15 @@
 
 {%- comment -%} ── Hero Banner ── {%- endcomment -%}
 <div class="Sourcing__Hero">
+  {%- assign hero_bg = '' -%}
+  {%- if section.settings.hero_image -%}
+    {%- assign hero_bg = section.settings.hero_image | img_url: '2000x' -%}
+  {%- elsif section.settings.hero_image_url != blank -%}
+    {%- assign hero_bg = section.settings.hero_image_url -%}
+  {%- endif -%}
   <div class="Sourcing__HeroImg"
-    {%- if section.settings.hero_image -%}
-      style="background-image: url({{ section.settings.hero_image | img_url: '2000x' }});"
+    {%- if hero_bg != '' -%}
+      style="background-image: url({{ hero_bg }});"
     {%- endif -%}
   ></div>
   <div class="Sourcing__HeroOverlay"></div>
@@ -770,6 +776,12 @@
       "type": "image_picker",
       "id": "hero_image",
       "label": "Hero image"
+    },
+    {
+      "type": "text",
+      "id": "hero_image_url",
+      "label": "Hero image URL",
+      "info": "Used if no image is selected above. Paste a full CDN URL."
     },
     {
       "type": "text",
