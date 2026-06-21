@@ -849,9 +849,8 @@
               <option value="" disabled selected>Category</option>
               <option value="Bags">Bags</option>
               <option value="Jewellery">Jewellery</option>
+              <option value="Clothing">Clothing</option>
               <option value="Shoes">Shoes</option>
-              <option value="Accessories">Accessories</option>
-              <option value="Ready to Wear">Ready to Wear</option>
               <option value="Other">Other</option>
             </select>
             <span class="SourcingForm__SelectChevron" aria-hidden="true">
@@ -936,11 +935,30 @@
   function fillFields(title, brand, type) {
     if (fieldItem)  { fieldItem.value = title;  fieldItem.dispatchEvent(new Event('input')); }
     if (fieldBrand) { fieldBrand.value = brand; fieldBrand.dispatchEvent(new Event('input')); }
-    // Map product type to category option if possible
+    // Map product type to category dropdown
     if (fieldCategory) {
-      var options = Array.from(fieldCategory.options).map(function(o) { return o.value.toLowerCase(); });
-      var match   = options.indexOf((type || '').toLowerCase());
-      fieldCategory.selectedIndex = match > 0 ? match : 0;
+      var typeMap = {
+        'bags': 'Bags',
+        'bag': 'Bags',
+        'jewellery': 'Jewellery',
+        'jewelry': 'Jewellery',
+        'clothing': 'Clothing',
+        'clothes': 'Clothing',
+        'ready to wear': 'Clothing',
+        'rtw': 'Clothing',
+        'shoes': 'Shoes',
+        'shoe': 'Shoes',
+        'footwear': 'Shoes',
+        'other': 'Other'
+      };
+      var mapped = typeMap[(type || '').toLowerCase().trim()];
+      if (mapped) {
+        Array.from(fieldCategory.options).forEach(function(opt, i) {
+          if (opt.value === mapped) fieldCategory.selectedIndex = i;
+        });
+      } else {
+        fieldCategory.selectedIndex = 0;
+      }
     }
   }
 
