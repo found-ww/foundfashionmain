@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-sourcing",
+      "settings": {
+        "tagline": "Found Fashion",
+        "heading": "We source for you",
+        "description": "Tell us what you're looking for and our team will search our global network to find it. From rare Hermès to vintage Chanel — we specialise in the impossible.",
+        "sourcing_collection": "",
+        "form_subtitle": "Describe the piece you're looking for and we'll be in touch with options.",
+        "response_note": "Our sourcing team will be in touch within 48 hours."
+      }
+    }
+  },
+  "order": ["main"]
+}

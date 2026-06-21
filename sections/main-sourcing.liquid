@@ -1,0 +1,528 @@
+<style>
+  .SourcingPage {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Left: grid panel ── */
+  .SourcingPage__Grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 48px;
+    background-color: #f7f4f1;
+  }
+  .SourcingPage__GridInner {
+    width: 100%;
+  }
+  .SourcingGrid__Header {
+    margin-bottom: 28px;
+  }
+  .SourcingGrid__Tagline {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 14px;
+  }
+  .SourcingGrid__Heading {
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    margin-bottom: 10px;
+  }
+  .SourcingGrid__Divider {
+    width: 32px;
+    height: 1px;
+    background: #c8c0b8;
+    margin: 0 0 20px;
+  }
+  .SourcingGrid__Description {
+    font-size: 13px;
+    color: #6b6259;
+    line-height: 1.7;
+  }
+
+  /* 4-col x 3-row tile grid */
+  .SourcingGrid__Tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .SourcingTile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #e8e3de;
+    display: block;
+    text-decoration: none;
+  }
+  .SourcingTile__Img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .SourcingTile:hover .SourcingTile__Img {
+    transform: scale(1.04);
+  }
+  .SourcingTile__Overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .SourcingTile__Label {
+    position: absolute;
+    bottom: 8px;
+    left: 10px;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    font-weight: 500;
+  }
+  /* Placeholder when no image */
+  .SourcingTile--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .SourcingTile--empty .SourcingTile__Placeholder {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #c8c0b8;
+    border-radius: 50%;
+  }
+
+  /* ── Right: form panel ── */
+  .SourcingPage__Form {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 48px;
+    background: #ffffff;
+  }
+  .SourcingPage__FormInner {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  @media screen and (max-width: 989px) {
+    .SourcingPage { flex-direction: column; }
+    .SourcingPage__Grid,
+    .SourcingPage__Form { padding: 60px 24px; }
+    .SourcingGrid__Tiles { gap: 4px; }
+  }
+
+  /* ── Form typography ── */
+  .SourcingForm__Title {
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #1c1c1c;
+    margin-bottom: 8px;
+  }
+  .SourcingForm__Subtitle {
+    font-size: 13px;
+    color: #6b6259;
+    line-height: 1.65;
+    margin-bottom: 32px;
+  }
+
+  /* ── Floating label fields ── */
+  .SourcingForm__Field {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .SourcingForm__Input,
+  .SourcingForm__Textarea {
+    width: 100%;
+    border: 1px solid #e0dbd5;
+    border-radius: 0;
+    background: #fff;
+    padding: 20px 16px 8px;
+    font-size: 14px;
+    color: #3d3530;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    display: block;
+    box-sizing: border-box;
+  }
+  .SourcingForm__Textarea {
+    resize: vertical;
+    min-height: 110px;
+  }
+  .SourcingForm__Input:focus,
+  .SourcingForm__Textarea:focus { border-color: #9a8f86; }
+
+  .SourcingForm__Label {
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    font-size: 14px;
+    color: #b5ada5;
+    pointer-events: none;
+    transition: top 0.15s, font-size 0.15s, color 0.15s, letter-spacing 0.15s;
+    font-family: inherit;
+  }
+  .SourcingForm__Input:focus ~ .SourcingForm__Label,
+  .SourcingForm__Input:not(:placeholder-shown) ~ .SourcingForm__Label,
+  .SourcingForm__Textarea:focus ~ .SourcingForm__Label,
+  .SourcingForm__Textarea:not(:placeholder-shown) ~ .SourcingForm__Label {
+    top: 6px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9a8f86;
+  }
+
+  /* ── Select field ── */
+  .SourcingForm__SelectWrapper {
+    position: relative;
+  }
+  .SourcingForm__Select {
+    width: 100%;
+    border: 1px solid #e0dbd5;
+    border-radius: 0;
+    background: #fff;
+    padding: 14px 40px 14px 16px;
+    font-size: 14px;
+    color: #3d3530;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    display: block;
+    box-sizing: border-box;
+    appearance: none;
+    cursor: pointer;
+  }
+  .SourcingForm__Select:focus { border-color: #9a8f86; }
+  .SourcingForm__Select option[value=""] { color: #b5ada5; }
+  .SourcingForm__SelectChevron {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #9a8f86;
+  }
+
+  /* Two-column row */
+  .SourcingForm__Row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .SourcingForm__Row .SourcingForm__Field {
+    margin-bottom: 0;
+  }
+  .SourcingForm__RowWrap {
+    margin-bottom: 20px;
+  }
+
+  /* ── Submit ── */
+  .SourcingForm__Submit {
+    width: 100%;
+    background: #1c1c1c;
+    color: #fff;
+    border: none;
+    padding: 16px 24px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+  }
+  .SourcingForm__Submit:hover { background: #3d3530; }
+  .SourcingForm__Note {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: #9a8f86;
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  /* ── Alerts ── */
+  .SourcingForm__Alert--error {
+    background: #fdf0f0;
+    border: 1px solid #e5c5c5;
+    color: #9a4040;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  /* ── Success state ── */
+  .SourcingForm__Success {
+    padding: 40px 0;
+    text-align: center;
+  }
+  .SourcingForm__SuccessMark {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #c8c0b8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #9a8f86;
+  }
+  .SourcingForm__SuccessTitle {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: #1c1c1c;
+    margin-bottom: 10px;
+  }
+  .SourcingForm__SuccessNote {
+    font-size: 13px;
+    color: #9a8f86;
+    line-height: 1.6;
+  }
+</style>
+
+<section class="SourcingPage" data-section-id="{{ section.id }}" data-section-type="sourcing">
+
+  {%- comment -%} LEFT: 4×3 grid panel {%- endcomment -%}
+  <div class="SourcingPage__Grid">
+    <div class="SourcingPage__GridInner">
+
+      <div class="SourcingGrid__Header">
+        {%- if section.settings.tagline != blank -%}
+          <p class="SourcingGrid__Tagline">{{ section.settings.tagline }}</p>
+        {%- endif -%}
+        <h2 class="SourcingGrid__Heading">{{ section.settings.heading | default: 'We source for you' }}</h2>
+        <div class="SourcingGrid__Divider"></div>
+        {%- if section.settings.description != blank -%}
+          <p class="SourcingGrid__Description">{{ section.settings.description }}</p>
+        {%- endif -%}
+      </div>
+
+      {%- assign sourcing_collection = collections[section.settings.sourcing_collection] -%}
+      {%- assign sourcing_products = sourcing_collection.products | default: empty -%}
+
+      <div class="SourcingGrid__Tiles">
+        {%- assign rendered = 0 -%}
+        {%- for product in sourcing_products limit: 12 -%}
+          {%- assign rendered = rendered | plus: 1 -%}
+          <a class="SourcingTile" href="{{ product.url }}">
+            {%- if product.featured_image -%}
+              <img
+                class="SourcingTile__Img"
+                src="{{ product.featured_image | img_url: '400x400', crop: 'center' }}"
+                srcset="{{ product.featured_image | img_url: '200x200', crop: 'center' }} 200w,
+                        {{ product.featured_image | img_url: '400x400', crop: 'center' }} 400w"
+                sizes="(max-width: 989px) 25vw, 12vw"
+                alt="{{ product.title | escape }}"
+                loading="lazy">
+              <div class="SourcingTile__Overlay"></div>
+              <span class="SourcingTile__Label">{{ product.title }}</span>
+            {%- else -%}
+              <div class="SourcingTile__Placeholder"></div>
+            {%- endif -%}
+          </a>
+        {%- endfor -%}
+
+        {%- comment -%} Fill remaining slots to always show a full 12-tile grid {%- endcomment -%}
+        {%- if rendered < 12 -%}
+          {%- assign empty_tiles = 12 | minus: rendered -%}
+          {%- for i in (1..empty_tiles) -%}
+            <div class="SourcingTile SourcingTile--empty">
+              <div class="SourcingTile__Placeholder"></div>
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+
+  {%- comment -%} RIGHT: Form panel {%- endcomment -%}
+  <div class="SourcingPage__Form">
+    <div class="SourcingPage__FormInner">
+
+      {%- form 'contact', class: 'SourcingForm' -%}
+
+        {%- if form.posted_successfully? -%}
+
+          <div class="SourcingForm__Success">
+            <div class="SourcingForm__SuccessMark" aria-hidden="true">
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 6L5.5 10.5L15 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <p class="SourcingForm__SuccessTitle">Request received</p>
+            <p class="SourcingForm__SuccessNote">{{ section.settings.response_note | default: 'Our sourcing team will be in touch within 48 hours.' }}</p>
+          </div>
+
+        {%- else -%}
+
+          <h1 class="SourcingForm__Title">{{ page.title }}</h1>
+          {%- if section.settings.form_subtitle != blank -%}
+            <p class="SourcingForm__Subtitle">{{ section.settings.form_subtitle }}</p>
+          {%- endif -%}
+
+          {%- if form.errors -%}
+            <div class="SourcingForm__Alert SourcingForm__Alert--error">
+              {%- for field in form.errors -%}
+                {%- if field == 'form' -%}
+                  <p>{{ form.errors.messages[field] }}</p>
+                {%- else -%}
+                  <p><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</p>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
+          {%- comment -%} Name + Email row {%- endcomment -%}
+          <div class="SourcingForm__RowWrap">
+            <div class="SourcingForm__Row">
+              <div class="SourcingForm__Field">
+                <input type="text" id="sourcing-name" class="SourcingForm__Input" name="contact[name]"
+                  placeholder=" " autocomplete="name" required
+                  {% if customer %}value="{{ customer.name }}"{% endif %}>
+                <label class="SourcingForm__Label" for="sourcing-name">Name</label>
+              </div>
+              <div class="SourcingForm__Field">
+                <input type="email" id="sourcing-email" class="SourcingForm__Input" name="contact[email]"
+                  placeholder=" " autocomplete="email" required
+                  {% if customer %}value="{{ customer.email }}"{% endif %}>
+                <label class="SourcingForm__Label" for="sourcing-email">Email</label>
+              </div>
+            </div>
+          </div>
+
+          {%- comment -%} Category dropdown {%- endcomment -%}
+          <div class="SourcingForm__Field">
+            <div class="SourcingForm__SelectWrapper">
+              <select id="sourcing-category" name="contact[Category]" class="SourcingForm__Select" required aria-label="Category">
+                <option value="" disabled selected>Category</option>
+                <option value="Bags">Bags</option>
+                <option value="Jewellery">Jewellery</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Ready to Wear">Ready to Wear</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="SourcingForm__SelectChevron" aria-hidden="true">
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          {%- comment -%} Brand + Budget row {%- endcomment -%}
+          <div class="SourcingForm__RowWrap">
+            <div class="SourcingForm__Row">
+              <div class="SourcingForm__Field">
+                <input type="text" id="sourcing-brand" class="SourcingForm__Input" name="contact[Brand / Designer]"
+                  placeholder=" ">
+                <label class="SourcingForm__Label" for="sourcing-brand">Brand / Designer</label>
+              </div>
+              <div class="SourcingForm__Field">
+                <input type="text" id="sourcing-budget" class="SourcingForm__Input" name="contact[Budget]"
+                  placeholder=" ">
+                <label class="SourcingForm__Label" for="sourcing-budget">Budget</label>
+              </div>
+            </div>
+          </div>
+
+          {%- comment -%} Item description {%- endcomment -%}
+          <div class="SourcingForm__Field">
+            <input type="text" id="sourcing-item" class="SourcingForm__Input" name="contact[Item Description]"
+              placeholder=" " required>
+            <label class="SourcingForm__Label" for="sourcing-item">Item description</label>
+          </div>
+
+          {%- comment -%} Additional notes {%- endcomment -%}
+          <div class="SourcingForm__Field">
+            <textarea id="sourcing-notes" name="contact[body]" class="SourcingForm__Textarea"
+              placeholder=" " aria-label="Additional notes"></textarea>
+            <label class="SourcingForm__Label" for="sourcing-notes">Additional notes</label>
+          </div>
+
+          <button type="submit" class="SourcingForm__Submit">Submit sourcing request</button>
+
+          {%- if section.settings.response_note != blank -%}
+            <p class="SourcingForm__Note">{{ section.settings.response_note }}</p>
+          {%- endif -%}
+
+        {%- endif -%}
+
+      {%- endform -%}
+
+    </div>
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "Sourcing page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Left panel"
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "Tagline",
+      "default": "Found Fashion"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "We source for you"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Tell us what you're looking for and our team will search our global network to find it. From rare Hermès to vintage Chanel — we specialise in the impossible."
+    },
+    {
+      "type": "collection",
+      "id": "sourcing_collection",
+      "label": "Sourcing collection",
+      "info": "Products from this collection fill the 4×3 grid. Point it at a collection of items tagged 'sourcing'."
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "textarea",
+      "id": "form_subtitle",
+      "label": "Form subtitle",
+      "default": "Describe the piece you're looking for and we'll be in touch with options."
+    },
+    {
+      "type": "text",
+      "id": "response_note",
+      "label": "Response time note",
+      "default": "Our sourcing team will be in touch within 48 hours."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Sourcing page"
+    }
+  ]
+}
+{% endschema %}
