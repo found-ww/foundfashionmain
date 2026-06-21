@@ -64,39 +64,9 @@
 
   /* ── Left: grid panel ── */
   .SourcingPage__Grid {
-    flex: 1.2;
-    padding: 56px 48px;
+    flex: 0 0 65%;
+    padding: 40px 40px;
     background: #fff;
-  }
-  .SourcingGrid__Header {
-    margin-bottom: 32px;
-  }
-  .SourcingGrid__Tagline {
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #9a8f86;
-    margin-bottom: 12px;
-  }
-  .SourcingGrid__Heading {
-    font-size: 20px;
-    letter-spacing: 0.06em;
-    font-weight: 400;
-    text-transform: uppercase;
-    color: #1c1c1c;
-    margin-bottom: 10px;
-  }
-  .SourcingGrid__Divider {
-    width: 32px;
-    height: 1px;
-    background: #c8c0b8;
-    margin: 0 0 16px;
-  }
-  .SourcingGrid__Description {
-    font-size: 13px;
-    color: #6b6259;
-    line-height: 1.7;
-    max-width: 520px;
   }
 
   /* 3-col × 4-row tile grid */
@@ -107,7 +77,7 @@
   }
   .SourcingTile {
     position: relative;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     background: #f0ece7;
     display: block;
@@ -205,7 +175,7 @@
 
   /* ── Right: form panel ── */
   .SourcingPage__Form {
-    flex: 1;
+    flex: 0 0 35%;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -472,17 +442,6 @@
 
   {%- comment -%} LEFT: 3×4 product grid {%- endcomment -%}
   <div class="SourcingPage__Grid">
-
-    <div class="SourcingGrid__Header">
-      {%- if section.settings.tagline != blank -%}
-        <p class="SourcingGrid__Tagline">{{ section.settings.tagline }}</p>
-      {%- endif -%}
-      <h2 class="SourcingGrid__Heading">{{ section.settings.heading | default: 'We source for you' }}</h2>
-      <div class="SourcingGrid__Divider"></div>
-      {%- if section.settings.description != blank -%}
-        <p class="SourcingGrid__Description">{{ section.settings.description }}</p>
-      {%- endif -%}
-    </div>
 
     {%- assign sourcing_collection = collections[section.settings.sourcing_collection] -%}
     {%- assign sourcing_products = sourcing_collection.products | default: empty -%}
