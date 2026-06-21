@@ -135,9 +135,10 @@
     <div class="bar-row">
       <a href="{{ routes.root_url }}" class="wordmark">{{ shop.name | split: ' ' | first }} <span>{{ shop.name | split: ' ' | last }}</span></a>
       <nav class="nav" aria-label="Primary">
-        {%- for link in main_menu.links -%}
-          <a href="{{ link.url }}">{{ link.title }}</a>
-        {%- endfor -%}
+        <a href="/collections/bags">Bags</a>
+        <a href="/collections/jewelry">Jewellery</a>
+        <a href="/collections/shoes">Shoes</a>
+        <a href="/collections/accessories">Accessories</a>
         <a href="#sourcing">Sourcing</a>
         <a href="#magazine">Magazine</a>
       </nav>
@@ -150,7 +151,10 @@
   </header>
 
   <div class="sheet" id="sheet">
-    {%- for link in main_menu.links -%}<a href="{{ link.url }}">{{ link.title }}</a>{%- endfor -%}
+    <a href="/collections/bags">Bags</a>
+    <a href="/collections/jewelry">Jewellery</a>
+    <a href="/collections/shoes">Shoes</a>
+    <a href="/collections/accessories">Accessories</a>
     <a href="#sourcing">Sourcing</a>
     <a href="#magazine">Magazine</a>
     <a href="{{ routes.account_url }}">Account</a>
