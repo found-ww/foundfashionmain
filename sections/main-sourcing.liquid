@@ -160,9 +160,9 @@
     flex-shrink: 0;
   }
 
-  /* Added state */
+  /* Added / remove state */
   .SourcingTile__AddBtn.is-added {
-    background: #1c1c1c;
+    background: rgba(28,28,28,0.88);
     color: #fff;
   }
 
@@ -547,7 +547,9 @@
         {%- assign rendered = rendered | plus: 1 -%}
         <div class="SourcingTile"
           data-product-title="{{ product.title | escape }}"
-          data-product-handle="{{ product.handle }}">
+          data-product-handle="{{ product.handle }}"
+          data-product-type="{{ product.type | escape }}"
+          data-product-brand="{{ product.metafields.custom.brand_name | escape }}">
           {%- if product.featured_image -%}
             <img
               class="SourcingTile__Img"
@@ -560,11 +562,11 @@
           {%- endif -%}
           <div class="SourcingTile__Hover">
             <p class="SourcingTile__Name">{{ product.title }}</p>
-            <button class="SourcingTile__AddBtn" type="button" aria-label="Add {{ product.title | escape }} to sourcing request">
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <button class="SourcingTile__AddBtn" type="button">
+              <svg class="SourcingTile__AddIcon" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M5 1V9M1 5H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
               </svg>
-              Add to request
+              <span class="SourcingTile__AddLabel">Add to request</span>
             </button>
           </div>
         </div>
@@ -619,14 +621,6 @@
             </div>
           {%- endif -%}
 
-          {%- comment -%} Selected items pills {%- endcomment -%}
-          <div class="SourcingForm__Items" id="sourcing-items-panel">
-            <p class="SourcingForm__ItemsLabel">Items added</p>
-            <div class="SourcingForm__ItemsList" id="sourcing-items-list"></div>
-          </div>
-
-          {%- comment -%} Hidden field populated by JS {%- endcomment -%}
-          <input type="hidden" name="contact[Items requested]" id="sourcing-items-input" value="">
 
           {%- comment -%} Name {%- endcomment -%}
           <div class="SourcingForm__Field">
@@ -917,51 +911,37 @@
 
 <script>
 (function () {
-  var addedItems = [];
+  var activeTile = null;
 
-  var itemsPanel = document.getElementById('sourcing-items-panel');
-  var itemsList  = document.getElementById('sourcing-items-list');
-  var itemsInput = document.getElementById('sourcing-items-input');
+  var fieldItem     = document.getElementById('sourcing-item');
+  var fieldBrand    = document.getElementById('sourcing-brand');
+  var fieldCategory = document.getElementById('sourcing-category');
 
-  function syncInput() {
-    itemsInput.value = addedItems.join(', ');
-    if (addedItems.length > 0) {
-      itemsPanel.classList.add('has-items');
-    } else {
-      itemsPanel.classList.remove('has-items');
+  var PLUS_ICON  = '<svg class="SourcingTile__AddIcon" width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 1V9M1 5H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  var MINUS_ICON = '<svg class="SourcingTile__AddIcon" width="10" height="2" viewBox="0 0 10 2" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M1 1H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+
+  function resetTile(tile) {
+    var btn = tile.querySelector('.SourcingTile__AddBtn');
+    btn.classList.remove('is-added');
+    btn.querySelector('.SourcingTile__AddIcon').outerHTML; // replaced below
+    btn.innerHTML = PLUS_ICON + '<span class="SourcingTile__AddLabel">Add to request</span>';
+  }
+
+  function clearFields() {
+    if (fieldItem)     { fieldItem.value = '';     fieldItem.dispatchEvent(new Event('input')); }
+    if (fieldBrand)    { fieldBrand.value = '';    fieldBrand.dispatchEvent(new Event('input')); }
+    if (fieldCategory) { fieldCategory.value = ''; }
+  }
+
+  function fillFields(title, brand, type) {
+    if (fieldItem)  { fieldItem.value = title;  fieldItem.dispatchEvent(new Event('input')); }
+    if (fieldBrand) { fieldBrand.value = brand; fieldBrand.dispatchEvent(new Event('input')); }
+    // Map product type to category option if possible
+    if (fieldCategory) {
+      var options = Array.from(fieldCategory.options).map(function(o) { return o.value.toLowerCase(); });
+      var match   = options.indexOf((type || '').toLowerCase());
+      fieldCategory.selectedIndex = match > 0 ? match : 0;
     }
-  }
-
-  function removePill(title) {
-    addedItems = addedItems.filter(function(t) { return t !== title; });
-
-    // Re-enable tile button
-    var tiles = document.querySelectorAll('.SourcingTile[data-product-title]');
-    tiles.forEach(function(tile) {
-      if (tile.dataset.productTitle === title) {
-        var btn = tile.querySelector('.SourcingTile__AddBtn');
-        if (btn) {
-          btn.classList.remove('is-added');
-          btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 1V9M1 5H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Add to request';
-        }
-      }
-    });
-
-    renderPills();
-    syncInput();
-  }
-
-  function renderPills() {
-    itemsList.innerHTML = '';
-    addedItems.forEach(function(title) {
-      var pill = document.createElement('span');
-      pill.className = 'SourcingForm__ItemPill';
-      pill.innerHTML = title + '<button class="SourcingForm__ItemPillRemove" type="button" aria-label="Remove ' + title + '">×</button>';
-      pill.querySelector('button').addEventListener('click', function() {
-        removePill(title);
-      });
-      itemsList.appendChild(pill);
-    });
   }
 
   // File input: show filename when selected
@@ -986,16 +966,35 @@
 
     btn.addEventListener('click', function(e) {
       e.preventDefault();
-      var title = tile.dataset.productTitle;
-      if (addedItems.indexOf(title) !== -1) return;
 
-      addedItems.push(title);
+      // Clicking the active tile → remove
+      if (activeTile === tile) {
+        btn.classList.remove('is-added');
+        btn.innerHTML = PLUS_ICON + '<span class="SourcingTile__AddLabel">Add to request</span>';
+        clearFields();
+        activeTile = null;
+        return;
+      }
 
+      // Deselect any previously active tile
+      if (activeTile) {
+        var prevBtn = activeTile.querySelector('.SourcingTile__AddBtn');
+        if (prevBtn) {
+          prevBtn.classList.remove('is-added');
+          prevBtn.innerHTML = PLUS_ICON + '<span class="SourcingTile__AddLabel">Add to request</span>';
+        }
+      }
+
+      // Select this tile
+      activeTile = tile;
       btn.classList.add('is-added');
-      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 5L4.5 7.5L8 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Added';
+      btn.innerHTML = MINUS_ICON + '<span class="SourcingTile__AddLabel">Remove item</span>';
 
-      renderPills();
-      syncInput();
+      fillFields(
+        tile.dataset.productTitle || '',
+        tile.dataset.productBrand || '',
+        tile.dataset.productType  || ''
+      );
 
       // Scroll form into view on mobile
       if (window.innerWidth < 990) {
