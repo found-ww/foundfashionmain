@@ -549,7 +549,7 @@
           data-product-title="{{ product.title | escape }}"
           data-product-handle="{{ product.handle }}"
           data-product-type="{{ product.type | escape }}"
-          data-product-brand="{{ product.metafields.custom.brand_name | escape }}">
+          data-product-brand="{{ product.metafields.custom.brand_name.value | first | default: product.metafields.custom.brand_name.value | escape }}">
           {%- if product.featured_image -%}
             <img
               class="SourcingTile__Img"
