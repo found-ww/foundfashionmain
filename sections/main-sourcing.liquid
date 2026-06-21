@@ -354,6 +354,17 @@
     color: #9a8f86;
   }
 
+  /* Two-column row */
+  .SourcingForm__Row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .SourcingForm__Row .SourcingForm__Field {
+    margin-bottom: 0;
+  }
+
   /* ── WhatsApp row: code select + number ── */
   .SourcingForm__WhatsAppRow {
     display: flex;
@@ -622,12 +633,18 @@
           {%- endif -%}
 
 
-          {%- comment -%} Name {%- endcomment -%}
-          <div class="SourcingForm__Field">
-            <input type="text" id="sourcing-name" class="SourcingForm__Input" name="contact[name]"
-              placeholder=" " autocomplete="name" required
-              {% if customer %}value="{{ customer.name }}"{% endif %}>
-            <label class="SourcingForm__Label" for="sourcing-name">Name</label>
+          {%- comment -%} First name + Last name {%- endcomment -%}
+          <div class="SourcingForm__Row">
+            <div class="SourcingForm__Field">
+              <input type="text" id="sourcing-firstname" class="SourcingForm__Input" name="contact[First Name]"
+                placeholder=" " autocomplete="given-name" required>
+              <label class="SourcingForm__Label" for="sourcing-firstname">First Name</label>
+            </div>
+            <div class="SourcingForm__Field">
+              <input type="text" id="sourcing-lastname" class="SourcingForm__Input" name="contact[Last Name]"
+                placeholder=" " autocomplete="family-name" required>
+              <label class="SourcingForm__Label" for="sourcing-lastname">Last Name</label>
+            </div>
           </div>
 
           {%- comment -%} Email {%- endcomment -%}
