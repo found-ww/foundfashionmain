@@ -33,13 +33,25 @@
     border-bottom-color:rgba(244,240,234,.1)}
   .db-v2 .wordmark{font-family:"Figtree";font-weight:600;text-transform:uppercase;letter-spacing:.34em;font-size:.8rem;text-decoration:none;color:inherit;display:flex;gap:.34em}
   .db-v2 .wordmark span{font-weight:400;opacity:.7}
-  .db-v2 .nav{display:flex;gap:clamp(1rem,2vw,2.2rem);align-items:center}
-  .db-v2 .nav a{font-family:"Figtree";font-weight:500;text-transform:uppercase;letter-spacing:.18em;font-size:.7rem;color:inherit;text-decoration:none;position:relative;padding:.4rem 0;display:inline-flex}
-  .db-v2 .nav a::after{content:"";position:absolute;left:0;bottom:-.05rem;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
-  .db-v2 .nav a:hover::after{transform:scaleX(1)}
-  .db-v2 .nav a .ch{position:relative;display:inline-block;overflow:hidden;height:1em;line-height:1;vertical-align:top}
-  .db-v2 .nav a .ch b{display:block;font-weight:inherit;line-height:1;transition:transform .5s var(--ease);transition-delay:calc(var(--i)*.025s)}
-  .db-v2 .nav a:hover .ch b{transform:translateY(-100%)}
+  .db-v2 .nav{display:flex;gap:clamp(1rem,2vw,2.2rem);align-items:stretch}
+  /* nav top-level link */
+  .db-v2 .nav-item{position:static;display:inline-flex;align-items:center}
+  .db-v2 .nav-top{font-family:"Figtree";font-weight:500;text-transform:uppercase;letter-spacing:.18em;font-size:.7rem;color:inherit;text-decoration:none;position:relative;padding:.4rem 0;display:inline-flex;white-space:nowrap}
+  .db-v2 .nav-top::after{content:"";position:absolute;left:0;bottom:-.05rem;height:1px;width:100%;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+  .db-v2 .nav-item:hover .nav-top::after,.db-v2 .nav-top:hover::after{transform:scaleX(1)}
+  .db-v2 .nav-top .ch{position:relative;display:inline-block;overflow:hidden;height:1em;line-height:1;vertical-align:top}
+  .db-v2 .nav-top .ch b{display:block;font-weight:inherit;line-height:1;transition:transform .5s var(--ease);transition-delay:calc(var(--i)*.025s)}
+  .db-v2 .nav-item:hover .nav-top .ch b,.db-v2 .nav-top:hover .ch b{transform:translateY(-100%)}
+  /* dark glass dropdown panel */
+  .db-v2 .nav-panel{position:fixed;left:0;right:0;top:var(--dbv2-bh,56px);background:rgba(17,15,13,.95);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);border-top:1px solid rgba(244,240,234,.09);box-shadow:0 32px 56px -20px rgba(0,0,0,.55);color:var(--paper);opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .25s ease,transform .36s var(--ease-out),visibility .25s;pointer-events:none;z-index:98}
+  .db-v2 .nav-item:hover .nav-panel,.db-v2 .nav-item:focus-within .nav-panel{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+  .db-v2 .nav-panel__inner{max-width:1100px;margin:0 auto;padding:clamp(22px,3vw,38px) clamp(1.2rem,4vw,2.4rem)}
+  .db-v2 .nav-cols{display:flex;gap:clamp(20px,3vw,52px);flex-wrap:wrap}
+  .db-v2 .nav-col__head{font-family:"Figtree";font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,240,234,.38);margin:0 0 12px}
+  .db-v2 .nav-col__head a{color:inherit;text-decoration:none}
+  .db-v2 .nav-sub{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .db-v2 .nav-sub a{font-family:"Fraunces";font-weight:300;font-size:clamp(14px,1.05vw,17px);color:rgba(244,240,234,.78);text-decoration:none;transition:color .2s,padding-left .3s var(--ease-out),font-style .2s}
+  .db-v2 .nav-sub a:hover{color:var(--paper);padding-left:5px;font-style:italic}
   .db-v2 .cta{font-weight:500;text-transform:uppercase;letter-spacing:.18em;font-size:.66rem;opacity:.85;white-space:nowrap}
   .db-v2 .bar-right{display:flex;gap:1.3rem;align-items:center}
   .db-v2 a.cta{text-decoration:none;color:inherit;transition:opacity .3s}.db-v2 a.cta:hover{opacity:1}
@@ -135,12 +147,33 @@
     <div class="bar-row">
       <a href="{{ routes.root_url }}" class="wordmark">{{ shop.name | split: ' ' | first }} <span>{{ shop.name | split: ' ' | last }}</span></a>
       <nav class="nav" aria-label="Primary">
-        <a href="/collections/bags">Bags</a>
-        <a href="/collections/jewelry">Jewellery</a>
-        <a href="/collections/shoes">Shoes</a>
-        <a href="/collections/accessories">Accessories</a>
-        <a href="#sourcing">Sourcing</a>
-        <a href="#magazine">Magazine</a>
+        {%- for link in main_menu.links -%}
+          <div class="nav-item">
+            <a class="nav-top" href="{{ link.url }}">{{ link.title }}</a>
+            {%- if link.links.size > 0 -%}
+              <div class="nav-panel">
+                <div class="nav-panel__inner">
+                  <div class="nav-cols">
+                    {%- for child in link.links -%}
+                      <div class="nav-col">
+                        <p class="nav-col__head"><a href="{{ child.url }}">{{ child.title }}</a></p>
+                        {%- if child.links.size > 0 -%}
+                          <ul class="nav-sub">
+                            {%- for grand in child.links -%}
+                              <li><a href="{{ grand.url }}">{{ grand.title }}</a></li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- endif -%}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+        <a class="nav-top" href="#sourcing">Sourcing</a>
+        <a class="nav-top" href="#magazine">Magazine</a>
       </nav>
       <div class="bar-right">
         <a href="{{ routes.account_url }}" class="cta">Account</a>
@@ -151,10 +184,7 @@
   </header>
 
   <div class="sheet" id="sheet">
-    <a href="/collections/bags">Bags</a>
-    <a href="/collections/jewelry">Jewellery</a>
-    <a href="/collections/shoes">Shoes</a>
-    <a href="/collections/accessories">Accessories</a>
+    {%- for link in main_menu.links -%}<a href="{{ link.url }}">{{ link.title }}</a>{%- endfor -%}
     <a href="#sourcing">Sourcing</a>
     <a href="#magazine">Magazine</a>
     <a href="{{ routes.account_url }}">Account</a>
@@ -331,8 +361,12 @@
     toggle.addEventListener('click',function(){ var o=body.classList.toggle('open'); toggle.setAttribute('aria-expanded',o); tlabel.textContent=o?'Close':'Menu'; });
     document.querySelectorAll('#sheet a').forEach(function(a){ a.addEventListener('click',function(){ body.classList.remove('open'); tlabel.textContent='Menu'; }); });
 
-    /* nav letter-flip on hover */
-    document.querySelectorAll('.db-v2 .nav a').forEach(function(a){
+    /* bar height -> CSS var so panels sit flush below the bar */
+    function setBH(){ document.documentElement.style.setProperty('--dbv2-bh', (header ? header.offsetHeight : 56) + 'px'); }
+    setBH(); window.addEventListener('resize', setBH);
+
+    /* nav letter-flip - top-level labels only */
+    document.querySelectorAll('.db-v2 .nav-top').forEach(function(a){
       var text=a.textContent; a.textContent=''; var i=0;
       for(var k=0;k<text.length;k++){ var c=text[k];
         if(c===' '){ a.appendChild(document.createTextNode(' ')); continue; }
