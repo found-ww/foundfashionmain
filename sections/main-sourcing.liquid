@@ -1,33 +1,85 @@
 <style>
+  /* ── Hero banner ── */
+  .Sourcing__Hero {
+    position: relative;
+    width: 100%;
+    height: 52vh;
+    min-height: 340px;
+    overflow: hidden;
+  }
+  .Sourcing__HeroImg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-color: #2a2420;
+  }
+  .Sourcing__HeroOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.36);
+  }
+  .Sourcing__HeroContent {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 24px 64px;
+    text-align: center;
+    color: #fff;
+  }
+  .Sourcing__HeroEyebrow {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 16px;
+  }
+  .Sourcing__HeroTitle {
+    font-size: clamp(2rem, 4.5vw, 3.6rem);
+    font-weight: 400;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin: 0 0 18px;
+  }
+  .Sourcing__HeroSub {
+    font-size: clamp(13px, 1.2vw, 15px);
+    font-weight: 300;
+    letter-spacing: 0.03em;
+    opacity: 0.8;
+    max-width: 460px;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ── Body: split layout ── */
   .SourcingPage {
     display: flex;
     min-height: 100vh;
+    align-items: flex-start;
   }
 
   /* ── Left: grid panel ── */
   .SourcingPage__Grid {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 60px 48px;
-    background-color: #f7f4f1;
-  }
-  .SourcingPage__GridInner {
-    width: 100%;
+    flex: 1.2;
+    padding: 56px 48px;
+    background: #fff;
   }
   .SourcingGrid__Header {
-    margin-bottom: 28px;
+    margin-bottom: 32px;
   }
   .SourcingGrid__Tagline {
     font-size: 10px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #9a8f86;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
   .SourcingGrid__Heading {
-    font-size: 22px;
+    font-size: 20px;
     letter-spacing: 0.06em;
     font-weight: 400;
     text-transform: uppercase;
@@ -38,61 +90,113 @@
     width: 32px;
     height: 1px;
     background: #c8c0b8;
-    margin: 0 0 20px;
+    margin: 0 0 16px;
   }
   .SourcingGrid__Description {
     font-size: 13px;
     color: #6b6259;
     line-height: 1.7;
+    max-width: 520px;
   }
 
-  /* 4-col x 3-row tile grid */
+  /* 3-col × 4-row tile grid */
   .SourcingGrid__Tiles {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
   .SourcingTile {
     position: relative;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 4;
     overflow: hidden;
-    background: #e8e3de;
+    background: #f0ece7;
     display: block;
     text-decoration: none;
+    cursor: pointer;
   }
   .SourcingTile__Img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s ease;
+    transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
   }
   .SourcingTile:hover .SourcingTile__Img {
-    transform: scale(1.04);
+    transform: scale(1.05);
   }
-  .SourcingTile__Overlay {
+
+  /* Hover reveal panel */
+  .SourcingTile__Hover {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 14px 18px;
+    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
     pointer-events: none;
   }
-  .SourcingTile__Label {
-    position: absolute;
-    bottom: 8px;
-    left: 10px;
+  .SourcingTile:hover .SourcingTile__Hover {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .SourcingTile__Name {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .SourcingTile__AddBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    padding: 8px 14px;
     font-size: 9px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #fff;
+    color: #1c1c1c;
+    font-family: inherit;
+    cursor: pointer;
     font-weight: 500;
+    transition: background 0.2s;
+    white-space: nowrap;
   }
-  /* Placeholder when no image */
+  .SourcingTile__AddBtn:hover {
+    background: #fff;
+  }
+  .SourcingTile__AddBtn svg {
+    flex-shrink: 0;
+  }
+
+  /* Added state */
+  .SourcingTile__AddBtn.is-added {
+    background: #1c1c1c;
+    color: #fff;
+  }
+
+  /* Empty tile */
   .SourcingTile--empty {
+    cursor: default;
+  }
+  .SourcingTile--empty .SourcingTile__Placeholder {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .SourcingTile--empty .SourcingTile__Placeholder {
+  .SourcingTile--empty .SourcingTile__Placeholder::after {
+    content: '';
     width: 20px;
     height: 20px;
     border: 1px solid #c8c0b8;
@@ -103,26 +207,30 @@
   .SourcingPage__Form {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 80px 48px;
-    background: #ffffff;
+    padding: 56px 48px;
+    background: #f0f0f0;
+    min-height: 100vh;
   }
   .SourcingPage__FormInner {
     width: 100%;
     max-width: 400px;
+    position: sticky;
+    top: 32px;
   }
 
   @media screen and (max-width: 989px) {
     .SourcingPage { flex-direction: column; }
     .SourcingPage__Grid,
-    .SourcingPage__Form { padding: 60px 24px; }
-    .SourcingGrid__Tiles { gap: 4px; }
+    .SourcingPage__Form { padding: 48px 24px; min-height: unset; }
+    .SourcingPage__FormInner { position: static; }
+    .SourcingGrid__Tiles { gap: 6px; }
   }
 
   /* ── Form typography ── */
   .SourcingForm__Title {
-    font-size: 22px;
+    font-size: 20px;
     letter-spacing: 0.06em;
     font-weight: 400;
     text-transform: uppercase;
@@ -133,13 +241,60 @@
     font-size: 13px;
     color: #6b6259;
     line-height: 1.65;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
+
+  /* Added items pills */
+  .SourcingForm__Items {
+    margin-bottom: 20px;
+    display: none;
+  }
+  .SourcingForm__Items.has-items {
+    display: block;
+  }
+  .SourcingForm__ItemsLabel {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 10px;
+  }
+  .SourcingForm__ItemsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .SourcingForm__ItemPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid #e0dbd5;
+    padding: 5px 10px 5px 12px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: #3d3530;
+    font-family: inherit;
+  }
+  .SourcingForm__ItemPillRemove {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #b5ada5;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    line-height: 1;
+    transition: color 0.15s;
+    font-family: inherit;
+  }
+  .SourcingForm__ItemPillRemove:hover { color: #1c1c1c; }
 
   /* ── Floating label fields ── */
   .SourcingForm__Field {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
   .SourcingForm__Input,
   .SourcingForm__Textarea {
@@ -158,7 +313,7 @@
   }
   .SourcingForm__Textarea {
     resize: vertical;
-    min-height: 110px;
+    min-height: 100px;
   }
   .SourcingForm__Input:focus,
   .SourcingForm__Textarea:focus { border-color: #9a8f86; }
@@ -187,6 +342,7 @@
   /* ── Select field ── */
   .SourcingForm__SelectWrapper {
     position: relative;
+    margin-bottom: 16px;
   }
   .SourcingForm__Select {
     width: 100%;
@@ -219,13 +375,11 @@
   .SourcingForm__Row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
+    margin-bottom: 16px;
   }
   .SourcingForm__Row .SourcingForm__Field {
     margin-bottom: 0;
-  }
-  .SourcingForm__RowWrap {
-    margin-bottom: 20px;
   }
 
   /* ── Submit ── */
@@ -241,7 +395,7 @@
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    margin-top: 8px;
+    margin-top: 4px;
     transition: background 0.2s;
   }
   .SourcingForm__Submit:hover { background: #3d3530; }
@@ -250,7 +404,7 @@
     letter-spacing: 0.06em;
     color: #9a8f86;
     text-align: center;
-    margin-top: 16px;
+    margin-top: 14px;
   }
 
   /* ── Alerts ── */
@@ -260,7 +414,7 @@
     color: #9a4040;
     padding: 12px 16px;
     font-size: 13px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   /* ── Success state ── */
@@ -294,67 +448,91 @@
   }
 </style>
 
+{%- comment -%} ── Hero Banner ── {%- endcomment -%}
+<div class="Sourcing__Hero">
+  <div class="Sourcing__HeroImg"
+    {%- if section.settings.hero_image -%}
+      style="background-image: url({{ section.settings.hero_image | img_url: '2000x' }});"
+    {%- endif -%}
+  ></div>
+  <div class="Sourcing__HeroOverlay"></div>
+  <div class="Sourcing__HeroContent">
+    {%- if section.settings.hero_eyebrow != blank -%}
+      <p class="Sourcing__HeroEyebrow">{{ section.settings.hero_eyebrow }}</p>
+    {%- endif -%}
+    <h1 class="Sourcing__HeroTitle">{{ section.settings.hero_title | default: page.title }}</h1>
+    {%- if section.settings.hero_sub != blank -%}
+      <p class="Sourcing__HeroSub">{{ section.settings.hero_sub }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- comment -%} ── Split body ── {%- endcomment -%}
 <section class="SourcingPage" data-section-id="{{ section.id }}" data-section-type="sourcing">
 
-  {%- comment -%} LEFT: 4×3 grid panel {%- endcomment -%}
+  {%- comment -%} LEFT: 3×4 product grid {%- endcomment -%}
   <div class="SourcingPage__Grid">
-    <div class="SourcingPage__GridInner">
 
-      <div class="SourcingGrid__Header">
-        {%- if section.settings.tagline != blank -%}
-          <p class="SourcingGrid__Tagline">{{ section.settings.tagline }}</p>
-        {%- endif -%}
-        <h2 class="SourcingGrid__Heading">{{ section.settings.heading | default: 'We source for you' }}</h2>
-        <div class="SourcingGrid__Divider"></div>
-        {%- if section.settings.description != blank -%}
-          <p class="SourcingGrid__Description">{{ section.settings.description }}</p>
-        {%- endif -%}
-      </div>
-
-      {%- assign sourcing_collection = collections[section.settings.sourcing_collection] -%}
-      {%- assign sourcing_products = sourcing_collection.products | default: empty -%}
-
-      <div class="SourcingGrid__Tiles">
-        {%- assign rendered = 0 -%}
-        {%- for product in sourcing_products limit: 12 -%}
-          {%- assign rendered = rendered | plus: 1 -%}
-          <a class="SourcingTile" href="{{ product.url }}">
-            {%- if product.featured_image -%}
-              <img
-                class="SourcingTile__Img"
-                src="{{ product.featured_image | img_url: '400x400', crop: 'center' }}"
-                srcset="{{ product.featured_image | img_url: '200x200', crop: 'center' }} 200w,
-                        {{ product.featured_image | img_url: '400x400', crop: 'center' }} 400w"
-                sizes="(max-width: 989px) 25vw, 12vw"
-                alt="{{ product.title | escape }}"
-                loading="lazy">
-              <div class="SourcingTile__Overlay"></div>
-              <span class="SourcingTile__Label">{{ product.title }}</span>
-            {%- else -%}
-              <div class="SourcingTile__Placeholder"></div>
-            {%- endif -%}
-          </a>
-        {%- endfor -%}
-
-        {%- comment -%} Fill remaining slots to always show a full 12-tile grid {%- endcomment -%}
-        {%- if rendered < 12 -%}
-          {%- assign empty_tiles = 12 | minus: rendered -%}
-          {%- for i in (1..empty_tiles) -%}
-            <div class="SourcingTile SourcingTile--empty">
-              <div class="SourcingTile__Placeholder"></div>
-            </div>
-          {%- endfor -%}
-        {%- endif -%}
-      </div>
-
+    <div class="SourcingGrid__Header">
+      {%- if section.settings.tagline != blank -%}
+        <p class="SourcingGrid__Tagline">{{ section.settings.tagline }}</p>
+      {%- endif -%}
+      <h2 class="SourcingGrid__Heading">{{ section.settings.heading | default: 'We source for you' }}</h2>
+      <div class="SourcingGrid__Divider"></div>
+      {%- if section.settings.description != blank -%}
+        <p class="SourcingGrid__Description">{{ section.settings.description }}</p>
+      {%- endif -%}
     </div>
+
+    {%- assign sourcing_collection = collections[section.settings.sourcing_collection] -%}
+    {%- assign sourcing_products = sourcing_collection.products | default: empty -%}
+
+    <div class="SourcingGrid__Tiles" id="sourcing-grid">
+      {%- assign rendered = 0 -%}
+      {%- for product in sourcing_products limit: 12 -%}
+        {%- assign rendered = rendered | plus: 1 -%}
+        <div class="SourcingTile"
+          data-product-title="{{ product.title | escape }}"
+          data-product-handle="{{ product.handle }}">
+          {%- if product.featured_image -%}
+            <img
+              class="SourcingTile__Img"
+              src="{{ product.featured_image | img_url: '600x800', crop: 'center' }}"
+              srcset="{{ product.featured_image | img_url: '300x400', crop: 'center' }} 300w,
+                      {{ product.featured_image | img_url: '600x800', crop: 'center' }} 600w"
+              sizes="(max-width: 989px) 33vw, 20vw"
+              alt="{{ product.title | escape }}"
+              loading="lazy">
+          {%- endif -%}
+          <div class="SourcingTile__Hover">
+            <p class="SourcingTile__Name">{{ product.title }}</p>
+            <button class="SourcingTile__AddBtn" type="button" aria-label="Add {{ product.title | escape }} to sourcing request">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M5 1V9M1 5H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              Add to request
+            </button>
+          </div>
+        </div>
+      {%- endfor -%}
+
+      {%- if rendered < 12 -%}
+        {%- assign empty_tiles = 12 | minus: rendered -%}
+        {%- for i in (1..empty_tiles) -%}
+          <div class="SourcingTile SourcingTile--empty">
+            <div class="SourcingTile__Placeholder"></div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
   </div>
 
   {%- comment -%} RIGHT: Form panel {%- endcomment -%}
   <div class="SourcingPage__Form">
     <div class="SourcingPage__FormInner">
 
-      {%- form 'contact', class: 'SourcingForm' -%}
+      {%- form 'contact', class: 'SourcingForm', id: 'sourcing-form' -%}
 
         {%- if form.posted_successfully? -%}
 
@@ -370,7 +548,7 @@
 
         {%- else -%}
 
-          <h1 class="SourcingForm__Title">{{ page.title }}</h1>
+          <h2 class="SourcingForm__Title">{{ section.settings.form_title | default: 'Submit a request' }}</h2>
           {%- if section.settings.form_subtitle != blank -%}
             <p class="SourcingForm__Subtitle">{{ section.settings.form_subtitle }}</p>
           {%- endif -%}
@@ -387,57 +565,60 @@
             </div>
           {%- endif -%}
 
-          {%- comment -%} Name + Email row {%- endcomment -%}
-          <div class="SourcingForm__RowWrap">
-            <div class="SourcingForm__Row">
-              <div class="SourcingForm__Field">
-                <input type="text" id="sourcing-name" class="SourcingForm__Input" name="contact[name]"
-                  placeholder=" " autocomplete="name" required
-                  {% if customer %}value="{{ customer.name }}"{% endif %}>
-                <label class="SourcingForm__Label" for="sourcing-name">Name</label>
-              </div>
-              <div class="SourcingForm__Field">
-                <input type="email" id="sourcing-email" class="SourcingForm__Input" name="contact[email]"
-                  placeholder=" " autocomplete="email" required
-                  {% if customer %}value="{{ customer.email }}"{% endif %}>
-                <label class="SourcingForm__Label" for="sourcing-email">Email</label>
-              </div>
+          {%- comment -%} Selected items pills {%- endcomment -%}
+          <div class="SourcingForm__Items" id="sourcing-items-panel">
+            <p class="SourcingForm__ItemsLabel">Items added</p>
+            <div class="SourcingForm__ItemsList" id="sourcing-items-list"></div>
+          </div>
+
+          {%- comment -%} Hidden field populated by JS {%- endcomment -%}
+          <input type="hidden" name="contact[Items requested]" id="sourcing-items-input" value="">
+
+          {%- comment -%} Name + Email {%- endcomment -%}
+          <div class="SourcingForm__Row">
+            <div class="SourcingForm__Field">
+              <input type="text" id="sourcing-name" class="SourcingForm__Input" name="contact[name]"
+                placeholder=" " autocomplete="name" required
+                {% if customer %}value="{{ customer.name }}"{% endif %}>
+              <label class="SourcingForm__Label" for="sourcing-name">Name</label>
+            </div>
+            <div class="SourcingForm__Field">
+              <input type="email" id="sourcing-email" class="SourcingForm__Input" name="contact[email]"
+                placeholder=" " autocomplete="email" required
+                {% if customer %}value="{{ customer.email }}"{% endif %}>
+              <label class="SourcingForm__Label" for="sourcing-email">Email</label>
             </div>
           </div>
 
-          {%- comment -%} Category dropdown {%- endcomment -%}
-          <div class="SourcingForm__Field">
-            <div class="SourcingForm__SelectWrapper">
-              <select id="sourcing-category" name="contact[Category]" class="SourcingForm__Select" required aria-label="Category">
-                <option value="" disabled selected>Category</option>
-                <option value="Bags">Bags</option>
-                <option value="Jewellery">Jewellery</option>
-                <option value="Shoes">Shoes</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Ready to Wear">Ready to Wear</option>
-                <option value="Other">Other</option>
-              </select>
-              <span class="SourcingForm__SelectChevron" aria-hidden="true">
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
+          {%- comment -%} Category {%- endcomment -%}
+          <div class="SourcingForm__SelectWrapper">
+            <select id="sourcing-category" name="contact[Category]" class="SourcingForm__Select" required aria-label="Category">
+              <option value="" disabled selected>Category</option>
+              <option value="Bags">Bags</option>
+              <option value="Jewellery">Jewellery</option>
+              <option value="Shoes">Shoes</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Ready to Wear">Ready to Wear</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="SourcingForm__SelectChevron" aria-hidden="true">
+              <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
           </div>
 
-          {%- comment -%} Brand + Budget row {%- endcomment -%}
-          <div class="SourcingForm__RowWrap">
-            <div class="SourcingForm__Row">
-              <div class="SourcingForm__Field">
-                <input type="text" id="sourcing-brand" class="SourcingForm__Input" name="contact[Brand / Designer]"
-                  placeholder=" ">
-                <label class="SourcingForm__Label" for="sourcing-brand">Brand / Designer</label>
-              </div>
-              <div class="SourcingForm__Field">
-                <input type="text" id="sourcing-budget" class="SourcingForm__Input" name="contact[Budget]"
-                  placeholder=" ">
-                <label class="SourcingForm__Label" for="sourcing-budget">Budget</label>
-              </div>
+          {%- comment -%} Brand + Budget {%- endcomment -%}
+          <div class="SourcingForm__Row">
+            <div class="SourcingForm__Field">
+              <input type="text" id="sourcing-brand" class="SourcingForm__Input" name="contact[Brand / Designer]"
+                placeholder=" ">
+              <label class="SourcingForm__Label" for="sourcing-brand">Brand / Designer</label>
+            </div>
+            <div class="SourcingForm__Field">
+              <input type="text" id="sourcing-budget" class="SourcingForm__Input" name="contact[Budget]"
+                placeholder=" ">
+              <label class="SourcingForm__Label" for="sourcing-budget">Budget</label>
             </div>
           </div>
 
@@ -448,7 +629,7 @@
             <label class="SourcingForm__Label" for="sourcing-item">Item description</label>
           </div>
 
-          {%- comment -%} Additional notes {%- endcomment -%}
+          {%- comment -%} Notes {%- endcomment -%}
           <div class="SourcingForm__Field">
             <textarea id="sourcing-notes" name="contact[body]" class="SourcingForm__Textarea"
               placeholder=" " aria-label="Additional notes"></textarea>
@@ -470,19 +651,128 @@
 
 </section>
 
+<script>
+(function () {
+  var addedItems = [];
+
+  var itemsPanel = document.getElementById('sourcing-items-panel');
+  var itemsList  = document.getElementById('sourcing-items-list');
+  var itemsInput = document.getElementById('sourcing-items-input');
+
+  function syncInput() {
+    itemsInput.value = addedItems.join(', ');
+    if (addedItems.length > 0) {
+      itemsPanel.classList.add('has-items');
+    } else {
+      itemsPanel.classList.remove('has-items');
+    }
+  }
+
+  function removePill(title) {
+    addedItems = addedItems.filter(function(t) { return t !== title; });
+
+    // Re-enable tile button
+    var tiles = document.querySelectorAll('.SourcingTile[data-product-title]');
+    tiles.forEach(function(tile) {
+      if (tile.dataset.productTitle === title) {
+        var btn = tile.querySelector('.SourcingTile__AddBtn');
+        if (btn) {
+          btn.classList.remove('is-added');
+          btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 1V9M1 5H9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Add to request';
+        }
+      }
+    });
+
+    renderPills();
+    syncInput();
+  }
+
+  function renderPills() {
+    itemsList.innerHTML = '';
+    addedItems.forEach(function(title) {
+      var pill = document.createElement('span');
+      pill.className = 'SourcingForm__ItemPill';
+      pill.innerHTML = title + '<button class="SourcingForm__ItemPillRemove" type="button" aria-label="Remove ' + title + '">×</button>';
+      pill.querySelector('button').addEventListener('click', function() {
+        removePill(title);
+      });
+      itemsList.appendChild(pill);
+    });
+  }
+
+  document.querySelectorAll('.SourcingTile[data-product-title]').forEach(function(tile) {
+    var btn = tile.querySelector('.SourcingTile__AddBtn');
+    if (!btn) return;
+
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var title = tile.dataset.productTitle;
+      if (addedItems.indexOf(title) !== -1) return;
+
+      addedItems.push(title);
+
+      btn.classList.add('is-added');
+      btn.innerHTML = '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M2 5L4.5 7.5L8 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Added';
+
+      renderPills();
+      syncInput();
+
+      // Scroll form into view on mobile
+      if (window.innerWidth < 990) {
+        var form = document.getElementById('sourcing-form');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+})();
+</script>
+
 {% schema %}
 {
   "name": "Sourcing page",
   "settings": [
     {
       "type": "header",
-      "content": "Left panel"
+      "content": "Hero banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero image"
+    },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Eyebrow text",
+      "default": "Found Fashion"
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Title",
+      "default": "Sourcing"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_sub",
+      "label": "Subtitle",
+      "default": "Tell us what you're looking for and our team will find it."
+    },
+    {
+      "type": "header",
+      "content": "Grid panel"
+    },
+    {
+      "type": "collection",
+      "id": "sourcing_collection",
+      "label": "Sourcing collection",
+      "info": "Products from this collection fill the 3×4 grid."
     },
     {
       "type": "text",
       "id": "tagline",
       "label": "Tagline",
-      "default": "Found Fashion"
+      "default": "Our network"
     },
     {
       "type": "text",
@@ -494,17 +784,17 @@
       "type": "textarea",
       "id": "description",
       "label": "Description",
-      "default": "Tell us what you're looking for and our team will search our global network to find it. From rare Hermès to vintage Chanel — we specialise in the impossible."
-    },
-    {
-      "type": "collection",
-      "id": "sourcing_collection",
-      "label": "Sourcing collection",
-      "info": "Products from this collection fill the 4×3 grid. Point it at a collection of items tagged 'sourcing'."
+      "default": "From rare Hermès to vintage Chanel — add pieces below to your sourcing request and our team will get to work."
     },
     {
       "type": "header",
       "content": "Form"
+    },
+    {
+      "type": "text",
+      "id": "form_title",
+      "label": "Form title",
+      "default": "Submit a request"
     },
     {
       "type": "textarea",
