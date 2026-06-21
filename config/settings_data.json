@@ -213,7 +213,7 @@
             "settings": {
               "title": "Disclaimer",
               "content": "<p>Found Fashion is not affiliated or associated with any brand mentioned or sold on this website. Trademarks and copyrights are reserved to their respective owners.</p>",
-              "show_social_media": true
+              "show_social_media": false
             }
           }
         },

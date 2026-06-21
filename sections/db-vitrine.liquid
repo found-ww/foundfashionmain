@@ -287,7 +287,8 @@
     }
     plateMats = mats; // expose for async texture swap
     var cards = plates.map(function (p) { return p.userData.card; });
-    var travel = 3 + (N - 1) * spacing;
+    // Extra 12 units ensures the last plate reaches world-z ≥ 6 (fully faded) before p=1
+    var travel = 12 + (N - 1) * spacing;
 
     var mx = 0, my = 0, tmx = 0, tmy = 0;
     var ray = new THREE.Raycaster(); var ndc = new THREE.Vector2(-2, -2);
