@@ -599,27 +599,6 @@
   </div>
 {%- endif -%}
 
-{%- comment -%} ── Process ── {%- endcomment -%}
-<div class="ps-process">
-  <p class="ps-process__label">{{ section.settings.process_label | default: 'How it works' }}</p>
-  <div class="ps-process__steps">
-    {%- for i in (1..3) -%}
-      {%- assign step_title_key = 'step_' | append: i | append: '_title' -%}
-      {%- assign step_body_key  = 'step_' | append: i | append: '_body' -%}
-      {%- assign step_title = section.settings[step_title_key] -%}
-      {%- assign step_body  = section.settings[step_body_key] -%}
-      {%- if step_title != blank or step_body != blank -%}
-        <div class="ps-step">
-          <span class="ps-step__num">0{{ i }}</span>
-          {%- if step_title != blank -%}<p class="ps-step__title">{{ step_title }}</p>{%- endif -%}
-          {%- if step_body != blank -%}<p class="ps-step__body">{{ step_body }}</p>{%- endif -%}
-        </div>
-      {%- endif -%}
-    {%- endfor -%}
-  </div>
-</div>
-
-
 {%- comment -%} ── Sourcing split: grid + form ── {%- endcomment -%}
 <div class="ps-sourcing" id="submit-request">
 
@@ -790,6 +769,26 @@
     </div>
   </div>
 
+</div>
+
+{%- comment -%} ── Process ── {%- endcomment -%}
+<div class="ps-process">
+  <p class="ps-process__label">{{ section.settings.process_label | default: 'How it works' }}</p>
+  <div class="ps-process__steps">
+    {%- for i in (1..3) -%}
+      {%- assign step_title_key = 'step_' | append: i | append: '_title' -%}
+      {%- assign step_body_key  = 'step_' | append: i | append: '_body' -%}
+      {%- assign step_title = section.settings[step_title_key] -%}
+      {%- assign step_body  = section.settings[step_body_key] -%}
+      {%- if step_title != blank or step_body != blank -%}
+        <div class="ps-step">
+          <span class="ps-step__num">0{{ i }}</span>
+          {%- if step_title != blank -%}<p class="ps-step__title">{{ step_title }}</p>{%- endif -%}
+          {%- if step_body != blank -%}<p class="ps-step__body">{{ step_body }}</p>{%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
 </div>
 
 <script>
