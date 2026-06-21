@@ -286,10 +286,7 @@ window.addEventListener('load', function() {
         {{ content_for_layout }}
       {% capture bsscommerce_passcode_to_see_price_product_custom %}{% render 'bss-passcode-to-see-price-js.liquid' %}{% endcapture %}{% unless bsscommerce_passcode_to_see_price_product_custom contains "Liquid error" %}{% render 'bss-passcode-to-see-price-js.liquid' %}{% endunless %}{% capture bsscommerce_login_to_see_price_product_custom %}{% render 'bsscommerce-login-to-see-price-custom-js.liquid' %}{% endcapture %}{% unless bsscommerce_login_to_see_price_product_custom contains "Liquid error" %}{% render 'bsscommerce-login-to-see-price-custom-js.liquid' %}{% endunless %}</main>
 
-      {%- comment -%} Homepage renders its own footer (db-home-footer) as the last section. {%- endcomment -%}
-      {%- unless template.name == 'index' -%}
-        {% section 'footer' %}
-      {%- endunless -%}
+      {% section 'footer' %}
     </div>
 
 {% include 'swymSnippet' %}

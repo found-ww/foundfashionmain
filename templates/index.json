@@ -12,8 +12,8 @@
     "db-home-top": {
       "type": "db-home-top",
       "blocks": {
-        "panel-1": { "type": "panel", "settings": { "eyebrow": "Personal shopping & sourcing", "title": "Hunting a specific piece? <em>We'll find it.</em>", "text": "Tell us the bag, the colour, the hardware. We work quietly through trusted private clients and store relationships to source the pieces that rarely surface.", "cta1_text": "Start a request →", "cta1_url": "shopify://pages/contact", "cta2_text": "Book an appointment", "cta2_url": "shopify://pages/contact" } },
-        "panel-2": { "type": "panel", "settings": { "eyebrow": "Authentication", "title": "Every piece, <em>verified in-house.</em>", "text": "We check date stamps, blind stamps, hardware, stitching and leather against our reference archive — and grade condition honestly. Nothing reaches you unauthenticated.", "cta1_text": "How we authenticate →", "cta1_url": "shopify://pages/authenticity" } }
+        "panel-1": { "type": "panel", "settings": { "image": "shopify://shop_images/2B93F86D-C90D-4BFF-9335-B9D312831940.jpg", "eyebrow": "Personal shopping & sourcing", "title": "Hunting a specific piece? <em>We'll find it.</em>", "text": "Tell us the bag, the colour, the hardware. We work quietly through trusted private clients and store relationships to source the pieces that rarely surface.", "cta1_text": "Start a request →", "cta1_url": "shopify://pages/sourcing", "cta2_text": "Book an appointment", "cta2_url": "shopify://pages/contact" } },
+        "panel-2": { "type": "panel", "settings": { "image": "shopify://shop_images/62e2763b876c08-QX345185882_jpg.webp", "eyebrow": "Authentication", "title": "Every piece, <em>verified in-house.</em>", "text": "We check date stamps, blind stamps, hardware, stitching and leather against our reference archive — and grade condition honestly. Nothing reaches you unauthenticated.", "cta1_text": "How we authenticate →", "cta1_url": "shopify://pages/authenticity" } }
       },
       "block_order": ["panel-1", "panel-2"],
       "settings": {
@@ -41,34 +41,14 @@
       },
       "block_order": ["story-1", "story-2", "story-3", "story-4", "story-5", "story-6", "story-7", "story-8"],
       "settings": {
-        "eyebrow": "FROM THE MAGAZINE",
-        "title": "Stories from the salon",
         "direction": "Crystal lens",
         "scroll_height": 520,
-        "corner_title": "From the Magazine",
-        "corner_sub": "THROUGH FROSTED GLASS",
-        "stories_heading": "All stories",
-        "stories_link_text": "VISIT THE MAGAZINE →",
-        "stories_link": "shopify://blogs/found-magazine"
-      }
-    },
-    "db-home-footer": {
-      "type": "db-home-footer",
-      "blocks": {
-        "col-1": { "type": "column", "settings": { "heading": "Shop", "links": "New Arrivals\nBags\nJewellery\nSale", "link_url": "shopify://collections/all" } },
-        "col-2": { "type": "column", "settings": { "heading": "Studio", "links": "Sourcing\nAuthentication\nMagazine\nContact", "link_url": "shopify://pages/contact" } }
-      },
-      "block_order": ["col-1", "col-2"],
-      "settings": {
-        "headline": "Found Fashion — a considered edit of the rare and the <em>coveted.</em>",
-        "copyright": "© Found Fashion 2026",
-        "byline": "London · By appointment"
+        "corner_title": "From the Magazine"
       }
     }
   },
   "order": [
     "db-home-top",
-    "db-vitrine",
-    "db-home-footer"
+    "db-vitrine"
   ]
 }

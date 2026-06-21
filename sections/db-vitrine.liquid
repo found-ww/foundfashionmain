@@ -18,11 +18,6 @@
   #db-vitrine-{{ sid }} ::selection { background: #1b1916; color: #f4f0e8; }
   @keyframes gw-cue-{{ sid }} { 0%{transform:translateY(0);opacity:.25} 50%{opacity:1} 100%{transform:translateY(9px);opacity:.25} }
 
-  .gw-intro { padding: 70px 44px 40px; max-width: 1320px; margin: 0 auto; }
-  .gw-intro__eyebrow { font-size: 12px; letter-spacing: .34em; color: #6f6859; }
-  .gw-intro__title { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(34px,5vw,72px); line-height: .98; letter-spacing: -0.01em; margin: 18px 0 0; max-width: 1080px; }
-  .gw-intro__title em { font-style: italic; }
-
   .gw-section { position: relative; background: #e8dccd; }
   .gw-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
   .gw-bg { position: absolute; inset: 0; background-size: cover; background-position: center 42%; transform-origin: 54% 46%; will-change: transform; }
@@ -32,7 +27,6 @@
 
   .gw-corner-tl { position: absolute; top: 96px; left: 44px; z-index: 10; pointer-events: none; }
   .gw-corner-tl__h { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 34px; line-height: 1; color: #2b2118; text-shadow: 0 1px 18px rgba(247,240,230,.7); }
-  .gw-corner-tl__s { font-size: 11px; letter-spacing: .28em; color: #6a5848; margin-top: 10px; text-shadow: 0 1px 12px rgba(247,240,230,.7); }
 
   .gw-caption { position: absolute; bottom: 46px; left: 44px; z-index: 10; pointer-events: none; max-width: 560px; }
   .gw-caption__eyebrow { font-size: 11px; letter-spacing: .26em; color: #f3e7d6; min-height: 14px; text-shadow: 0 1px 12px rgba(40,28,18,.6); }
@@ -64,38 +58,15 @@
   #db-vitrine-{{ sid }}.is-static .gw-caption { display: none; }
   #db-vitrine-{{ sid }}.is-static .gw-static { display: flex; }
 
-  .gw-stories { padding: 90px 44px 110px; max-width: 1320px; margin: 0 auto; }
-  .gw-stories__head { display: flex; align-items: flex-end; justify-content: space-between; border-top: 1px solid rgba(27,25,22,.14); padding-top: 30px; }
-  .gw-stories__h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 46px; margin: 0; }
-  .gw-stories__link { font-size: 11px; letter-spacing: .24em; border-bottom: 1px solid #1b1916; padding-bottom: 5px; color: inherit; text-decoration: none; }
-  .gw-stories__grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 30px; margin-top: 36px; }
-  .gw-card { color: inherit; text-decoration: none; display: block; }
-  .gw-card__media { height: 230px; border-radius: 3px; overflow: hidden; }
-  .gw-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s cubic-bezier(.16,1,.3,1); }
-  .gw-card:hover .gw-card__media img { transform: scale(1.04); }
-  .gw-card__cat { font-size: 10px; letter-spacing: .24em; color: #9a9182; margin: 16px 0 6px; }
-  .gw-card__title { font-family: 'Cormorant Garamond', serif; font-size: 24px; }
-
   @media (max-width: 800px) {
-    .gw-intro { padding: 48px 22px 28px; }
     .gw-corner-tl, .gw-meta { left: 22px; right: 22px; top: 80px; }
     .gw-caption, .gw-static { left: 22px; padding-left: 22px; }
     .gw-rail { right: 18px; }
-    .gw-stories { padding: 60px 22px 80px; }
-    .gw-stories__grid { grid-template-columns: 1fr; gap: 22px; }
-    .gw-stories__h2 { font-size: 34px; }
   }
 </style>
 
 <span id="magazine" aria-hidden="true" style="display:block;position:relative;top:-70px;visibility:hidden"></span>
 <section id="db-vitrine-{{ sid }}" data-direction="{{ s.direction | default: 'Crystal lens' }}" data-scroll-vh="{{ s.scroll_height | default: 520 }}">
-
-  {%- if s.title != blank or s.eyebrow != blank -%}
-    <div class="gw-intro">
-      {%- if s.eyebrow != blank -%}<div class="gw-intro__eyebrow">{{ s.eyebrow | escape }}</div>{%- endif -%}
-      {%- if s.title != blank -%}<h2 class="gw-intro__title">{{ s.title }}</h2>{%- endif -%}
-    </div>
-  {%- endif -%}
 
   <div class="gw-section" data-gw-section style="height:{{ s.scroll_height | default: 520 }}vh;">
     <div class="gw-pin">
@@ -107,7 +78,6 @@
 
       <div class="gw-corner-tl">
         <div class="gw-corner-tl__h">{{ s.corner_title | default: 'From the Magazine' }}</div>
-        <div class="gw-corner-tl__s">{{ s.corner_sub | default: 'THROUGH FROSTED GLASS' }}</div>
       </div>
 
       <div class="gw-caption">
@@ -137,33 +107,6 @@
     </div>
   </div>
 
-  <div class="gw-stories">
-    <div class="gw-stories__head">
-      <h2 class="gw-stories__h2">{{ s.stories_heading | default: 'All stories' }}</h2>
-      <a class="gw-stories__link" href="{{ s.stories_link | default: '#' }}">{{ s.stories_link_text | default: 'VISIT THE MAGAZINE →' }}</a>
-    </div>
-    <div class="gw-stories__grid">
-      {%- assign grads = 'radial-gradient(70% 60% at 54% 42%,#fff,#efe6d6 55%,#d6c6a9),radial-gradient(70% 60% at 54% 42%,#fff,#e7e9ec 55%,#cdd2d6),radial-gradient(70% 60% at 54% 42%,#fff,#f1e9da 55%,#d8c8ad)' | split: '),' -%}
-      {%- assign shown = 0 -%}
-      {%- for block in section.blocks -%}
-        {%- if shown < 3 -%}
-          {%- assign gi = forloop.index0 -%}
-          {%- assign grad = grads[gi] -%}
-          {%- unless grad contains ')' -%}{%- assign grad = grad | append: ')' -%}{%- endunless -%}
-          <a class="gw-card" href="{{ block.settings.link | default: s.stories_link | default: '#' }}" {{ block.shopify_attributes }}>
-            <div class="gw-card__media" style="background:{{ grad }};">
-              {%- if block.settings.image != blank -%}
-                <img src="{{ block.settings.image | img_url: '700x' }}" alt="{{ block.settings.image.alt | escape }}" loading="lazy">
-              {%- endif -%}
-            </div>
-            <div class="gw-card__cat">{{ block.settings.label | escape }}</div>
-            <div class="gw-card__title">{{ block.settings.title | escape }}</div>
-          </a>
-          {%- assign shown = shown | plus: 1 -%}
-        {%- endif -%}
-      {%- endfor -%}
-    </div>
-  </div>
 </section>
 
 <script>
@@ -172,18 +115,18 @@
   if (!root) return;
 
   var DEFAULT_STORIES = [
-    ['Hermès · Guide', 'The Garden Party, Decoded'],
-    ['Flagship', 'Inside 166 New Bond Street'],
-    ['Guide', 'Quota Bags, Explained'],
-    ['Relationships', 'Building an SA Relationship'],
-    ['Care', 'The Patina Question'],
-    ['Authentication', 'Reading a Blind Stamp'],
-    ['Leathers', 'Box vs Togo vs Epsom'],
-    ['Heritage', 'A Short History of the Kelly']
+    { label: 'Hermès · Guide', title: 'The Garden Party, Decoded', img: null, link: '' },
+    { label: 'Flagship', title: 'Inside 166 New Bond Street', img: null, link: '' },
+    { label: 'Guide', title: 'Quota Bags, Explained', img: null, link: '' },
+    { label: 'Relationships', title: 'Building an SA Relationship', img: null, link: '' },
+    { label: 'Care', title: 'The Patina Question', img: null, link: '' },
+    { label: 'Authentication', title: 'Reading a Blind Stamp', img: null, link: '' },
+    { label: 'Leathers', title: 'Box vs Togo vs Epsom', img: null, link: '' },
+    { label: 'Heritage', title: 'A Short History of the Kelly', img: null, link: '' }
   ];
   var BLOCK_STORIES = [
     {%- for block in section.blocks -%}
-      [{{ block.settings.label | json }}, {{ block.settings.title | json }}]{% unless forloop.last %},{% endunless %}
+      { label: {{ block.settings.label | json }}, title: {{ block.settings.title | json }}, img: {{ block.settings.image | img_url: '800x' | json }}, link: {{ block.settings.link | json }} }{% unless forloop.last %},{% endunless %}
     {%- endfor -%}
   ];
   var STORIES = BLOCK_STORIES.length ? BLOCK_STORIES : DEFAULT_STORIES;
@@ -250,11 +193,28 @@
     var loader = new THREE.TextureLoader();
     loader.load(SALON, function (bgTex) {
       if (THREE.sRGBEncoding) bgTex.encoding = THREE.sRGBEncoding;
-      build(THREE, canvas, bgTex);
+      // Pre-load per-plate images; fall back to salon where absent
+      var plateTex = STORIES.map(function () { return bgTex; });
+      var pending = 0;
+      STORIES.forEach(function (st, i) {
+        if (st.img) {
+          pending++;
+          loader.load(st.img, function (tx) {
+            if (THREE.sRGBEncoding) tx.encoding = THREE.sRGBEncoding;
+            plateTex[i] = tx;
+            // Swap into live uniform if scene is already built
+            if (plateMats[i]) plateMats[i].uniforms.uBg.value = tx;
+            pending--;
+          }, undefined, function () { pending--; });
+        }
+      });
+      build(THREE, canvas, bgTex, plateTex);
     }, undefined, function () { root.classList.add('is-static'); });
   }
 
-  function build(THREE, canvas, bgTex) {
+  var plateMats = []; // filled by build(), used above for async swap
+
+  function build(THREE, canvas, bgTex, plateTex) {
     var W = canvas.clientWidth || 1280, H = canvas.clientHeight || 720;
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
@@ -310,10 +270,10 @@
       g.scale.setScalar(0.82 + (i % 4) * 0.13);
       var sh = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 3.9), new THREE.MeshBasicMaterial({ map: shadowT, transparent: true, depthWrite: false }));
       sh.position.set(0.16, -0.2, -0.06); g.add(sh);
-      var ink = makeInk(THREE, stories[i][0], stories[i][1]);
+      var ink = makeInk(THREE, stories[i].label, stories[i].title);
       var mat = new THREE.ShaderMaterial({
         uniforms: {
-          uBg: { value: bgTex }, uInk: { value: ink }, uRes: { value: new THREE.Vector2(W, H) },
+          uBg: { value: plateTex[i] }, uInk: { value: ink }, uRes: { value: new THREE.Vector2(W, H) },
           uImgAspect: { value: SALON_W / SALON_H }, uScale: { value: 1.04 }, uOffY: { value: -0.04 },
           uFrost: { value: 7.0 }, uRefr: { value: 0.05 }, uOpacity: { value: 1.0 }, uFocus: { value: 0.0 },
           uTint: { value: new THREE.Color(0.96, 0.93, 0.86) }, uTintAmt: { value: 0.44 },
@@ -322,9 +282,10 @@
         vertexShader: vert, fragmentShader: frag, transparent: true, depthWrite: false
       });
       var card = new THREE.Mesh(geo, mat); g.add(card);
-      g.userData = { baseY: ys[i % 8], phase: i * 1.2, label: stories[i][0], title: stories[i][1], mat: mat, smat: sh.material, card: card };
+      g.userData = { baseY: ys[i % 8], phase: i * 1.2, label: stories[i].label, title: stories[i].title, link: stories[i].link, mat: mat, smat: sh.material, card: card };
       group.add(g); plates.push(g); mats.push(mat);
     }
+    plateMats = mats; // expose for async texture swap
     var cards = plates.map(function (p) { return p.userData.card; });
     var travel = 3 + (N - 1) * spacing;
 
@@ -338,6 +299,9 @@
       ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
     });
     canvas.addEventListener('pointerleave', function () { ndc.set(-2, -2); });
+    canvas.addEventListener('click', function () {
+      if (hovered && hovered.userData.link) window.location.href = hovered.userData.link;
+    });
 
     var bg = root.querySelector('[data-gw-bg]');
     var sectionEl = root.querySelector('[data-gw-section]');
@@ -371,6 +335,7 @@
       io.observe(root.querySelector('.gw-section') || root);
     } else { running = true; }
 
+    var hovered = null;
     var t = 0;
     function loop() {
       _raf = requestAnimationFrame(loop);
@@ -388,7 +353,7 @@
 
       ray.setFromCamera(ndc, cam);
       var hit = ray.intersectObjects(cards);
-      var hovered = (hit.length && hit[0].object.parent) ? hit[0].object.parent : null;
+      hovered = (hit.length && hit[0].object.parent) ? hit[0].object.parent : null;
 
       var focal = null, fd = 1e9, fIdx = 0;
       plates.forEach(function (g, i) {
@@ -423,7 +388,7 @@
       if (focusG && eyebrowEl && titleEl) { eyebrowEl.textContent = focusG.userData.label.toUpperCase(); titleEl.textContent = focusG.userData.title; }
       if (countEl) countEl.textContent = String(fIdx + 1).padStart(2, '0');
       if (progEl) progEl.style.top = (p * 170) + 'px';
-      canvas.style.cursor = hovered ? 'pointer' : 'default';
+      canvas.style.cursor = (hovered && hovered.userData.link) ? 'pointer' : 'default';
 
       renderer.render(scene, cam);
     }
@@ -439,10 +404,7 @@
 {
   "name": "DB Vitrine",
   "settings": [
-    { "type": "paragraph", "content": "Immersive 'From the Magazine' section: story plates float through a Parisian salon as frosted glass, refracting the room behind them. Scroll to walk through; hover a plate to clear it. Falls back to a static image + the stories grid when WebGL or reduced-motion applies." },
-    { "type": "header", "content": "Intro" },
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "FROM THE MAGAZINE" },
-    { "type": "text", "id": "title", "label": "Title", "default": "The rare, the discontinued, the quietly coveted." },
+    { "type": "paragraph", "content": "Immersive 'From the Magazine' section: story plates float through a Parisian salon as frosted glass. Scroll to walk through; hover a plate to clear it; click to open the article." },
     { "type": "header", "content": "Glass effect" },
     {
       "type": "select", "id": "direction", "label": "Glass style", "default": "Crystal lens",
@@ -455,12 +417,7 @@
       ]
     },
     { "type": "range", "id": "scroll_height", "label": "Scroll length (vh)", "min": 200, "max": 700, "step": 20, "default": 520, "info": "How far you scroll to walk through the gallery." },
-    { "type": "text", "id": "corner_title", "label": "Corner title", "default": "From the Magazine" },
-    { "type": "text", "id": "corner_sub", "label": "Corner subtitle", "default": "THROUGH FROSTED GLASS" },
-    { "type": "header", "content": "All stories grid" },
-    { "type": "text", "id": "stories_heading", "label": "Grid heading", "default": "All stories" },
-    { "type": "text", "id": "stories_link_text", "label": "Grid link text", "default": "VISIT THE MAGAZINE →" },
-    { "type": "url", "id": "stories_link", "label": "Grid link" }
+    { "type": "text", "id": "corner_title", "label": "Corner title", "default": "From the Magazine" }
   ],
   "blocks": [
     {
