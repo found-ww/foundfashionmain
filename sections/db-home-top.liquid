@@ -42,16 +42,22 @@
   .db-v2 .nav-top .ch{position:relative;display:inline-block;overflow:hidden;height:1em;line-height:1;vertical-align:top}
   .db-v2 .nav-top .ch b{display:block;font-weight:inherit;line-height:1;transition:transform .5s var(--ease);transition-delay:calc(var(--i)*.025s)}
   .db-v2 .nav-item:hover .nav-top .ch b,.db-v2 .nav-top:hover .ch b{transform:translateY(-100%)}
-  /* dark glass dropdown panel */
-  .db-v2 .nav-panel{position:fixed;left:0;right:0;top:var(--dbv2-bh,56px);background:rgba(17,15,13,.95);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);border-top:1px solid rgba(244,240,234,.09);box-shadow:0 32px 56px -20px rgba(0,0,0,.55);color:var(--paper);opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .25s ease,transform .36s var(--ease-out),visibility .25s;pointer-events:none;z-index:98}
+  /* dropdown panel — matches db-header-mega exactly */
+  .db-v2 .nav-panel{position:fixed;left:0;right:0;top:var(--dbv2-bh,56px);background:var(--paper);color:var(--ink);box-shadow:0 24px 48px -24px rgba(25,25,25,.3);border-top:1px solid rgba(25,25,25,.06);opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .35s ease,transform .45s var(--ease-out),visibility .35s;pointer-events:none;z-index:98}
   .db-v2 .nav-item:hover .nav-panel,.db-v2 .nav-item:focus-within .nav-panel{opacity:1;visibility:visible;transform:none;pointer-events:auto}
-  .db-v2 .nav-panel__inner{max-width:1100px;margin:0 auto;padding:clamp(22px,3vw,38px) clamp(1.2rem,4vw,2.4rem)}
-  .db-v2 .nav-cols{display:flex;gap:clamp(20px,3vw,52px);flex-wrap:wrap}
-  .db-v2 .nav-col__head{font-family:"Figtree";font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,240,234,.38);margin:0 0 12px}
+  .db-v2 .nav-panel__inner{max-width:1600px;margin:0 auto;padding:clamp(28px,3vw,48px) clamp(18px,4vw,48px);display:grid;grid-template-columns:3fr 1.1fr;gap:clamp(24px,4vw,64px);align-items:start}
+  .db-v2 .nav-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:clamp(20px,2.5vw,44px)}
+  .db-v2 .nav-col__head{font-family:"Figtree";font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.5;margin:0 0 14px}
   .db-v2 .nav-col__head a{color:inherit;text-decoration:none}
-  .db-v2 .nav-sub{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
-  .db-v2 .nav-sub a{font-family:"Fraunces";font-weight:300;font-size:clamp(14px,1.05vw,17px);color:rgba(244,240,234,.78);text-decoration:none;transition:color .2s,padding-left .3s var(--ease-out),font-style .2s}
-  .db-v2 .nav-sub a:hover{color:var(--paper);padding-left:5px;font-style:italic}
+  .db-v2 .nav-sub{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+  .db-v2 .nav-sub a{font-family:"Fraunces";font-weight:300;font-size:clamp(15px,1.2vw,18px);color:var(--ink);text-decoration:none;transition:opacity .25s ease,padding-left .3s var(--ease-out);opacity:.82}
+  .db-v2 .nav-sub a:hover{opacity:1;padding-left:6px;font-style:italic}
+  .db-v2 .nav-feat{display:block;text-decoration:none;color:var(--ink)}
+  .db-v2 .nav-feat__media{aspect-ratio:4/3;overflow:hidden;border-radius:6px;background:#ddd}
+  .db-v2 .nav-feat__media img,.db-v2 .nav-feat__media .placeholder-svg{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s var(--ease-out)}
+  .db-v2 .nav-feat:hover .nav-feat__media img{transform:scale(1.05)}
+  .db-v2 .nav-feat__cap{font-family:"Figtree";font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin:12px 0 0}
+  .db-v2 .nav-feat__cap span{opacity:.5}
   .db-v2 .cta{font-weight:500;text-transform:uppercase;letter-spacing:.18em;font-size:.66rem;opacity:.85;white-space:nowrap}
   .db-v2 .bar-right{display:flex;gap:1.3rem;align-items:center}
   .db-v2 a.cta{text-decoration:none;color:inherit;transition:opacity .3s}.db-v2 a.cta:hover{opacity:1}
@@ -146,8 +152,10 @@
   <header class="bar" id="bar">
     <div class="bar-row">
       <a href="{{ routes.root_url }}" class="wordmark">{{ shop.name | split: ' ' | first }} <span>{{ shop.name | split: ' ' | last }}</span></a>
+      {%- assign nav_feats = section.blocks | where: "type", "nav_feature" -%}
       <nav class="nav" aria-label="Primary">
         {%- for link in main_menu.links -%}
+          {%- assign feat = nav_feats[forloop.index0] -%}
           <div class="nav-item">
             <a class="nav-top" href="{{ link.url }}">{{ link.title }}</a>
             {%- if link.links.size > 0 -%}
@@ -167,6 +175,17 @@
                       </div>
                     {%- endfor -%}
                   </div>
+                  <a class="nav-feat" href="{{ link.url }}">
+                    <div class="nav-feat__media">
+                      {%- if feat and feat.settings.image != blank -%}
+                        <img src="{{ feat.settings.image | img_url: '700x' }}" alt="{{ feat.settings.image.alt | escape }}" loading="lazy">
+                      {%- else -%}
+                        {%- assign ph = forloop.index0 | modulo: 6 | plus: 1 -%}
+                        {{ 'product-' | append: ph | placeholder_svg_tag: 'placeholder-svg' }}
+                      {%- endif -%}
+                    </div>
+                    <p class="nav-feat__cap">{% if feat and feat.settings.caption != blank %}{{ feat.settings.caption | escape }}{% else %}Featured{% endif %} <span>— {{ link.title }}</span></p>
+                  </a>
                 </div>
               </div>
             {%- endif -%}
@@ -398,6 +417,14 @@
   ],
   "blocks": [
     {
+      "type": "nav_feature",
+      "name": "Nav feature image",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "caption", "label": "Caption", "default": "Featured" }
+      ]
+    },
+    {
       "type": "panel",
       "name": "Service panel",
       "settings": [
@@ -412,7 +439,7 @@
       ]
     }
   ],
-  "max_blocks": 2,
+  "max_blocks": 8,
   "presets": [
     {
       "name": "DB Home Top",

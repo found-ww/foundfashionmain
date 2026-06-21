@@ -12,10 +12,14 @@
     "db-home-top": {
       "type": "db-home-top",
       "blocks": {
+        "nav-feat-1": { "type": "nav_feature", "settings": { "caption": "Featured" } },
+        "nav-feat-2": { "type": "nav_feature", "settings": { "caption": "Featured" } },
+        "nav-feat-3": { "type": "nav_feature", "settings": { "caption": "Featured" } },
+        "nav-feat-4": { "type": "nav_feature", "settings": { "caption": "Featured" } },
         "panel-1": { "type": "panel", "settings": { "image": "shopify://shop_images/2B93F86D-C90D-4BFF-9335-B9D312831940.jpg", "eyebrow": "Personal shopping & sourcing", "title": "Hunting a specific piece? <em>We'll find it.</em>", "text": "Tell us the bag, the colour, the hardware. We work quietly through trusted private clients and store relationships to source the pieces that rarely surface.", "cta1_text": "Start a request →", "cta1_url": "shopify://pages/sourcing", "cta2_text": "Book an appointment", "cta2_url": "shopify://pages/contact" } },
         "panel-2": { "type": "panel", "settings": { "image": "shopify://shop_images/62e2763b876c08-QX345185882_jpg.webp", "eyebrow": "Authentication", "title": "Every piece, <em>verified in-house.</em>", "text": "We check date stamps, blind stamps, hardware, stitching and leather against our reference archive — and grade condition honestly. Nothing reaches you unauthenticated.", "cta1_text": "How we authenticate →", "cta1_url": "shopify://pages/authenticity" } }
       },
-      "block_order": ["panel-1", "panel-2"],
+      "block_order": ["nav-feat-1", "nav-feat-2", "nav-feat-3", "nav-feat-4", "panel-1", "panel-2"],
       "settings": {
         "hero_eyebrow": "Rare & pre-owned · London",
         "hero_title": "The rare, the discontinued,<br>the <em>quietly coveted.</em>",
