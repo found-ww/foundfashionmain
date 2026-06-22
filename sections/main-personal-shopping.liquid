@@ -452,6 +452,75 @@
     line-height: 1.6;
   }
 
+  /* ── FAQ ── */
+  .ps-faq {
+    padding: 100px 24px;
+    background: #fff;
+  }
+  .ps-faq__head {
+    text-align: center;
+    margin-bottom: 72px;
+  }
+  .ps-faq__eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #9a8f86;
+    margin-bottom: 18px;
+  }
+  .ps-faq__title {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: #1c1c1c;
+    margin: 0;
+  }
+  .ps-faq__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 64px;
+    row-gap: 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .ps-faq__item {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .ps-faq__item.ps--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .ps-faq__num {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: #b5ada5;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .ps-faq__q {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: #1c1c1c;
+    margin-bottom: 14px;
+  }
+  .ps-faq__divider {
+    width: 100%;
+    height: 0.5px;
+    background: #e0dbd5;
+    margin-bottom: 18px;
+  }
+  .ps-faq__a {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: #6b6259;
+  }
+
   /* ── Mobile ── */
   @media screen and (max-width: 767px) {
     .ps-hero { height: 50vh; min-height: 320px; }
@@ -462,6 +531,8 @@
     .ps-step { padding: 36px 24px; }
     .ps-trust__inner { flex-direction: column; gap: 24px; }
     .ps-trust__item { border-right: none; padding: 0; }
+    .ps-faq { padding: 72px 24px; }
+    .ps-faq__grid { grid-template-columns: 1fr; gap: 36px; }
   }
   @media screen and (max-width: 989px) {
     .ps-sourcing { flex-direction: column; }
@@ -791,6 +862,32 @@
   </div>
 </div>
 
+{%- comment -%} ── FAQ ── {%- endcomment -%}
+<div class="ps-faq">
+  <div class="ps-faq__head">
+    {%- if section.settings.faq_eyebrow != blank -%}
+      <p class="ps-faq__eyebrow">{{ section.settings.faq_eyebrow }}</p>
+    {%- endif -%}
+    <h2 class="ps-faq__title">{{ section.settings.faq_title | default: 'Frequently Asked' }}</h2>
+  </div>
+  <div class="ps-faq__grid" id="ps-faq-grid">
+    {%- for i in (1..6) -%}
+      {%- assign faq_q_key = 'faq_' | append: i | append: '_q' -%}
+      {%- assign faq_a_key = 'faq_' | append: i | append: '_a' -%}
+      {%- assign faq_q = section.settings[faq_q_key] -%}
+      {%- assign faq_a = section.settings[faq_a_key] -%}
+      {%- if faq_q != blank or faq_a != blank -%}
+        <div class="ps-faq__item">
+          <span class="ps-faq__num">0{{ i }}</span>
+          {%- if faq_q != blank -%}<p class="ps-faq__q">{{ faq_q }}</p>{%- endif -%}
+          <div class="ps-faq__divider"></div>
+          {%- if faq_a != blank -%}<p class="ps-faq__a">{{ faq_a }}</p>{%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
 <script>
 (function () {
   /* ── 1. Hero word reveal + cursor scale ── */
@@ -864,6 +961,23 @@
     steps.forEach(function (s, i) {
       s.style.transitionDelay = (0.1 * i) + 's';
       stepObs.observe(s);
+    });
+  }
+
+  /* ── 3. FAQ stagger reveal ── */
+  var faqItems = document.querySelectorAll('.ps-faq__item');
+  if (faqItems.length) {
+    var faqObs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('ps--in');
+          faqObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    faqItems.forEach(function (item, i) {
+      item.style.transitionDelay = (0.07 * i) + 's';
+      faqObs.observe(item);
     });
   }
 })();
@@ -1067,6 +1181,94 @@
       "id": "success_note",
       "label": "Success message",
       "default": "We will be in touch within 24 hours."
+    },
+    {
+      "type": "header",
+      "content": "FAQ"
+    },
+    {
+      "type": "text",
+      "id": "faq_eyebrow",
+      "label": "FAQ eyebrow",
+      "default": "Good to know"
+    },
+    {
+      "type": "text",
+      "id": "faq_title",
+      "label": "FAQ heading",
+      "default": "Frequently Asked"
+    },
+    {
+      "type": "text",
+      "id": "faq_1_q",
+      "label": "Question 1",
+      "default": "How long does sourcing take?"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_1_a",
+      "label": "Answer 1",
+      "default": "Most pieces are located within two to four weeks, though rare or highly specific requests can take longer. We share an estimated timeline within 24 hours of your request so you always know what to expect."
+    },
+    {
+      "type": "text",
+      "id": "faq_2_q",
+      "label": "Question 2",
+      "default": "Is the deposit refundable?"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_2_a",
+      "label": "Answer 2",
+      "default": "Yes. A fully refundable deposit secures your search and is returned in full if we are unable to source your piece, or applied to the final price once you confirm a find."
+    },
+    {
+      "type": "text",
+      "id": "faq_3_q",
+      "label": "Question 3",
+      "default": "How do you authenticate items?"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_3_a",
+      "label": "Answer 3",
+      "default": "Every piece is verified by our in-house specialists and, where relevant, independent third-party authentication. You receive full documentation before anything is dispatched."
+    },
+    {
+      "type": "text",
+      "id": "faq_4_q",
+      "label": "Question 4",
+      "default": "What if you can't find my piece?"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_4_a",
+      "label": "Answer 4",
+      "default": "If we cannot source exactly what you are looking for, we will say so honestly and refund your deposit in full. Where possible, we will also suggest close alternatives for your consideration."
+    },
+    {
+      "type": "text",
+      "id": "faq_5_q",
+      "label": "Question 5",
+      "default": "Do you ship worldwide?"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_5_a",
+      "label": "Answer 5",
+      "default": "Yes. Pieces are shipped fully insured via DHL Express worldwide, or can be collected in person at our London location by appointment."
+    },
+    {
+      "type": "text",
+      "id": "faq_6_q",
+      "label": "Question 6",
+      "default": "How does payment work?"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_6_a",
+      "label": "Answer 6",
+      "default": "Once you approve a sourced piece, we send a secure invoice for the balance. We accept bank transfer and major cards, and can arrange bespoke payment terms for higher-value pieces."
     }
   ],
   "presets": [
