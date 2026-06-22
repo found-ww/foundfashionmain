@@ -1056,6 +1056,7 @@
         selectedFiles.splice(index, 1);
         renderPreviews();
         updateHint();
+        if (fileInput) fileInput.disabled = selectedFiles.length >= 5;
       });
       wrap.appendChild(img);
       wrap.appendChild(btn);
@@ -1065,12 +1066,15 @@
 
   function updateHint() {
     var hint = document.getElementById('ps-image-hint');
+    var label = document.querySelector('.ps-file-label__text');
     var field = fileInput ? fileInput.closest('.ps-field--file') : null;
     if (selectedFiles.length > 0) {
       if (field) field.classList.add('has-file');
-      hint.textContent = selectedFiles.length === 1 ? selectedFiles[0].name : selectedFiles.length + ' images selected';
+      if (label) label.textContent = 'Upload images (' + selectedFiles.length + ' / 5)';
+      hint.textContent = selectedFiles.length === 5 ? 'Maximum reached' : 'Click to add more';
     } else {
       if (field) field.classList.remove('has-file');
+      if (label) label.textContent = 'Upload images';
       hint.textContent = 'Optional — up to 5 images';
     }
   }
@@ -1084,6 +1088,7 @@
       fileInput.value = '';
       renderPreviews();
       updateHint();
+      fileInput.disabled = selectedFiles.length >= 5;
     });
   }
 
