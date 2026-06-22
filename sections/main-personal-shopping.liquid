@@ -797,10 +797,10 @@
 
           <div class="ps-field ps-field--file">
             <label class="ps-file-label" for="ps-image">
-              <span class="ps-file-label__text">Upload image</span>
-              <span class="ps-file-label__hint" id="ps-image-hint">Optional — jpg, png, webp</span>
+              <span class="ps-file-label__text">Upload images</span>
+              <span class="ps-file-label__hint" id="ps-image-hint">Optional — up to 5 images</span>
             </label>
-            <input type="file" id="ps-image" name="contact[Image]" class="ps-file-input" accept="image/jpeg,image/png,image/webp" aria-label="Upload image">
+            <input type="file" id="ps-image" name="contact[Image]" class="ps-file-input" accept="image/jpeg,image/png,image/webp" aria-label="Upload images" multiple>
           </div>
 
           <div class="ps-field">
@@ -984,12 +984,14 @@
     fileInput.addEventListener('change', function() {
       var field = fileInput.closest('.ps-field--file');
       var hint  = document.getElementById('ps-image-hint');
-      if (fileInput.files && fileInput.files[0]) {
+      if (fileInput.files && fileInput.files.length > 0) {
         field.classList.add('has-file');
-        hint.textContent = fileInput.files[0].name;
+        hint.textContent = fileInput.files.length === 1
+          ? fileInput.files[0].name
+          : fileInput.files.length + ' images selected';
       } else {
         field.classList.remove('has-file');
-        hint.textContent = 'Optional — jpg, png, webp';
+        hint.textContent = 'Optional — up to 5 images';
       }
     });
   }
@@ -1031,9 +1033,9 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending...';
 
-      var imageFile = document.getElementById('ps-image').files[0];
+      var imageFiles = Array.from(document.getElementById('ps-image').files).slice(0, 5);
 
-      function sendData(imageBase64, imageType) {
+      function sendData(images) {
         var payload = {
           firstName:    document.getElementById('ps-firstname').value,
           lastName:     document.getElementById('ps-lastname').value,
@@ -1044,8 +1046,7 @@
           brand:        document.getElementById('ps-brand').value,
           itemName:     document.getElementById('ps-item').value,
           notes:        document.getElementById('ps-notes').value,
-          imageBase64:  imageBase64 || '',
-          imageType:    imageType || ''
+          images:       images
         };
 
         fetch('https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/submit', {
@@ -1077,15 +1078,20 @@
         });
       }
 
-      if (imageFile) {
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-          var base64 = ev.target.result.split(',')[1];
-          sendData(base64, imageFile.type);
-        };
-        reader.readAsDataURL(imageFile);
+      if (imageFiles.length > 0) {
+        var images = [];
+        var loaded = 0;
+        imageFiles.forEach(function(file) {
+          var reader = new FileReader();
+          reader.onload = function(ev) {
+            images.push({ base64: ev.target.result.split(',')[1], type: file.type });
+            loaded++;
+            if (loaded === imageFiles.length) sendData(images);
+          };
+          reader.readAsDataURL(file);
+        });
       } else {
-        sendData('', '');
+        sendData([]);
       }
     });
   }
