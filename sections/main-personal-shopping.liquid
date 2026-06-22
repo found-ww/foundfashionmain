@@ -726,32 +726,11 @@
   <div class="ps-sourcing__form">
     <div class="ps-sourcing__form-inner">
 
-      {%- form 'contact', class: 'ps-form', id: 'ps-sourcing-form' -%}
-
-        {%- if form.posted_successfully? -%}
-          <div class="ps-form__success">
-            <div class="ps-form__success-mark" aria-hidden="true">
-              <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6L5.5 10.5L15 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <p class="ps-form__success-title">Request received</p>
-            <p class="ps-form__success-note">{{ section.settings.success_note | default: 'We will be in touch within 24 hours.' }}</p>
-          </div>
-
-        {%- else -%}
+      <form class="ps-form" id="ps-sourcing-form">
 
           <h2 class="ps-form__title">{{ section.settings.form_title | default: 'Your request' }}</h2>
           {%- if section.settings.form_subtitle != blank -%}
             <p class="ps-form__subtitle">{{ section.settings.form_subtitle }}</p>
-          {%- endif -%}
-
-          {%- if form.errors -%}
-            <div style="background:#fdf0f0;border:1px solid #e5c5c5;color:#9a4040;padding:12px 16px;font-size:13px;margin-bottom:16px;">
-              {%- for field in form.errors -%}
-                {%- if field == 'form' -%}<p>{{ form.errors.messages[field] }}</p>
-                {%- else -%}<p><strong>{{ form.errors.translated_fields[field] }}</strong> {{ form.errors.messages[field] }}</p>
-                {%- endif -%}
-              {%- endfor -%}
-            </div>
           {%- endif -%}
 
           <div class="ps-field-row">
@@ -835,8 +814,7 @@
             <p class="ps-form__note">{{ section.settings.form_note }}</p>
           {%- endif -%}
 
-        {%- endif -%}
-      {%- endform -%}
+      </form>
     </div>
   </div>
 
@@ -1042,6 +1020,74 @@
       }
     });
   });
+
+  /* ── Form submission to AWS Lambda ── */
+  var form = document.getElementById('ps-sourcing-form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      var submitBtn = form.querySelector('.ps-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+
+      var imageFile = document.getElementById('ps-image').files[0];
+
+      function sendData(imageBase64, imageType) {
+        var payload = {
+          firstName:    document.getElementById('ps-firstname').value,
+          lastName:     document.getElementById('ps-lastname').value,
+          email:        document.getElementById('ps-email').value,
+          whatsappCode: document.querySelector('.ps-sourcing__cc').value,
+          whatsapp:     document.getElementById('ps-whatsapp').value,
+          country:      document.getElementById('ps-country').value,
+          brand:        document.getElementById('ps-brand').value,
+          itemName:     document.getElementById('ps-item').value,
+          notes:        document.getElementById('ps-notes').value,
+          imageBase64:  imageBase64 || '',
+          imageType:    imageType || ''
+        };
+
+        fetch('https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.success) {
+            form.innerHTML = '<div class="ps-form__success">' +
+              '<div class="ps-form__success-mark" aria-hidden="true">' +
+              '<svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6L5.5 10.5L15 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '</div>' +
+              '<p class="ps-form__success-title">Request received</p>' +
+              '<p class="ps-form__success-note">We will be in touch within 48 hours.</p>' +
+              '</div>';
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit sourcing request';
+            alert('Something went wrong. Please try again.');
+          }
+        })
+        .catch(function() {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit sourcing request';
+          alert('Something went wrong. Please try again.');
+        });
+      }
+
+      if (imageFile) {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          var base64 = ev.target.result.split(',')[1];
+          sendData(base64, imageFile.type);
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        sendData('', '');
+      }
+    });
+  }
 })();
 </script>
 
