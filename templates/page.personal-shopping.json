@@ -30,7 +30,21 @@
         "form_eyebrow": "Begin your search",
         "form_title": "Submit a Request",
         "form_note": "We typically respond within 24 hours.",
-        "success_note": "We will be in touch within 24 hours."
+        "success_note": "We will be in touch within 24 hours.",
+        "faq_eyebrow": "Good to know",
+        "faq_title": "Frequently Asked",
+        "faq_1_q": "How long does sourcing take?",
+        "faq_1_a": "Once your request has been submitted, our team will respond within 48 hours with an estimated sourcing timeframe, price and shipping details. Timings vary depending on the rarity, availability and specification of the piece.",
+        "faq_2_q": "What items can I request?",
+        "faq_2_a": "You can request Hermès bags, accessories, shoes, ready-to-wear, homeware, jewellery and other special pieces through the form. Our team will review your request and come back with the best available price and estimated sourcing time.",
+        "faq_3_q": "How do you authenticate items?",
+        "faq_3_a": "We source through Hermès boutiques or via our trusted network. Each piece is carefully reviewed by our team, all items will include receipts, original packaging and where available, relevant documentation.",
+        "faq_4_q": "What if you can't find my piece?",
+        "faq_4_a": "If we're unable to source your exact request, we'll keep you updated and, where possible, suggest suitable alternatives in a similar style, colour, size or price range.",
+        "faq_5_q": "Do you ship worldwide?",
+        "faq_5_a": "Yes. Pieces are shipped fully insured via DHL Express worldwide, or can be collected in person at our London location by appointment.",
+        "faq_6_q": "How does payment work?",
+        "faq_6_a": "Once you approve a sourced piece, we'll issue a secure invoice for payment. We accept bank transfer and major cards, and can discuss bespoke payment terms for higher-value pieces."
       }
     }
   },
