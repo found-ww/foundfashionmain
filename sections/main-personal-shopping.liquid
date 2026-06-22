@@ -634,6 +634,57 @@
     cursor: pointer;
   }
   .ps-field--file.has-file .ps-file-label__text { color: #3d3530; }
+
+  /* Validation */
+  .ps-input.ps-error,
+  .ps-textarea.ps-error,
+  .ps-sourcing__select.ps-error { border-color: #c0392b; }
+  .ps-field__error {
+    font-size: 11px;
+    color: #c0392b;
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+    display: block;
+  }
+
+  /* Image previews */
+  .ps-image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .ps-image-preview {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border: 1px solid #e0dbd5;
+  }
+  .ps-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ps-image-preview__remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    background: #1c1c1c;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
 
 {%- comment -%} ── Hero ── {%- endcomment -%}
@@ -802,6 +853,7 @@
             </label>
             <input type="file" id="ps-image" name="contact[Image]" class="ps-file-input" accept="image/jpeg,image/png,image/webp" aria-label="Upload images" multiple>
           </div>
+          <div class="ps-image-previews" id="ps-image-previews"></div>
 
           <div class="ps-field">
             <textarea id="ps-notes" name="contact[body]" class="ps-textarea" placeholder=" " aria-label="Notes"></textarea>
@@ -980,19 +1032,55 @@
   }
 
   var fileInput = document.getElementById('ps-image');
+  var selectedFiles = [];
+
+  function renderPreviews() {
+    var container = document.getElementById('ps-image-previews');
+    if (!container) return;
+    container.innerHTML = '';
+    selectedFiles.forEach(function(file, index) {
+      var url = URL.createObjectURL(file);
+      var wrap = document.createElement('div');
+      wrap.className = 'ps-image-preview';
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = file.name;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ps-image-preview__remove';
+      btn.innerHTML = '&times;';
+      btn.addEventListener('click', function() {
+        selectedFiles.splice(index, 1);
+        renderPreviews();
+        updateHint();
+      });
+      wrap.appendChild(img);
+      wrap.appendChild(btn);
+      container.appendChild(wrap);
+    });
+  }
+
+  function updateHint() {
+    var hint = document.getElementById('ps-image-hint');
+    var field = fileInput ? fileInput.closest('.ps-field--file') : null;
+    if (selectedFiles.length > 0) {
+      if (field) field.classList.add('has-file');
+      hint.textContent = selectedFiles.length === 1 ? selectedFiles[0].name : selectedFiles.length + ' images selected';
+    } else {
+      if (field) field.classList.remove('has-file');
+      hint.textContent = 'Optional — up to 5 images';
+    }
+  }
+
   if (fileInput) {
     fileInput.addEventListener('change', function() {
-      var field = fileInput.closest('.ps-field--file');
-      var hint  = document.getElementById('ps-image-hint');
-      if (fileInput.files && fileInput.files.length > 0) {
-        field.classList.add('has-file');
-        hint.textContent = fileInput.files.length === 1
-          ? fileInput.files[0].name
-          : fileInput.files.length + ' images selected';
-      } else {
-        field.classList.remove('has-file');
-        hint.textContent = 'Optional — up to 5 images';
-      }
+      var newFiles = Array.from(fileInput.files);
+      newFiles.forEach(function(file) {
+        if (selectedFiles.length < 5) selectedFiles.push(file);
+      });
+      fileInput.value = '';
+      renderPreviews();
+      updateHint();
     });
   }
 
@@ -1023,17 +1111,67 @@
     });
   });
 
+  /* ── Clear errors on input ── */
+  ['ps-firstname','ps-lastname','ps-email','ps-item'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', function() {
+      el.classList.remove('ps-error');
+      var err = el.parentNode.querySelector('.ps-field__error');
+      if (err) err.remove();
+    });
+  });
+
+  /* ── Form validation ── */
+  function showError(input, message) {
+    input.classList.add('ps-error');
+    var existing = input.parentNode.querySelector('.ps-field__error');
+    if (!existing) {
+      var err = document.createElement('span');
+      err.className = 'ps-field__error';
+      err.textContent = message;
+      input.parentNode.appendChild(err);
+    }
+  }
+
+  function clearErrors() {
+    form.querySelectorAll('.ps-error').forEach(function(el) { el.classList.remove('ps-error'); });
+    form.querySelectorAll('.ps-field__error').forEach(function(el) { el.remove(); });
+  }
+
+  function validateForm() {
+    clearErrors();
+    var valid = true;
+    var fields = [
+      { id: 'ps-firstname', msg: 'First name is required' },
+      { id: 'ps-lastname',  msg: 'Last name is required' },
+      { id: 'ps-email',     msg: 'Email is required' },
+      { id: 'ps-item',      msg: 'Item name is required' }
+    ];
+    fields.forEach(function(f) {
+      var el = document.getElementById(f.id);
+      if (el && !el.value.trim()) { showError(el, f.msg); valid = false; }
+    });
+    var email = document.getElementById('ps-email');
+    if (email && email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+      showError(email, 'Please enter a valid email');
+      valid = false;
+    }
+    return valid;
+  }
+
   /* ── Form submission to AWS Lambda ── */
   var form = document.getElementById('ps-sourcing-form');
   if (form) {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
 
+      if (!validateForm()) return;
+
       var submitBtn = form.querySelector('.ps-submit');
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending...';
 
-      var imageFiles = Array.from(document.getElementById('ps-image').files).slice(0, 5);
+      var imageFiles = selectedFiles.slice(0, 5);
 
       function sendData(images) {
         var payload = {
