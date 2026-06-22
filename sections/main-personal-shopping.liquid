@@ -786,17 +786,17 @@
 
           <div class="ps-field-row">
             <div class="ps-field">
-              <input type="text" id="ps-firstname" class="ps-input" name="contact[First Name]" placeholder=" " autocomplete="given-name" required>
+              <input type="text" id="ps-firstname" class="ps-input" name="contact[First Name]" placeholder=" " autocomplete="given-name">
               <label class="ps-label" for="ps-firstname">First Name</label>
             </div>
             <div class="ps-field">
-              <input type="text" id="ps-lastname" class="ps-input" name="contact[Last Name]" placeholder=" " autocomplete="family-name" required>
+              <input type="text" id="ps-lastname" class="ps-input" name="contact[Last Name]" placeholder=" " autocomplete="family-name">
               <label class="ps-label" for="ps-lastname">Last Name</label>
             </div>
           </div>
 
           <div class="ps-field">
-            <input type="email" id="ps-email" class="ps-input" name="contact[email]" placeholder=" " autocomplete="email" required
+            <input type="email" id="ps-email" class="ps-input" name="contact[email]" placeholder=" " autocomplete="email"
               {% if customer %}value="{{ customer.email }}"{% endif %}>
             <label class="ps-label" for="ps-email">Email</label>
           </div>
@@ -842,7 +842,7 @@
           </div>
 
           <div class="ps-field">
-            <input type="text" id="ps-item" class="ps-input" name="contact[Item Name]" placeholder=" " required>
+            <input type="text" id="ps-item" class="ps-input" name="contact[Item Name]" placeholder=" ">
             <label class="ps-label" for="ps-item">Item Name</label>
           </div>
 
