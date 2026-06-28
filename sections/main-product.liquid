@@ -2453,6 +2453,7 @@
   var productPrice = {{ product.selected_or_first_available_variant.price }};
   var productTitle = {{ product.title | json }};
   var productHandle = {{ product.handle | json }};
+  var productImage = {{ product.featured_image | image_url: width: 400 | json }};
   var productId = {{ product.id }};
   var variantId = {{ product.selected_or_first_available_variant.id }};
   var isLoggedIn = {{ customer | json }} !== null;
@@ -2559,6 +2560,7 @@
         discountPct: Math.round((1 - price / (productPrice / 100)) * 100),
         productTitle: productTitle,
         productHandle: productHandle,
+        productImage: productImage,
         productId: productId,
         variantId: variantId,
         currency: {{ shop.currency | json }}
