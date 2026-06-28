@@ -2556,6 +2556,7 @@
         createAccount: createAccount ? createAccount.checked : false,
         offerPrice: price,
         listedPrice: productPrice / 100,
+        discountPct: Math.round((1 - price / (productPrice / 100)) * 100),
         productTitle: productTitle,
         productHandle: productHandle,
         productId: productId,
