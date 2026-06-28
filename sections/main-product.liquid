@@ -2148,10 +2148,16 @@
 
       <div id="ff-offer-form-wrap">
         <span class="ff-offer-modal__label">Select a discount or enter your offer</span>
-        <div class="ff-offer-modal__presets">
+        <div class="ff-offer-modal__presets" id="ff-offer-presets">
+          {%- if ppv1_cat == 'bags' or ppv1_cat == 'small leather goods' -%}
+          <button type="button" class="ff-offer-preset" data-pct="3">3% off</button>
+          <button type="button" class="ff-offer-preset" data-pct="5">5% off</button>
+          <button type="button" class="ff-offer-preset" data-pct="7">7% off</button>
+          {%- else -%}
           <button type="button" class="ff-offer-preset" data-pct="5">5% off</button>
           <button type="button" class="ff-offer-preset" data-pct="10">10% off</button>
           <button type="button" class="ff-offer-preset" data-pct="15">15% off</button>
+          {%- endif -%}
         </div>
         <div class="ff-offer-modal__divider">or</div>
         <div class="ff-offer-modal__price-wrap">
@@ -2189,7 +2195,11 @@
         </label>
         {%- endunless -%}
         <button type="button" class="ff-offer-submit" id="ff-offer-submit">SUBMIT OFFER</button>
+        {%- if ppv1_cat == 'bags' or ppv1_cat == 'small leather goods' -%}
+        <p class="ff-offer-note">Maximum discount is 9%. Our team will review your offer and respond within 48 hours.</p>
+        {%- else -%}
         <p class="ff-offer-note">Maximum discount is 15%. Our team will review your offer and respond within 48 hours.</p>
+        {%- endif -%}
       </div>
 
       <div class="ff-offer-success" id="ff-offer-success" style="display:none;">
@@ -2456,6 +2466,7 @@
   var productImage = {{ product.featured_image | image_url: width: 400 | json }};
   var productId = {{ product.id }};
   var variantId = {{ product.selected_or_first_available_variant.id }};
+  var maxDiscountPct = {% if ppv1_cat == 'bags' or ppv1_cat == 'small leather goods' %}9{% else %}15{% endif %};
   var isLoggedIn = {{ customer | json }} !== null;
 
   var overlay = document.getElementById('ff-offer-overlay');
@@ -2515,7 +2526,7 @@
     clearErrors();
     var price = parseFloat(priceInput.value);
     var maxPrice = productPrice / 100;
-    var minPrice = productPrice / 100 * 0.85;
+    var minPrice = productPrice / 100 * (1 - maxDiscountPct / 100);
     var fname = document.getElementById('ff-offer-fname').value.trim();
     var lname = document.getElementById('ff-offer-lname').value.trim();
     var email = document.getElementById('ff-offer-email').value.trim();
@@ -2532,7 +2543,7 @@
       document.getElementById('ff-offer-price').classList.add('ff-error');
       valid = false;
     } else if (price < minPrice) {
-      showError('ff-offer-price-error', 'Maximum discount is 15% off the listed price');
+      showError('ff-offer-price-error', 'Maximum discount is ' + maxDiscountPct + '% off the listed price');
       document.getElementById('ff-offer-price').classList.add('ff-error');
       valid = false;
     }
