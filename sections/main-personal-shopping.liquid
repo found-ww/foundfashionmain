@@ -1193,7 +1193,7 @@
           itemName:     document.getElementById('ps-item').value,
           notes:        document.getElementById('ps-notes').value,
           images:       images,
-          customerId:   {% if customer %}'gid://shopify/Customer/{{ customer.id }}'{% else %}null{% endif %}
+          customerId:   window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null
         };
 
         fetch('https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/submit', {
