@@ -2570,7 +2570,8 @@
         productImage: productImage,
         productId: productId,
         variantId: variantId,
-        currency: {{ shop.currency | json }}
+        currency: {{ shop.currency | json }},
+        customerId: window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null
       })
     })
     .then(function(r) { return r.json(); })
