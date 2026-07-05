@@ -1192,7 +1192,8 @@
           brand:        document.getElementById('ps-brand').value,
           itemName:     document.getElementById('ps-item').value,
           notes:        document.getElementById('ps-notes').value,
-          images:       images
+          images:       images,
+          customerId:   {% if customer %}'gid://shopify/Customer/{{ customer.id }}'{% else %}null{% endif %}
         };
 
         fetch('https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/submit', {
