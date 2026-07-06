@@ -2443,9 +2443,14 @@
     }
   });
 
-  /* Make an Offer button — open our modal */
+  /* Make an Offer button — open our modal (logged-in only) */
+  var customerLoggedIn = {{ customer | json }} !== null;
   document.querySelectorAll('.ppv1-offer-trigger, #ppv1-sticky-offer-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
+      if (!customerLoggedIn) {
+        window.location.href = '/account/login?return_url=' + encodeURIComponent(window.location.pathname);
+        return;
+      }
       document.getElementById('ff-offer-overlay').classList.add('is-open');
       document.body.style.overflow = 'hidden';
     });
