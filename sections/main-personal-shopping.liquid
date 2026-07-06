@@ -780,14 +780,6 @@
   <div class="ps-sourcing__form">
     <div class="ps-sourcing__form-inner">
 
-      {% unless customer %}
-      <div class="ps-form" style="text-align:center;padding:48px 24px;">
-        <p style="font-size:16px;font-weight:500;margin:0 0 8px;">Sign in to submit a request</p>
-        <p style="font-size:14px;color:#888;margin:0 0 24px;">Create an account to track your sourcing requests from your profile.</p>
-        <a href="/account/login?return_url={{ request.path | url_encode }}" style="display:inline-block;background:#1A1815;color:#fff;font-size:14px;font-weight:600;padding:14px 32px;text-decoration:none;">Sign in / Create account</a>
-      </div>
-      {% else %}
-
       <form class="ps-form" id="ps-sourcing-form">
 
           <h2 class="ps-form__title">{{ section.settings.form_title | default: 'Your request' }}</h2>
@@ -1252,8 +1244,6 @@
   }
 })();
 </script>
-
-{% endunless %}
 
 {% schema %}
 {
