@@ -471,8 +471,8 @@
             @media(-moz-touch-enabled:0),(hover:hover){.sourcing-strip__cta:hover{color:#fff;}.sourcing-strip__cta:hover::before{transform:scale(1,1);}}
           </style>
 
-          {%- comment -%}Mobile: full-width strip under filter bar{%- endcomment -%}
-          <div class="sourcing-strip hidden-lap-and-up">
+          {%- comment -%}Mobile: full-width strip under filter bar (hidden — replaced by sticky bar){%- endcomment -%}
+          <div class="sourcing-strip hidden-lap-and-up" style="display:none!important">
             <p class="sourcing-strip__text">Looking for something? Our team source Hermès clothing to order.</p>
             <a href="/pages/personal-shopping" class="sourcing-strip__cta"><span>Source with us →</span></a>
           </div>
@@ -496,6 +496,59 @@
     </div>
   {%- endif -%}
 </section>
+
+{%- if collection.handle == 'clothing' -%}
+<div class="cl-sticky-bar" id="cl-sticky-bar">
+  <div class="cl-sticky-bar__inner">
+    <p class="cl-sticky-bar__text">Looking for something?</p>
+    <a href="/pages/personal-shopping" class="cl-sticky-bar__cta">Source with us →</a>
+  </div>
+</div>
+<style>
+  .cl-sticky-bar { display: none; }
+  @media screen and (max-width: 999px) {
+    .cl-sticky-bar {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      background: rgba(255,255,255,0.9);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      padding: 12px 20px 14px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+    .cl-sticky-bar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .cl-sticky-bar__text {
+      font-family: var(--text-font-family);
+      font-size: 13px;
+      color: #171513;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+    .cl-sticky-bar__cta {
+      font-family: var(--text-font-family);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: #171513;
+      border: 1px solid #171513;
+      padding: 11px 20px;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  }
+</style>
+{%- endif -%}
 
 <script>
   (function () {
