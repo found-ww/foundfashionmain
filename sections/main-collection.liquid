@@ -443,20 +443,31 @@
                 {%- endif -%}
               </form>
             </div>
+            {%- if collection.handle == 'clothing' -%}
+              <div class="sourcing-box">
+                <p class="sourcing-box__text">Can't find your size? We source Hermès clothing to order.</p>
+                <a href="/pages/personal-shopping" class="sourcing-box__cta">SOURCE WITH US →</a>
+              </div>
+            {%- endif -%}
           </div>
         {%- endif -%}
 
         {%- if collection.handle == 'clothing' -%}
-          <div class="sourcing-banner">
-            <p class="sourcing-banner__text">Can't find your size? We source Hermès clothing to order.</p>
-            <a href="/pages/personal-shopping" class="sourcing-banner__cta">SOURCE WITH US →</a>
-          </div>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap');
-            .sourcing-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#f4f0ea;border-bottom:0.5px solid #dedad3;}
-            .sourcing-banner__text{font-family:'Figtree',sans-serif;font-size:13px;letter-spacing:0.04em;color:#171513;line-height:1.5;margin:0;}
-            .sourcing-banner__cta{font-family:'Figtree',sans-serif;font-size:11px;letter-spacing:0.08em;color:#171513;border:0.5px solid #171513;padding:6px 12px;white-space:nowrap;flex-shrink:0;text-decoration:none;}
+            .sourcing-box{font-family:'Figtree',sans-serif;background:#f4f0ea;border:0.5px solid #dedad3;padding:14px;margin-top:16px;}
+            .sourcing-box__text{font-size:13px;letter-spacing:0.04em;color:#171513;line-height:1.5;margin:0 0 10px;}
+            .sourcing-box__cta{display:inline-block;font-size:11px;letter-spacing:0.08em;color:#171513;border:0.5px solid #171513;padding:6px 12px;text-decoration:none;}
+            .sourcing-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#f4f0ea;border-bottom:0.5px solid #dedad3;font-family:'Figtree',sans-serif;}
+            .sourcing-strip__text{font-size:13px;letter-spacing:0.04em;color:#171513;line-height:1.5;margin:0;}
+            .sourcing-strip__cta{font-size:11px;letter-spacing:0.08em;color:#171513;border:0.5px solid #171513;padding:6px 12px;white-space:nowrap;flex-shrink:0;text-decoration:none;}
           </style>
+
+          {%- comment -%}Mobile: full-width strip under filter bar{%- endcomment -%}
+          <div class="sourcing-strip hidden-lap-and-up">
+            <p class="sourcing-strip__text">Can't find your size? We source Hermès clothing to order.</p>
+            <a href="/pages/personal-shopping" class="sourcing-strip__cta">SOURCE WITH US →</a>
+          </div>
         {%- endif -%}
 
         <div class="CollectionInner__Products">
