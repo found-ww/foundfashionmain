@@ -456,14 +456,14 @@
         {%- if collection.handle == 'clothing' -%}
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap');
-            .sourcing-box{font-family:var(--text-font-family);background:#f4f0ea;border-radius:8px;padding:20px 16px;margin-top:20px;}
+            .sourcing-box{font-family:var(--text-font-family);background:#f4f0ea;border-radius:8px;padding:20px 16px;margin-top:20px;border:1px solid #dedad3;}
             .sourcing-box__heading{font-family:var(--heading-font-family);font-size:15px;font-weight:600;letter-spacing:0.02em;color:#171513;margin:0 0 8px;}
             .sourcing-box__text{font-family:var(--text-font-family);font-size:12px;letter-spacing:0.03em;color:#57534c;line-height:1.5;margin:0 0 18px;}
             .sourcing-box__cta{position:relative;display:inline-block;overflow:hidden;font-family:var(--text-font-family);font-size:11px;letter-spacing:0.08em;color:#171513;background:transparent;border:0.5px solid #171513;padding:7px 14px;text-decoration:none;transition:color 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
             .sourcing-box__cta::before{content:"";position:absolute;inset:0;background:#171513;transform:scale(0,1);transform-origin:left center;transition:transform 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
             .sourcing-box__cta span{position:relative;}
             @media(-moz-touch-enabled:0),(hover:hover){.sourcing-box__cta:hover{color:#fff;}.sourcing-box__cta:hover::before{transform:scale(1,1);}}
-            .sourcing-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#f4f0ea;border-bottom:0.5px solid #dedad3;font-family:var(--text-font-family);}
+            .sourcing-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#f4f0ea;border-bottom:0.5px solid #dedad3;font-family:var(--text-font-family);margin-bottom:16px;}
             .sourcing-strip__text{font-size:13px;letter-spacing:0.04em;color:#171513;line-height:1.5;margin:0;}
             .sourcing-strip__cta{position:relative;overflow:hidden;font-size:11px;letter-spacing:0.08em;color:#171513;background:transparent;border:0.5px solid #171513;padding:6px 12px;white-space:nowrap;flex-shrink:0;text-decoration:none;transition:color 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
             .sourcing-strip__cta::before{content:"";position:absolute;inset:0;background:#171513;transform:scale(0,1);transform-origin:left center;transition:transform 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
@@ -473,8 +473,8 @@
 
           {%- comment -%}Mobile: full-width strip under filter bar{%- endcomment -%}
           <div class="sourcing-strip hidden-lap-and-up">
-            <p class="sourcing-strip__text">Can't find your size? We source Hermès clothing to order.</p>
-            <a href="/pages/personal-shopping" class="sourcing-strip__cta"><span>SOURCE WITH US →</span></a>
+            <p class="sourcing-strip__text">Looking for something? Our team source Hermès clothing to order.</p>
+            <a href="/pages/personal-shopping" class="sourcing-strip__cta"><span>Source with us →</span></a>
           </div>
         {%- endif -%}
 
