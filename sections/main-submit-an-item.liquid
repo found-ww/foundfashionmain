@@ -54,9 +54,9 @@
   .sai-tab.active { color: #1a1815; font-weight: 600; }
   .sai-tab__num { font-size: 10px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0; }
   .sai-tab.active .sai-tab__num { background: #1a1815; color: #fff; border-color: #1a1815; }
-  .sai-tab.complete .sai-tab__num::after { content: '✓'; }
-  .sai-tab.complete .sai-tab__num { font-size: 0; background: #5c6b4f; border-color: #5c6b4f; color: #fff; }
-  .sai-tab.complete .sai-tab__num::after { font-size: 10px; }
+  .sai-tab.complete .sai-tab__num { background: #5c6b4f; border-color: #5c6b4f; color: #fff; font-size: 0; }
+  .sai-tab.complete .sai-tab__num::after { content: '✓'; font-size: 11px; }
+  .sai-tab.complete { color: #5c6b4f; cursor: pointer; }
 
   /* Panels */
   .sai-panels { flex: 1; min-width: 0; }
@@ -226,6 +226,26 @@
           <label class="sai-label">Model / Style</label>
           <input type="text" class="sai-input" id="sai-model-text" placeholder="e.g. Classic Flap, Neverfull MM">
         </div>
+        <div class="sai-field" id="sai-model-shoes-wrap" style="display:none;">
+          <label class="sai-label">Model / Style</label>
+          <input type="text" class="sai-input" id="sai-model-shoes" placeholder="e.g. Bouncing Sneaker, Oran Sandal, Get Sneaker">
+        </div>
+        <div class="sai-field" id="sai-model-scarves-wrap" style="display:none;">
+          <label class="sai-label">Model / Style</label>
+          <input type="text" class="sai-input" id="sai-model-scarves" placeholder="e.g. Brides de Gala Scarf">
+        </div>
+        <div class="sai-field" id="sai-model-homeware-wrap" style="display:none;">
+          <label class="sai-label">Model / Style</label>
+          <input type="text" class="sai-input" id="sai-model-homeware" placeholder="e.g. Avalon III Blanket, H Deco Teacups">
+        </div>
+        <div class="sai-field" id="sai-model-rtw-wrap" style="display:none;">
+          <label class="sai-label">Model / Style</label>
+          <input type="text" class="sai-input" id="sai-model-rtw" placeholder="e.g. Mini Patch T-Shirt">
+        </div>
+        <div class="sai-field" id="sai-model-accessory-wrap" style="display:none;">
+          <label class="sai-label">Model / Style</label>
+          <input type="text" class="sai-input" id="sai-model-accessory" placeholder="e.g. Buddy Charm, Rodeo Charm PM">
+        </div>
 
         {%- comment -%} Colour — bag dropdown or open text {%- endcomment -%}
         <div class="sai-field" id="sai-colour-bag-wrap" style="display:none;">
@@ -291,7 +311,7 @@
 
         <div class="sai-field">
           <label class="sai-label">Material / Leather</label>
-          <input type="text" class="sai-input" id="sai-material" placeholder="e.g. Togo, Epsom, Caviar, Canvas">
+          <input type="text" class="sai-input" id="sai-material" placeholder="e.g. Togo, Epsom, Clemence, Canvas">
         </div>
 
         {%- comment -%} Stamp — bags only {%- endcomment -%}
@@ -605,7 +625,7 @@
   document.querySelectorAll('[data-tab]').forEach(function(tab) {
     tab.addEventListener('click', function() {
       var n = parseInt(this.dataset.tab);
-      if (n < currentTab || this.classList.contains('complete')) showTab(n);
+      if (this.classList.contains('complete') || this.classList.contains('active') || n < currentTab) showTab(n);
     });
   });
 
@@ -615,20 +635,44 @@
 
   // ── Category conditional logic ──────────────────────────────────────────────
   var catEl = document.getElementById('sai-category');
+
+  var materialPlaceholders = {
+    bags:      'e.g. Togo, Epsom, Clemence, Canvas',
+    shoes:     'e.g. Suede, Calfskin Leather, Goatskin',
+    scarves:   'e.g. Silk, Cotton, Wool',
+    homeware:  'e.g. Beachwood, Enamel, Wool',
+    rtw:       'e.g. 100% Cotton, Silk, Viscose, Lambskin Leather',
+    accessory: 'e.g. Leather, Metal, Canvas',
+  };
+
   function onCategoryChange() {
     var cat = catEl.value;
-    var isBag = cat === 'bags';
-    var isShoe = cat === 'shoes';
-    var isRTW = cat === 'rtw';
-    var isSized = isShoe || isRTW;
+    var isBag      = cat === 'bags';
+    var isShoe     = cat === 'shoes';
+    var isRTW      = cat === 'rtw';
+    var isScarves  = cat === 'scarves';
+    var isHomeware = cat === 'homeware';
+    var isAccessory= cat === 'accessory';
+    var isSized    = isShoe || isRTW;
 
-    toggle('sai-model-bag-wrap', isBag);
-    toggle('sai-model-text-wrap', !isBag);
+    // Model fields
+    toggle('sai-model-bag-wrap',       isBag);
+    toggle('sai-model-shoes-wrap',     isShoe);
+    toggle('sai-model-scarves-wrap',   isScarves);
+    toggle('sai-model-homeware-wrap',  isHomeware);
+    toggle('sai-model-rtw-wrap',       isRTW);
+    toggle('sai-model-accessory-wrap', isAccessory);
+    toggle('sai-model-text-wrap',      !isBag && !isShoe && !isScarves && !isHomeware && !isRTW && !isAccessory);
+
     toggle('sai-colour-bag-wrap', isBag);
     toggle('sai-colour-text-wrap', !isBag);
     toggle('sai-size-wrap', isSized);
     toggle('sai-hardware-wrap', isBag);
     toggle('sai-stamp-wrap', isBag);
+
+    // Material placeholder
+    var matEl = document.getElementById('sai-material');
+    if (matEl) matEl.placeholder = materialPlaceholders[cat] || 'e.g. Leather, Canvas, Silk';
 
     // Comes with conditional
     document.querySelectorAll('.sai-cw-dustbag, .sai-cw-clochette').forEach(function(el) {
@@ -794,9 +838,15 @@
 
     function getVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-    var model = isBag
-      ? (getVal('sai-model-bag') === 'other' ? getVal('sai-model-bag-other') : getVal('sai-model-bag'))
-      : getVal('sai-model-text');
+    var model;
+    if (isBag) {
+      model = getVal('sai-model-bag') === 'other' ? getVal('sai-model-bag-other') : getVal('sai-model-bag');
+    } else if (cat === 'shoes')     { model = getVal('sai-model-shoes'); }
+    else if (cat === 'scarves')     { model = getVal('sai-model-scarves'); }
+    else if (cat === 'homeware')    { model = getVal('sai-model-homeware'); }
+    else if (cat === 'rtw')         { model = getVal('sai-model-rtw'); }
+    else if (cat === 'accessory')   { model = getVal('sai-model-accessory'); }
+    else                            { model = getVal('sai-model-text'); }
 
     var colour = isBag
       ? (getVal('sai-colour-bag') === 'other' ? getVal('sai-colour-bag-other') : getVal('sai-colour-bag'))
