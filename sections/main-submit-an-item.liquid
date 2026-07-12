@@ -1,0 +1,890 @@
+{%- comment -%} Collect bag metafield values from store products {%- endcomment -%}
+{%- assign _bag_models = '' -%}
+{%- assign _bag_hardware = '' -%}
+{%- assign _bag_colours = '' -%}
+{%- assign _bag_col = collections['bags'] | default: collections['Bags'] -%}
+{%- if _bag_col != blank -%}
+  {%- for _p in _bag_col.products limit: 250 -%}
+    {%- assign _m = _p.metafields.custom.model | append: '' | strip -%}
+    {%- if _m != blank and _bag_models contains _m == false -%}
+      {%- assign _bag_models = _bag_models | append: _m | append: '|||' -%}
+    {%- endif -%}
+    {%- assign _h = _p.metafields.custom.hardware_material | append: '' | remove: '["' | remove: '"]' | remove: '"' | strip -%}
+    {%- if _h != blank and _bag_hardware contains _h == false -%}
+      {%- assign _bag_hardware = _bag_hardware | append: _h | append: '|||' -%}
+    {%- endif -%}
+    {%- assign _cp = _p.metafields.shopify['color-pattern'] -%}
+    {%- if _cp != blank -%}
+      {%- assign _cv = _cp.value -%}
+      {%- assign _cl = _cv.label | strip -%}
+      {%- if _cl != blank and _bag_colours contains _cl == false -%}
+        {%- assign _bag_colours = _bag_colours | append: _cl | append: '|||' -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}
+{%- assign _bag_models_arr = _bag_models | split: '|||' -%}
+{%- assign _bag_hardware_arr = _bag_hardware | split: '|||' -%}
+{%- assign _bag_colours_arr = _bag_colours | split: '|||' -%}
+
+<style>
+  .sai-wrap { max-width: 1100px; margin: 0 auto; padding: 64px 24px 100px; }
+
+  /* Login gate */
+  .sai-login { text-align: center; padding: 80px 24px; }
+  .sai-login__title { font-size: 22px; font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 12px; }
+  .sai-login__sub { font-size: 14px; color: #7a7268; margin: 0 0 32px; line-height: 1.7; }
+  .sai-login__btn { display: inline-block; background: #1a1815; color: #fff; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 15px 36px; text-decoration: none; }
+  .sai-login__btn:hover { opacity: 0.85; }
+
+  /* Page header */
+  .sai-header { margin-bottom: 48px; }
+  .sai-header__eyebrow { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #9a8f86; margin-bottom: 12px; }
+  .sai-header__title { font-size: clamp(22px, 3vw, 32px); font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 12px; }
+  .sai-header__sub { font-size: 14px; color: #7a7268; line-height: 1.7; max-width: 520px; }
+
+  /* Layout */
+  .sai-layout { display: flex; gap: 56px; align-items: flex-start; }
+
+  /* Tab sidebar */
+  .sai-tabs { width: 200px; flex-shrink: 0; position: sticky; top: 32px; }
+  .sai-tab { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #ede9e0; cursor: pointer; font-size: 13px; color: #9a8f86; letter-spacing: 0.04em; transition: color 0.2s; }
+  .sai-tab:first-child { border-top: 1px solid #ede9e0; }
+  .sai-tab.active { color: #1a1815; font-weight: 600; }
+  .sai-tab__num { font-size: 10px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0; }
+  .sai-tab.active .sai-tab__num { background: #1a1815; color: #fff; border-color: #1a1815; }
+  .sai-tab.complete .sai-tab__num::after { content: '✓'; }
+  .sai-tab.complete .sai-tab__num { font-size: 0; background: #5c6b4f; border-color: #5c6b4f; color: #fff; }
+  .sai-tab.complete .sai-tab__num::after { font-size: 10px; }
+
+  /* Panels */
+  .sai-panels { flex: 1; min-width: 0; }
+  .sai-panel { display: none; }
+  .sai-panel.active { display: block; }
+  .sai-panel__title { font-size: 18px; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 32px; padding-bottom: 20px; border-bottom: 1px solid #1a1815; }
+
+  /* Fields */
+  .sai-field { margin-bottom: 24px; }
+  .sai-field--half { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sai-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #1a1815; margin-bottom: 8px; }
+  .sai-label span { color: #c0392b; margin-left: 2px; }
+  .sai-input, .sai-select, .sai-textarea { width: 100%; padding: 13px 16px; border: 1px solid #ddd9d0; background: #fff; font-family: inherit; font-size: 14px; color: #1a1815; appearance: none; -webkit-appearance: none; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+  .sai-input:focus, .sai-select:focus, .sai-textarea:focus { border-color: #1a1815; }
+  .sai-input.error, .sai-select.error, .sai-textarea.error { border-color: #c0392b; }
+  .sai-select-wrap { position: relative; }
+  .sai-select-wrap::after { content: ''; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #1a1815; pointer-events: none; }
+  .sai-textarea { resize: vertical; min-height: 96px; }
+  .sai-hint { font-size: 12px; color: #9a8f86; margin-top: 6px; }
+  .sai-error { font-size: 12px; color: #c0392b; margin-top: 6px; display: none; }
+  .sai-field.has-error .sai-error { display: block; }
+
+  /* Condition cards */
+  .sai-condition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .sai-condition-card { border: 1px solid #ddd9d0; padding: 16px; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+  .sai-condition-card:hover { border-color: #9a8f86; }
+  .sai-condition-card.selected { border-color: #1a1815; background: #faf9f7; }
+  .sai-condition-card input { display: none; }
+  .sai-condition-card__title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .sai-condition-card__desc { font-size: 12px; color: #7a7268; line-height: 1.5; }
+
+  /* Checkboxes (comes with) */
+  .sai-checks { display: flex; flex-wrap: wrap; gap: 10px; }
+  .sai-check { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid #ddd9d0; cursor: pointer; font-size: 13px; transition: border-color 0.2s, background 0.2s; }
+  .sai-check input { width: 14px; height: 14px; accent-color: #1a1815; cursor: pointer; }
+  .sai-check:has(input:checked) { border-color: #1a1815; background: #faf9f7; }
+
+  /* Photo upload */
+  .sai-photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .sai-photo-slot { position: relative; aspect-ratio: 1; border: 1px dashed #ddd9d0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: #faf9f7; overflow: hidden; }
+  .sai-photo-slot:hover { border-color: #9a8f86; background: #f3f0ea; }
+  .sai-photo-slot.has-image { border-style: solid; border-color: #1a1815; }
+  .sai-photo-slot.required-slot { border-color: #c8c0b8; }
+  .sai-photo-slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .sai-photo-slot__label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #9a8f86; text-align: center; padding: 0 8px; line-height: 1.4; pointer-events: none; }
+  .sai-photo-slot__req { font-size: 10px; color: #c0392b; margin-top: 4px; pointer-events: none; }
+  .sai-photo-slot__icon { margin-bottom: 8px; pointer-events: none; }
+  .sai-photo-slot__preview { position: absolute; inset: 0; object-fit: cover; width: 100%; height: 100%; }
+  .sai-photo-slot__remove { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; background: rgba(26,24,21,0.7); color: #fff; border: none; border-radius: 50%; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 2; }
+  .sai-photo-slot.has-image .sai-photo-slot__remove { display: flex; }
+
+  /* Nav buttons */
+  .sai-nav { display: flex; gap: 12px; margin-top: 40px; padding-top: 32px; border-top: 1px solid #ede9e0; }
+  .sai-btn { font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 15px 32px; border: none; cursor: pointer; transition: opacity 0.2s; }
+  .sai-btn--primary { background: #1a1815; color: #fff; }
+  .sai-btn--primary:hover { opacity: 0.82; }
+  .sai-btn--secondary { background: transparent; color: #1a1815; border: 1px solid #1a1815; }
+  .sai-btn--secondary:hover { background: #faf9f7; }
+  .sai-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .sai-progress { font-size: 12px; color: #9a8f86; margin-left: auto; align-self: center; }
+
+  /* Success */
+  .sai-success { text-align: center; padding: 80px 24px; display: none; }
+  .sai-success__mark { width: 48px; height: 48px; border: 1px solid #1a1815; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+  .sai-success__title { font-size: 20px; font-weight: 400; letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 12px; }
+  .sai-success__note { font-size: 14px; color: #7a7268; line-height: 1.7; }
+
+  @media (max-width: 700px) {
+    .sai-layout { flex-direction: column; gap: 0; }
+    .sai-tabs { width: 100%; position: static; display: flex; gap: 0; overflow-x: auto; border-bottom: 1px solid #ede9e0; margin-bottom: 32px; padding-bottom: 0; }
+    .sai-tab { border-bottom: 2px solid transparent; border-top: none; padding: 12px 16px; white-space: nowrap; flex-shrink: 0; }
+    .sai-tab:first-child { border-top: none; }
+    .sai-tab.active { border-bottom-color: #1a1815; }
+    .sai-field--half { grid-template-columns: 1fr; }
+    .sai-condition-grid { grid-template-columns: 1fr; }
+    .sai-photos { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  }
+</style>
+
+{% unless customer %}
+<div class="sai-wrap">
+  <div class="sai-login">
+    <p class="sai-login__title">Sign in to submit an item</p>
+    <p class="sai-login__sub">Create an account to track your consignment submissions,<br>view status updates and manage your listings.</p>
+    <a href="/account/login?return_url={{ request.path | url_encode }}" class="sai-login__btn">Sign in / Create account</a>
+  </div>
+</div>
+{% else %}
+
+<div class="sai-wrap">
+  <div class="sai-header">
+    <p class="sai-header__eyebrow">Found Fashion</p>
+    <h1 class="sai-header__title">{{ section.settings.title | default: 'Submit an Item' }}</h1>
+    <p class="sai-header__sub">{{ section.settings.subtitle | default: 'Tell us about your piece and we\'ll be in touch within 48 hours.' }}</p>
+  </div>
+
+  <div class="sai-success" id="sai-success">
+    <div class="sai-success__mark">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6L5.5 10.5L15 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="sai-success__title">Submission received</p>
+    <p class="sai-success__note">Thank you, {{ customer.first_name }}. Our team will review your item and be in touch within 48 hours.</p>
+  </div>
+
+  <div class="sai-layout" id="sai-form-wrap">
+    <nav class="sai-tabs" id="sai-tabs">
+      <div class="sai-tab active" data-tab="1">
+        <span class="sai-tab__num">1</span> Item Details
+      </div>
+      <div class="sai-tab" data-tab="2">
+        <span class="sai-tab__num">2</span> Condition
+      </div>
+      <div class="sai-tab" data-tab="3">
+        <span class="sai-tab__num">3</span> Photos
+      </div>
+      <div class="sai-tab" data-tab="4">
+        <span class="sai-tab__num">4</span> Pricing
+      </div>
+      <div class="sai-tab" data-tab="5">
+        <span class="sai-tab__num">5</span> Your Details
+      </div>
+    </nav>
+
+    <div class="sai-panels">
+
+      {%- comment -%} ── Tab 1: Item Details ── {%- endcomment -%}
+      <div class="sai-panel active" id="sai-panel-1">
+        <h2 class="sai-panel__title">Item Details</h2>
+
+        <div class="sai-field">
+          <label class="sai-label">Category <span>*</span></label>
+          <div class="sai-select-wrap">
+            <select class="sai-select" id="sai-category" required>
+              <option value="">Select a category</option>
+              <option value="bags">Bags</option>
+              <option value="shoes">Shoes</option>
+              <option value="rtw">Ready to Wear</option>
+              <option value="accessory">Accessory</option>
+              <option value="scarves">Scarves &amp; Twilly</option>
+              <option value="homeware">Homeware</option>
+            </select>
+          </div>
+          <p class="sai-error" id="sai-category-error">Please select a category</p>
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">Brand <span>*</span></label>
+          <input type="text" class="sai-input" id="sai-brand" placeholder="e.g. Hermès, Chanel, Louis Vuitton">
+          <p class="sai-error" id="sai-brand-error">Please enter the brand</p>
+        </div>
+
+        {%- comment -%} Model — bag dropdown or open text {%- endcomment -%}
+        <div class="sai-field" id="sai-model-bag-wrap" style="display:none;">
+          <label class="sai-label">Model <span>*</span></label>
+          <div class="sai-select-wrap">
+            <select class="sai-select" id="sai-model-bag">
+              <option value="">Select model</option>
+              {%- for _m in _bag_models_arr -%}
+                {%- if _m != blank -%}<option value="{{ _m | escape }}">{{ _m }}</option>{%- endif -%}
+              {%- endfor -%}
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <input type="text" class="sai-input" id="sai-model-bag-other" placeholder="Please specify" style="display:none;margin-top:8px;">
+        </div>
+        <div class="sai-field" id="sai-model-text-wrap">
+          <label class="sai-label">Model / Style</label>
+          <input type="text" class="sai-input" id="sai-model-text" placeholder="e.g. Classic Flap, Neverfull MM">
+        </div>
+
+        {%- comment -%} Colour — bag dropdown or open text {%- endcomment -%}
+        <div class="sai-field" id="sai-colour-bag-wrap" style="display:none;">
+          <label class="sai-label">Colour <span>*</span></label>
+          <div class="sai-select-wrap">
+            <select class="sai-select" id="sai-colour-bag">
+              <option value="">Select colour</option>
+              {%- for _c in _bag_colours_arr -%}
+                {%- if _c != blank -%}<option value="{{ _c | escape }}">{{ _c }}</option>{%- endif -%}
+              {%- endfor -%}
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <input type="text" class="sai-input" id="sai-colour-bag-other" placeholder="Please specify" style="display:none;margin-top:8px;">
+        </div>
+        <div class="sai-field" id="sai-colour-text-wrap">
+          <label class="sai-label">Colour</label>
+          <div class="sai-select-wrap">
+            <select class="sai-select" id="sai-colour-text">
+              <option value="">Select colour</option>
+              <option>Black</option><option>White / Cream</option><option>Beige / Nude</option>
+              <option>Brown / Tan</option><option>Camel</option><option>Navy</option>
+              <option>Blue</option><option>Red</option><option>Pink</option>
+              <option>Green</option><option>Yellow / Gold</option><option>Orange</option>
+              <option>Purple</option><option>Grey</option><option>Multi</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <input type="text" class="sai-input" id="sai-colour-text-other" placeholder="Please specify" style="display:none;margin-top:8px;">
+        </div>
+
+        {%- comment -%} Size — only shoes / RTW {%- endcomment -%}
+        <div class="sai-field" id="sai-size-wrap" style="display:none;">
+          <label class="sai-label">Size <span>*</span></label>
+          <input type="text" class="sai-input" id="sai-size" placeholder="e.g. FR38, UK8, EU42">
+          <p class="sai-hint">Please include the size system (FR / UK / EU / IT)</p>
+        </div>
+
+        {%- comment -%} Hardware — bags only {%- endcomment -%}
+        <div class="sai-field" id="sai-hardware-wrap" style="display:none;">
+          <label class="sai-label">Hardware</label>
+          <div class="sai-select-wrap">
+            <select class="sai-select" id="sai-hardware">
+              <option value="">Select hardware</option>
+              {%- if _bag_hardware_arr.size > 0 -%}
+                {%- for _h in _bag_hardware_arr -%}
+                  {%- if _h != blank -%}<option value="{{ _h | escape }}">{{ _h }}</option>{%- endif -%}
+                {%- endfor -%}
+              {%- else -%}
+                <option>Gold</option>
+                <option>Palladium</option>
+                <option>Ruthenium</option>
+                <option>Rose Gold</option>
+                <option>Brushed Gold</option>
+                <option>Brushed Palladium</option>
+                <option>Permabrass</option>
+              {%- endif -%}
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <input type="text" class="sai-input" id="sai-hardware-other" placeholder="Please specify" style="display:none;margin-top:8px;">
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">Material / Leather</label>
+          <input type="text" class="sai-input" id="sai-material" placeholder="e.g. Togo, Epsom, Caviar, Canvas">
+        </div>
+
+        {%- comment -%} Stamp — bags only {%- endcomment -%}
+        <div class="sai-field" id="sai-stamp-wrap" style="display:none;">
+          <label class="sai-label">Stamp / Date Code</label>
+          <input type="text" class="sai-input" id="sai-stamp" placeholder="e.g. A, B, □P, 2020">
+          <p class="sai-hint">Found inside the bag or on a leather tab</p>
+        </div>
+
+        <div class="sai-nav">
+          <button class="sai-btn sai-btn--primary" id="sai-next-1">Next — Condition</button>
+          <span class="sai-progress">Step 1 of 5</span>
+        </div>
+      </div>
+
+      {%- comment -%} ── Tab 2: Condition ── {%- endcomment -%}
+      <div class="sai-panel" id="sai-panel-2">
+        <h2 class="sai-panel__title">Condition</h2>
+
+        <div class="sai-field">
+          <label class="sai-label">Condition <span>*</span></label>
+          <div class="sai-condition-grid">
+            <label class="sai-condition-card">
+              <input type="radio" name="sai-condition" value="Brand New">
+              <div class="sai-condition-card__title">Brand New</div>
+              <div class="sai-condition-card__desc">Never used. Tags still attached, all original packaging.</div>
+            </label>
+            <label class="sai-condition-card">
+              <input type="radio" name="sai-condition" value="Unused">
+              <div class="sai-condition-card__title">Unused</div>
+              <div class="sai-condition-card__desc">Tags attached or removed, but item has never been used.</div>
+            </label>
+            <label class="sai-condition-card">
+              <input type="radio" name="sai-condition" value="Excellent">
+              <div class="sai-condition-card__title">Excellent</div>
+              <div class="sai-condition-card__desc">Some usage but no damage. Minimal signs of wear.</div>
+            </label>
+            <label class="sai-condition-card">
+              <input type="radio" name="sai-condition" value="Good">
+              <div class="sai-condition-card__title">Good</div>
+              <div class="sai-condition-card__desc">Visible signs of usage but no significant damage.</div>
+            </label>
+          </div>
+          <p class="sai-error" id="sai-condition-error">Please select a condition</p>
+        </div>
+
+        <div class="sai-field" id="sai-comeswith-wrap">
+          <label class="sai-label">Comes with</label>
+          <div class="sai-checks" id="sai-comes-with-checks">
+            <label class="sai-check sai-cw-dustbag" style="display:none;">
+              <input type="checkbox" value="Dustbag"> Dustbag
+            </label>
+            <label class="sai-check sai-cw-box">
+              <input type="checkbox" value="Box"> Box
+            </label>
+            <label class="sai-check">
+              <input type="checkbox" value="Receipt"> Receipt
+            </label>
+            <label class="sai-check sai-cw-auth">
+              <input type="checkbox" value="Authenticity Card"> Authenticity Card
+            </label>
+            <label class="sai-check sai-cw-clochette" style="display:none;">
+              <input type="checkbox" value="Clochette &amp; Keys"> Clochette &amp; Keys
+            </label>
+          </div>
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">Year of Purchase</label>
+          <div class="sai-select-wrap">
+            <select class="sai-select" id="sai-year">
+              <option value="">Select year</option>
+              {%- assign _yr = 'now' | date: '%Y' | plus: 0 -%}
+              {%- for i in (0..25) -%}
+                {%- assign _y = _yr | minus: i -%}
+                <option value="{{ _y }}">{{ _y }}</option>
+              {%- endfor -%}
+              <option value="Before 2000">Before 2000</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">Known Flaws / Defects</label>
+          <textarea class="sai-textarea" id="sai-flaws" placeholder="Please describe any scratches, scuffs, stains, wear to corners, interior marks, etc. Leave blank if none."></textarea>
+        </div>
+
+        <div class="sai-nav">
+          <button class="sai-btn sai-btn--secondary" data-back="1">Back</button>
+          <button class="sai-btn sai-btn--primary" id="sai-next-2">Next — Photos</button>
+          <span class="sai-progress">Step 2 of 5</span>
+        </div>
+      </div>
+
+      {%- comment -%} ── Tab 3: Photos ── {%- endcomment -%}
+      <div class="sai-panel" id="sai-panel-3">
+        <h2 class="sai-panel__title">Photos</h2>
+        <p class="sai-hint" style="margin-bottom:24px;">Use a plain, light background. Photos should be clear and well-lit. Max 10MB per image.</p>
+
+        <div class="sai-field">
+          <label class="sai-label">Required photos <span>*</span></label>
+          <div class="sai-photos" id="sai-photos-required">
+            <div class="sai-photo-slot required-slot" data-slot="front">
+              <input type="file" accept="image/*" data-label="Front">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Front</span>
+              <span class="sai-photo-slot__req">Required</span>
+            </div>
+            <div class="sai-photo-slot required-slot" data-slot="back">
+              <input type="file" accept="image/*" data-label="Back">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Back</span>
+              <span class="sai-photo-slot__req">Required</span>
+            </div>
+            <div class="sai-photo-slot required-slot" data-slot="stamp">
+              <input type="file" accept="image/*" data-label="Stamp / Tag">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Stamp / Tag</span>
+              <span class="sai-photo-slot__req">Required</span>
+            </div>
+            <div class="sai-photo-slot required-slot" data-slot="receipt">
+              <input type="file" accept="image/*" data-label="Receipt">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Receipt</span>
+              <span class="sai-photo-slot__req">Required</span>
+            </div>
+          </div>
+          <p class="sai-error" id="sai-photos-error">Please upload all required photos</p>
+        </div>
+
+        <div class="sai-field sai-bag-only" id="sai-photos-bag-wrap" style="display:none;">
+          <label class="sai-label">Bag extras <span style="color:#9a8f86;font-weight:400;">(optional)</span></label>
+          <div class="sai-photos">
+            <div class="sai-photo-slot" data-slot="hardware">
+              <input type="file" accept="image/*" data-label="Hardware">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Hardware</span>
+            </div>
+            <div class="sai-photo-slot" data-slot="inside">
+              <input type="file" accept="image/*" data-label="Inside">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Inside</span>
+            </div>
+            <div class="sai-photo-slot" data-slot="strap">
+              <input type="file" accept="image/*" data-label="Strap">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Strap</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sai-field sai-shoes-only" id="sai-photos-shoes-wrap" style="display:none;">
+          <label class="sai-label">Shoe soles <span style="color:#9a8f86;font-weight:400;">(optional)</span></label>
+          <div class="sai-photos">
+            <div class="sai-photo-slot" data-slot="sole-left">
+              <input type="file" accept="image/*" data-label="Sole Left">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Sole Left Shoe</span>
+            </div>
+            <div class="sai-photo-slot" data-slot="sole-right">
+              <input type="file" accept="image/*" data-label="Sole Right">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Sole Right Shoe</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">Additional photos <span style="color:#9a8f86;font-weight:400;">(optional)</span></label>
+          <div class="sai-photos" id="sai-photos-extra">
+            <div class="sai-photo-slot" data-slot="extra-1">
+              <input type="file" accept="image/*" data-label="Extra 1">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Additional</span>
+            </div>
+            <div class="sai-photo-slot" data-slot="extra-2">
+              <input type="file" accept="image/*" data-label="Extra 2">
+              <svg class="sai-photo-slot__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span class="sai-photo-slot__label">Additional</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sai-nav">
+          <button class="sai-btn sai-btn--secondary" data-back="2">Back</button>
+          <button class="sai-btn sai-btn--primary" id="sai-next-3">Next — Pricing</button>
+          <span class="sai-progress">Step 3 of 5</span>
+        </div>
+      </div>
+
+      {%- comment -%} ── Tab 4: Pricing ── {%- endcomment -%}
+      <div class="sai-panel" id="sai-panel-4">
+        <h2 class="sai-panel__title">Pricing</h2>
+
+        <div class="sai-field--half">
+          <div class="sai-field">
+            <label class="sai-label">Asking Price <span>*</span></label>
+            <input type="number" class="sai-input" id="sai-price" placeholder="0.00" min="0" step="0.01">
+            <p class="sai-hint">Enter your desired selling price. Our team may suggest a market-aligned price.</p>
+            <p class="sai-error" id="sai-price-error">Please enter an asking price</p>
+          </div>
+          <div class="sai-field">
+            <label class="sai-label">Currency <span>*</span></label>
+            <div class="sai-select-wrap">
+              <select class="sai-select" id="sai-currency">
+                <option value="GBP">GBP — £</option>
+                <option value="EUR">EUR — €</option>
+                <option value="USD">USD — $</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="sai-nav">
+          <button class="sai-btn sai-btn--secondary" data-back="3">Back</button>
+          <button class="sai-btn sai-btn--primary" id="sai-next-4">Next — Your Details</button>
+          <span class="sai-progress">Step 4 of 5</span>
+        </div>
+      </div>
+
+      {%- comment -%} ── Tab 5: Your Details ── {%- endcomment -%}
+      <div class="sai-panel" id="sai-panel-5">
+        <h2 class="sai-panel__title">Your Details</h2>
+
+        <div class="sai-field--half">
+          <div class="sai-field">
+            <label class="sai-label">First Name <span>*</span></label>
+            <input type="text" class="sai-input" id="sai-firstname" value="{{ customer.first_name | escape }}" autocomplete="given-name">
+            <p class="sai-error" id="sai-firstname-error">Required</p>
+          </div>
+          <div class="sai-field">
+            <label class="sai-label">Last Name <span>*</span></label>
+            <input type="text" class="sai-input" id="sai-lastname" value="{{ customer.last_name | escape }}" autocomplete="family-name">
+            <p class="sai-error" id="sai-lastname-error">Required</p>
+          </div>
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">Email <span>*</span></label>
+          <input type="email" class="sai-input" id="sai-email" value="{{ customer.email | escape }}" autocomplete="email">
+          <p class="sai-error" id="sai-email-error">Please enter a valid email</p>
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">WhatsApp Number</label>
+          <input type="tel" class="sai-input" id="sai-whatsapp" placeholder="+44 7700 000000" autocomplete="tel">
+        </div>
+
+        <div class="sai-field">
+          <label class="sai-label">Country <span>*</span></label>
+          <div class="sai-select-wrap">
+            <select class="sai-select" id="sai-country" autocomplete="country">
+              <option value="">Select country</option>
+              {% for country in shop.enabled_payment_gateways %}{% endfor %}
+              <option>United Kingdom</option>
+              <option>United States</option>
+              <option>France</option>
+              <option>Germany</option>
+              <option>Italy</option>
+              <option>Spain</option>
+              <option>Switzerland</option>
+              <option>UAE</option>
+              <option>Saudi Arabia</option>
+              <option>Qatar</option>
+              <option>Kuwait</option>
+              <option>Hong Kong</option>
+              <option>Singapore</option>
+              <option>Australia</option>
+              <option>Canada</option>
+              <option>Japan</option>
+              <option>China</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <input type="text" class="sai-input" id="sai-country-other" placeholder="Please specify your country" style="display:none;margin-top:8px;">
+          <p class="sai-error" id="sai-country-error">Please select your country</p>
+        </div>
+
+        <div class="sai-nav">
+          <button class="sai-btn sai-btn--secondary" data-back="4">Back</button>
+          <button class="sai-btn sai-btn--primary" id="sai-submit">Submit item</button>
+          <span class="sai-progress">Step 5 of 5</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var ENDPOINT = 'https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/consign';
+  var currentTab = 1;
+  var photoFiles = {};
+
+  // ── Tab navigation ──────────────────────────────────────────────────────────
+  function showTab(n) {
+    document.querySelectorAll('.sai-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.sai-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.getElementById('sai-panel-' + n).classList.add('active');
+    document.querySelector('[data-tab="' + n + '"]').classList.add('active');
+    currentTab = n;
+    window.scrollTo({ top: document.getElementById('sai-form-wrap').offsetTop - 24, behavior: 'smooth' });
+  }
+
+  function markComplete(n) {
+    document.querySelector('[data-tab="' + n + '"]').classList.add('complete');
+  }
+
+  document.querySelectorAll('[data-tab]').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var n = parseInt(this.dataset.tab);
+      if (n < currentTab || this.classList.contains('complete')) showTab(n);
+    });
+  });
+
+  document.querySelectorAll('[data-back]').forEach(function(btn) {
+    btn.addEventListener('click', function() { showTab(parseInt(this.dataset.back)); });
+  });
+
+  // ── Category conditional logic ──────────────────────────────────────────────
+  var catEl = document.getElementById('sai-category');
+  function onCategoryChange() {
+    var cat = catEl.value;
+    var isBag = cat === 'bags';
+    var isShoe = cat === 'shoes';
+    var isRTW = cat === 'rtw';
+    var isSized = isShoe || isRTW;
+
+    toggle('sai-model-bag-wrap', isBag);
+    toggle('sai-model-text-wrap', !isBag);
+    toggle('sai-colour-bag-wrap', isBag);
+    toggle('sai-colour-text-wrap', !isBag);
+    toggle('sai-size-wrap', isSized);
+    toggle('sai-hardware-wrap', isBag);
+    toggle('sai-stamp-wrap', isBag);
+
+    // Comes with conditional
+    document.querySelectorAll('.sai-cw-dustbag, .sai-cw-clochette').forEach(function(el) {
+      el.style.display = isBag ? '' : 'none';
+    });
+    var boxEl = document.querySelector('.sai-cw-box');
+    if (boxEl) boxEl.style.display = isRTW ? 'none' : '';
+
+    // Photo slots
+    toggle('sai-photos-bag-wrap', isBag);
+    toggle('sai-photos-shoes-wrap', isShoe);
+  }
+
+  function toggle(id, show) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = show ? '' : 'none';
+  }
+
+  catEl.addEventListener('change', onCategoryChange);
+
+  // ── Other dropdowns ─────────────────────────────────────────────────────────
+  function bindOther(selectId, otherId) {
+    var sel = document.getElementById(selectId);
+    var oth = document.getElementById(otherId);
+    if (!sel || !oth) return;
+    sel.addEventListener('change', function() {
+      oth.style.display = this.value === 'other' ? '' : 'none';
+    });
+  }
+  bindOther('sai-model-bag', 'sai-model-bag-other');
+  bindOther('sai-colour-bag', 'sai-colour-bag-other');
+  bindOther('sai-colour-text', 'sai-colour-text-other');
+  bindOther('sai-hardware', 'sai-hardware-other');
+  bindOther('sai-country', 'sai-country-other');
+
+  // ── Condition cards ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.sai-condition-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      document.querySelectorAll('.sai-condition-card').forEach(function(c) { c.classList.remove('selected'); });
+      this.classList.add('selected');
+    });
+  });
+
+  // ── Photo uploads ───────────────────────────────────────────────────────────
+  document.querySelectorAll('.sai-photo-slot').forEach(function(slot) {
+    var input = slot.querySelector('input[type="file"]');
+    var slotKey = slot.dataset.slot;
+
+    input.addEventListener('change', function() {
+      var file = this.files[0];
+      if (!file) return;
+      photoFiles[slotKey] = file;
+      slot.classList.add('has-image');
+
+      var existing = slot.querySelector('.sai-photo-slot__preview');
+      if (existing) existing.remove();
+
+      var img = document.createElement('img');
+      img.className = 'sai-photo-slot__preview';
+      img.src = URL.createObjectURL(file);
+      slot.insertBefore(img, slot.firstChild);
+
+      var removeBtn = slot.querySelector('.sai-photo-slot__remove');
+      if (!removeBtn) {
+        removeBtn = document.createElement('button');
+        removeBtn.className = 'sai-photo-slot__remove';
+        removeBtn.textContent = '×';
+        removeBtn.type = 'button';
+        slot.appendChild(removeBtn);
+      }
+      removeBtn.style.display = 'flex';
+    });
+
+    slot.addEventListener('click', function(e) {
+      if (e.target.classList.contains('sai-photo-slot__remove')) {
+        e.preventDefault();
+        e.stopPropagation();
+        delete photoFiles[slotKey];
+        slot.classList.remove('has-image');
+        var prev = slot.querySelector('.sai-photo-slot__preview');
+        if (prev) prev.remove();
+        var remBtn = slot.querySelector('.sai-photo-slot__remove');
+        if (remBtn) remBtn.style.display = 'none';
+        input.value = '';
+      }
+    });
+  });
+
+  // ── Validation ──────────────────────────────────────────────────────────────
+  function showError(fieldId, show) {
+    var el = document.getElementById(fieldId);
+    if (el) el.style.display = show ? 'block' : 'none';
+  }
+
+  function validateTab1() {
+    var ok = true;
+    if (!catEl.value) { showError('sai-category-error', true); ok = false; } else { showError('sai-category-error', false); }
+    if (!document.getElementById('sai-brand').value.trim()) { showError('sai-brand-error', true); ok = false; } else { showError('sai-brand-error', false); }
+    return ok;
+  }
+
+  function validateTab2() {
+    var ok = true;
+    var cond = document.querySelector('input[name="sai-condition"]:checked');
+    if (!cond) { showError('sai-condition-error', true); ok = false; } else { showError('sai-condition-error', false); }
+    return ok;
+  }
+
+  function validateTab3() {
+    var required = ['front','back','stamp','receipt'];
+    var missing = required.some(function(r) { return !photoFiles[r]; });
+    showError('sai-photos-error', missing);
+    return !missing;
+  }
+
+  function validateTab4() {
+    var price = document.getElementById('sai-price').value;
+    if (!price || parseFloat(price) <= 0) { showError('sai-price-error', true); return false; }
+    showError('sai-price-error', false);
+    return true;
+  }
+
+  function validateTab5() {
+    var ok = true;
+    ['firstname','lastname'].forEach(function(f) {
+      var val = document.getElementById('sai-' + f).value.trim();
+      showError('sai-' + f + '-error', !val);
+      if (!val) ok = false;
+    });
+    var email = document.getElementById('sai-email').value.trim();
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    showError('sai-email-error', !emailOk);
+    if (!emailOk) ok = false;
+    var country = document.getElementById('sai-country').value;
+    if (!country) { showError('sai-country-error', true); ok = false; } else { showError('sai-country-error', false); }
+    return ok;
+  }
+
+  // ── Next buttons ────────────────────────────────────────────────────────────
+  document.getElementById('sai-next-1').addEventListener('click', function() {
+    if (validateTab1()) { markComplete(1); showTab(2); }
+  });
+  document.getElementById('sai-next-2').addEventListener('click', function() {
+    if (validateTab2()) { markComplete(2); showTab(3); }
+  });
+  document.getElementById('sai-next-3').addEventListener('click', function() {
+    if (validateTab3()) { markComplete(3); showTab(4); }
+  });
+  document.getElementById('sai-next-4').addEventListener('click', function() {
+    if (validateTab4()) { markComplete(4); showTab(5); }
+  });
+
+  // ── Submit ──────────────────────────────────────────────────────────────────
+  document.getElementById('sai-submit').addEventListener('click', function() {
+    if (!validateTab5()) return;
+
+    var submitBtn = this;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    var cat = catEl.value;
+    var isBag = cat === 'bags';
+
+    function getVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+    var model = isBag
+      ? (getVal('sai-model-bag') === 'other' ? getVal('sai-model-bag-other') : getVal('sai-model-bag'))
+      : getVal('sai-model-text');
+
+    var colour = isBag
+      ? (getVal('sai-colour-bag') === 'other' ? getVal('sai-colour-bag-other') : getVal('sai-colour-bag'))
+      : (getVal('sai-colour-text') === 'other' ? getVal('sai-colour-text-other') : getVal('sai-colour-text'));
+
+    var hardware = getVal('sai-hardware') === 'other' ? getVal('sai-hardware-other') : getVal('sai-hardware');
+    var country = getVal('sai-country') === 'other' ? getVal('sai-country-other') : getVal('sai-country');
+
+    var comesWith = [];
+    document.querySelectorAll('#sai-comes-with-checks input:checked').forEach(function(cb) { comesWith.push(cb.value); });
+
+    var payload = {
+      customerId: window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null,
+      category: cat,
+      brand: getVal('sai-brand'),
+      model: model,
+      colour: colour,
+      size: getVal('sai-size'),
+      hardware: hardware,
+      material: getVal('sai-material'),
+      stamp: getVal('sai-stamp'),
+      condition: (document.querySelector('input[name="sai-condition"]:checked') || {}).value || '',
+      comesWith: comesWith,
+      yearOfPurchase: getVal('sai-year'),
+      flaws: getVal('sai-flaws'),
+      askingPrice: parseFloat(getVal('sai-price')) || 0,
+      currency: getVal('sai-currency'),
+      firstName: getVal('sai-firstname'),
+      lastName: getVal('sai-lastname'),
+      email: getVal('sai-email'),
+      whatsapp: getVal('sai-whatsapp'),
+      country: country,
+      images: []
+    };
+
+    // Convert photos to base64
+    var photoKeys = Object.keys(photoFiles);
+    if (photoKeys.length === 0) {
+      send(payload, submitBtn);
+      return;
+    }
+
+    var converted = 0;
+    photoKeys.forEach(function(key) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        payload.images.push({ slot: key, base64: e.target.result.split(',')[1], type: photoFiles[key].type });
+        converted++;
+        if (converted === photoKeys.length) send(payload, submitBtn);
+      };
+      reader.readAsDataURL(photoFiles[key]);
+    });
+  });
+
+  function send(payload, btn) {
+    fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        document.getElementById('sai-form-wrap').style.display = 'none';
+        document.getElementById('sai-success').style.display = 'block';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Submit item';
+        alert('Something went wrong. Please try again.');
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Submit item';
+      alert('Something went wrong. Please try again.');
+    });
+  }
+})();
+</script>
+
+{% endunless %}
+
+{% schema %}
+{
+  "name": "Submit an Item",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Heading", "default": "Submit an Item" },
+    { "type": "textarea", "id": "subtitle", "label": "Subheading", "default": "Tell us about your piece and we'll be in touch within 48 hours." }
+  ],
+  "presets": [{ "name": "Submit an Item" }]
+}
+{% endschema %}
