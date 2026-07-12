@@ -6,20 +6,20 @@
 {%- if _bag_col != blank -%}
   {%- for _p in _bag_col.products limit: 250 -%}
     {%- assign _m = _p.metafields.custom.model | append: '' | strip -%}
-    {%- if _m != blank and _bag_models contains _m == false -%}
+    {%- if _m != blank -%}{%- unless _bag_models contains _m -%}
       {%- assign _bag_models = _bag_models | append: _m | append: '|||' -%}
-    {%- endif -%}
+    {%- endunless -%}{%- endif -%}
     {%- assign _h = _p.metafields.custom.hardware_material | append: '' | remove: '["' | remove: '"]' | remove: '"' | strip -%}
-    {%- if _h != blank and _bag_hardware contains _h == false -%}
+    {%- if _h != blank -%}{%- unless _bag_hardware contains _h -%}
       {%- assign _bag_hardware = _bag_hardware | append: _h | append: '|||' -%}
-    {%- endif -%}
+    {%- endunless -%}{%- endif -%}
     {%- assign _cp = _p.metafields.shopify['color-pattern'] -%}
     {%- if _cp != blank -%}
       {%- assign _cv = _cp.value -%}
       {%- assign _cl = _cv.label | strip -%}
-      {%- if _cl != blank and _bag_colours contains _cl == false -%}
+      {%- if _cl != blank -%}{%- unless _bag_colours contains _cl -%}
         {%- assign _bag_colours = _bag_colours | append: _cl | append: '|||' -%}
-      {%- endif -%}
+      {%- endunless -%}{%- endif -%}
     {%- endif -%}
   {%- endfor -%}
 {%- endif -%}
