@@ -9,10 +9,11 @@
     {%- if _m != blank -%}{%- unless _bag_models contains _m -%}
       {%- assign _bag_models = _bag_models | append: _m | append: '|||' -%}
     {%- endunless -%}{%- endif -%}
-    {%- assign _h = _p.metafields.custom.hardware_material | append: '' | remove: '["' | remove: '"]' | remove: '"' | strip -%}
-    {%- if _h != blank -%}{%- unless _bag_hardware contains _h -%}
+    {%- assign _h_raw = _p.metafields.custom.hardware_material | append: '' -%}
+    {%- assign _h = _h_raw | remove: '["' | remove: '"]' | remove: '"' | strip -%}
+    {%- unless _h == blank or _h == '[]' or _h contains '[' -%}{%- unless _bag_hardware contains _h -%}
       {%- assign _bag_hardware = _bag_hardware | append: _h | append: '|||' -%}
-    {%- endunless -%}{%- endif -%}
+    {%- endunless -%}{%- endunless -%}
     {%- assign _cp = _p.metafields.shopify['color-pattern'] -%}
     {%- if _cp != blank -%}
       {%- assign _cv = _cp.value -%}
