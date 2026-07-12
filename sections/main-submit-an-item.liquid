@@ -50,6 +50,7 @@
   /* Tab sidebar */
   .sai-tabs { width: 200px; flex-shrink: 0; position: sticky; top: 32px; }
   .sai-tab { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #ede9e0; cursor: pointer; font-size: 13px; color: #9a8f86; letter-spacing: 0.04em; transition: color 0.2s; }
+  .sai-tab:hover { color: #1a1815; }
   .sai-tab:first-child { border-top: 1px solid #ede9e0; }
   .sai-tab.active { color: #1a1815; font-weight: 600; }
   .sai-tab__num { font-size: 10px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid currentColor; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0; }
@@ -624,8 +625,7 @@
 
   document.querySelectorAll('[data-tab]').forEach(function(tab) {
     tab.addEventListener('click', function() {
-      var n = parseInt(this.dataset.tab);
-      if (this.classList.contains('complete') || this.classList.contains('active') || n < currentTab) showTab(n);
+      showTab(parseInt(this.dataset.tab));
     });
   });
 
