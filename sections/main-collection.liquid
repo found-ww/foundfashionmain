@@ -446,6 +446,19 @@
           </div>
         {%- endif -%}
 
+        {%- if collection.handle == 'clothing' -%}
+          <div class="sourcing-banner">
+            <p class="sourcing-banner__text">Can't find your size? We source Hermès clothing to order.</p>
+            <a href="/pages/personal-shopping" class="sourcing-banner__cta">SOURCE WITH US →</a>
+          </div>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap');
+            .sourcing-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#f4f0ea;border-bottom:0.5px solid #dedad3;}
+            .sourcing-banner__text{font-family:'Figtree',sans-serif;font-size:13px;letter-spacing:0.04em;color:#171513;line-height:1.5;margin:0;}
+            .sourcing-banner__cta{font-family:'Figtree',sans-serif;font-size:11px;letter-spacing:0.08em;color:#171513;border:0.5px solid #171513;padding:6px 12px;white-space:nowrap;flex-shrink:0;text-decoration:none;}
+          </style>
+        {%- endif -%}
+
         <div class="CollectionInner__Products">
           {{ collection_inner }}
         </div>
