@@ -219,6 +219,11 @@ window.addEventListener('load', function() {
 
     {% render 'microdata-schema' %}
   {% render 'bon-loyalty' %}
+  <style>
+    @media screen and (max-width: 999px) {
+      #tidio-chat { bottom: 80px !important; }
+    }
+  </style>
 </head>
 
   {%- capture classes -%}features--heading-{{ settings.heading_size }}{%- endcapture -%}
