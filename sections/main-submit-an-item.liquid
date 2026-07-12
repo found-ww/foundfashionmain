@@ -322,6 +322,11 @@
           <p class="sai-hint">Found inside the bag or on a leather tab</p>
         </div>
 
+        <div class="sai-field">
+          <label class="sai-label">Any other details</label>
+          <textarea class="sai-textarea" id="sai-item-notes" placeholder="Anything else you'd like us to know about this piece"></textarea>
+        </div>
+
         <div class="sai-nav">
           <button class="sai-btn sai-btn--primary" id="sai-next-1">Next — Condition</button>
           <span class="sai-progress">Step 1 of 5</span>
@@ -371,9 +376,6 @@
             <label class="sai-check">
               <input type="checkbox" value="Receipt"> Receipt
             </label>
-            <label class="sai-check sai-cw-auth">
-              <input type="checkbox" value="Authenticity Card"> Authenticity Card
-            </label>
             <label class="sai-check sai-cw-clochette" style="display:none;">
               <input type="checkbox" value="Clochette &amp; Keys"> Clochette &amp; Keys
             </label>
@@ -386,7 +388,7 @@
             <select class="sai-select" id="sai-year">
               <option value="">Select year</option>
               {%- assign _yr = 'now' | date: '%Y' | plus: 0 -%}
-              {%- for i in (0..25) -%}
+              {%- for i in (0..10) -%}
                 {%- assign _y = _yr | minus: i -%}
                 <option value="{{ _y }}">{{ _y }}</option>
               {%- endfor -%}
@@ -868,6 +870,7 @@
       hardware: hardware,
       material: getVal('sai-material'),
       stamp: getVal('sai-stamp'),
+      itemNotes: getVal('sai-item-notes'),
       condition: (document.querySelector('input[name="sai-condition"]:checked') || {}).value || '',
       comesWith: comesWith,
       yearOfPurchase: getVal('sai-year'),
