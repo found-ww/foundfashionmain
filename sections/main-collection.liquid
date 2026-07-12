@@ -500,7 +500,10 @@
 {%- if collection.handle == 'clothing' -%}
 <div class="cl-sticky-bar" id="cl-sticky-bar">
   <div class="cl-sticky-bar__inner">
-    <p class="cl-sticky-bar__text">Looking for something?</p>
+    <div class="cl-sticky-bar__copy">
+      <p class="cl-sticky-bar__heading">Looking for something?</p>
+      <p class="cl-sticky-bar__text">Our team source Hermès clothing to order.</p>
+    </div>
     <a href="/pages/personal-shopping" class="cl-sticky-bar__cta">Source with us →</a>
   </div>
 </div>
@@ -527,10 +530,19 @@
       justify-content: space-between;
       gap: 16px;
     }
+    .cl-sticky-bar__copy { margin: 0; }
+    .cl-sticky-bar__heading {
+      font-family: var(--heading-font-family);
+      font-size: 13px;
+      font-weight: 600;
+      color: #171513;
+      margin: 0 0 2px;
+      letter-spacing: 0.02em;
+    }
     .cl-sticky-bar__text {
       font-family: var(--text-font-family);
-      font-size: 13px;
-      color: #171513;
+      font-size: 11px;
+      color: #57534c;
       margin: 0;
       letter-spacing: 0.02em;
     }
