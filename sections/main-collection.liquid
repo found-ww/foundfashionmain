@@ -566,8 +566,18 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
+    body.cl-sticky-active #tidio-chat {
+      bottom: 100px !important;
+    }
   }
 </style>
+<script>
+(function() {
+  if (window.matchMedia('(max-width: 999px)').matches) {
+    document.body.classList.add('cl-sticky-active');
+  }
+})();
+</script>
 {%- endif -%}
 
 <script>
