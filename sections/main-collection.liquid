@@ -443,9 +443,11 @@
                 {%- endif -%}
               </form>
             </div>
-            {%- if collection.handle == 'clothing' or collection.handle == 'shoes' -%}
+            {%- if collection.handle == 'clothing' or collection.handle == 'shoes' or collection.handle == 'jewelry' or collection.handle == 'scarves' -%}
               {%- assign sourcing_item = 'clothing' -%}
               {%- if collection.handle == 'shoes' -%}{%- assign sourcing_item = 'shoes' -%}{%- endif -%}
+              {%- if collection.handle == 'jewelry' -%}{%- assign sourcing_item = 'jewellery' -%}{%- endif -%}
+              {%- if collection.handle == 'scarves' -%}{%- assign sourcing_item = 'scarves' -%}{%- endif -%}
               <div class="sourcing-box">
                 <p class="sourcing-box__heading">Looking for something?</p>
                 <p class="sourcing-box__text">Our team source Hermès {{ sourcing_item }} to order.</p>
@@ -455,7 +457,7 @@
           </div>
         {%- endif -%}
 
-        {%- if collection.handle == 'clothing' or collection.handle == 'shoes' -%}
+        {%- if collection.handle == 'clothing' or collection.handle == 'shoes' or collection.handle == 'jewelry' or collection.handle == 'scarves' -%}
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap');
             .sourcing-box{font-family:var(--text-font-family);background:#f4f0ea;border-radius:8px;padding:20px 16px;margin-top:20px;border:1px solid #dedad3;}
@@ -499,9 +501,11 @@
   {%- endif -%}
 </section>
 
-{%- if collection.handle == 'clothing' or collection.handle == 'shoes' -%}
+{%- if collection.handle == 'clothing' or collection.handle == 'shoes' or collection.handle == 'jewelry' or collection.handle == 'scarves' -%}
   {%- assign sourcing_item = 'clothing' -%}
   {%- if collection.handle == 'shoes' -%}{%- assign sourcing_item = 'shoes' -%}{%- endif -%}
+  {%- if collection.handle == 'jewelry' -%}{%- assign sourcing_item = 'jewellery' -%}{%- endif -%}
+  {%- if collection.handle == 'scarves' -%}{%- assign sourcing_item = 'scarves' -%}{%- endif -%}
 <div class="cl-sticky-bar" id="cl-sticky-bar">
   <div class="cl-sticky-bar__inner">
     <div class="cl-sticky-bar__copy">
