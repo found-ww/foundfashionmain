@@ -2456,9 +2456,11 @@
 <script>
 (function() {
   var OFFER_ENDPOINT = 'https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/offer';
-  var productPrice = {{ product.selected_or_first_available_variant.price | times: 1.0 }};
-  var productPriceConverted = parseFloat({{ product.selected_or_first_available_variant.price | money_without_currency | remove: ',' }});
-  productPrice = isNaN(productPriceConverted) ? productPrice / 100 : productPriceConverted;
+  var productPriceCents = {{ product.selected_or_first_available_variant.price }};
+  var productPriceDisplay = parseFloat({{ product.selected_or_first_available_variant.price | money_without_currency | remove: ',' }});
+  if (isNaN(productPriceDisplay)) productPriceDisplay = productPriceCents / 100;
+  var priceRatio = productPriceDisplay / (productPriceCents / 100);
+  var productPrice = productPriceCents;
   var productTitle = {{ product.title | json }};
   var productHandle = {{ product.handle | json }};
   var productImage = ({{ product.featured_image | image_url: width: 400 | json }} || '').replace(/^\/\//, 'https://');
@@ -2490,8 +2492,8 @@
       document.querySelectorAll('.ff-offer-preset').forEach(function(b) { b.classList.remove('is-selected'); });
       btn.classList.add('is-selected');
       var pct = parseFloat(btn.dataset.pct);
-      var discounted = Math.round(productPrice * (1 - pct / 100)) / 100;
-      priceInput.value = discounted.toFixed(2);
+      var discounted = (productPriceDisplay * (1 - pct / 100)).toFixed(2);
+      priceInput.value = discounted;
     });
   });
 
@@ -2523,8 +2525,8 @@
   document.getElementById('ff-offer-submit').addEventListener('click', function() {
     clearErrors();
     var price = parseFloat(priceInput.value);
-    var maxPrice = productPrice / 100;
-    var minPrice = productPrice / 100 * (1 - maxDiscountPct / 100);
+    var maxPrice = productPriceDisplay;
+    var minPrice = productPriceDisplay * (1 - maxDiscountPct / 100);
     var fname = document.getElementById('ff-offer-fname').value.trim();
     var lname = document.getElementById('ff-offer-lname').value.trim();
     var email = document.getElementById('ff-offer-email').value.trim();
@@ -2565,8 +2567,8 @@
         phone: phone,
         createAccount: createAccount ? createAccount.checked : false,
         offerPrice: price,
-        listedPrice: productPrice / 100,
-        discountPct: Math.round((1 - price / (productPrice / 100)) * 100),
+        listedPrice: productPriceDisplay,
+        discountPct: Math.round((1 - price / productPriceDisplay) * 100),
         productTitle: productTitle,
         productHandle: productHandle,
         productImage: productImage,
