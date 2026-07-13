@@ -2457,10 +2457,21 @@
 (function() {
   var OFFER_ENDPOINT = 'https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/offer';
   var productPriceCents = {{ product.selected_or_first_available_variant.price }};
-  var productPriceDisplay = parseFloat({{ product.selected_or_first_available_variant.price | money_without_currency | remove: ',' }});
-  if (isNaN(productPriceDisplay)) productPriceDisplay = productPriceCents / 100;
-  var priceRatio = productPriceDisplay / (productPriceCents / 100);
   var productPrice = productPriceCents;
+  function parseLocalPrice(str) {
+    str = String(str).replace(/[^\d.,]/g, '');
+    var lastComma = str.lastIndexOf(',');
+    var lastPeriod = str.lastIndexOf('.');
+    if (lastComma > lastPeriod) {
+      // European format: 2.154,95 → remove periods, replace comma with period
+      return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+    } else {
+      // Standard format: 2,154.95 → remove commas
+      return parseFloat(str.replace(/,/g, ''));
+    }
+  }
+  var productPriceDisplay = parseLocalPrice({{ product.selected_or_first_available_variant.price | money_without_currency | json }});
+  if (isNaN(productPriceDisplay)) productPriceDisplay = productPriceCents / 100;
   var productTitle = {{ product.title | json }};
   var productHandle = {{ product.handle | json }};
   var productImage = ({{ product.featured_image | image_url: width: 400 | json }} || '').replace(/^\/\//, 'https://');
