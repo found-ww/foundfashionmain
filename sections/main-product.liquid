@@ -1977,7 +1977,7 @@
     item_brand: {{ product.vendor | json }},
     item_category: {{ product.type | json }},
     price: {{ product.price | divided_by: 100.0 }},
-    currency: {{ shop.currency | json }}
+    currency: {{ cart.currency.iso_code | json }}
   };
 
   /* GA4 view_item */
@@ -2016,7 +2016,7 @@
   if (!atcBtn) return;
   atcBtn.addEventListener('click', function() {
     try {
-      var currency = {{ shop.currency | json }};
+      var currency = {{ cart.currency.iso_code | json }};
       var itemName = {{ product.title | json }};
       var variantInput = atcBtn.closest('form').querySelector('[data-product-select]');
       var variantId = variantInput ? variantInput.value : '';
@@ -2407,7 +2407,7 @@
           try {
             if (typeof gtag === 'function') {
               gtag('event', 'add_to_cart', {
-                currency: {{ shop.currency | json }},
+                currency: {{ cart.currency.iso_code | json }},
                 value: {{ product.price | divided_by: 100.0 }},
                 items: [{ item_id: variantId, item_name: {{ product.title | json }}, quantity: 1 }]
               });
@@ -2418,7 +2418,7 @@
                 content_ids: [variantId],
                 content_type: 'product',
                 value: {{ product.price | divided_by: 100.0 }},
-                currency: {{ shop.currency | json }}
+                currency: {{ cart.currency.iso_code | json }}
               });
             }
           } catch(err) {}
@@ -2585,7 +2585,7 @@
         productImage: productImage,
         productId: productId,
         variantId: variantId,
-        currency: {{ shop.currency | json }},
+        currency: {{ cart.currency.iso_code | json }},
         customerId: window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null
       })
     })
