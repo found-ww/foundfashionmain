@@ -2405,10 +2405,78 @@
     .art-tl__tip { display: none; }
   }
 
+  /* ── New-format embedded blocks ── */
+  /* Timeline (new format) */
+  .art-timeline { margin: 2.5em 0; }
+  .art-timeline__heading {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(0,0,0,0.38); margin: 0 0 20px;
+  }
+  .art-timeline__item {
+    display: flex; gap: 20px; padding: 18px 0;
+    border-top: 0.5px solid #e5e0da;
+  }
+  .art-timeline__item:last-child { border-bottom: 0.5px solid #e5e0da; }
+  .art-timeline__year {
+    flex-shrink: 0; width: 56px;
+    font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.38);
+    letter-spacing: 0.04em; padding-top: 2px;
+  }
+  .art-timeline__content { flex: 1; min-width: 0; }
+  .art-timeline__title { font-size: 14px; font-weight: 600; color: #1b1b1c; margin: 0 0 4px; }
+  .art-timeline__body { font-size: 13px; line-height: 1.65; color: rgba(27,27,28,0.65); margin: 0; }
+
+  /* Product block v2 (new format — simple image grid) */
+  .art-product-block-v2 { margin: 2em 0; }
+  .art-product-block-v2__heading {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(0,0,0,0.38); margin: 0 0 16px;
+  }
+  .art-product-block-v2__grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px;
+  }
+  .art-product-block-v2 .art-product-block__card {
+    display: block; text-decoration: none; color: inherit;
+  }
+  .art-product-block-v2 .art-product-block__card img {
+    width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; margin: 0;
+  }
+  .art-product-block-v2 .art-product-block__title {
+    font-size: 12px; font-weight: 500; color: #1b1b1c;
+    margin: 8px 0 2px; letter-spacing: 0.02em;
+  }
+  .art-product-block-v2 .art-product-block__price {
+    font-size: 12px; color: rgba(0,0,0,0.45); margin: 0;
+  }
+
+  /* FAQ / stats / cards heading labels (new format) */
+  .art-faq__heading, .art-stats__heading, .art-card-block__heading {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(0,0,0,0.38); margin: 0 0 16px;
+  }
+
   /* ── Embed: Pull Quote / Large Text ── */
   .epq {
     margin: 0;
     padding: 16px 0 20px;
+  }
+  /* Author attribution for new-format quote blocks */
+  .epq__author {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgba(0,0,0,0.38);
+    margin: 10px 0 0;
+    line-height: 1.4;
+  }
+  /* Subtext line for new-format largeword blocks */
+  .epq__sub {
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(0,0,0,0.45);
+    margin: 8px 0 0;
+    line-height: 1.5;
   }
   .epq__text {
     font-family: inherit;
