@@ -409,6 +409,12 @@
         <button type="button" class="ppv1-offer-trigger" id="ppv1-main-offer-btn" style="margin-top:8px;">
           <span>MAKE AN OFFER</span>
         </button>
+      {%- else -%}
+        <div class="ppv1-sourcing-card">
+          <p class="ppv1-sourcing-card__heading">Looking for something similar?</p>
+          <p class="ppv1-sourcing-card__text">Our team sources pieces to order. Tell us what you&rsquo;re looking for and we&rsquo;ll track it down.</p>
+          <a href="/pages/personal-shopping" class="ppv1-sourcing-card__cta"><span>Start a sourcing request &rarr;</span></a>
+        </div>
       {%- endif -%}
       {%- endif -%}
     </div>
@@ -990,6 +996,15 @@
   position: relative;
   z-index: 1;
 }
+
+/* ---- Sold-out sourcing card ---- */
+.ppv1-sourcing-card{font-family:var(--text-font-family);background:#f4f4f4;border-radius:4px;padding:20px 16px;margin-top:16px;border:0.75px solid #dedad3;}
+.ppv1-sourcing-card__heading{font-family:var(--heading-font-family);font-size:15px;font-weight:600;letter-spacing:0.02em;color:#171513;margin:0 0 8px;}
+.ppv1-sourcing-card__text{font-family:var(--text-font-family);font-size:12px;letter-spacing:0.03em;color:#57534c;line-height:1.5;margin:0 0 18px;}
+.ppv1-sourcing-card__cta{position:relative;display:inline-block;overflow:hidden;font-family:var(--text-font-family);font-size:11px;letter-spacing:0.08em;color:#171513;background:transparent;border:0.5px solid #171513;padding:7px 14px;text-decoration:none;transition:color 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+.ppv1-sourcing-card__cta::before{content:"";position:absolute;inset:0;background:#171513;transform:scale(0,1);transform-origin:left center;transition:transform 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+.ppv1-sourcing-card__cta span{position:relative;}
+@media(-moz-touch-enabled:0),(hover:hover){.ppv1-sourcing-card__cta:hover{color:#fff;}.ppv1-sourcing-card__cta:hover::before{transform:scale(1,1);}}
 
 /* ---- Make an Offer button ---- */
 .ppv1-offer-trigger {
@@ -2607,6 +2622,59 @@
     });
   });
 })();
+</script>
+
+{%- comment -%} ── Structured data (Google rich results) ── {%- endcomment -%}
+{%- liquid
+  assign sd_availability = 'https://schema.org/OutOfStock'
+  if product.available
+    assign sd_availability = 'https://schema.org/InStock'
+  endif
+
+  assign sd_condition = 'https://schema.org/UsedCondition'
+  assign sd_condition_lower = ppv1_condition | downcase
+  if sd_condition_lower contains 'new' or sd_condition_lower contains 'unworn'
+    assign sd_condition = 'https://schema.org/NewCondition'
+  elsif sd_condition_lower contains 'refurb'
+    assign sd_condition = 'https://schema.org/RefurbishedCondition'
+  endif
+
+  assign sd_brand = ppv1_brand
+  if sd_brand == blank
+    assign sd_brand = product.vendor
+  endif
+
+  assign sd_price = product.price | money_without_currency | remove: ','
+  assign sd_image = product.featured_image | img_url: '1200x'
+-%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "description": {{ product.description | strip_html | truncate: 500 | json }},
+  "image": "https:{{ sd_image }}",
+  "url": "{{ shop.url }}{{ product.url }}",
+  "sku": {{ product.selected_or_first_available_variant.sku | default: product.id | json }},
+  {%- if sd_brand != blank %}
+  "brand": {
+    "@type": "Brand",
+    "name": {{ sd_brand | json }}
+  },
+  {%- endif %}
+  "itemCondition": "{{ sd_condition }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ shop.url }}{{ product.url }}",
+    "priceCurrency": {{ shop.currency | json }},
+    "price": "{{ sd_price }}",
+    "availability": "{{ sd_availability }}",
+    "seller": {
+      "@type": "Organization",
+      "name": {{ shop.name | json }}
+    }
+  }
+}
 </script>
 
 {% schema %}
