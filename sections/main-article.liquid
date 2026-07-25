@@ -1485,6 +1485,91 @@
     }
   }
 
+  /* ── Image carousel (up to 8 images) ── */
+  .art-carousel {
+    position: relative;
+    width: calc(100vw - 40px);
+    margin-left: calc(50% - 50vw + 20px);
+    margin-top: 24px;
+    margin-bottom: 2rem;
+  }
+  .art-carousel__viewport { overflow: hidden; }
+  .art-carousel__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .art-carousel__track::-webkit-scrollbar { display: none; }
+  .art-carousel__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    margin: 0;
+    position: relative;
+  }
+  .art-carousel__slide img {
+    width: 100%;
+    height: clamp(420px, 62vh, 820px);
+    object-fit: cover;
+    display: block;
+  }
+  .art-carousel__cap {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 48px 24px 20px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+  .art-carousel__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.92);
+    color: #190d04;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: opacity 0.2s;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+  .art-carousel__arrow--prev { left: 16px; }
+  .art-carousel__arrow--next { right: 16px; }
+  .art-carousel__arrow[disabled] { opacity: 0; pointer-events: none; }
+  .art-carousel__dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .art-carousel__dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(25, 13, 4, 0.22);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .art-carousel__dot.is-active { background: #190d04; transform: scale(1.25); }
+  @media screen and (max-width: 768px) {
+    .art-carousel__slide img { height: 58vh; }
+    .art-carousel__arrow { display: none; }
+  }
+
   /* FAQ accordion */
   .art-faq {
     margin: 2.5em 0;
@@ -2836,6 +2921,46 @@
           answer.style.maxHeight = '2000px';
         }
       });
+    });
+
+    /* ---- Image carousel ---- */
+    document.querySelectorAll('.art-carousel').forEach(function(car) {
+      var track = car.querySelector('.art-carousel__track');
+      var slides = [].slice.call(car.querySelectorAll('.art-carousel__slide'));
+      var dots = [].slice.call(car.querySelectorAll('.art-carousel__dot'));
+      var prev = car.querySelector('.art-carousel__arrow--prev');
+      var next = car.querySelector('.art-carousel__arrow--next');
+      if (!track || slides.length < 2) return;
+      /* offsetLeft is layout-stable; clientWidth can read 0 before the first
+         reflow, which would make scroll math NaN. */
+      function current() {
+        var best = 0, bestDist = Infinity;
+        slides.forEach(function(s, i) {
+          var d = Math.abs(s.offsetLeft - track.scrollLeft);
+          if (d < bestDist) { bestDist = d; best = i; }
+        });
+        return best;
+      }
+      function go(i) {
+        i = Math.max(0, Math.min(slides.length - 1, i));
+        track.scrollTo({ left: slides[i].offsetLeft, behavior: 'smooth' });
+      }
+      function update() {
+        var c = current();
+        dots.forEach(function(d, i) { d.classList.toggle('is-active', i === c); });
+        if (prev) prev.disabled = c <= 0;
+        if (next) next.disabled = c >= slides.length - 1;
+      }
+      if (prev) prev.addEventListener('click', function() { go(current() - 1); });
+      if (next) next.addEventListener('click', function() { go(current() + 1); });
+      dots.forEach(function(d, i) { d.addEventListener('click', function() { go(i); }); });
+      var raf;
+      track.addEventListener('scroll', function() {
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(update);
+      });
+      update();
+      window.addEventListener('load', update);
     });
 
     /* ---- Horizontal timeline animation ---- */
