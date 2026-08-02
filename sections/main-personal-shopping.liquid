@@ -863,6 +863,9 @@
             <label class="ps-label" for="ps-notes">Notes (condition, size, material, hardware)</label>
           </div>
 
+          {{- '<!-- bot-trap -->' -}}
+          <input type="text" name="website" id="ps-website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
+
           <button type="submit" class="ps-submit">Submit sourcing request</button>
 
           {%- if section.settings.form_note != blank -%}
@@ -1193,7 +1196,8 @@
           itemName:     document.getElementById('ps-item').value,
           notes:        document.getElementById('ps-notes').value,
           images:       images,
-          customerId:   window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null
+          customerId:   window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null,
+          _hp:          document.getElementById('ps-website').value
         };
 
         fetch('https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/submit', {
