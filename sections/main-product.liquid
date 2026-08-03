@@ -2677,6 +2677,20 @@
 }
 </script>
 
+<script>
+(function() {
+  var VIEW_ENDPOINT = 'https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/views';
+  var productId = '{{ product.id }}';
+  if (!productId) return;
+  fetch(VIEW_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId: productId }),
+    keepalive: true
+  }).catch(function() {});
+})();
+</script>
+
 {% schema %}
 {
   "name": "Product page",
