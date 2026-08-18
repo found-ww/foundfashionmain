@@ -342,12 +342,14 @@
 
       {%- comment -%} CTA row: Add to cart only — Offerly injects its button automatically {%- endcomment -%}
       {%- assign is_high_jewellery = false -%}
+      {%- assign is_sourcing = false -%}
       {%- for tag in product.tags -%}
         {%- assign tag_downcase = tag | downcase -%}
-        {%- if tag_downcase == 'high jewellery' or tag_downcase == 'sourcing' -%}{%- assign is_high_jewellery = true -%}{%- break -%}{%- endif -%}
+        {%- if tag_downcase == 'high jewellery' -%}{%- assign is_high_jewellery = true -%}{%- endif -%}
+        {%- if tag_downcase == 'sourcing' -%}{%- assign is_sourcing = true -%}{%- endif -%}
       {%- endfor -%}
 
-      {%- if is_high_jewellery -%}
+      {%- if is_high_jewellery or is_sourcing -%}
         {%- assign wa_product_url = shop.url | append: product.url -%}
         {%- assign wa_message = "Hi, I'm interested in " | append: product.title | append: ". " | append: wa_product_url | url_encode -%}
         <div class="ppv1-cta-row">
@@ -356,7 +358,7 @@
              target="_blank"
              rel="noopener"
              style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;">
-            MESSAGE OUR TEAM &bull; {{ product.price | money }}
+            MESSAGE OUR TEAM{%- if is_high_jewellery -%} &bull; {{ product.price | money }}{%- endif -%}
           </a>
         </div>
       {%- else -%}
@@ -2228,7 +2230,7 @@
 {%- comment -%} Sticky ATC bar (mobile only) — two-row layout {%- endcomment -%}
 <div class="ppv1-sticky-bar" id="ppv1-sticky-bar">
   <div class="ppv1-sticky-bar__actions">
-    {%- if is_high_jewellery -%}
+    {%- if is_high_jewellery or is_sourcing -%}
       {%- assign wa_product_url_sticky = shop.url | append: product.url -%}
       {%- assign wa_message_hj_sticky = "Hi, I'm interested in " | append: product.title | append: ". " | append: wa_product_url_sticky | url_encode -%}
       <a href="https://wa.me/447405520466?text={{ wa_message_hj_sticky }}"
@@ -2236,7 +2238,7 @@
          target="_blank"
          rel="noopener"
          style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;">
-        MESSAGE OUR TEAM &bull; {{ product.price | money }}
+        MESSAGE OUR TEAM{%- if is_high_jewellery -%} &bull; {{ product.price | money }}{%- endif -%}
       </a>
     {%- elsif product.selected_or_first_available_variant.available -%}
       {%- form 'product', product, class: 'ppv1-sticky-form' -%}
