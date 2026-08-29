@@ -316,6 +316,11 @@ window.addEventListener('load', function() {
 
 
     <!-- Found Fashion live chat -->
+    {%- if customer -%}
+    <script>
+      window.FF_CHAT_CUSTOMER = { id: {{ customer.id | json }}, email: {{ customer.email | json }}, name: {{ customer.name | json }} };
+    </script>
+    {%- endif -%}
     <script src="https://admin.found-fashion.com/api/chat-widget" defer></script>
 </body>
 </html>
