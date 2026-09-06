@@ -313,7 +313,7 @@ window.addEventListener('load', function() {
     <!-- Found Fashion live chat -->
     {%- if customer -%}
     <script>
-      window.FF_CHAT_CUSTOMER = { id: {{ customer.id | json }}, email: {{ customer.email | json }}, name: {{ customer.name | json }} };
+      window.FF_CHAT_CUSTOMER = { id: {{ customer.id | json }}, email: {{ customer.email | json }}, name: {{ customer.name | json }}, sig: "{{ customer.id | append: ':' | append: customer.email | hmac_sha256: shop.metafields.found_fashion.chat_secret.value }}" };
     </script>
     {%- endif -%}
     <script src="https://admin.found-fashion.com/api/chat-widget" defer></script>
