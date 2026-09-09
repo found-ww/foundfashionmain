@@ -2144,6 +2144,7 @@
 </script>
 
 {%- comment -%} Make an Offer modal {%- endcomment -%}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <div class="ff-offer-overlay" id="ff-offer-overlay" role="dialog" aria-modal="true" aria-label="Make an offer">
   <div class="ff-offer-modal" id="ff-offer-modal">
     <div class="ff-offer-modal__head">
@@ -2211,6 +2212,7 @@
           <span>Create a Found Fashion account</span>
         </label>
         {%- endunless -%}
+        <div id="ff-offer-turnstile" style="margin:4px 0 12px;"></div>
         <button type="button" class="ff-offer-submit" id="ff-offer-submit">SUBMIT OFFER</button>
         <p class="ff-offer-note">Our team will review your offer and respond within 48 hours.</p>
       </div>
@@ -2471,6 +2473,7 @@
     btn.addEventListener('click', function() {
       document.getElementById('ff-offer-overlay').classList.add('is-open');
       document.body.style.overflow = 'hidden';
+      (function renderTs(){ if(!window.turnstile){ return void setTimeout(renderTs,300); } if(window.__ffOfferTsId==null){ window.__ffOfferTsId=turnstile.render('#ff-offer-turnstile',{sitekey:'0x4AAAAAAEuKKcQLPKhiinzM'}); } else { turnstile.reset(window.__ffOfferTsId); } })();
     });
   });
 })();
@@ -2609,7 +2612,8 @@
         productId: productId,
         variantId: variantId,
         currency: {{ cart.currency.iso_code | json }},
-        customerId: window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null
+        customerId: window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null,
+        turnstileToken: (window.turnstile && window.__ffOfferTsId!=null) ? turnstile.getResponse(window.__ffOfferTsId) : ''
       })
     })
     .then(function(r) { return r.json(); })
