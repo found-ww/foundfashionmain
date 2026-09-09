@@ -863,6 +863,8 @@
             <label class="ps-label" for="ps-notes">Notes (condition, size, material, hardware)</label>
           </div>
 
+          <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAEuKKcQLPKhiinzM" style="margin:0 0 16px;"></div>
           <button type="submit" class="ps-submit">Submit sourcing request</button>
 
           {%- if section.settings.form_note != blank -%}
@@ -1193,7 +1195,8 @@
           itemName:     document.getElementById('ps-item').value,
           notes:        document.getElementById('ps-notes').value,
           images:       images,
-          customerId:   window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null
+          customerId:   window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null,
+          turnstileToken: (window.turnstile && turnstile.getResponse()) || ''
         };
 
         fetch('https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/submit', {

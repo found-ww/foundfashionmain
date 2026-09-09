@@ -596,6 +596,8 @@
 
         <div class="sai-nav">
           <button class="sai-btn sai-btn--secondary" data-back="4">Back</button>
+          <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+          <div class="cf-turnstile" data-sitekey="0x4AAAAAAEuKKcQLPKhiinzM" style="margin:0 0 16px;"></div>
           <button class="sai-btn sai-btn--primary" id="sai-submit">Submit item</button>
           <span class="sai-progress">Step 5 of 5</span>
         </div>
@@ -882,7 +884,8 @@
       email: getVal('sai-email'),
       whatsapp: getVal('sai-whatsapp'),
       country: country,
-      images: []
+      images: [],
+      turnstileToken: (window.turnstile && turnstile.getResponse()) || ''
     };
 
     // Convert photos to base64
