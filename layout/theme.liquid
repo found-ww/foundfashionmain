@@ -219,6 +219,39 @@ window.addEventListener('load', function() {
 
     {% render 'microdata-schema' %}
   {% render 'bon-loyalty' %}
+  <style>
+    /* The chat widget pins itself to the bottom of the screen, where it lands on
+       top of the mobile sticky bar's buttons: below 768px it pins .ff-launch
+       directly, so its own data-cartbar lift (--ff-gap-bottom on #ff) never
+       reaches it. Lift it by the bar's measured height instead
+       (--theme-sticky-bar-height, set on <html> at runtime; unset = no bar). */
+    @media screen and (max-width: 999px) {
+      #ff {
+        bottom: calc(var(--theme-sticky-bar-height, 0px) + 24px) !important;
+      }
+    }
+
+    @media screen and (max-width: 768px) {
+      #ff .ff-launch {
+        bottom: calc(var(--theme-sticky-bar-height, 0px) + 16px) !important;
+      }
+    }
+
+    /* Keep floating UI clear of an open drawer (cart / menu / filters) so its
+       footer buttons — checkout especially — stay visible and clickable.
+       The sticky bar is z-index 999 and the chat widget higher still, against
+       the drawer's z-index 20. */
+    html.drawer-open .ppv1-sticky-bar,
+    html.drawer-open .cl-sticky-bar {
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    html.drawer-open #ff {
+      display: none !important;
+    }
+  </style>
 </head>
 
   {%- capture classes -%}features--heading-{{ settings.heading_size }}{%- endcapture -%}
@@ -317,6 +350,51 @@ window.addEventListener('load', function() {
     </script>
     {%- endif -%}
     <script src="https://admin.found-fashion.com/api/chat-widget" defer></script>
+
+{%- comment -%} Flag open drawers on <html> so fixed overlays can step aside {%- endcomment -%}
+<script>
+(function() {
+  function syncDrawerState() {
+    var isOpen = !!document.querySelector('.Drawer[aria-hidden="false"]');
+    document.documentElement.classList.toggle('drawer-open', isOpen);
+  }
+
+  function syncStickyBarHeight() {
+    var bar = document.querySelector('.ppv1-sticky-bar, .cl-sticky-bar');
+    if (!bar || !bar.offsetHeight) return; /* no sticky bar here — keep the CSS fallback */
+    document.documentElement.style.setProperty('--theme-sticky-bar-height', bar.offsetHeight + 'px');
+  }
+
+  function init() {
+    syncStickyBarHeight();
+    window.addEventListener('resize', syncStickyBarHeight);
+
+    var bar = document.querySelector('.ppv1-sticky-bar, .cl-sticky-bar');
+    if (bar && window.ResizeObserver) {
+      new ResizeObserver(syncStickyBarHeight).observe(bar);
+    }
+
+    if (!window.MutationObserver) return;
+
+    /* Watched on the whole document so drawers re-rendered by a section
+       (cart, collection filters) keep working */
+    new MutationObserver(syncDrawerState).observe(document.documentElement, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['aria-hidden']
+    });
+    syncDrawerState();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
 </body>
 </html>
         <!-- Start-MakeAnOffer version: 7 -->
