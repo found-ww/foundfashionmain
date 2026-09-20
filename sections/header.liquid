@@ -329,12 +329,10 @@ HEADER CONTENT
                                     <a href="{{ product.url }}" class="FoundStrip__Card FoundStrip__Card--soldout">
                                       <div class="FoundStrip__ImageWrap">
                                         {%- if product.featured_media -%}
-                                          {%- assign image_url = product.featured_media | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-                                          <img class="FoundStrip__Img Image--lazyLoad Image--fadeIn"
-                                               data-src="{{ image_url }}"
-                                               data-widths="[300, 400, 600]"
-                                               data-sizes="auto"
-                                               alt="{{ product.featured_media.alt | default: product.title | escape }}">
+                                          <img class="FoundStrip__Img"
+                                               src="{{ product.featured_media | img_url: '400x' }}"
+                                               alt="{{ product.featured_media.alt | default: product.title | escape }}"
+                                               loading="lazy">
                                         {%- endif -%}
                                       </div>
                                       <div class="FoundStrip__Info">
