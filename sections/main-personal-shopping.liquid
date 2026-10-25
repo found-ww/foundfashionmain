@@ -584,6 +584,34 @@
   .ps-sourcing__wa-num:focus { border-color: #9a8f86; }
   .ps-sourcing__wa-num::placeholder { color: #b5ada5; }
 
+  /* Budget: currency + maximum figure, hint, flexible checkbox */
+  .ps-sourcing__budget { margin-bottom: 16px; }
+  .ps-sourcing__budget-row { display: flex; }
+  .ps-sourcing__budget-row .ps-sourcing__cc { min-width: 84px; }
+  .ps-sourcing__budget-row .ps-sourcing__wa-num.ps-error { border-color: #c0392b; }
+  .ps-sourcing__budget-hint {
+    font-size: 11px;
+    color: #9a8f86;
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+  .ps-sourcing__flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #6b6259;
+    cursor: pointer;
+  }
+  .ps-sourcing__flex input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: #3d3530;
+    cursor: pointer;
+  }
+
   /* Country select */
   .ps-sourcing__select-wrap {
     position: relative;
@@ -847,6 +875,33 @@
           <div class="ps-field">
             <input type="text" id="ps-item" class="ps-input" name="contact[Item Name]" placeholder=" ">
             <label class="ps-label" for="ps-item">Item Name</label>
+          </div>
+
+          <div class="ps-sourcing__budget">
+            <div class="ps-sourcing__budget-row">
+              <select id="ps-budget-currency" class="ps-sourcing__cc" name="contact[Budget Currency]" aria-label="Budget currency">
+                <option value="GBP">GBP £</option>
+                <option value="USD">USD $</option>
+                <option value="EUR">EUR €</option>
+                <option value="AED">AED</option>
+                <option value="HKD">HKD</option>
+                <option value="CNY">CNY ¥</option>
+                <option value="SGD">SGD</option>
+                <option value="CHF">CHF</option>
+                <option value="JPY">JPY ¥</option>
+                <option value="AUD">AUD</option>
+                <option value="CAD">CAD</option>
+                <option value="SAR">SAR</option>
+                <option value="QAR">QAR</option>
+                <option value="KWD">KWD</option>
+              </select>
+              <input type="text" id="ps-budget" class="ps-sourcing__wa-num" name="contact[Maximum Budget]" placeholder="Maximum budget" inputmode="numeric" autocomplete="off" aria-describedby="ps-budget-hint">
+            </div>
+            <p class="ps-sourcing__budget-hint" id="ps-budget-hint">The most you&rsquo;d be comfortable paying, including fees.</p>
+            <label class="ps-sourcing__flex">
+              <input type="checkbox" id="ps-budget-flexible" name="contact[Budget Flexible]">
+              I&rsquo;m flexible for the right piece
+            </label>
           </div>
 
           <div class="ps-field ps-field--file">
@@ -1131,6 +1186,32 @@
     });
   });
 
+  /* ── Budget: thousands separators as they type; currency follows Country until picked ── */
+  var budgetInput = document.getElementById('ps-budget');
+  var budgetCurrency = document.getElementById('ps-budget-currency');
+  if (budgetInput) budgetInput.addEventListener('input', function() {
+    var digits = budgetInput.value.replace(/[^0-9]/g, '').slice(0, 9);
+    budgetInput.value = digits ? Number(digits).toLocaleString('en-GB') : '';
+    budgetInput.classList.remove('ps-error');
+    var err = budgetInput.closest('.ps-sourcing__budget').querySelector('.ps-field__error');
+    if (err) err.remove();
+  });
+  var COUNTRY_CURRENCY = {
+    'United Kingdom': 'GBP', 'United States': 'USD', 'United Arab Emirates': 'AED', 'China': 'CNY', 'Hong Kong': 'HKD',
+    'Singapore': 'SGD', 'Switzerland': 'CHF', 'Japan': 'JPY', 'Australia': 'AUD', 'Canada': 'CAD',
+    'Saudi Arabia': 'SAR', 'Qatar': 'QAR', 'Kuwait': 'KWD',
+    'Austria': 'EUR', 'Belgium': 'EUR', 'Croatia': 'EUR', 'Cyprus': 'EUR', 'Estonia': 'EUR', 'Finland': 'EUR', 'France': 'EUR',
+    'Germany': 'EUR', 'Greece': 'EUR', 'Ireland': 'EUR', 'Italy': 'EUR', 'Latvia': 'EUR', 'Lithuania': 'EUR', 'Luxembourg': 'EUR',
+    'Monaco': 'EUR', 'Netherlands': 'EUR', 'Portugal': 'EUR', 'Spain': 'EUR'
+  };
+  var currencyPicked = false;
+  if (budgetCurrency) budgetCurrency.addEventListener('change', function() { currencyPicked = true; });
+  var countrySelect = document.getElementById('ps-country');
+  if (countrySelect && budgetCurrency) countrySelect.addEventListener('change', function() {
+    var cc = COUNTRY_CURRENCY[countrySelect.value];
+    if (cc && !currencyPicked) budgetCurrency.value = cc;
+  });
+
   /* ── Form validation ── */
   function showError(input, message) {
     input.classList.add('ps-error');
@@ -1161,6 +1242,18 @@
       var el = document.getElementById(f.id);
       if (el && !el.value.trim()) { showError(el, f.msg); valid = false; }
     });
+    var budget = document.getElementById('ps-budget');
+    if (budget && !budget.value.replace(/[^0-9]/g, '')) {
+      budget.classList.add('ps-error');
+      var wrap = budget.closest('.ps-sourcing__budget');
+      if (!wrap.querySelector('.ps-field__error')) {
+        var berr = document.createElement('span');
+        berr.className = 'ps-field__error';
+        berr.textContent = 'Maximum budget is required';
+        wrap.querySelector('.ps-sourcing__budget-row').insertAdjacentElement('afterend', berr);
+      }
+      valid = false;
+    }
     var email = document.getElementById('ps-email');
     if (email && email.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
       showError(email, 'Please enter a valid email');
@@ -1194,6 +1287,9 @@
           brand:        document.getElementById('ps-brand').value,
           itemName:     document.getElementById('ps-item').value,
           notes:        document.getElementById('ps-notes').value,
+          budgetAmount:   document.getElementById('ps-budget').value.replace(/[^0-9]/g, ''),
+          budgetCurrency: document.getElementById('ps-budget-currency').value,
+          budgetFlexible: document.getElementById('ps-budget-flexible').checked,
           images:       images,
           customerId:   window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null,
           turnstileToken: (window.turnstile && turnstile.getResponse()) || ''
