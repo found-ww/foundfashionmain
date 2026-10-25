@@ -584,17 +584,11 @@
   .ps-sourcing__wa-num:focus { border-color: #9a8f86; }
   .ps-sourcing__wa-num::placeholder { color: #b5ada5; }
 
-  /* Budget: currency + maximum figure, hint, flexible checkbox */
+  /* Budget: currency + maximum figure, flexible checkbox */
   .ps-sourcing__budget { margin-bottom: 16px; }
   .ps-sourcing__budget-row { display: flex; }
   .ps-sourcing__budget-row .ps-sourcing__cc { min-width: 84px; }
   .ps-sourcing__budget-row .ps-sourcing__wa-num.ps-error { border-color: #c0392b; }
-  .ps-sourcing__budget-hint {
-    font-size: 11px;
-    color: #9a8f86;
-    margin-top: 6px;
-    letter-spacing: 0.02em;
-  }
   .ps-sourcing__flex {
     display: flex;
     align-items: center;
@@ -895,9 +889,8 @@
                 <option value="QAR">QAR</option>
                 <option value="KWD">KWD</option>
               </select>
-              <input type="text" id="ps-budget" class="ps-sourcing__wa-num" name="contact[Maximum Budget]" placeholder="Maximum budget" inputmode="numeric" autocomplete="off" aria-describedby="ps-budget-hint">
+              <input type="text" id="ps-budget" class="ps-sourcing__wa-num" name="contact[Maximum Budget]" placeholder="Maximum budget" inputmode="numeric" autocomplete="off">
             </div>
-            <p class="ps-sourcing__budget-hint" id="ps-budget-hint">The most you&rsquo;d be comfortable paying, including fees.</p>
             <label class="ps-sourcing__flex">
               <input type="checkbox" id="ps-budget-flexible" name="contact[Budget Flexible]">
               I&rsquo;m flexible for the right piece
