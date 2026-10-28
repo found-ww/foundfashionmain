@@ -4,7 +4,7 @@
  * The order confirmation (thank-you) page is rendered by Shopify checkout, not
  * by this theme, so this code cannot live in a .liquid file. Install it in:
  *   Shopify admin → Settings → Customer events → Add custom pixel
- * Paste this file in, set GA4_MEASUREMENT_ID, then Save and Connect.
+ * Paste this file in, then Save and Connect.
  *
  * Custom pixels run in a sandbox, so gtag has to be loaded here even though
  * the storefront already loads it.
@@ -13,7 +13,7 @@
  * already sends `purchase` to GA4 — don't run both or revenue is doubled.
  */
 
-const GA4_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // TODO: replace with the store's GA4 ID
+const GA4_MEASUREMENT_ID = 'G-M18B4H7096';
 
 const script = document.createElement('script');
 script.setAttribute('src', 'https://www.googletagmanager.com/gtag/js?id=' + GA4_MEASUREMENT_ID);
