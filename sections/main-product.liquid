@@ -351,18 +351,23 @@
 
       {%- comment -%}
         Stock / tag hierarchy (keep in sync with snippets/product-item.liquid):
-        1. Tagged "Sourcing" (any stock)        -> MESSAGE OUR TEAM, no price
-        2. Out of stock                         -> SOLD, no price (existing sold UI)
+        1. Out of stock (overrides tags)        -> SOLD, no price (existing sold UI)
+        2. In stock + "Sourcing"                -> MESSAGE OUR TEAM, no price
         3. In stock + "Request Only"            -> MESSAGE OUR TEAM • price
         4. In stock, untagged                   -> Add to cart / Make an offer
         "Sourcing" wins when a product carries both tags.
       {%- endcomment -%}
+      {%- assign show_sourcing_cta = false -%}
       {%- assign show_request_price = false -%}
-      {%- if is_request_only and is_sourcing == false and product.available -%}
-        {%- assign show_request_price = true -%}
+      {%- if product.available -%}
+        {%- if is_sourcing -%}
+          {%- assign show_sourcing_cta = true -%}
+        {%- elsif is_request_only -%}
+          {%- assign show_request_price = true -%}
+        {%- endif -%}
       {%- endif -%}
 
-      {%- if is_sourcing or show_request_price -%}
+      {%- if show_sourcing_cta or show_request_price -%}
         {%- assign wa_product_url = shop.url | append: product.url -%}
         {%- assign wa_message = "Hi, I'm interested in " | append: product.title | append: ". " | append: wa_product_url | url_encode -%}
         <div class="ppv1-cta-row">
@@ -2245,7 +2250,7 @@
 {%- comment -%} Sticky ATC bar (mobile only) — two-row layout {%- endcomment -%}
 <div class="ppv1-sticky-bar" id="ppv1-sticky-bar">
   <div class="ppv1-sticky-bar__actions">
-    {%- if is_sourcing or show_request_price -%}
+    {%- if show_sourcing_cta or show_request_price -%}
       {%- assign wa_product_url_sticky = shop.url | append: product.url -%}
       {%- assign wa_message_hj_sticky = "Hi, I'm interested in " | append: product.title | append: ". " | append: wa_product_url_sticky | url_encode -%}
       <a href="https://wa.me/447405520466?text={{ wa_message_hj_sticky }}"

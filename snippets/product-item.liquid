@@ -1,7 +1,7 @@
 {%- comment -%}
   Stock / tag hierarchy (keep in sync with sections/main-product.liquid):
-  1. Tagged "Sourcing" (any stock)  -> "Sourcing available" label, no price
-  2. Out of stock                   -> "Sold" label, no price
+  1. Out of stock (overrides tags)  -> "Sold" label, no price
+  2. In stock + "Sourcing"          -> "Sourcing available" label, no price
   3. In stock (incl. "Request Only") -> normal card
 {%- endcomment -%}
 {%- assign item_is_sourcing = false -%}
@@ -76,7 +76,7 @@
           {%- endif -%}
         {%- endfor -%}
 
-        {%- if item_is_sourcing -%}
+        {%- if product.available and item_is_sourcing -%}
           <span class="ProductItem__Label ProductItem__Label--sourcing Heading Text--subdued">{{ 'product.labels.sourcing_available' | t }}</span>
         {%- elsif product.available -%}
           {%- if product.compare_at_price > product.price -%}
