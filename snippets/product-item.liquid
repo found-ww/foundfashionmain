@@ -1,3 +1,17 @@
+{%- comment -%}
+  Stock / tag hierarchy (keep in sync with sections/main-product.liquid):
+  1. Out of stock (overrides tags)  -> "Sold" label, no price
+  2. In stock + "Sourcing"          -> "Sourcing available" label, no price
+  3. In stock (incl. "Request Only") -> normal card
+{%- endcomment -%}
+{%- assign item_is_sourcing = false -%}
+{%- for tag in product.tags -%}
+  {%- assign item_tag_downcase = tag | downcase -%}
+  {%- if item_tag_downcase == 'sourcing' -%}{%- assign item_is_sourcing = true -%}{%- break -%}{%- endif -%}
+{%- endfor -%}
+{%- assign item_hide_price = false -%}
+{%- if item_is_sourcing or product.available == false -%}{%- assign item_hide_price = true -%}{%- endif -%}
+
 <div class="ProductItem {% if use_horizontal %}ProductItem--horizontal{% endif %}">
   <div class="ProductItem__Wrapper">
     {%- comment -%}
@@ -62,7 +76,9 @@
           {%- endif -%}
         {%- endfor -%}
 
-        {%- if product.available -%}
+        {%- if product.available and item_is_sourcing -%}
+          <span class="ProductItem__Label ProductItem__Label--sourcing Heading Text--subdued">{{ 'product.labels.sourcing_available' | t }}</span>
+        {%- elsif product.available -%}
           {%- if product.compare_at_price > product.price -%}
             <span class="ProductItem__Label ProductItem__Label--onSale Heading Text--subdued">{{ 'product.labels.on_sale' | t }}</span>
           {%- endif -%}
@@ -153,7 +169,7 @@
           {{- color_swatch_list -}}
         {%- endif -%}
 
-        {%- if product.template_suffix != 'coming-soon' -%}
+        {%- if product.template_suffix != 'coming-soon' and item_hide_price == false -%}
           <div class="ProductItem__PriceList {% if show_price_on_hover %}ProductItem__PriceList--showOnHover{% endif %} Heading">
             {%- if product.compare_at_price > product.price -%}
               {%- if settings.currency_code_enabled -%}
