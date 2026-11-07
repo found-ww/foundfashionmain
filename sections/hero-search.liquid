@@ -1,0 +1,718 @@
+{%- comment -%}
+  Hero with search
+  ----------------
+  A homepage hero built around a large search bar, inspired by cosmos.so.
+
+  - The heading is "<prefix> <rotating phrase>", where each phrase is a "phrase" block
+    with its own link and two product thumbnails. The prefix stays static so the H1 reads
+    the same for search engines; only the rotating part is announced to screen readers.
+  - The search bar is a real <form> that posts to the theme's search page, so it works
+    before JavaScript loads. The placeholder cycles through the phrases with JS, but the
+    first phrase is rendered server-side as the real placeholder attribute.
+  - "Chip" blocks render quick links (brands, categories) under the search bar.
+  - Rotation is skipped when the visitor prefers reduced motion.
+{%- endcomment -%}
+
+{%- liquid
+  assign phrases = section.blocks | where: 'type', 'phrase'
+  assign chips = section.blocks | where: 'type', 'chip'
+  assign first_phrase = phrases | first
+  assign search_label = 'search.general.input_placeholder' | t
+
+  if first_phrase
+    assign placeholder = section.settings.placeholder_prefix | append: ' ' | append: first_phrase.settings.text | strip
+  else
+    assign placeholder = search_label
+  endif
+-%}
+
+<section id="section-{{ section.id }}"
+         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %}"
+         data-section-id="{{ section.id }}"
+         data-section-type="hero-search"
+         data-rotate-interval="{{ section.settings.rotate_speed | times: 1000 }}"
+         data-placeholder-prefix="{{ section.settings.placeholder_prefix | escape }}">
+
+  {%- if section.settings.image -%}
+    <div class="HeroSearch__Background" aria-hidden="true">
+      <img class="HeroSearch__BackgroundImage"
+           src="{{ section.settings.image | img_url: '1800x' }}"
+           srcset="{{ section.settings.image | img_url: '800x' }} 800w, {{ section.settings.image | img_url: '1200x' }} 1200w, {{ section.settings.image | img_url: '1800x' }} 1800w, {{ section.settings.image | img_url: '2400x' }} 2400w"
+           sizes="100vw"
+           fetchpriority="high"
+           loading="eager"
+           alt="">
+    </div>
+  {%- endif -%}
+
+  <div class="HeroSearch__Inner Container">
+    {%- if section.settings.subheading != blank -%}
+      <p class="HeroSearch__SubHeading Heading u-h6">{{ section.settings.subheading | escape }}</p>
+    {%- endif -%}
+
+    {%- if request.page_type == 'index' -%}
+      <h1 class="HeroSearch__Heading Heading">
+    {%- else -%}
+      <h2 class="HeroSearch__Heading Heading">
+    {%- endif -%}
+      <span class="HeroSearch__HeadingPrefix">{{ section.settings.heading | escape }}</span>
+
+      {%- if phrases.size > 0 -%}
+        <span class="HeroSearch__Phrases" aria-live="polite" aria-atomic="true">
+          {%- for block in phrases -%}
+            {%- assign link = block.settings.link -%}
+            {%- if link == blank -%}
+              {%- assign encoded_phrase = block.settings.text | url_encode -%}
+              {%- assign link = routes.search_url | append: '?q=' | append: encoded_phrase | append: '&type=product' -%}
+            {%- endif -%}
+            <a href="{{ link }}"
+               class="HeroSearch__Phrase {% if forloop.first %}is-active{% endif %}"
+               data-phrase="{{ block.settings.text | escape }}"
+               {% unless forloop.first %}aria-hidden="true" tabindex="-1"{% endunless %}
+               {{ block.shopify_attributes }}>
+              <span class="HeroSearch__PhraseText">{{ block.settings.text | escape }}</span>
+              {%- if block.settings.image_1 or block.settings.image_2 -%}
+                <span class="HeroSearch__Thumbs" aria-hidden="true">
+                  {%- if block.settings.image_1 -%}
+                    <span class="HeroSearch__Thumb HeroSearch__Thumb--left">
+                      <img src="{{ block.settings.image_1 | img_url: '160x160', crop: 'center' }}" loading="lazy" width="80" height="80" alt="">
+                    </span>
+                  {%- endif -%}
+                  {%- if block.settings.image_2 -%}
+                    <span class="HeroSearch__Thumb HeroSearch__Thumb--right">
+                      <img src="{{ block.settings.image_2 | img_url: '160x160', crop: 'center' }}" loading="lazy" width="80" height="80" alt="">
+                    </span>
+                  {%- endif -%}
+                </span>
+              {%- endif -%}
+            </a>
+          {%- endfor -%}
+        </span>
+      {%- endif -%}
+    {%- if request.page_type == 'index' -%}
+      </h1>
+    {%- else -%}
+      </h2>
+    {%- endif -%}
+
+    <form action="{{ routes.search_url }}" method="get" role="search" class="HeroSearch__Form">
+      <input type="hidden" name="type" value="product">
+      <input type="hidden" name="options[prefix]" value="last">
+
+      <label for="HeroSearch-{{ section.id }}-input" class="u-visually-hidden">{{ search_label }}</label>
+
+      <div class="HeroSearch__Bar">
+        <span class="HeroSearch__BarIcon" aria-hidden="true">{%- render 'icon' with 'search-desktop' -%}</span>
+
+        <input id="HeroSearch-{{ section.id }}-input"
+               class="HeroSearch__Input"
+               type="search"
+               name="q"
+               placeholder="{{ placeholder | escape }}"
+               autocomplete="off"
+               autocorrect="off"
+               autocapitalize="off"
+               spellcheck="false">
+
+        <button type="submit" class="HeroSearch__Submit" aria-label="{{ 'search.general.title' | t }}">
+          {%- render 'icon' with 'arrow-right' -%}
+        </button>
+      </div>
+    </form>
+
+    {%- if chips.size > 0 -%}
+      <nav class="HeroSearch__Chips" aria-label="{{ section.settings.chips_label | escape }}">
+        {%- if section.settings.chips_label != blank -%}
+          <span class="HeroSearch__ChipsLabel Text--subdued">{{ section.settings.chips_label | escape }}</span>
+        {%- endif -%}
+        {%- for block in chips -%}
+          <a href="{{ block.settings.link }}" class="HeroSearch__Chip" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</a>
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    {%- if section.settings.button_text != blank -%}
+      <a href="{{ section.settings.button_link }}" class="HeroSearch__Button Button Button--primary">{{ section.settings.button_text | escape }}</a>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  #section-{{ section.id }} {
+    --hero-text: {{ section.settings.text_color }};
+    --hero-text-rgb: {{ section.settings.text_color | color_extract: 'red' }}, {{ section.settings.text_color | color_extract: 'green' }}, {{ section.settings.text_color | color_extract: 'blue' }};
+    --hero-background: {{ section.settings.background }};
+    --hero-bar-background: {{ section.settings.bar_background }};
+    --hero-bar-text: {{ section.settings.bar_text_color }};
+    --hero-bar-text-rgb: {{ section.settings.bar_text_color | color_extract: 'red' }}, {{ section.settings.bar_text_color | color_extract: 'green' }}, {{ section.settings.bar_text_color | color_extract: 'blue' }};
+    --hero-accent: {{ section.settings.accent_color }};
+    --hero-accent-text: {{ section.settings.accent_text_color }};
+    --hero-min-height: {{ section.settings.min_height }}vh;
+  }
+
+  .HeroSearch {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--hero-min-height);
+    padding: 80px 0 64px;
+    background: var(--hero-background);
+    color: var(--hero-text);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .HeroSearch__Background {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .HeroSearch__BackgroundImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ section.settings.image_position }};
+  }
+
+  .HeroSearch--overlay .HeroSearch__Background::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.45) 100%);
+  }
+
+  .HeroSearch__Inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 960px;
+    text-align: center;
+  }
+
+  .HeroSearch__SubHeading {
+    margin-bottom: 18px;
+    color: var(--hero-text);
+    opacity: 0.75;
+  }
+
+  .HeroSearch__Heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 32px;
+    color: var(--hero-text);
+    font-size: clamp(34px, 6vw, 68px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .HeroSearch__Phrases {
+    position: relative;
+    display: grid;
+    width: 100%;
+    min-height: 1.25em;
+    justify-items: center;
+  }
+
+  .HeroSearch__Phrase {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    max-width: 100%;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 320ms ease, transform 320ms ease;
+    pointer-events: none;
+  }
+
+  .HeroSearch__Phrase.is-active {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .HeroSearch__Phrase.is-leaving {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  .HeroSearch__PhraseText {
+    border-bottom: 2px solid rgba(var(--hero-text-rgb), 0.35);
+    transition: border-color 150ms ease;
+  }
+
+  .HeroSearch__Phrase:hover .HeroSearch__PhraseText {
+    border-color: var(--hero-text);
+  }
+
+  .HeroSearch__Thumbs {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+  }
+
+  .HeroSearch__Thumb {
+    display: block;
+    width: 0.85em;
+    height: 0.85em;
+    border-radius: 22%;
+    border: 2px solid var(--hero-background);
+    background: rgba(var(--hero-text-rgb), 0.08);
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  .HeroSearch__Thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .HeroSearch__Thumb--left { transform: rotate(-6deg); }
+  .HeroSearch__Thumb--right { margin-left: -0.3em; transform: rotate(6deg); }
+
+  .HeroSearch__Form {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  .HeroSearch__Bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    padding: 6px 6px 6px 20px;
+    border-radius: 999px;
+    background: var(--hero-bar-background);
+    color: var(--hero-bar-text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 200ms ease, transform 200ms ease;
+  }
+
+  .HeroSearch__Bar:focus-within {
+    box-shadow: 0 0 0 2px var(--hero-bar-background), 0 0 0 4px var(--hero-accent), 0 12px 32px rgba(0, 0, 0, 0.16);
+  }
+
+  .HeroSearch__BarIcon {
+    display: inline-flex;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .HeroSearch__BarIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .HeroSearch__Input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--hero-bar-text);
+    font-family: var(--text-font-family);
+    font-size: 17px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .HeroSearch__Input::placeholder {
+    color: rgba(var(--hero-bar-text-rgb), 0.5);
+    opacity: 1;
+  }
+
+  .HeroSearch__Input::-webkit-search-decoration,
+  .HeroSearch__Input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
+
+  .HeroSearch__Submit {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--hero-accent);
+    color: var(--hero-accent-text);
+    cursor: pointer;
+    transition: transform 150ms ease, opacity 150ms ease;
+  }
+
+  .HeroSearch__Submit svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .HeroSearch__Submit:hover { transform: scale(1.05); }
+  .HeroSearch__Submit:focus-visible { outline: 2px solid var(--hero-accent); outline-offset: 2px; }
+
+  .HeroSearch__Chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    max-width: 640px;
+  }
+
+  .HeroSearch__ChipsLabel {
+    margin-right: 4px;
+    font-size: 13px;
+    color: var(--hero-text);
+    opacity: 0.7;
+  }
+
+  .HeroSearch__Chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border: 1px solid rgba(var(--hero-text-rgb), 0.3);
+    border-radius: 999px;
+    color: var(--hero-text);
+    font-size: 13px;
+    text-decoration: none;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .HeroSearch__Chip:hover,
+  .HeroSearch__Chip:focus-visible {
+    background: var(--hero-text);
+    border-color: var(--hero-text);
+    color: var(--hero-background);
+  }
+
+  .HeroSearch__Button {
+    margin-top: 28px;
+  }
+
+  @media screen and (min-width: 641px) {
+    .HeroSearch { padding: 110px 0 90px; }
+    .HeroSearch__Heading { margin-bottom: 40px; }
+    .HeroSearch__Bar { height: 68px; padding: 8px 8px 8px 26px; }
+    .HeroSearch__Input { font-size: 20px; }
+    .HeroSearch__BarIcon svg { width: 22px; height: 22px; }
+    .HeroSearch__Submit { width: 52px; height: 52px; }
+    .HeroSearch__Submit svg { width: 18px; height: 18px; }
+    .HeroSearch__Chip { font-size: 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .HeroSearch__Phrase,
+    .HeroSearch__Bar,
+    .HeroSearch__Submit,
+    .HeroSearch__Chip { transition: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    var SELECTOR = '[data-section-type="hero-search"]';
+
+    function setup(section) {
+      if (!section || section.__heroSearch) return;
+
+      var phrases = Array.prototype.slice.call(section.querySelectorAll('.HeroSearch__Phrase'));
+      var input = section.querySelector('.HeroSearch__Input');
+      var prefix = section.getAttribute('data-placeholder-prefix') || '';
+      var interval = parseInt(section.getAttribute('data-rotate-interval'), 10) || 3000;
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (phrases.length < 2 || reduceMotion) return;
+
+      var index = 0;
+      var timer = null;
+      var paused = false;
+
+      function show(next) {
+        var current = phrases[index];
+        current.classList.remove('is-active');
+        current.classList.add('is-leaving');
+        current.setAttribute('aria-hidden', 'true');
+        current.setAttribute('tabindex', '-1');
+
+        window.setTimeout(function () { current.classList.remove('is-leaving'); }, 350);
+
+        var target = phrases[next];
+        target.classList.add('is-active');
+        target.removeAttribute('aria-hidden');
+        target.removeAttribute('tabindex');
+        index = next;
+
+        // Only swap the placeholder while the field is empty and unfocused, so we never
+        // change the hint out from under someone who is typing.
+        if (input && !input.value && document.activeElement !== input) {
+          input.placeholder = (prefix + ' ' + target.getAttribute('data-phrase')).trim();
+        }
+      }
+
+      function tick() {
+        if (!paused && !document.hidden) show((index + 1) % phrases.length);
+      }
+
+      function start() {
+        if (timer) return;
+        timer = window.setInterval(tick, interval);
+      }
+
+      function stop() {
+        if (!timer) return;
+        window.clearInterval(timer);
+        timer = null;
+      }
+
+      // Pause while the visitor is hovering or focused on the rotating phrase so the link
+      // they are about to click does not disappear.
+      var phraseWrap = section.querySelector('.HeroSearch__Phrases');
+      phraseWrap.addEventListener('mouseenter', function () { paused = true; });
+      phraseWrap.addEventListener('mouseleave', function () { paused = false; });
+      phraseWrap.addEventListener('focusin', function () { paused = true; });
+      phraseWrap.addEventListener('focusout', function () { paused = false; });
+
+      start();
+
+      section.__heroSearch = { stop: stop, start: start };
+    }
+
+    function teardown(section) {
+      if (section && section.__heroSearch) {
+        section.__heroSearch.stop();
+        delete section.__heroSearch;
+      }
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll(SELECTOR), setup);
+
+    // Theme editor hooks
+    document.addEventListener('shopify:section:load', function (event) {
+      setup(event.target.querySelector(SELECTOR));
+    });
+    document.addEventListener('shopify:section:unload', function (event) {
+      teardown(event.target.querySelector(SELECTOR));
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Hero with search",
+  "class": "shopify-section--hero-search",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Sub-heading",
+      "default": "Pre-loved luxury, authenticated"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "info": "The rotating phrases from the blocks below follow this text.",
+      "default": "Find your next"
+    },
+    {
+      "type": "text",
+      "id": "placeholder_prefix",
+      "label": "Search placeholder prefix",
+      "info": "Shown before the rotating phrase inside the search bar.",
+      "default": "Search for"
+    },
+    {
+      "type": "range",
+      "id": "rotate_speed",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "unit": "sec",
+      "label": "Rotate phrases every",
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "chips_label",
+      "label": "Quick links label",
+      "default": "Popular"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Text"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Optional. 2400 x 1200px .jpg recommended. Leave empty for a solid background."
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image focal point",
+      "options": [
+        { "value": "center top", "label": "Top" },
+        { "value": "center center", "label": "Center" },
+        { "value": "center bottom", "label": "Bottom" }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "checkbox",
+      "id": "apply_overlay",
+      "label": "Apply overlay on image",
+      "info": "Improves text visibility on photos.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "label": "Minimum height",
+      "default": 70
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Background",
+      "default": "#f5f2ee"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#1c1b1b"
+    },
+    {
+      "type": "color",
+      "id": "bar_background",
+      "label": "Search bar background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "bar_text_color",
+      "label": "Search bar text",
+      "default": "#1c1b1b"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Search button background",
+      "default": "#1c1b1b"
+    },
+    {
+      "type": "color",
+      "id": "accent_text_color",
+      "label": "Search button icon",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "phrase",
+      "name": "Rotating phrase",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Phrase",
+          "default": "Birkin 25"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Where the phrase goes when clicked. Defaults to a search for the phrase."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_1",
+          "label": "Thumbnail 1",
+          "info": "Square product photo, 160 x 160px"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_2",
+          "label": "Thumbnail 2"
+        }
+      ]
+    },
+    {
+      "type": "chip",
+      "name": "Quick link",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Hermès"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "category": "Image",
+      "name": "Hero with search",
+      "settings": {},
+      "blocks": [
+        { "type": "phrase", "settings": { "text": "Birkin 25" } },
+        { "type": "phrase", "settings": { "text": "Chanel Classic Flap" } },
+        { "type": "phrase", "settings": { "text": "Cartier Love bracelet" } },
+        { "type": "chip", "settings": { "text": "Hermès" } },
+        { "type": "chip", "settings": { "text": "Chanel" } },
+        { "type": "chip", "settings": { "text": "Bags" } },
+        { "type": "chip", "settings": { "text": "Jewellery" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
