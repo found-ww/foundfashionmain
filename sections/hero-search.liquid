@@ -185,6 +185,27 @@
     text-align: center;
   }
 
+  /*
+    Entrance: the photo is already there; the words, the bar and the chips rise
+    in one after another, once, on load. Pure CSS so it needs no script.
+  */
+  @keyframes HeroSearch-rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .HeroSearch__Head,
+  .HeroSearch__Form,
+  .HeroSearch__Chips,
+  .HeroSearch__Button {
+    animation: HeroSearch-rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .HeroSearch__Head   { animation-delay: 80ms; }
+  .HeroSearch__Form   { animation-delay: 220ms; }
+  .HeroSearch__Chips  { animation-delay: 360ms; }
+  .HeroSearch__Button { animation-delay: 460ms; }
+
   .HeroSearch__Head {
     display: flex;
     flex-direction: column;
@@ -587,6 +608,10 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .HeroSearch__Head,
+    .HeroSearch__Form,
+    .HeroSearch__Chips,
+    .HeroSearch__Button { animation: none; }
     .HeroSearch__Phrase,
     .HeroSearch__Bar,
     .HeroSearch__Bar::before,
