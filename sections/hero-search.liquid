@@ -27,7 +27,7 @@
 -%}
 
 <section id="section-{{ section.id }}"
-         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %}"
+         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %} {% if section.settings.bar_style == 'glass' %}HeroSearch--glass{% endif %}"
          data-section-id="{{ section.id }}"
          data-section-type="hero-search"
          data-rotate-interval="{{ section.settings.rotate_speed | times: 1000 }}"
@@ -143,6 +143,7 @@
     --hero-text-rgb: {{ section.settings.text_color | color_extract: 'red' }}, {{ section.settings.text_color | color_extract: 'green' }}, {{ section.settings.text_color | color_extract: 'blue' }};
     --hero-background: {{ section.settings.background }};
     --hero-bar-background: {{ section.settings.bar_background }};
+    --hero-bar-background-rgb: {{ section.settings.bar_background | color_extract: 'red' }}, {{ section.settings.bar_background | color_extract: 'green' }}, {{ section.settings.bar_background | color_extract: 'blue' }};
     --hero-bar-text: {{ section.settings.bar_text_color }};
     --hero-bar-text-rgb: {{ section.settings.bar_text_color | color_extract: 'red' }}, {{ section.settings.bar_text_color | color_extract: 'green' }}, {{ section.settings.bar_text_color | color_extract: 'blue' }};
     --hero-accent: {{ section.settings.accent_color }};
@@ -404,6 +405,49 @@
     margin-top: 28px;
   }
 
+  /*
+    Glass variant: the same frosted recipe the theme uses for its mobile sticky bars
+    (main-product / main-collection): translucent white, 20px blur, hairline edge.
+  */
+  .HeroSearch--glass .HeroSearch__Bar {
+    background: rgba(var(--hero-bar-background-rgb), 0.72);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 12px 32px rgba(0, 0, 0, 0.18);
+  }
+
+  .HeroSearch--glass .HeroSearch__Bar:focus-within {
+    background: rgba(var(--hero-bar-background-rgb), 0.88);
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(var(--hero-bar-background-rgb), 0.35), 0 12px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  .HeroSearch--glass .HeroSearch__Input::placeholder {
+    color: rgba(var(--hero-bar-text-rgb), 0.6);
+  }
+
+  .HeroSearch--glass .HeroSearch__Chip {
+    background: rgba(var(--hero-text-rgb), 0.12);
+    border-color: rgba(var(--hero-text-rgb), 0.35);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .HeroSearch--glass .HeroSearch__ChipsLabel {
+    opacity: 0.85;
+  }
+
+  /* Browsers without backdrop-filter get a solid bar so the text stays readable. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .HeroSearch--glass .HeroSearch__Bar {
+      background: rgba(var(--hero-bar-background-rgb), 0.94);
+    }
+    .HeroSearch--glass .HeroSearch__Chip {
+      background: rgba(var(--hero-text-rgb), 0.2);
+    }
+  }
+
   @media screen and (min-width: 641px) {
     .HeroSearch { padding: 110px 0 90px; }
     .HeroSearch__Heading { margin-bottom: 40px; }
@@ -612,6 +656,17 @@
     {
       "type": "header",
       "content": "Colors"
+    },
+    {
+      "type": "select",
+      "id": "bar_style",
+      "label": "Search bar style",
+      "info": "Glass blurs the photo behind the bar and chips. Falls back to solid where blur is unsupported.",
+      "options": [
+        { "value": "solid", "label": "Solid" },
+        { "value": "glass", "label": "Glass" }
+      ],
+      "default": "solid"
     },
     {
       "type": "color",
