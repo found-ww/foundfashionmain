@@ -443,45 +443,86 @@
   }
 
   /*
-    Glass variant: the same frosted recipe the theme uses for its mobile sticky bars
-    (main-product / main-collection): translucent white, 20px blur, hairline edge.
+    Glass variant: a clear frosted slab over the photo. Low white tint with a
+    diagonal sheen, heavy blur, bright top edge, and the section text colour
+    for the type so it reads like etched glass rather than a white pill.
   */
   .HeroSearch--glass .HeroSearch__Bar {
-    background: rgba(var(--hero-bar-background-rgb), 0.72);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    backdrop-filter: blur(20px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 12px 32px rgba(0, 0, 0, 0.18);
+    position: relative;
+    overflow: hidden;
+    color: var(--hero-text);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.12) 55%, rgba(255, 255, 255, 0.22) 100%);
+    -webkit-backdrop-filter: blur(28px) saturate(170%);
+    backdrop-filter: blur(28px) saturate(170%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.75),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.12),
+      inset 0 0 24px rgba(255, 255, 255, 0.08),
+      0 18px 44px rgba(0, 0, 0, 0.24);
+  }
+
+  /* Specular highlight across the top half of the slab. */
+  .HeroSearch--glass .HeroSearch__Bar::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 50%;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+    pointer-events: none;
   }
 
   .HeroSearch--glass .HeroSearch__Bar:focus-within {
-    background: rgba(var(--hero-bar-background-rgb), 0.88);
-    border-color: rgba(255, 255, 255, 0.85);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(var(--hero-bar-background-rgb), 0.35), 0 12px 32px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0.2) 55%, rgba(255, 255, 255, 0.3) 100%);
+    border-color: rgba(255, 255, 255, 0.8);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+      0 0 0 3px rgba(255, 255, 255, 0.22),
+      0 18px 44px rgba(0, 0, 0, 0.26);
+  }
+
+  .HeroSearch--glass .HeroSearch__Input,
+  .HeroSearch--glass .HeroSearch__BarIcon {
+    position: relative;
+    color: var(--hero-text);
+  }
+
+  .HeroSearch--glass .HeroSearch__BarIcon {
+    opacity: 0.8;
   }
 
   .HeroSearch--glass .HeroSearch__Input::placeholder {
-    color: rgba(var(--hero-bar-text-rgb), 0.6);
+    color: rgba(var(--hero-text-rgb), 0.72);
+  }
+
+  .HeroSearch--glass .HeroSearch__Submit {
+    position: relative;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--hero-accent);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   }
 
   .HeroSearch--glass .HeroSearch__Chip {
-    background: rgba(var(--hero-text-rgb), 0.12);
-    border-color: rgba(var(--hero-text-rgb), 0.35);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
   }
 
   .HeroSearch--glass .HeroSearch__ChipsLabel {
     opacity: 0.85;
   }
 
-  /* Browsers without backdrop-filter get a solid bar so the text stays readable. */
+  /* Browsers without backdrop-filter get a darker tint so the light text stays readable. */
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .HeroSearch--glass .HeroSearch__Bar {
-      background: rgba(var(--hero-bar-background-rgb), 0.94);
+    .HeroSearch--glass .HeroSearch__Bar,
+    .HeroSearch--glass .HeroSearch__Bar:focus-within {
+      background: rgba(20, 18, 16, 0.6);
     }
     .HeroSearch--glass .HeroSearch__Chip {
-      background: rgba(var(--hero-text-rgb), 0.2);
+      background: rgba(20, 18, 16, 0.4);
     }
   }
 
