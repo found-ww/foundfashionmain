@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: glass-condition-chip-product-image
+expected_outcome: |
+  A small frosted chip is added over the main product image on sections/main-product.liquid showing the product's condition (read from the existing condition metafield/metadata the section already uses). It uses the section's ppv1- class prefix, white frost at roughly 0.75 to 0.85 alpha, 16 to 20px blur, a rgba(0,0,0,0.06) hairline, square or near-square corners, uppercase heading-font label with wide letter-spacing, Safari prefix, and fallbacks. No white rim gradients, glow, grain or hover animation. Branch created, main untouched.
