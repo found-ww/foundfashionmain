@@ -104,6 +104,9 @@
       <label for="HeroSearch-{{ section.id }}-input" class="u-visually-hidden">{{ search_label }}</label>
 
       <div class="HeroSearch__Bar">
+        {%- if section.settings.bar_style == 'glass' -%}
+          <span class="HeroSearch__BarRim" aria-hidden="true"></span>
+        {%- endif -%}
         <span class="HeroSearch__BarIcon" aria-hidden="true">{%- render 'icon' with 'search-desktop' -%}</span>
 
         <input id="HeroSearch-{{ section.id }}-input"
@@ -460,6 +463,13 @@
       inset 0 -1px 0 rgba(255, 255, 255, 0.12),
       inset 0 0 24px rgba(255, 255, 255, 0.08),
       0 18px 44px rgba(0, 0, 0, 0.24);
+    transition:
+      transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 520ms ease,
+      border-color 520ms ease,
+      background 800ms ease,
+      -webkit-backdrop-filter 800ms ease,
+      backdrop-filter 800ms ease;
   }
 
   /* Specular highlight across the top half of the slab. */
@@ -470,16 +480,81 @@
     border-radius: inherit;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
     pointer-events: none;
+    transition: opacity 800ms ease;
+  }
+
+  /*
+    Hover / focus: the slab lifts a few pixels and the frost clears so the photo
+    behind it comes into focus, while a thin highlight travels round the rim.
+    Deliberately slow: the lift takes half a second, the clear most of a second.
+  */
+  .HeroSearch--glass .HeroSearch__Bar:hover,
+  .HeroSearch--glass .HeroSearch__Bar:focus-within {
+    transform: translateY(-3px);
+    -webkit-backdrop-filter: blur(6px) saturate(130%);
+    backdrop-filter: blur(6px) saturate(130%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 55%, rgba(255, 255, 255, 0.1) 100%);
+    border-color: rgba(255, 255, 255, 0.9);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      0 26px 56px rgba(0, 0, 0, 0.3);
+  }
+
+  .HeroSearch--glass .HeroSearch__Bar:hover::before,
+  .HeroSearch--glass .HeroSearch__Bar:focus-within::before {
+    opacity: 0.4;
+  }
+
+  .HeroSearch--glass .HeroSearch__Bar:hover .HeroSearch__Input,
+  .HeroSearch--glass .HeroSearch__Bar:focus-within .HeroSearch__Input {
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  .HeroSearch--glass .HeroSearch__Bar:hover .HeroSearch__Input::placeholder,
+  .HeroSearch--glass .HeroSearch__Bar:focus-within .HeroSearch__Input::placeholder {
+    color: var(--hero-text);
   }
 
   .HeroSearch--glass .HeroSearch__Bar:focus-within {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0.2) 55%, rgba(255, 255, 255, 0.3) 100%);
-    border-color: rgba(255, 255, 255, 0.8);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
       0 0 0 3px rgba(255, 255, 255, 0.22),
-      0 18px 44px rgba(0, 0, 0, 0.26);
+      0 26px 56px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Rim highlight: a short bright arc that circles the bar while hovered. */
+  .HeroSearch__BarRim {
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 600ms ease;
+    background: conic-gradient(from var(--hero-rim-angle, 0deg), rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.9) 60deg, rgba(255, 255, 255, 0) 120deg, rgba(255, 255, 255, 0) 360deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  @property --hero-rim-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  @keyframes HeroSearch-rim {
+    to { --hero-rim-angle: 360deg; }
+  }
+
+  .HeroSearch--glass .HeroSearch__Bar:hover .HeroSearch__BarRim,
+  .HeroSearch--glass .HeroSearch__Bar:focus-within .HeroSearch__BarRim {
+    opacity: 1;
+    animation: HeroSearch-rim 4s linear infinite;
   }
 
   .HeroSearch--glass .HeroSearch__Input,
@@ -501,6 +576,22 @@
     background: rgba(255, 255, 255, 0.92);
     color: var(--hero-accent);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1), background 520ms ease;
+  }
+
+  .HeroSearch--glass .HeroSearch__Submit svg {
+    transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .HeroSearch--glass .HeroSearch__Bar:hover .HeroSearch__Submit,
+  .HeroSearch--glass .HeroSearch__Bar:focus-within .HeroSearch__Submit {
+    transform: scale(1.08);
+    background: #ffffff;
+  }
+
+  .HeroSearch--glass .HeroSearch__Bar:hover .HeroSearch__Submit svg,
+  .HeroSearch--glass .HeroSearch__Bar:focus-within .HeroSearch__Submit svg {
+    transform: translateX(2px);
   }
 
   .HeroSearch--glass .HeroSearch__Chip {
@@ -518,6 +609,7 @@
   /* Browsers without backdrop-filter get a darker tint so the light text stays readable. */
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .HeroSearch--glass .HeroSearch__Bar,
+    .HeroSearch--glass .HeroSearch__Bar:hover,
     .HeroSearch--glass .HeroSearch__Bar:focus-within {
       background: rgba(20, 18, 16, 0.6);
     }
@@ -542,8 +634,13 @@
   @media (prefers-reduced-motion: reduce) {
     .HeroSearch__Phrase,
     .HeroSearch__Bar,
+    .HeroSearch__Bar::before,
     .HeroSearch__Submit,
+    .HeroSearch__Submit svg,
     .HeroSearch__Chip { transition: none; }
+    .HeroSearch__BarRim { display: none; }
+    .HeroSearch--glass .HeroSearch__Bar:hover,
+    .HeroSearch--glass .HeroSearch__Bar:focus-within { transform: none; }
   }
 </style>
 
