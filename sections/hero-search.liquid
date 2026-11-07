@@ -27,7 +27,7 @@
 -%}
 
 <section id="section-{{ section.id }}"
-         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %} {% if section.settings.bar_style == 'glass' %}HeroSearch--glass{% endif %} {% if section.settings.content_alignment == 'left' %}HeroSearch--left{% endif %}"
+         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %} {% if section.settings.bar_style == 'glass' and section.settings.bar_shape != 'underline' %}HeroSearch--glass{% endif %} HeroSearch--shape-{{ section.settings.bar_shape | default: 'pill' }} {% if section.settings.content_alignment == 'left' %}HeroSearch--left{% endif %}"
          data-section-id="{{ section.id }}"
          data-section-type="hero-search"
          data-rotate-interval="{{ section.settings.rotate_speed | times: 1000 }}"
@@ -101,7 +101,7 @@
       <label for="HeroSearch-{{ section.id }}-input" class="u-visually-hidden">{{ search_label }}</label>
 
       <div class="HeroSearch__Bar">
-        {%- if section.settings.bar_style == 'glass' -%}
+        {%- if section.settings.bar_style == 'glass' and section.settings.bar_shape != 'underline' -%}
           <span class="HeroSearch__BarRim" aria-hidden="true"></span>
         {%- endif -%}
         <span class="HeroSearch__BarIcon" aria-hidden="true">{%- render 'icon' with 'search-desktop' -%}</span>
@@ -774,7 +774,7 @@
   }
 
   .HeroSearch--left .HeroSearch__Heading:not(.HeroSearch__Heading--withPhrase) .HeroSearch__HeadingPrefix {
-    max-width: 16ch;
+    max-width: 28ch;
     text-wrap: balance;
   }
 
@@ -813,6 +813,99 @@
   @media screen and (min-width: 641px) {
     .HeroSearch--left { padding-top: 200px; padding-bottom: 72px; }
     .HeroSearch--left .HeroSearch__Head { margin-bottom: 32px; }
+  }
+
+  /*
+    Bar shapes. Pill is the default. Square takes the theme's own button radius.
+    Underline drops the box altogether: a thin rule, tracked capitals and an
+    arrow, the way the store sets its labels and links.
+  */
+  .HeroSearch--shape-square .HeroSearch__Bar,
+  .HeroSearch--shape-square .HeroSearch__Submit,
+  .HeroSearch--shape-square .HeroSearch__BarRim {
+    border-radius: 2px;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Form {
+    max-width: 420px;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Bar {
+    height: auto;
+    padding: 0 0 12px;
+    gap: 14px;
+    border: 0;
+    border-bottom: 1px solid rgba(var(--hero-text-rgb), 0.55);
+    border-radius: 0;
+    background: transparent;
+    color: var(--hero-text);
+    box-shadow: none;
+    transition: border-color 400ms ease;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Bar:hover,
+  .HeroSearch--shape-underline .HeroSearch__Bar:focus-within {
+    border-bottom-color: var(--hero-text);
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__BarIcon {
+    opacity: 0.85;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__BarIcon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Field {
+    height: 28px;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Input,
+  .HeroSearch--shape-underline .HeroSearch__Hint {
+    color: var(--hero-text);
+    font-family: var(--heading-font-family);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Input::placeholder,
+  .HeroSearch--shape-underline .HeroSearch__Hint {
+    color: rgba(var(--hero-text-rgb), 0.75);
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Bar--hinted .HeroSearch__Input::placeholder {
+    color: transparent;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Bar--hinted .HeroSearch__Input:focus::placeholder {
+    color: rgba(var(--hero-text-rgb), 0.75);
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Submit {
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    color: var(--hero-text);
+    box-shadow: none;
+    border-radius: 0;
+    transition: transform 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Submit svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Bar:hover .HeroSearch__Submit,
+  .HeroSearch--shape-underline .HeroSearch__Bar:focus-within .HeroSearch__Submit {
+    transform: translateX(4px);
+  }
+
+  .HeroSearch--shape-underline .HeroSearch__Submit:focus-visible {
+    outline: 1px solid var(--hero-text);
+    outline-offset: 3px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1100,6 +1193,18 @@
         { "value": "glass", "label": "Glass" }
       ],
       "default": "solid"
+    },
+    {
+      "type": "select",
+      "id": "bar_shape",
+      "label": "Search bar shape",
+      "info": "Underline ignores the Glass style and sets the text in tracked capitals like the store's labels.",
+      "options": [
+        { "value": "pill", "label": "Pill" },
+        { "value": "square", "label": "Square" },
+        { "value": "underline", "label": "Underline" }
+      ],
+      "default": "pill"
     },
     {
       "type": "color",
