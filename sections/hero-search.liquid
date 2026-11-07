@@ -48,7 +48,12 @@
   <div class="HeroSearch__Inner Container">
     <div class="HeroSearch__Head {% if section.settings.heading_panel %}HeroSearch__Head--panel{% endif %}">
     {%- if section.settings.subheading != blank -%}
-      <p class="HeroSearch__SubHeading Heading u-h6">{{ section.settings.subheading | escape }}</p>
+      <p class="HeroSearch__SubHeading Heading u-h6" {% if section.settings.subheading_2 != blank %}data-rotating-sub{% endif %}>
+        <span class="HeroSearch__SubLine is-active">{{ section.settings.subheading | escape }}</span>
+        {%- if section.settings.subheading_2 != blank -%}
+          <span class="HeroSearch__SubLine" aria-hidden="true">{{ section.settings.subheading_2 | escape }}</span>
+        {%- endif -%}
+      </p>
     {%- endif -%}
 
     {%- if request.page_type == 'index' -%}
@@ -95,15 +100,32 @@
         {%- endif -%}
         <span class="HeroSearch__BarIcon" aria-hidden="true">{%- render 'icon' with 'search-desktop' -%}</span>
 
-        <input id="HeroSearch-{{ section.id }}-input"
-               class="HeroSearch__Input"
-               type="search"
-               name="q"
-               placeholder="{{ placeholder | escape }}"
-               autocomplete="off"
-               autocorrect="off"
-               autocapitalize="off"
-               spellcheck="false">
+        <span class="HeroSearch__Field">
+          <input id="HeroSearch-{{ section.id }}-input"
+                 class="HeroSearch__Input"
+                 type="search"
+                 name="q"
+                 placeholder="{{ placeholder | escape }}"
+                 autocomplete="off"
+                 autocorrect="off"
+                 autocapitalize="off"
+                 spellcheck="false">
+          {%- if phrases.size > 1 -%}
+            {%- comment -%}
+              Animated hint: "Search for" stays put while the suggestion underneath it
+              slides through the phrases. Decorative; the real placeholder is on the
+              input for screen readers and for when JavaScript is off.
+            {%- endcomment -%}
+            <span class="HeroSearch__Hint" aria-hidden="true">
+              <span class="HeroSearch__HintPrefix">{{ section.settings.placeholder_prefix | escape }}</span>
+              <span class="HeroSearch__HintWords">
+                {%- for block in phrases -%}
+                  <span class="HeroSearch__HintWord {% if forloop.first %}is-active{% endif %}">{{ block.settings.text | escape }}</span>
+                {%- endfor -%}
+              </span>
+            </span>
+          {%- endif -%}
+        </span>
 
         <button type="submit" class="HeroSearch__Submit" aria-label="{{ 'search.general.title' | t }}">
           {%- render 'icon' with 'arrow-right' -%}
@@ -238,9 +260,90 @@
   }
 
   .HeroSearch__SubHeading {
+    display: grid;
     margin-bottom: 18px;
     color: var(--hero-text);
     opacity: 0.75;
+  }
+
+  /* Rotating sub-heading lines share one cell and crossfade. */
+  .HeroSearch__SubLine {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 600ms ease, transform 600ms ease;
+  }
+
+  .HeroSearch__SubLine.is-active {
+    opacity: 1;
+    transform: none;
+  }
+
+  .HeroSearch__SubLine.is-leaving {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  /* Field wrapper so the animated hint can sit over the input. */
+  .HeroSearch__Field {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+  }
+
+  .HeroSearch__Hint {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    gap: 0.3em;
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none;
+    color: rgba(var(--hero-bar-text-rgb), 0.5);
+    font-family: var(--text-font-family);
+    font-size: 15px;
+  }
+
+  .HeroSearch__Bar--hinted .HeroSearch__Hint {
+    display: flex;
+  }
+
+  .HeroSearch__Bar--hinted .HeroSearch__Input::placeholder {
+    color: transparent;
+  }
+
+  .HeroSearch__Bar--hinted .HeroSearch__Input:focus + .HeroSearch__Hint,
+  .HeroSearch__Bar--hinted .HeroSearch__Input:not(:placeholder-shown) + .HeroSearch__Hint {
+    display: none;
+  }
+
+  .HeroSearch__Bar--hinted .HeroSearch__Input:focus::placeholder {
+    color: rgba(var(--hero-bar-text-rgb), 0.5);
+  }
+
+  .HeroSearch__HintWords {
+    display: grid;
+    min-width: 0;
+  }
+
+  .HeroSearch__HintWord {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateY(0.6em);
+    transition: opacity 420ms ease, transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .HeroSearch__HintWord.is-active {
+    opacity: 1;
+    transform: none;
+  }
+
+  .HeroSearch__HintWord.is-leaving {
+    opacity: 0;
+    transform: translateY(-0.6em);
   }
 
   .HeroSearch__Heading {
@@ -600,7 +703,11 @@
     .HeroSearch__Head { margin-bottom: 40px; }
     .HeroSearch__Head--panel { padding: 28px 44px 34px; border-radius: 36px; }
     .HeroSearch__Bar { height: 54px; padding: 6px 6px 6px 22px; }
-    .HeroSearch__Input { font-size: 16px; }
+    .HeroSearch__Input, .HeroSearch__Hint { font-size: 16px; }
+    .HeroSearch--left .HeroSearch__Bar { height: 46px; padding: 5px 5px 5px 18px; }
+    .HeroSearch--left .HeroSearch__Input, .HeroSearch--left .HeroSearch__Hint { font-size: 14px; }
+    .HeroSearch--left .HeroSearch__Submit { width: 36px; height: 36px; }
+    .HeroSearch--left .HeroSearch__Submit svg { width: 13px; height: 13px; }
     .HeroSearch__BarIcon svg { width: 18px; height: 18px; }
     .HeroSearch__Submit { width: 42px; height: 42px; }
     .HeroSearch__Submit svg { width: 15px; height: 15px; }
@@ -641,11 +748,44 @@
     font-size: clamp(40px, 7.2vw, 96px);
     letter-spacing: -0.03em;
     line-height: 0.98;
-    gap: 2px;
+    gap: 8px;
+  }
+
+  /* Forma-style: the lead-in is small and quiet, the product name is the headline. */
+  .HeroSearch--left .HeroSearch__HeadingPrefix {
+    font-size: clamp(18px, 1.8vw, 24px);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.3;
+    opacity: 0.9;
   }
 
   .HeroSearch--left .HeroSearch__Phrases {
     justify-items: start;
+  }
+
+  .HeroSearch--left .HeroSearch__Form {
+    max-width: 380px;
+  }
+
+  .HeroSearch--left .HeroSearch__Bar {
+    height: 44px;
+    padding: 4px 4px 4px 16px;
+  }
+
+  .HeroSearch--left .HeroSearch__Input,
+  .HeroSearch--left .HeroSearch__Hint {
+    font-size: 14px;
+  }
+
+  .HeroSearch--left .HeroSearch__Submit {
+    width: 36px;
+    height: 36px;
+  }
+
+  .HeroSearch--left .HeroSearch__Submit svg {
+    width: 13px;
+    height: 13px;
   }
 
   .HeroSearch--left .HeroSearch__Chips {
@@ -683,11 +823,54 @@
 
       var phrases = Array.prototype.slice.call(section.querySelectorAll('.HeroSearch__Phrase'));
       var input = section.querySelector('.HeroSearch__Input');
-      var prefix = section.getAttribute('data-placeholder-prefix') || '';
       var interval = parseInt(section.getAttribute('data-rotate-interval'), 10) || 3000;
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var timers = [];
 
-      if (phrases.length < 2 || reduceMotion) return;
+      // Generic stacked-rotation helper: one element visible at a time, the rest wait.
+      function rotate(items, every, offset, onChange) {
+        if (items.length < 2) return;
+        var i = 0;
+        timers.push(window.setTimeout(function () {
+          timers.push(window.setInterval(function () {
+            if (document.hidden) return;
+            var cur = items[i], next = items[(i + 1) % items.length];
+            cur.classList.remove('is-active'); cur.classList.add('is-leaving');
+            window.setTimeout(function () { cur.classList.remove('is-leaving'); }, 650);
+            next.classList.add('is-active');
+            i = (i + 1) % items.length;
+            if (onChange) onChange(next);
+          }, every));
+        }, offset));
+      }
+
+      if (reduceMotion) return;
+
+      // Sub-heading: "We find what others can't" / "Curated for those who know".
+      var subLines = Array.prototype.slice.call(section.querySelectorAll('.HeroSearch__SubLine'));
+      rotate(subLines, 4200, 2100);
+
+      // Search hint: "Search for" stays, the suggestion beneath it cycles on its own
+      // rhythm so it drifts away from the headline rather than mirroring it.
+      var bar = section.querySelector('.HeroSearch__Bar');
+      var hintWords = Array.prototype.slice.call(section.querySelectorAll('.HeroSearch__HintWord'));
+      var hintPrefix = section.getAttribute('data-placeholder-prefix') || '';
+      if (bar && hintWords.length > 1 && input) {
+        bar.classList.add('HeroSearch__Bar--hinted');
+        // Start one step ahead of the headline so the two never show the same word.
+        hintWords[0].classList.remove('is-active');
+        hintWords[1].classList.add('is-active');
+        hintWords.push(hintWords.shift());
+        rotate(hintWords, 2600, 1300, function (word) {
+          // Keep the real placeholder honest for when the field is focused.
+          input.placeholder = (hintPrefix + ' ' + word.textContent).trim();
+        });
+      }
+
+      if (phrases.length < 2) {
+        section.__heroSearch = { stop: function () { timers.forEach(clearTimeout); timers.forEach(clearInterval); }, start: function () {} };
+        return;
+      }
 
       var index = 0;
       var timer = null;
@@ -707,12 +890,6 @@
         target.removeAttribute('aria-hidden');
         target.removeAttribute('tabindex');
         index = next;
-
-        // Only swap the placeholder while the field is empty and unfocused, so we never
-        // change the hint out from under someone who is typing.
-        if (input && !input.value && document.activeElement !== input) {
-          input.placeholder = (prefix + ' ' + target.getAttribute('data-phrase')).trim();
-        }
       }
 
       function tick() {
@@ -725,6 +902,7 @@
       }
 
       function stop() {
+        timers.forEach(clearTimeout); timers.forEach(clearInterval); timers = [];
         if (!timer) return;
         window.clearInterval(timer);
         timer = null;
@@ -776,7 +954,14 @@
       "type": "text",
       "id": "subheading",
       "label": "Sub-heading",
-      "default": "Pre-loved luxury, authenticated"
+      "default": "We find what others can't"
+    },
+    {
+      "type": "text",
+      "id": "subheading_2",
+      "label": "Sub-heading, second line",
+      "info": "Optional. The sub-heading alternates between the two.",
+      "default": "Curated for those who know"
     },
     {
       "type": "text",
