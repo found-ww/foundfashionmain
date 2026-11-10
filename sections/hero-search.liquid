@@ -753,10 +753,18 @@
     padding-top: 160px;
   }
 
+  /* Left layout sits on the page gutter, in line with the header, not a centred column. */
   .HeroSearch--left .HeroSearch__Inner {
     align-items: flex-start;
-    max-width: 1180px;
+    max-width: none;
+    padding: 0 24px;
     text-align: left;
+  }
+
+  @media screen and (min-width: 1008px) {
+    .HeroSearch--left .HeroSearch__Inner {
+      padding: 0 50px;
+    }
   }
 
   .HeroSearch--left .HeroSearch__Head,
@@ -790,7 +798,7 @@
 
   /* Single-line headline (no rotating phrase): a touch smaller so it breaks into two clean lines. */
   .HeroSearch--left .HeroSearch__Heading:not(.HeroSearch__Heading--withPhrase) {
-    font-size: clamp(26px, 3.2vw, 45px);
+    font-size: clamp(18px, 2.25vw, 32px);
     line-height: 1.2;
   }
 
