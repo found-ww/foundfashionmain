@@ -81,6 +81,10 @@
         <div class="FoundPanel__Sub" data-for="g{{ forloop.index }}">
           {%- for sub_link in link.links -%}
             <a href="{{ sub_link.url }}">{{ sub_link.title | escape }}</a>
+            {%- comment -%} The store's menu nests a third level (Bags › All bags › Bag charms); show it on the same row. {%- endcomment -%}
+            {%- for sub_sub_link in sub_link.links -%}
+              <a href="{{ sub_sub_link.url }}">{{ sub_sub_link.title | escape }}</a>
+            {%- endfor -%}
           {%- endfor -%}
         </div>
       {%- endif -%}
