@@ -230,6 +230,17 @@
     }
   }
 
+  /*
+    The theme only refreshes --window-height when the window's width changes, so a window that is made
+    taller after load left the hero short. The small viewport unit tracks the real height on every resize
+    and, like --window-height, ignores the collapsing address bar on phones, so the hero never jumps.
+  */
+  @supports (height: 100svh) {
+    .js .HeroSearch--full {
+      min-height: calc(100svh - (var(--header-height, 0px) * var(--header-is-not-transparent, 0)) - var(--announcement-bar-height, 0px));
+    }
+  }
+
   .HeroSearch__Background {
     position: absolute;
     inset: 0;
