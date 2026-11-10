@@ -19,6 +19,11 @@ USEFUL VARIABLES
   {%- assign use_transparent_header = true -%}
 {%- endif -%}
 
+{%- comment -%} The quick-links header sits over the collection banner too, until the page scrolls up to it. {%- endcomment -%}
+{%- if template.name == 'collection' and section.settings.found_nav and collection.image and collection.template_suffix != 'no-image' -%}
+  {%- assign use_transparent_header = true -%}
+{%- endif -%}
+
 {%- if section.settings.navigation_style != 'sidebar' -%}
   {%- assign use_sidebar_menu = false -%}
 {%- else -%}
@@ -747,8 +752,8 @@ HEADER CONTENT
       "type": "link_list",
       "id": "quick_links_menu",
       "label": "Quick links menu",
-      "info": "The first six links are shown. Leave empty to use the first six of the main menu.",
-      "default": "main-menu"
+      "info": "The first six links are shown. Falls back to the first six of the main menu if the menu is missing.",
+      "default": "quick-links"
     },
     {
       "type": "header",

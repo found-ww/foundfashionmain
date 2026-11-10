@@ -153,7 +153,17 @@
       transition: color 0.3s ease-in-out;
     }
 
-    .Header--transparent:not(.Header--foundOpen) .FoundNav { color: #ffffff; }
+    /*
+      Transparency is driven by this snippet's own script on desktop, not by the theme's: the header stays
+      clear until the content below the hero (or the collection banner) scrolls up to meet it, and hovering
+      or focusing the header never turns it solid. The theme's Header--transparent class is ignored here.
+    */
+    .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) {
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    .Header--found.Header--foundClear:not(.Header--foundOpen) .FoundNav { color: {{ section.settings.transparent_text_color | default: '#ffffff' }}; }
+    .Header--found:not(.Header--foundClear) { background: var(--header-background); }
 
     .FoundNav__Logo { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
     .FoundNav__Wordmark { font-size: 16px; letter-spacing: 0.2em; }
@@ -311,6 +321,34 @@
       });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
       document.addEventListener('click', function (e) { if (header.classList.contains('Header--foundOpen') && !header.contains(e.target)) setOpen(false); });
+
+      // Transparency: clear while the hero (or collection banner) is still under the header. Measured
+      // against the first section after the hero when the hero is pinned, otherwise the hero's own bottom.
+      // This script runs while the header is still being parsed, so the hero is looked up once the DOM is ready.
+      function setupTransparency() {
+        var transparentPage = getComputedStyle(document.documentElement).getPropertyValue('--header-is-transparent').trim() === '1';
+        var hero = document.querySelector('.HeroSearch, .Slideshow, .PageHeader--withBackground');
+        if (!transparentPage || !hero) return;
+        var heroWrapper = hero.closest('.shopify-section') || hero;
+        var pinned = getComputedStyle(heroWrapper).position === 'sticky';
+        var after = heroWrapper.nextElementSibling;
+        var ticking = false;
+        var check = function () {
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(function () {
+            ticking = false;
+            if (!DESKTOP.matches) { header.classList.remove('Header--foundClear'); return; }
+            var edge = (pinned && after) ? after.getBoundingClientRect().top : hero.getBoundingClientRect().bottom;
+            header.classList.toggle('Header--foundClear', edge > header.offsetHeight);
+          });
+        };
+        window.addEventListener('scroll', check, { passive: true });
+        window.addEventListener('resize', check);
+        check();
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupTransparency);
+      else setupTransparency();
 
       // Warm the product images once the page is idle, desktop only, so the first open is instant.
       if (DESKTOP.matches && !(window.matchMedia && window.matchMedia('(prefers-reduced-data: reduce)').matches)) {
