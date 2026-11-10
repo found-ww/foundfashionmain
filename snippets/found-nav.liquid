@@ -8,7 +8,7 @@
   Closed:  wordmark left · up to six quick links centred (label rolls on hover) · burger right.
   Open:    quick links step aside; currency, Account and Cart appear; a panel drops from
            the header with every top-level link, its sub-links on hover, and a row of
-           eight products (or articles for a blog) for the hovered group.
+           ten products (or articles for a blog) for the hovered group.
 
   Accepts: section (the header section).
 {%- endcomment -%}
@@ -24,7 +24,7 @@
   if quick_menu.links.size == 0
     assign quick_menu = main_menu
   endif
-  assign shelf_size = 8
+  assign shelf_size = 10
 -%}
 
 <div class="FoundNav" data-found-nav>
@@ -249,9 +249,10 @@
     .FoundPanel__Sub a:hover { color: var(--header-heading-color); }
 
     .FoundPanel__Shelves { padding-top: 18px; }
-    .FoundPanel__Shelf { display: none; grid-auto-flow: column; grid-auto-columns: 150px; gap: 18px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+    /* A full row of ten products always fits the panel width; the cards share the space and grow with the screen. */
+    .FoundPanel__Shelf { display: none; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 16px; padding-bottom: 8px; }
     .FoundPanel__Shelf.is-shown { display: grid; }
-    .FoundPanel__Shelf--articles { grid-auto-columns: 220px; }
+    .FoundPanel__Shelf--articles { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 220px; overflow-x: auto; scrollbar-width: thin; }
 
     .FoundPanel__Card, .FoundPanel__Article { display: grid; gap: 4px; color: var(--header-heading-color); text-decoration: none; min-width: 0; opacity: 0; }
     .FoundPanel__Shelf.is-shown .FoundPanel__Card, .FoundPanel__Shelf.is-shown .FoundPanel__Article { animation: FoundPanel-rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
