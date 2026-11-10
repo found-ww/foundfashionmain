@@ -197,6 +197,10 @@ window.addEventListener('load', function() {
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
     <script src="{{ 'custom.js' | asset_url }}" defer></script>
 
+    {%- if request.page_type == 'index' -%}
+      {%- render 'reveal' -%}
+    {%- endif -%}
+
     <script>
       (function () {
         window.onpageshow = function() {
