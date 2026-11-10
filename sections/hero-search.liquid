@@ -986,6 +986,29 @@
     .HeroSearch--glass .HeroSearch__Bar:hover,
     .HeroSearch--glass .HeroSearch__Bar:focus-within { transform: none; }
   }
+  /*
+    Wide screens. The copy keeps scaling with the viewport past the laptop ceiling and stops at a readable cap
+    (52px headline, 560px bar) around 3440px wide, with the gutter growing in step so the block never becomes
+    a billboard. The header gutter in found-nav.liquid uses the same formula.
+  */
+  @media screen and (min-width: 1920px) {
+    .HeroSearch--left .HeroSearch__Inner { padding: 0 clamp(50px, 3vw, 110px); }
+    .HeroSearch--left .HeroSearch__SubHeading { font-size: clamp(14px, 0.7vw, 20px); }
+    .HeroSearch--left .HeroSearch__Heading:not(.HeroSearch__Heading--withPhrase) { font-size: clamp(32px, 1.7vw, 52px); }
+    .HeroSearch--left .HeroSearch__Head { margin-bottom: clamp(32px, 1.6vw, 48px); }
+    .HeroSearch--left .HeroSearch__Form,
+    .HeroSearch--left.HeroSearch--shape-underline .HeroSearch__Form { max-width: clamp(420px, 18vw, 560px); }
+    .HeroSearch--left .HeroSearch__Input,
+    .HeroSearch--left .HeroSearch__Hint { font-size: clamp(14px, 0.65vw, 18px); }
+    .HeroSearch--left.HeroSearch--shape-underline .HeroSearch__Input,
+    .HeroSearch--left.HeroSearch--shape-underline .HeroSearch__Hint { font-size: clamp(11px, 0.5vw, 14px); }
+    .HeroSearch--left.HeroSearch--shape-underline .HeroSearch__Submit svg { width: clamp(13px, 0.55vw, 17px); height: clamp(13px, 0.55vw, 17px); }
+  }
+
+  /* Wide aspect ratios (16:9 and beyond): the crop loses height, so it is taken from the sofa below the bags, not the handles above. */
+  @media screen and (min-aspect-ratio: 16/9) {
+    .HeroSearch__BackgroundImage { object-position: center 35%; }
+  }
 </style>
 
 <script>
