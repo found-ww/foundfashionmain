@@ -783,6 +783,8 @@
     align-items: flex-end;
     justify-content: flex-start;
     padding-top: 160px;
+    /* The copy and search sit a fifth of the viewport above the bottom edge rather than tucked into it. */
+    padding-bottom: calc(64px + 20vh);
   }
 
   /* Left layout sits on the page gutter, in line with the header, not a centred column. */
@@ -872,7 +874,7 @@
   }
 
   @media screen and (min-width: 641px) {
-    .HeroSearch--left { padding-top: 200px; padding-bottom: 72px; }
+    .HeroSearch--left { padding-top: 200px; padding-bottom: calc(72px + 20vh); }
     .HeroSearch--left .HeroSearch__Head { margin-bottom: 32px; }
   }
 
