@@ -997,6 +997,12 @@
     .HeroSearch--glass .HeroSearch__Bar:hover,
     .HeroSearch--glass .HeroSearch__Bar:focus-within { transform: none; }
   }
+  /* Phones and tablets: the search bar is desktop only; the headline closes the block. */
+  @media screen and (max-width: 1007px) {
+    .HeroSearch__Form { display: none; }
+    .HeroSearch__Head, .HeroSearch--left .HeroSearch__Head { margin-bottom: 0; }
+  }
+
   /*
     Wide screens. The copy keeps scaling with the viewport past the laptop ceiling and stops at a readable cap
     (52px headline, 560px bar) around 3440px wide, with the gutter growing in step so the block never becomes
