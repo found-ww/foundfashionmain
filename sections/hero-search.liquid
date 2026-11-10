@@ -27,7 +27,7 @@
 -%}
 
 <section id="section-{{ section.id }}"
-         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %} {% if section.settings.bar_style == 'glass' and section.settings.bar_shape != 'underline' %}HeroSearch--glass{% endif %} HeroSearch--shape-{{ section.settings.bar_shape | default: 'pill' }} {% if section.settings.content_alignment == 'left' %}HeroSearch--left{% endif %}"
+         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %} {% if section.settings.bar_style == 'glass' and section.settings.bar_shape != 'underline' %}HeroSearch--glass{% endif %} HeroSearch--shape-{{ section.settings.bar_shape | default: 'pill' }} {% if section.settings.content_alignment == 'left' %}HeroSearch--left{% endif %} {% if section.settings.full_height %}HeroSearch--full{% endif %}"
          data-section-id="{{ section.id }}"
          data-section-type="hero-search"
          data-rotate-interval="{{ section.settings.rotate_speed | times: 1000 }}"
@@ -181,6 +181,21 @@
     color: var(--hero-text);
     overflow: hidden;
     isolation: isolate;
+  }
+
+  /*
+    Full-screen height: the same formula the theme's full-screen slideshow uses,
+    so the hero fills the window below the announcement bar exactly as the old
+    hero did. Falls back to 100vh before theme.js has measured the window.
+  */
+  .HeroSearch--full {
+    min-height: 100vh;
+  }
+
+  @supports (--css: variables) {
+    .js .HeroSearch--full {
+      min-height: calc(var(--window-height, 100vh) - (var(--header-height, 0px) * var(--header-is-not-transparent, 0)) - var(--announcement-bar-height, 0px));
+    }
   }
 
   .HeroSearch__Background {
@@ -1174,6 +1189,13 @@
       "label": "Apply overlay on image",
       "info": "Improves text visibility on photos.",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "full_height",
+      "label": "Full-screen height",
+      "info": "Fills the window below the announcement bar, like the full-screen slideshow. Overrides Minimum height.",
+      "default": false
     },
     {
       "type": "range",
