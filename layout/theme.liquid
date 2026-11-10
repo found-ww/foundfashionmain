@@ -196,6 +196,7 @@ window.addEventListener('load', function() {
     <script src="{{ 'libs.min.js' | asset_url }}" defer></script>
     <script src="{{ 'theme.js' | asset_url }}" defer></script>
     <script src="{{ 'custom.js' | asset_url }}" defer></script>
+    {%- render 'smooth-scroll' -%}
 
     {%- if request.page_type == 'index' -%}
       {%- render 'reveal' -%}
