@@ -1,0 +1,15 @@
+{%- comment -%}
+  One product card in the desktop navigation panel. Accepts: product, sold (boolean), index (1-based position in the shelf).
+  The image carries data-src only; the nav script loads it when the page is idle or the panel opens.
+{%- endcomment -%}
+<a class="FoundPanel__Card {% if sold %}FoundPanel__Card--sold{% endif %}" href="{{ product.url }}" style="--i: {{ index | default: 1 | minus: 1 }}">
+  <span class="FoundPanel__CardImg">
+    {%- if sold -%}<span class="FoundPanel__CardSold">{{ 'product.labels.sold_out' | t }}</span>{%- endif -%}
+    {%- if product.featured_media -%}
+      <img data-src="{{ product.featured_media | img_url: '400x400', crop: 'center' }}" alt="" width="400" height="400">
+    {%- endif -%}
+  </span>
+  {%- if product.vendor != blank -%}<span class="FoundPanel__CardBrand">{{ product.vendor | escape }}</span>{%- endif -%}
+  <span class="FoundPanel__CardName">{{ product.title | escape }}</span>
+  <span class="FoundPanel__CardPrice">{{ product.price | money }}</span>
+</a>

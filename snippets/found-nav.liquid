@@ -1,0 +1,323 @@
+{%- comment -%}
+  Found desktop navigation ("G")
+  ------------------------------
+  Rendered inside the header section on desktop widths (1008px and up) when the
+  header's "Quick-links header" setting is on. Below 1008px it is hidden and the
+  theme's own mobile header and sidebar drawer stay exactly as they are.
+
+  Closed:  wordmark left · up to six quick links centred (label rolls on hover) · burger right.
+  Open:    quick links step aside; currency, Account and Cart appear; a panel drops from
+           the header with every top-level link, its sub-links on hover, and a row of
+           eight products (or articles for a blog) for the hovered group.
+
+  Accepts: section (the header section).
+{%- endcomment -%}
+
+{%- liquid
+  assign main_menu_handle = section.settings.navigation_menu | default: 'main-menu'
+  assign main_menu = linklists[main_menu_handle]
+  assign quick_handle = section.settings.quick_links_menu | default: main_menu_handle
+  assign quick_menu = linklists[quick_handle]
+  if quick_menu.links.size == 0
+    assign quick_menu = main_menu
+  endif
+  assign shelf_size = 8
+-%}
+
+<div class="FoundNav" data-found-nav>
+  <a href="{{ routes.root_url }}" class="FoundNav__Logo">
+    {%- if section.settings.logo != blank -%}
+      {%- capture image_size -%}{{ section.settings.logo_max_width }}x{%- endcapture -%}
+      <img class="FoundNav__LogoImage" src="{{ section.settings.logo | img_url: image_size }}" srcset="{{ section.settings.logo | img_url: image_size }} 1x, {{ section.settings.logo | img_url: image_size, scale: 2 }} 2x" width="{{ section.settings.logo.width }}" height="{{ section.settings.logo.height }}" alt="{{ section.settings.logo.alt | default: shop.name | escape }}">
+    {%- else -%}
+      <span class="FoundNav__Wordmark">{{ shop.name }}</span>
+    {%- endif -%}
+  </a>
+
+  <nav class="FoundNav__Quick" aria-label="{{ 'header.navigation.title' | t }}">
+    {%- for link in quick_menu.links limit: 6 -%}
+      <a href="{{ link.url }}" class="FoundNav__QuickLink"><span class="FoundNav__Roll"><span>{{ link.title | escape }}</span><span aria-hidden="true">{{ link.title | escape }}</span></span></a>
+    {%- endfor -%}
+  </nav>
+
+  <div class="FoundNav__Right">
+    <div class="FoundNav__Utilities">
+      {%- if section.settings.show_country_selector and localization.available_countries.size > 1 -%}
+        {%- form 'localization', id: 'FoundNavLocalization', class: 'FoundNav__Currency' -%}
+          <label for="FoundNavCountry" class="u-visually-hidden">{{ 'header.general.country' | t }}</label>
+          <span class="FoundNav__CurrencyLabel" aria-hidden="true">{{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}<i></i></span>
+          <select id="FoundNavCountry" name="country_code" class="FoundNav__CurrencySelect" onchange="this.form.submit()">
+            {%- for country in localization.available_countries -%}
+              <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>{{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})</option>
+            {%- endfor -%}
+          </select>
+        {%- endform -%}
+      {%- endif -%}
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}" class="FoundNav__Utility">{{ 'header.navigation.account' | t }}</a>
+      {%- endif -%}
+      <a href="{{ routes.cart_url }}" class="FoundNav__Utility" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>{{ 'header.navigation.cart' | t }} (<span class="Header__CartCount">{{ cart.item_count }}</span>)</a>
+    </div>
+    <button type="button" class="FoundNav__Burger" data-found-toggle aria-expanded="false" aria-controls="FoundPanel-{{ section.id }}" aria-label="{{ 'header.navigation.open_sidebar' | t }}"><span></span><span></span></button>
+  </div>
+</div>
+
+<div class="FoundPanel" id="FoundPanel-{{ section.id }}" aria-hidden="true" data-found-panel data-active="g1">
+  <nav class="FoundPanel__Nav" aria-label="{{ 'header.navigation.title' | t }}">
+    {%- for link in main_menu.links -%}
+      {%- liquid
+        assign has_shelf = false
+        if link.type == 'collection_link' or link.type == 'blog_link' or link.links.size > 0
+          assign has_shelf = true
+        endif
+      -%}
+      <a href="{{ link.url }}" class="FoundPanel__NavLink {% if forloop.first %}is-active{% endif %}" {% if has_shelf %}data-group="g{{ forloop.index }}"{% endif %}>{{ link.title | escape }}</a>
+    {%- endfor -%}
+  </nav>
+
+  <div class="FoundPanel__Subs">
+    {%- for link in main_menu.links -%}
+      {%- if link.links.size > 0 -%}
+        <div class="FoundPanel__Sub" data-for="g{{ forloop.index }}">
+          {%- for sub_link in link.links -%}
+            <a href="{{ sub_link.url }}">{{ sub_link.title | escape }}</a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  <div class="FoundPanel__Shelves">
+    {%- for link in main_menu.links -%}
+      {%- assign group_index = forloop.index -%}
+      {%- if link.type == 'collection_link' and link.object != blank -%}
+        {%- assign shelf_collection = link.object -%}
+        <div class="FoundPanel__Shelf" data-for="g{{ group_index }}">
+          {%- assign rendered = 0 -%}
+          {%- for product in shelf_collection.products limit: 40 -%}
+            {%- if product.available and rendered < shelf_size -%}
+              {%- assign rendered = rendered | plus: 1 -%}
+              {%- render 'found-nav-card', product: product, index: rendered -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if rendered < shelf_size -%}
+            {%- for product in shelf_collection.products limit: 40 -%}
+              {%- if product.available == false and rendered < shelf_size -%}
+                {%- assign rendered = rendered | plus: 1 -%}
+                {%- render 'found-nav-card', product: product, sold: true, index: rendered -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      {%- elsif link.type == 'blog_link' and link.object != blank -%}
+        <div class="FoundPanel__Shelf FoundPanel__Shelf--articles" data-for="g{{ group_index }}">
+          {%- for article in link.object.articles limit: shelf_size -%}
+            <a class="FoundPanel__Article" href="{{ article.url }}" style="--i: {{ forloop.index0 }}">
+              <span class="FoundPanel__ArticleImg">{%- if article.image -%}<img data-src="{{ article.image | img_url: '600x450', crop: 'center' }}" alt="" width="600" height="450">{%- endif -%}</span>
+              <span class="FoundPanel__ArticleTitle">{{ article.title | escape }}</span>
+              <span class="FoundPanel__ArticleRead">{{ 'blog.article.read_more' | t }} →</span>
+            </a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  .FoundNav, .FoundPanel { display: none; }
+
+  @media screen and (min-width: 1008px) {
+    /* The theme's own desktop header rows step aside; the mobile header below 1008px is untouched. */
+    .Header--found .Header__Wrapper,
+    .Header--found .Header__MainNav { display: none !important; }
+
+    .FoundNav {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 92px;
+      padding: 0 50px;
+      color: var(--header-heading-color);
+      font-family: var(--heading-font-family);
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: color 0.3s ease-in-out;
+    }
+
+    .Header--transparent:not(.Header--foundOpen) .FoundNav { color: #ffffff; }
+
+    .FoundNav__Logo { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
+    .FoundNav__Wordmark { font-size: 16px; letter-spacing: 0.2em; }
+    .FoundNav__LogoImage { max-height: 40px; width: auto; }
+
+    .FoundNav__Quick {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      gap: 30px;
+      white-space: nowrap;
+    }
+
+    .Header--foundOpen .FoundNav__Quick { display: none; }
+
+    .FoundNav__QuickLink { color: inherit; text-decoration: none; line-height: 1; }
+
+    /* Label roll, measured from Forma: both copies move together over ~380ms on a late ease-in-out; the
+       resting word is dimmed, the arriving twin is full strength. */
+    .FoundNav__Roll { display: inline-block; position: relative; overflow: hidden; height: 1.1em; vertical-align: top; }
+    .FoundNav__Roll > span { display: block; height: 1.1em; line-height: 1.1em; transition: transform 380ms cubic-bezier(0.7, 0, 0.2, 1); }
+    .FoundNav__Roll > span:first-child { opacity: 0.75; }
+    .FoundNav__QuickLink:hover .FoundNav__Roll > span,
+    .FoundNav__QuickLink:focus-visible .FoundNav__Roll > span { transform: translateY(-100%); }
+
+    .FoundNav__Right { display: flex; align-items: center; gap: 28px; }
+    .FoundNav__Utilities { display: none; align-items: center; gap: 28px; }
+    .Header--foundOpen .FoundNav__Utilities { display: flex; }
+    .FoundNav__Utility { color: inherit; text-decoration: none; }
+
+    .FoundNav__Currency { position: relative; display: inline-flex; align-items: center; }
+    .FoundNav__CurrencyLabel { display: inline-flex; align-items: center; gap: 6px; }
+    .FoundNav__CurrencyLabel i { width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+    .FoundNav__CurrencySelect { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+
+    .FoundNav__Burger { display: inline-flex; flex-direction: column; justify-content: center; gap: 6px; width: 40px; height: 40px; padding: 8px; margin-right: -8px; background: transparent; border: 0; color: inherit; cursor: pointer; }
+    .FoundNav__Burger span { display: block; height: 1px; background: currentColor; transform-origin: right center; transition: transform 380ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .FoundNav__Burger:hover span:nth-child(1) { transform: translateX(3px) scaleX(0.82); }
+    .FoundNav__Burger:hover span:nth-child(2) { transform: translateX(-3px); }
+    .Header--foundOpen .FoundNav__Burger span { transform-origin: center; }
+    .Header--foundOpen .FoundNav__Burger span:nth-child(1),
+    .Header--foundOpen .FoundNav__Burger:hover span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .Header--foundOpen .FoundNav__Burger span:nth-child(2),
+    .Header--foundOpen .FoundNav__Burger:hover span:nth-child(2) { transform: translateY(-7px) rotate(-45deg); }
+    .FoundNav__Burger:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
+
+    /* Panel */
+    .FoundPanel {
+      display: block;
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 1;
+      padding: 104px 50px 28px;
+      background: rgba(255, 255, 255, 0.97);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      color: var(--header-heading-color);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+      transform: translateY(-100%);
+      visibility: hidden;
+      transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s 520ms;
+    }
+    .Header--foundOpen .FoundPanel { transform: none; visibility: visible; transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .Header--foundOpen { background: transparent; box-shadow: none; }
+
+    .FoundPanel__Nav { display: flex; flex-wrap: wrap; gap: 12px 36px; padding-bottom: 22px; border-bottom: 1px solid var(--header-border-color); }
+    .FoundPanel__NavLink { font-family: var(--heading-font-family); font-weight: 500; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: inherit; text-decoration: none; transition: color 150ms; }
+    .FoundPanel__NavLink:hover, .FoundPanel__NavLink.is-active { color: var(--text-color-light); }
+
+    .FoundPanel__Subs { min-height: 34px; padding-top: 14px; }
+    .FoundPanel__Sub { display: none; flex-wrap: wrap; gap: 10px 26px; }
+    .FoundPanel__Sub.is-shown { display: flex; }
+    .FoundPanel__Sub a { font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-color-light); text-decoration: none; }
+    .FoundPanel__Sub a:hover { color: var(--header-heading-color); }
+
+    .FoundPanel__Shelves { padding-top: 18px; }
+    .FoundPanel__Shelf { display: none; grid-auto-flow: column; grid-auto-columns: 150px; gap: 18px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+    .FoundPanel__Shelf.is-shown { display: grid; }
+    .FoundPanel__Shelf--articles { grid-auto-columns: 220px; }
+
+    .FoundPanel__Card, .FoundPanel__Article { display: grid; gap: 4px; color: var(--header-heading-color); text-decoration: none; min-width: 0; opacity: 0; }
+    .FoundPanel__Shelf.is-shown .FoundPanel__Card, .FoundPanel__Shelf.is-shown .FoundPanel__Article { animation: FoundPanel-rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+    @keyframes FoundPanel-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    .FoundPanel__CardImg, .FoundPanel__ArticleImg { position: relative; display: block; aspect-ratio: 1; overflow: hidden; background: linear-gradient(100deg, var(--light-background) 30%, #ffffff 50%, var(--light-background) 70%); background-size: 200% 100%; animation: FoundPanel-shimmer 1.4s linear infinite; }
+    .FoundPanel__ArticleImg { aspect-ratio: 4 / 3; }
+    .is-loaded > .FoundPanel__CardImg, .is-loaded > .FoundPanel__ArticleImg { animation: none; background: var(--light-background); }
+    @keyframes FoundPanel-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+    .FoundPanel__CardImg img, .FoundPanel__ArticleImg img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 400ms ease, transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .is-loaded > .FoundPanel__CardImg img, .is-loaded > .FoundPanel__ArticleImg img { opacity: 1; }
+    .FoundPanel__Card:hover .FoundPanel__CardImg img, .FoundPanel__Article:hover .FoundPanel__ArticleImg img { transform: scale(1.04); }
+    .FoundPanel__CardSold { position: absolute; top: 8px; left: 8px; z-index: 1; background: #ffffff; padding: 4px 8px; font-family: var(--heading-font-family); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; }
+    .FoundPanel__Card--sold .FoundPanel__CardImg img { opacity: 0.75; }
+    .FoundPanel__CardBrand { margin-top: 8px; font-family: var(--heading-font-family); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-color-light); }
+    .FoundPanel__CardName, .FoundPanel__ArticleTitle { font-family: var(--heading-font-family); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .FoundPanel__ArticleTitle { margin-top: 6px; line-height: 1.4; }
+    .FoundPanel__CardPrice { font-size: 11px; }
+    .FoundPanel__ArticleRead { font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-color-light); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .FoundNav__Roll > span, .FoundNav__Burger span, .FoundPanel { transition: none; }
+    .FoundPanel__Shelf.is-shown .FoundPanel__Card, .FoundPanel__Shelf.is-shown .FoundPanel__Article { animation: none; opacity: 1; }
+    .FoundPanel__CardImg, .FoundPanel__ArticleImg { animation: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    var DESKTOP = window.matchMedia('(min-width: 1008px)');
+
+    function init(header) {
+      if (!header || header.__foundNav) return;
+      var nav = header.querySelector('[data-found-nav]');
+      var panel = header.querySelector('[data-found-panel]');
+      if (!nav || !panel) return;
+      var toggle = nav.querySelector('[data-found-toggle]');
+      var groups = Array.prototype.slice.call(panel.querySelectorAll('[data-group]'));
+      var warmed = false;
+
+      function warm() {
+        if (warmed) return;
+        warmed = true;
+        Array.prototype.forEach.call(panel.querySelectorAll('img[data-src]'), function (img) {
+          var card = img.closest('.FoundPanel__Card, .FoundPanel__Article');
+          var done = function () { if (card) card.classList.add('is-loaded'); };
+          img.addEventListener('load', done);
+          img.addEventListener('error', done);
+          img.src = img.getAttribute('data-src');
+          img.removeAttribute('data-src');
+        });
+      }
+
+      function show(key) {
+        panel.setAttribute('data-active', key);
+        groups.forEach(function (g) { g.classList.toggle('is-active', g.getAttribute('data-group') === key); });
+        Array.prototype.forEach.call(panel.querySelectorAll('[data-for]'), function (el) { el.classList.remove('is-shown'); });
+        void panel.offsetWidth; // restart the stagger
+        Array.prototype.forEach.call(panel.querySelectorAll('[data-for="' + key + '"]'), function (el) { el.classList.add('is-shown'); });
+      }
+
+      function setOpen(open) {
+        header.classList.toggle('Header--foundOpen', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) { warm(); show(panel.getAttribute('data-active') || (groups[0] && groups[0].getAttribute('data-group'))); }
+      }
+
+      toggle.addEventListener('click', function () { setOpen(!header.classList.contains('Header--foundOpen')); });
+      groups.forEach(function (g) {
+        g.addEventListener('mouseenter', function () { show(g.getAttribute('data-group')); });
+        g.addEventListener('focus', function () { show(g.getAttribute('data-group')); });
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+      document.addEventListener('click', function (e) { if (header.classList.contains('Header--foundOpen') && !header.contains(e.target)) setOpen(false); });
+
+      // Warm the product images once the page is idle, desktop only, so the first open is instant.
+      if (DESKTOP.matches && !(window.matchMedia && window.matchMedia('(prefers-reduced-data: reduce)').matches)) {
+        var idle = window.requestIdleCallback || function (cb) { setTimeout(cb, 1500); };
+        window.addEventListener('load', function () { idle(warm, { timeout: 4000 }); });
+      }
+
+      header.__foundNav = { close: function () { setOpen(false); } };
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('.Header--found'), init);
+    document.addEventListener('shopify:section:load', function (event) { init(event.target.querySelector('.Header--found')); });
+  })();
+</script>
