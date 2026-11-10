@@ -1,0 +1,10 @@
+{%- comment -%} Eased desktop scrolling (Lenis). See assets/smooth-scroll.js. {%- endcomment -%}
+<style>
+  html.lenis, html.lenis body { height: auto; }
+  .lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+  .lenis [data-lenis-prevent], .lenis [data-scrollable], .lenis .Drawer, .lenis .Popover, .lenis .FoundPanel { overscroll-behavior: contain; }
+  .lenis.lenis-smooth iframe { pointer-events: none; }
+  .lenis.lenis-autoToggle { transition-property: overflow; transition-duration: 1ms; transition-behavior: allow-discrete; }
+</style>
+<script src="{{ 'lenis.min.js' | asset_url }}" defer></script>
+<script src="{{ 'smooth-scroll.js' | asset_url }}" defer></script>
