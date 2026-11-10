@@ -365,10 +365,12 @@
     text-wrap: balance;
   }
 
-  /* The theme's "uppercase headings" feature targets .Heading; the hero headline stays sentence case. */
+  /* Headline matches the store's other headings: theme heading font, capitals, 0.2em tracking. */
   .HeroSearch .HeroSearch__Heading {
-    text-transform: none;
-    letter-spacing: -0.02em;
+    font-family: var(--heading-font-family);
+    font-weight: var(--heading-font-weight);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
   }
 
   .HeroSearch__Phrases {
@@ -758,7 +760,6 @@
 
   .HeroSearch--left .HeroSearch__Heading {
     font-size: clamp(40px, 7.2vw, 96px);
-    letter-spacing: -0.03em;
     line-height: 0.98;
     gap: 8px;
   }
@@ -774,13 +775,12 @@
 
   /* Single-line headline (no rotating phrase): a touch smaller so it breaks into two clean lines. */
   .HeroSearch--left .HeroSearch__Heading:not(.HeroSearch__Heading--withPhrase) {
-    font-size: clamp(28px, 3.2vw, 45px);
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    font-size: clamp(26px, 3.2vw, 45px);
+    line-height: 1.2;
   }
 
   .HeroSearch--left .HeroSearch__Heading:not(.HeroSearch__Heading--withPhrase) .HeroSearch__HeadingPrefix {
-    max-width: 28ch;
+    max-width: 24ch;
     text-wrap: balance;
   }
 
