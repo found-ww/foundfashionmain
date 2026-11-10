@@ -17,6 +17,9 @@
   assign main_menu_handle = section.settings.navigation_menu | default: 'main-menu'
   assign main_menu = linklists[main_menu_handle]
   assign quick_handle = section.settings.quick_links_menu | default: main_menu_handle
+  if quick_handle == main_menu_handle and linklists['quick-links'].links.size > 0
+    assign quick_handle = 'quick-links'
+  endif
   assign quick_menu = linklists[quick_handle]
   if quick_menu.links.size == 0
     assign quick_menu = main_menu
@@ -129,6 +132,22 @@
 </div>
 
 <style>
+  /*
+    Transparency is driven by this snippet's own script, not by the theme's: the header stays clear until the
+    content below the hero (or the collection banner) scrolls up to meet it, on every screen size, and hovering
+    or focusing the header never turns it solid. The theme's Header--transparent class is ignored here.
+  */
+  .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: {{ section.settings.transparent_text_color | default: '#ffffff' }};
+  }
+  .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) .Header__Icon,
+  .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) .Header__LogoLink > .Heading,
+  .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) .FoundNav { color: currentColor; }
+  .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) .Header__Icon svg { filter: drop-shadow(0 1px rgba(0, 0, 0, 0.25)); }
+  .Header--found:not(.Header--foundClear) { background: var(--header-background); }
+
   .FoundNav, .FoundPanel { display: none; }
 
   @media screen and (min-width: 1008px) {
@@ -152,18 +171,6 @@
       text-transform: uppercase;
       transition: color 0.3s ease-in-out;
     }
-
-    /*
-      Transparency is driven by this snippet's own script on desktop, not by the theme's: the header stays
-      clear until the content below the hero (or the collection banner) scrolls up to meet it, and hovering
-      or focusing the header never turns it solid. The theme's Header--transparent class is ignored here.
-    */
-    .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) {
-      background: transparent !important;
-      box-shadow: none !important;
-    }
-    .Header--found.Header--foundClear:not(.Header--foundOpen) .FoundNav { color: {{ section.settings.transparent_text_color | default: '#ffffff' }}; }
-    .Header--found:not(.Header--foundClear) { background: var(--header-background); }
 
     .FoundNav__Logo { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
     .FoundNav__Wordmark { font-size: 16px; letter-spacing: 0.2em; }
@@ -322,8 +329,8 @@
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
       document.addEventListener('click', function (e) { if (header.classList.contains('Header--foundOpen') && !header.contains(e.target)) setOpen(false); });
 
-      // Transparency: clear while the hero (or collection banner) is still under the header. Measured
-      // against the first section after the hero when the hero is pinned, otherwise the hero's own bottom.
+      // Transparency, every screen size: clear while the hero (or collection banner) is still under the header.
+      // Measured against the first section after the hero when the hero is pinned, otherwise the hero's own bottom.
       // This script runs while the header is still being parsed, so the hero is looked up once the DOM is ready.
       function setupTransparency() {
         var transparentPage = getComputedStyle(document.documentElement).getPropertyValue('--header-is-transparent').trim() === '1';
@@ -338,7 +345,6 @@
           ticking = true;
           window.requestAnimationFrame(function () {
             ticking = false;
-            if (!DESKTOP.matches) { header.classList.remove('Header--foundClear'); return; }
             var edge = (pinned && after) ? after.getBoundingClientRect().top : hero.getBoundingClientRect().bottom;
             header.classList.toggle('Header--foundClear', edge > header.offsetHeight);
           });
