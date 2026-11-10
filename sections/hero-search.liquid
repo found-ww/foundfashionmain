@@ -192,7 +192,7 @@
   /*
     Pinned hero: the section's wrapper sticks to the top of the viewport and every
     section after it slides up over it, the way Forma Studio's hero behaves. The
-    hero copy drifts up and fades as the page covers it; the photo eases in a touch.
+    hero copy drifts up and fades as the page covers it; the photo itself stays still.
   */
   #shopify-section-{{ section.id }} {
     position: sticky;
@@ -212,15 +212,8 @@
     will-change: transform, opacity;
   }
 
-  .HeroSearch--pinned .HeroSearch__BackgroundImage {
-    transform: scale(calc(1 + var(--hero-progress, 0) * 0.06));
-    transform-origin: center bottom;
-    will-change: transform;
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    .HeroSearch--pinned .HeroSearch__Inner,
-    .HeroSearch--pinned .HeroSearch__BackgroundImage {
+    .HeroSearch--pinned .HeroSearch__Inner {
       transform: none;
       opacity: 1;
     }
