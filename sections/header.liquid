@@ -156,11 +156,14 @@ HEADER CONTENT
 {%- endcapture -%}
 
 <header id="section-{{ section.id }}"
-        class="Header Header--{{ section.settings.navigation_style }} {% if section.settings.navigation_style != 'inline' and section.settings.navigation_style != 'logoLeft' %}Header--initialized{% endif %} {% if use_transparent_header %}Header--transparent{% endif %} {% if section.settings.show_icons or section.settings.navigation_style == 'sidebar' %}Header--withIcons{% endif %}"
+        class="Header Header--{{ section.settings.navigation_style }} {% if section.settings.navigation_style != 'inline' and section.settings.navigation_style != 'logoLeft' %}Header--initialized{% endif %} {% if use_transparent_header %}Header--transparent{% endif %} {% if section.settings.show_icons or section.settings.navigation_style == 'sidebar' %}Header--withIcons{% endif %} {% if section.settings.found_nav %}Header--found{% endif %}"
         data-section-id="{{ section.id }}"
         data-section-type="header"
         data-section-settings='{{ section_settings }}'
         role="banner">
+  {%- if section.settings.found_nav -%}
+    {%- render 'found-nav', section: section -%}
+  {%- endif -%}
   <div class="Header__Wrapper">
     <div class="Header__FlexItem Header__FlexItem--fill">
       <button class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable {% unless use_sidebar_menu %}hidden-desk{% endunless %}" aria-expanded="false" data-action="open-drawer" data-drawer-id="sidebar-menu" aria-label="{{ 'header.navigation.open_sidebar' | t }}">
@@ -728,6 +731,24 @@ HEADER CONTENT
       "id": "use_sticky_header",
       "label": "Use sticky header",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "Quick-links header (desktop)"
+    },
+    {
+      "type": "checkbox",
+      "id": "found_nav",
+      "label": "Use the quick-links header on desktop",
+      "info": "Logo left, up to six quick links centred, burger right. The burger opens a panel with the full menu and a row of products for each group. Phones and tablets keep the standard header and drawer.",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "quick_links_menu",
+      "label": "Quick links menu",
+      "info": "The first six links are shown. Leave empty to use the first six of the main menu.",
+      "default": "main-menu"
     },
     {
       "type": "header",
