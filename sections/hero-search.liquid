@@ -27,7 +27,7 @@
 -%}
 
 <section id="section-{{ section.id }}"
-         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %} {% if section.settings.bar_style == 'glass' and section.settings.bar_shape != 'underline' %}HeroSearch--glass{% endif %} HeroSearch--shape-{{ section.settings.bar_shape | default: 'pill' }} {% if section.settings.content_alignment == 'left' %}HeroSearch--left{% endif %} {% if section.settings.full_height %}HeroSearch--full{% endif %}"
+         class="HeroSearch {% if section.settings.image %}HeroSearch--withImage{% endif %} {% if section.settings.image and section.settings.apply_overlay %}HeroSearch--overlay{% endif %} {% if section.settings.bar_style == 'glass' and section.settings.bar_shape != 'underline' %}HeroSearch--glass{% endif %} HeroSearch--shape-{{ section.settings.bar_shape | default: 'pill' }} {% if section.settings.content_alignment == 'left' %}HeroSearch--left{% endif %} {% if section.settings.full_height %}HeroSearch--full{% endif %} {% if section.settings.pin_on_scroll %}HeroSearch--pinned{% endif %}"
          data-section-id="{{ section.id }}"
          data-section-type="hero-search"
          data-rotate-interval="{{ section.settings.rotate_speed | times: 1000 }}"
@@ -188,6 +188,38 @@
     so the hero fills the window below the announcement bar exactly as the old
     hero did. Falls back to 100vh before theme.js has measured the window.
   */
+  {%- if section.settings.pin_on_scroll -%}
+  /*
+    Pinned hero: the section's wrapper sticks to the top of the viewport and every
+    section after it slides up over it, the way Forma Studio's hero behaves. The
+    hero copy drifts up and fades as the page covers it; the photo itself stays still.
+  */
+  #shopify-section-{{ section.id }} {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+  }
+
+  #shopify-section-{{ section.id }} ~ .shopify-section {
+    position: relative;
+    z-index: 1;
+    background: var(--background);
+  }
+
+  .HeroSearch--pinned .HeroSearch__Inner {
+    transform: translateY(calc(var(--hero-progress, 0) * -70px));
+    opacity: calc(1 - var(--hero-progress, 0) * 1.4);
+    will-change: transform, opacity;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .HeroSearch--pinned .HeroSearch__Inner {
+      transform: none;
+      opacity: 1;
+    }
+  }
+  {%- endif -%}
+
   .HeroSearch--full {
     min-height: 100vh;
   }
@@ -967,6 +999,30 @@
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var timers = [];
 
+      // Pinned hero: how far the page has scrolled over it, 0 to 1, drives the fade and drift.
+      if (section.classList.contains('HeroSearch--pinned') && !reduceMotion) {
+        var wrapper = section.parentNode;
+        var ticking = false;
+        var onScroll = function () {
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(function () {
+            // How much of the hero the next section has covered: 0 when it sits just
+            // below the hero, 1 when it has reached the top of the viewport.
+            var next = wrapper.nextElementSibling;
+            var height = section.offsetHeight || 1;
+            var covered = next ? height - next.getBoundingClientRect().top : window.scrollY;
+            var progress = Math.min(1, Math.max(0, covered / height));
+            section.style.setProperty('--hero-progress', progress.toFixed(3));
+            ticking = false;
+          });
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        onScroll();
+        section.__heroPin = onScroll;
+      }
+
       // Generic stacked-rotation helper: one element visible at a time, the rest wait.
       function rotate(items, every, offset, onChange) {
         if (items.length < 2) return;
@@ -1062,6 +1118,11 @@
     }
 
     function teardown(section) {
+      if (section && section.__heroPin) {
+        window.removeEventListener('scroll', section.__heroPin);
+        window.removeEventListener('resize', section.__heroPin);
+        delete section.__heroPin;
+      }
       if (section && section.__heroSearch) {
         section.__heroSearch.stop();
         delete section.__heroSearch;
@@ -1197,6 +1258,13 @@
       "label": "Apply overlay on image",
       "info": "Improves text visibility on photos.",
       "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "pin_on_scroll",
+      "label": "Pin while the page scrolls over it",
+      "info": "The hero stays put and the sections below slide up over it; the copy fades as they do.",
+      "default": false
     },
     {
       "type": "checkbox",
