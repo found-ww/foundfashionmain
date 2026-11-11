@@ -1,6 +1,6 @@
 /*
   Eased scrolling on desktop, the way Forma Studio's site scrolls: each wheel tick settles into place
-  over about 0.8s instead of jumping. Built on Lenis (assets/lenis.min.js, MIT). Phones and tablets keep
+  over about 0.6s instead of jumping. Built on Lenis (assets/lenis.min.js, MIT). Phones and tablets keep
   native scrolling, and anyone with "reduce motion" switched on gets the browser's own scrolling.
   The real window still scrolls, so the pinned hero, header transparency and the theme's scroll code
   work unchanged. Drawers, popovers, the search overlay and the menu panel scroll natively inside.
@@ -15,7 +15,7 @@
   function start() {
     if (lenis || !desktop.matches || reduce.matches) return;
     lenis = new window.Lenis({
-      lerp: 0.1,
+      lerp: 0.14,
       wheelMultiplier: 1,
       smoothWheel: true,
       syncTouch: false,
