@@ -5,10 +5,10 @@
   header's "Quick-links header" setting is on. Below 1008px it is hidden and the
   theme's own mobile header and sidebar drawer stay exactly as they are.
 
-  Closed:  wordmark left · up to six quick links centred (label rolls on hover) · burger right.
-  Open:    quick links step aside; currency, Account and Cart appear; a panel drops from
-           the header with every top-level link, its sub-links on hover, and a row of
-           ten products (or articles for a blog) for the hovered group.
+  Closed:  wordmark left · up to eight quick links centred (label rolls on hover) · burger right.
+  Open:    quick links stay put and become the group selectors; currency, Account and Cart
+           appear; a panel drops from the header with the hovered group's sections centred
+           under the links and a row of ten products (or articles for a blog) beneath them.
 
   Accepts: section (the header section).
 {%- endcomment -%}
@@ -38,8 +38,13 @@
   </a>
 
   <nav class="FoundNav__Quick" aria-label="{{ 'header.navigation.title' | t }}">
-    {%- for link in quick_menu.links limit: 6 -%}
-      <a href="{{ link.url }}" class="FoundNav__QuickLink"><span class="FoundNav__Roll"><span>{{ link.title | escape }}</span><span aria-hidden="true">{{ link.title | escape }}</span></span></a>
+    {%- for link in quick_menu.links limit: 8 -%}
+      {%- comment -%} A quick link that matches a main-menu group by URL also selects that group's sections and shelf in the open panel. {%- endcomment -%}
+      {%- assign quick_group = '' -%}
+      {%- for main_link in main_menu.links -%}
+        {%- if main_link.url == link.url -%}{%- assign quick_group = forloop.index | prepend: 'g' -%}{%- endif -%}
+      {%- endfor -%}
+      <a href="{{ link.url }}" class="FoundNav__QuickLink" {% if quick_group != '' %}data-group="{{ quick_group }}"{% endif %}><span class="FoundNav__Roll"><span>{{ link.title | escape }}</span><span aria-hidden="true">{{ link.title | escape }}</span></span></a>
     {%- endfor -%}
   </nav>
 
@@ -66,18 +71,6 @@
 </div>
 
 <div class="FoundPanel" id="FoundPanel-{{ section.id }}" aria-hidden="true" data-found-panel data-active="g1">
-  <nav class="FoundPanel__Nav" aria-label="{{ 'header.navigation.title' | t }}">
-    {%- for link in main_menu.links -%}
-      {%- liquid
-        assign has_shelf = false
-        if link.type == 'collection_link' or link.type == 'blog_link' or link.links.size > 0
-          assign has_shelf = true
-        endif
-      -%}
-      <a href="{{ link.url }}" class="FoundPanel__NavLink {% if forloop.first %}is-active{% endif %}" {% if has_shelf %}data-group="g{{ forloop.index }}"{% endif %}>{{ link.title | escape }}</a>
-    {%- endfor -%}
-  </nav>
-
   <div class="FoundPanel__Subs">
     {%- for link in main_menu.links -%}
       {%- if link.links.size > 0 -%}
@@ -129,6 +122,16 @@
       {%- endif -%}
     {%- endfor -%}
   </div>
+
+  {%- comment -%} Main-menu links without a quick link of their own (Personal shopping, Contact) stay reachable here. {%- endcomment -%}
+  {%- capture other_links -%}
+    {%- for main_link in main_menu.links -%}
+      {%- assign in_quick = false -%}
+      {%- for q in quick_menu.links limit: 8 -%}{%- if q.url == main_link.url -%}{%- assign in_quick = true -%}{%- endif -%}{%- endfor -%}
+      {%- unless in_quick -%}<a href="{{ main_link.url }}">{{ main_link.title | escape }}</a>{%- endunless -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+  {%- if other_links != blank -%}<div class="FoundPanel__Other">{{ other_links }}</div>{%- endif -%}
 </div>
 
 <style>
@@ -186,7 +189,9 @@
       white-space: nowrap;
     }
 
-    .Header--foundOpen .FoundNav__Quick { display: none; }
+    .Header--foundOpen .FoundNav__QuickLink.is-active .FoundNav__Roll > span:first-child { opacity: 1; }
+    @media screen and (max-width: 1240px) { .FoundNav__Quick { gap: 20px; } .FoundNav__QuickLink { font-size: 11px; letter-spacing: 0.16em; } }
+    @media screen and (max-width: 1120px) { .FoundNav__Quick { gap: 15px; } .FoundNav__QuickLink { letter-spacing: 0.13em; } }
 
     .FoundNav__QuickLink { color: inherit; text-decoration: none; line-height: 1; }
 
@@ -199,7 +204,8 @@
     .FoundNav__QuickLink:focus-visible .FoundNav__Roll > span { transform: translateY(-100%); }
 
     .FoundNav__Right { display: flex; align-items: center; gap: 28px; }
-    .FoundNav__Utilities { display: none; align-items: center; gap: 28px; }
+    /* The quick links keep their place when the panel opens, so currency, Account and Cart sit on the panel's first row, right-aligned, level with the centred sections. */
+    .FoundNav__Utilities { display: none; align-items: center; gap: 24px; position: absolute; top: 104px; right: 50px; line-height: 1; }
     .Header--foundOpen .FoundNav__Utilities { display: flex; }
     .FoundNav__Utility { color: inherit; text-decoration: none; }
 
@@ -238,17 +244,17 @@
     .Header--foundOpen .FoundPanel { transform: none; visibility: visible; transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1); }
     .Header--foundOpen { background: transparent; box-shadow: none; }
 
-    .FoundPanel__Nav { display: flex; flex-wrap: wrap; gap: 12px 36px; padding-bottom: 22px; border-bottom: 1px solid var(--header-border-color); }
-    .FoundPanel__NavLink { font-family: var(--heading-font-family); font-weight: 500; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: inherit; text-decoration: none; transition: color 150ms; }
-    .FoundPanel__NavLink:hover, .FoundPanel__NavLink.is-active { color: var(--text-color-light); }
 
-    .FoundPanel__Subs { min-height: 34px; padding-top: 14px; }
-    .FoundPanel__Sub { display: none; flex-wrap: wrap; gap: 10px 26px; }
+    .FoundPanel__Subs { min-height: 34px; padding: 2px 230px 0; } /* side room keeps the centred sections clear of the utilities on the right */
+    .FoundPanel__Sub { display: none; flex-wrap: wrap; justify-content: center; gap: 10px 26px; }
     .FoundPanel__Sub.is-shown { display: flex; }
     .FoundPanel__Sub a { font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-color-light); text-decoration: none; }
     .FoundPanel__Sub a:hover { color: var(--header-heading-color); }
 
     .FoundPanel__Shelves { padding-top: 18px; }
+    .FoundPanel__Other { display: flex; justify-content: center; gap: 28px; padding-top: 16px; }
+    .FoundPanel__Other a { font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-color-light); text-decoration: none; }
+    .FoundPanel__Other a:hover { color: var(--header-heading-color); }
     /* A full row of ten products always fits the panel width; the cards share the space and grow with the screen. */
     .FoundPanel__Shelf { display: none; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 16px; padding-bottom: 8px; }
     .FoundPanel__Shelf.is-shown { display: grid; }
@@ -277,6 +283,7 @@
   /* Wide screens: the header grows in step with the hero (same gutter formula as hero-search.liquid). */
   @media screen and (min-width: 1920px) {
     .FoundNav { padding: 0 clamp(50px, 3vw, 110px); font-size: clamp(12px, 0.5vw, 14px); height: clamp(92px, 3.6vw, 112px); }
+    .FoundNav__Utilities { top: clamp(104px, 4vw, 124px); right: clamp(50px, 3vw, 110px); }
     .FoundNav__Wordmark { font-size: clamp(16px, 0.7vw, 20px); }
     .FoundNav__Quick { gap: clamp(30px, 1.5vw, 46px); }
     .FoundPanel { padding: clamp(104px, 4vw, 124px) clamp(50px, 3vw, 110px) 28px; }
@@ -299,7 +306,7 @@
       var panel = header.querySelector('[data-found-panel]');
       if (!nav || !panel) return;
       var toggle = nav.querySelector('[data-found-toggle]');
-      var groups = Array.prototype.slice.call(panel.querySelectorAll('[data-group]'));
+      var groups = Array.prototype.slice.call(nav.querySelectorAll('[data-group]'));
       var warmed = false;
 
       function warm() {
