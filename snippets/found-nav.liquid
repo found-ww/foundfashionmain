@@ -331,6 +331,20 @@
       }
 
       toggle.addEventListener('click', function () { setOpen(!header.classList.contains('Header--foundOpen')); });
+
+      // Hovering the bar opens the panel; leaving the bar and panel closes it. Short delays so a cursor
+      // passing through does not flash it, and a slip off the edge does not snap it shut. Mouse only.
+      if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        var hoverTimer = null;
+        var later = function (fn, ms) { clearTimeout(hoverTimer); hoverTimer = setTimeout(function () { hoverTimer = null; fn(); }, ms); };
+        // mousemove rather than mouseenter, so a page that loads under a resting cursor does not open by itself
+        nav.addEventListener('mousemove', function (e) {
+          if (!e.movementX && !e.movementY) return; // the browser's own hover refresh, not the hand
+          if (DESKTOP.matches && !hoverTimer && !header.classList.contains('Header--foundOpen')) later(function () { setOpen(true); }, 120);
+        });
+        header.addEventListener('mouseleave', function () { later(function () { setOpen(false); }, 220); });
+        header.addEventListener('mouseenter', function () { clearTimeout(hoverTimer); hoverTimer = null; });
+      }
       groups.forEach(function (g) {
         g.addEventListener('mouseenter', function () { show(g.getAttribute('data-group')); });
         g.addEventListener('focus', function () { show(g.getAttribute('data-group')); });
