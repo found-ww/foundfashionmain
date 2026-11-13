@@ -257,18 +257,29 @@
         {%- if section.settings.show_filters and collection.filters != empty -%}
           {%- assign color_label = 'color,colour,couleur,colore,farbe,색,色,färg,farve' | split: ',' -%}
 
+          {%- comment -%}
+            Two passes: the vendor filter (shown as "Brand") always comes first, whatever order the Search & Discovery
+            app has it in; every other filter follows in the app's order.
+          {%- endcomment -%}
+          {%- for filter_pass in (1..2) -%}
           {%- for filter in collection.filters -%}
+            {%- assign is_brand_filter = false -%}
+            {%- if filter.param_name == 'filter.p.vendor' -%}{%- assign is_brand_filter = true -%}{%- endif -%}
+            {%- if filter_pass == 1 and is_brand_filter == false -%}{%- continue -%}{%- endif -%}
+            {%- if filter_pass == 2 and is_brand_filter -%}{%- continue -%}{%- endif -%}
+            {%- assign filter_label = filter.label -%}
+            {%- if is_brand_filter -%}{%- assign filter_label = 'Brand' -%}{%- endif -%}
             {%- assign downcase_filter_label = filter.label | downcase -%}
 
             <div class="Collapsible Collapsible--padded {% if section.settings.expand_filters %}Collapsible--autoExpand{% endif %}" data-filter-index="{% increment filter_index %}">
               {%- if filter.type == 'boolean' -%}
                 <div class="Collapsible__Button BooleanFilter">
-                  <label for="{{ filter.param_name }}" class="Heading u-h6">{{- filter.label -}}</label>
+                  <label for="{{ filter.param_name }}" class="Heading u-h6">{{- filter_label -}}</label>
                   <input id="{{ filter.param_name }}" type="checkbox" class="switch-checkbox" name="{{ filter.param_name }}" value="1" {% if filter.true_value.active %}checked{% endif %}>
                 </div>
               {%- else -%}
                 <button type="button" class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="false">
-                  {{- filter.label -}} <span class="Collapsible__Plus"></span>
+                  {{- filter_label -}} <span class="Collapsible__Plus"></span>
                 </button>
               {%- endif -%}
 
@@ -338,6 +349,7 @@
                 </div>
               </div>
             </div>
+          {%- endfor -%}
           {%- endfor -%}
         {%- endif -%}
 
