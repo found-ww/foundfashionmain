@@ -301,7 +301,7 @@
     .FoundPanel__Card:hover .FoundPanel__CardBrand, .FoundPanel__Article:hover .FoundPanel__ArticleRead { color: var(--header-heading-color); }
     .FoundPanel__CardBrand, .FoundPanel__ArticleRead { transition: color 200ms; }
     /* A full row of ten products always fits the panel width; the cards share the space and grow with the screen. */
-    .FoundPanel__Shelf { display: grid; grid-area: 1 / 1; visibility: hidden; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 16px; padding-bottom: 8px; }
+    .FoundPanel__Shelf { display: grid; grid-area: 1 / 1; visibility: hidden; grid-template-columns: repeat(10, minmax(0, 1fr)); align-items: start; align-content: start; gap: 16px; padding-bottom: 8px; }
     .FoundPanel__Shelf.is-shown { visibility: visible; }
     .FoundPanel__Shelf--articles { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 220px; overflow-x: auto; scrollbar-width: thin; }
 
