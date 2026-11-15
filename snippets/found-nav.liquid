@@ -6,8 +6,8 @@
   theme's own mobile header and sidebar drawer stay exactly as they are.
 
   Closed:  wordmark left · up to eight quick links centred (label rolls on hover) · burger right.
-  Closed and open: search, account and cart are icons at the right of the bar, with the
-           currency as a word before them on wide desktops.
+  Closed and open: search and bag are small icons at the right of the bar, a dot on the bag
+           when it holds something; currency and Account sit at the foot of the panel's index column.
   Open:    quick links stay put and become the group selectors; the page dims; a panel drops
            from the header with an index column left (the hovered group's sections, "See all",
            and currency on narrow desktops) and six products (or articles for a blog) right.
@@ -53,22 +53,8 @@
 
   <div class="FoundNav__Right">
     <div class="FoundNav__Icons">
-      {%- if section.settings.show_country_selector and localization.available_countries.size > 1 -%}
-        {%- form 'localization', id: 'FoundNavLocalization', class: 'FoundNav__Currency FoundNav__Currency--bar' -%}
-          <label for="FoundNavCountry" class="u-visually-hidden">{{ 'header.general.country' | t }}</label>
-          <span class="FoundNav__CurrencyLabel" aria-hidden="true">{{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}<i></i></span>
-          <select id="FoundNavCountry" name="country_code" class="FoundNav__CurrencySelect" onchange="this.form.submit()">
-            {%- for country in localization.available_countries -%}
-              <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>{{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})</option>
-            {%- endfor -%}
-          </select>
-        {%- endform -%}
-      {%- endif -%}
-      <a href="{{ routes.search_url }}" class="FoundNav__Icon" data-action="toggle-search" aria-label="{{ 'header.navigation.search' | t }}">{%- render 'icon' with 'search-desktop' -%}</a>
-      {%- if shop.customer_accounts_enabled -%}
-        <a href="{{ routes.account_url }}" class="FoundNav__Icon" aria-label="{{ 'header.navigation.account' | t }}">{%- render 'icon' with 'account' -%}</a>
-      {%- endif -%}
-      <a href="{{ routes.cart_url }}" class="FoundNav__Icon FoundNav__Icon--cart" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-expanded="false"{% endunless %} aria-label="{{ 'header.navigation.open_cart' | t }}">{%- render 'icon' with 'cart-desktop' -%}<span class="FoundNav__CartCount Header__CartCount">{{ cart.item_count }}</span></a>
+      <a href="{{ routes.search_url }}" class="FoundNav__Icon" data-action="toggle-search" aria-label="{{ 'header.navigation.search' | t }}"><svg viewBox="0 0 21 21" aria-hidden="true"><g transform="translate(1 1)" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"><path d="M18 18l-5.7-5.7"/><circle cx="7.5" cy="7.5" r="7.5"/></g></svg></a>
+      <a href="{{ routes.cart_url }}" class="FoundNav__Icon FoundNav__Icon--cart" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-expanded="false"{% endunless %} aria-label="{{ 'header.navigation.open_cart' | t }}"><svg viewBox="0 0 17 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 6.5h14l-1 12h-12z"/><path d="M5.5 6V4.5a3 3 0 016 0V6"/></svg><span class="FoundNav__CartDot Header__CartDot {% if cart.item_count > 0 %}is-visible{% endif %}"></span><span class="Header__CartCount u-visually-hidden">{{ cart.item_count }}</span></a>
     </div>
     <button type="button" class="FoundNav__Burger" data-found-toggle aria-expanded="false" aria-controls="FoundPanel-{{ section.id }}" aria-label="{{ 'header.navigation.open_sidebar' | t }}"><span></span><span></span></button>
   </div>
@@ -100,8 +86,9 @@
       {%- endif -%}
     {%- endfor -%}
   </div>
+    <div class="FoundPanel__IndexFoot">
     {%- if section.settings.show_country_selector and localization.available_countries.size > 1 -%}
-        {%- form 'localization', id: 'FoundNavLocalizationPanel', class: 'FoundNav__Currency FoundNav__Currency--panel' -%}
+        {%- form 'localization', id: 'FoundNavLocalizationPanel', class: 'FoundNav__Currency' -%}
           <label for="FoundNavCountryPanel" class="u-visually-hidden">{{ 'header.general.country' | t }}</label>
           <span class="FoundNav__CurrencyLabel" aria-hidden="true">{{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}<i></i></span>
           <select id="FoundNavCountryPanel" name="country_code" class="FoundNav__CurrencySelect" onchange="this.form.submit()">
@@ -111,6 +98,10 @@
           </select>
         {%- endform -%}
       {%- endif -%}
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}" class="FoundPanel__Account">{{ 'header.navigation.account' | t }}</a>
+      {%- endif -%}
+    </div>
   </div>
 
   <div class="FoundPanel__Shelves">
@@ -222,32 +213,34 @@
     .FoundNav__QuickLink:focus-visible .FoundNav__Roll > span { transform: translateY(-100%); }
 
     .FoundNav__Right { display: flex; align-items: center; gap: 28px; }
-    .FoundNav__Icons { display: flex; align-items: center; gap: 22px; }
-    .FoundNav__Icon { position: relative; display: inline-flex; align-items: center; color: inherit; line-height: 0; }
-    .FoundNav__Icon svg { width: 17px; height: 17px; }
-    .FoundNav__Icon:hover svg { opacity: 0.7; }
-    .FoundNav__CartCount { position: absolute; top: -7px; right: -8px; font-size: 8px; line-height: 1; letter-spacing: 0; font-weight: 500; }
+    /* Search and bag only, drawn at the capitals' weight, one 28px rhythm through to the burger. */
+    .FoundNav__Icons { display: flex; align-items: center; gap: 28px; }
+    .FoundNav__Icon { position: relative; display: inline-flex; align-items: center; color: inherit; line-height: 0; transition: opacity 200ms; }
+    .FoundNav__Icon svg { width: 15px; height: 15px; }
+    .FoundNav__Icon:hover { opacity: 0.7; }
+    .FoundNav__CartDot { position: absolute; top: -3px; right: -4px; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0; transition: opacity 200ms; }
+    .FoundNav__CartDot.is-visible { opacity: 1; }
     /* The quick links keep their place when the panel opens, so currency, Account and Cart sit on the panel's first row, right-aligned, level with the centred sections. */
     .FoundNav__Utility { color: inherit; text-decoration: none; }
 
-    /* Currency: a word in the bar on wide desktops; at the foot of the panel's index column below 1240px, where the bar has no room. */
-    .FoundNav__Currency { position: relative; display: inline-flex; align-items: center; font-size: 11px; letter-spacing: 0.18em; }
-    .FoundNav__Currency--bar { margin-right: 4px; }
-    .FoundNav__Currency--panel { display: none; font-family: var(--heading-font-family); font-size: 10px; text-transform: uppercase; color: var(--text-color-light); }
-    @media screen and (max-width: 1240px) { .FoundNav__Currency--bar { display: none; } .FoundNav__Currency--panel { display: inline-flex; } }
+    /* Currency and Account live at the foot of the panel's index column, not in the bar. */
+    .FoundPanel__IndexFoot { display: flex; align-items: center; gap: 20px; font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-color-light); }
+    .FoundNav__Currency { position: relative; display: inline-flex; align-items: center; }
+    .FoundPanel__Account { color: inherit; text-decoration: none; }
+    .FoundPanel__Account:hover, .FoundNav__Currency:hover { color: var(--header-heading-color); }
     .FoundNav__CurrencyLabel { display: inline-flex; align-items: center; gap: 6px; }
     .FoundNav__CurrencyLabel i { width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) translateY(-2px); }
     .FoundNav__CurrencySelect { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
 
-    .FoundNav__Burger { display: inline-flex; flex-direction: column; justify-content: center; gap: 6px; width: 40px; height: 40px; padding: 8px; margin-right: -8px; background: transparent; border: 0; color: inherit; cursor: pointer; }
+    .FoundNav__Burger { display: inline-flex; flex-direction: column; justify-content: center; gap: 5px; width: 31px; height: 31px; padding: 8px; margin-right: -8px; background: transparent; border: 0; color: inherit; cursor: pointer; }
     .FoundNav__Burger span { display: block; height: 1px; background: currentColor; transform-origin: right center; transition: transform 380ms cubic-bezier(0.2, 0.7, 0.2, 1); }
     .FoundNav__Burger:hover span:nth-child(1) { transform: translateX(3px) scaleX(0.82); }
     .FoundNav__Burger:hover span:nth-child(2) { transform: translateX(-3px); }
     .Header--foundOpen .FoundNav__Burger span { transform-origin: center; }
     .Header--foundOpen .FoundNav__Burger span:nth-child(1),
-    .Header--foundOpen .FoundNav__Burger:hover span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .Header--foundOpen .FoundNav__Burger:hover span:nth-child(1) { transform: translateY(3px) rotate(45deg); }
     .Header--foundOpen .FoundNav__Burger span:nth-child(2),
-    .Header--foundOpen .FoundNav__Burger:hover span:nth-child(2) { transform: translateY(-7px) rotate(-45deg); }
+    .Header--foundOpen .FoundNav__Burger:hover span:nth-child(2) { transform: translateY(-3px) rotate(-45deg); }
     .FoundNav__Burger:focus-visible { outline: 1px solid currentColor; outline-offset: 3px; }
 
     /* Panel */
