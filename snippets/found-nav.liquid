@@ -9,8 +9,9 @@
   Closed and open: search and bag are small icons at the right of the bar, a dot on the bag
            when it holds something; currency and Account sit at the foot of the panel's index column.
   Open:    quick links stay put and become the group selectors; the page dims; a panel drops
-           from the header with an index column left (the hovered group's sections, "See all",
-           and currency on narrow desktops) and six products (or articles for a blog) right.
+           from the header with an index column left (the hovered group's sections and "See all"),
+           six products (or articles for a blog) right, and a hairline strip across the foot with
+           the secondary pages left and currency and Account right.
            Clicks are reported to GA4 and Shopify customer events.
 
   Accepts: section (the header section).
@@ -86,22 +87,6 @@
       {%- endif -%}
     {%- endfor -%}
   </div>
-    <div class="FoundPanel__IndexFoot">
-    {%- if section.settings.show_country_selector and localization.available_countries.size > 1 -%}
-        {%- form 'localization', id: 'FoundNavLocalizationPanel', class: 'FoundNav__Currency' -%}
-          <label for="FoundNavCountryPanel" class="u-visually-hidden">{{ 'header.general.country' | t }}</label>
-          <span class="FoundNav__CurrencyLabel" aria-hidden="true">{{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}<i></i></span>
-          <select id="FoundNavCountryPanel" name="country_code" class="FoundNav__CurrencySelect" onchange="this.form.submit()">
-            {%- for country in localization.available_countries -%}
-              <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>{{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})</option>
-            {%- endfor -%}
-          </select>
-        {%- endform -%}
-      {%- endif -%}
-      {%- if shop.customer_accounts_enabled -%}
-        <a href="{{ routes.account_url }}" class="FoundPanel__Account">{{ 'header.navigation.account' | t }}</a>
-      {%- endif -%}
-    </div>
   </div>
 
   <div class="FoundPanel__Shelves">
@@ -140,6 +125,33 @@
     {%- endfor -%}
   </div>
 
+
+  {%- comment -%} Full-width strip: main-menu links without a quick link (Personal shopping, Contact) left; currency and Account right. {%- endcomment -%}
+  <div class="FoundPanel__Strip">
+    <div class="FoundPanel__StripLinks">
+      {%- for main_link in main_menu.links -%}
+        {%- assign in_quick = false -%}
+        {%- for q in quick_menu.links limit: 8 -%}{%- if q.url == main_link.url -%}{%- assign in_quick = true -%}{%- endif -%}{%- endfor -%}
+        {%- unless in_quick -%}<a href="{{ main_link.url }}">{{ main_link.title | escape }}</a>{%- endunless -%}
+      {%- endfor -%}
+    </div>
+    <div class="FoundPanel__StripUtils">
+    {%- if section.settings.show_country_selector and localization.available_countries.size > 1 -%}
+        {%- form 'localization', id: 'FoundNavLocalizationPanel', class: 'FoundNav__Currency' -%}
+          <label for="FoundNavCountryPanel" class="u-visually-hidden">{{ 'header.general.country' | t }}</label>
+          <span class="FoundNav__CurrencyLabel" aria-hidden="true">{{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}<i></i></span>
+          <select id="FoundNavCountryPanel" name="country_code" class="FoundNav__CurrencySelect" onchange="this.form.submit()">
+            {%- for country in localization.available_countries -%}
+              <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>{{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})</option>
+            {%- endfor -%}
+          </select>
+        {%- endform -%}
+      {%- endif -%}
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_url }}" class="FoundPanel__Account">{{ 'header.navigation.account' | t }}</a>
+      {%- endif -%}
+    </div>
+  </div>
 </div>
 <div class="FoundBackdrop" data-found-backdrop aria-hidden="true"></div>
 
@@ -223,11 +235,14 @@
     /* The quick links keep their place when the panel opens, so currency, Account and Cart sit on the panel's first row, right-aligned, level with the centred sections. */
     .FoundNav__Utility { color: inherit; text-decoration: none; }
 
-    /* Currency and Account live at the foot of the panel's index column, not in the bar. */
-    .FoundPanel__IndexFoot { display: flex; align-items: center; gap: 20px; font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-color-light); }
-    .FoundNav__Currency { position: relative; display: inline-flex; align-items: center; }
-    .FoundPanel__Account { color: inherit; text-decoration: none; }
-    .FoundPanel__Account:hover, .FoundNav__Currency:hover { color: var(--header-heading-color); }
+    /* A hairline strip across the foot of the panel: secondary pages left in grey, currency and Account right. */
+    .FoundPanel__Strip { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--header-border-color); font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+    .FoundPanel__StripLinks, .FoundPanel__StripUtils { display: flex; align-items: center; gap: 24px; }
+    .FoundPanel__StripLinks a { color: var(--text-color-light); text-decoration: none; }
+    .FoundPanel__StripLinks a:hover, .FoundPanel__Account:hover, .FoundNav__Currency:hover { color: var(--text-color-light); }
+    .FoundNav__Currency { position: relative; display: inline-flex; align-items: center; color: var(--header-heading-color); }
+    .FoundPanel__Account { color: var(--header-heading-color); text-decoration: none; }
+    .FoundPanel__StripLinks a:hover { color: var(--header-heading-color); }
     .FoundNav__CurrencyLabel { display: inline-flex; align-items: center; gap: 6px; }
     .FoundNav__CurrencyLabel i { width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) translateY(-2px); }
     .FoundNav__CurrencySelect { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
