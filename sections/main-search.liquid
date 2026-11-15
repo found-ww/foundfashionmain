@@ -167,7 +167,7 @@
             {%- endif -%}
 
             {%- if section.settings.show_filters and search.filters != empty -%}
-              {%- assign color_label = 'color,colour,couleur,colore,farbe,색,色,färg,farve' | split: ',' -%}
+              {%- comment -%} Search results list the Color filter by name, like the other filters, never as swatches. {%- endcomment -%}
 
               {%- for filter in search.filters -%}
                 {%- assign downcase_filter_label = filter.label | downcase -%}
@@ -186,8 +186,8 @@
 
                   <div class="Collapsible__Inner">
                     <div class="Collapsible__Content">
-                      <ul class="{% if section.settings.show_filter_color_swatch and color_label contains downcase_filter_label %}ColorSwatchList HorizontalList HorizontalList--spacingTight{% else %}Linklist{% endif %}">
-                        {%- if section.settings.show_filter_color_swatch and color_label contains downcase_filter_label -%}
+                      <ul class="{% if false %}ColorSwatchList HorizontalList HorizontalList--spacingTight{% else %}Linklist{% endif %}">
+                        {%- if false -%}
                           {%- assign color_swatch_config = settings.color_swatch_config | newline_to_br | split: '<br />' -%}
 
                           {%- for filter_value in filter.values -%}
