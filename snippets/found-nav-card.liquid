@@ -11,5 +11,5 @@
   </span>
   {%- if product.vendor != blank -%}<span class="FoundPanel__CardBrand">{{ product.vendor | escape }}</span>{%- endif -%}
   <span class="FoundPanel__CardName">{{ product.title | escape }}</span>
-  <span class="FoundPanel__CardPrice">{{ product.price | money }}</span>
+  <span class="FoundPanel__CardPrice">{{ product.price | money_without_trailing_zeros }}</span>
 </a>
