@@ -201,6 +201,9 @@
     }
 
     .Header--foundOpen .FoundNav__QuickLink.is-active .FoundNav__Roll > span:first-child { opacity: 1; }
+    /* With the panel open the links are selectors: no text roll on hover, just the active one at full strength. */
+    .Header--foundOpen .FoundNav__QuickLink:hover .FoundNav__Roll > span,
+    .Header--foundOpen .FoundNav__QuickLink:focus-visible .FoundNav__Roll > span { transform: none; }
     @media screen and (max-width: 1240px) { .FoundNav__Quick { gap: 20px; } .FoundNav__QuickLink { font-size: 11px; letter-spacing: 0.16em; } }
     @media screen and (max-width: 1120px) { .FoundNav__Quick { gap: 15px; } .FoundNav__QuickLink { letter-spacing: 0.13em; } }
 
