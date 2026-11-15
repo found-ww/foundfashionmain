@@ -398,7 +398,8 @@
       });
 
 
-      // The theme's search overlay and this panel never show together: opening one closes the other.
+      // The theme's search overlay and this panel never show together: opening one closes the other,
+      // and hovering the quick links while search is open swaps search for the panel.
       var searchEl = document.getElementById('Search');
       function searchIsOpen() { return !!searchEl && searchEl.getAttribute('aria-hidden') === 'false'; }
       function closeSearch() { var c = searchEl && searchEl.querySelector('[data-action="close-search"]'); if (searchIsOpen() && c) c.click(); }
@@ -420,8 +421,7 @@
         // Only the quick links and the burger open it, not the wordmark or the empty bar.
         var armOpen = function (e) {
           if (!e.movementX && !e.movementY) return; // the browser's own hover refresh, not the hand
-          if (searchIsOpen()) return; // the search overlay keeps the bar to itself
-          if (DESKTOP.matches && !hoverTimer && !header.classList.contains('Header--foundOpen')) later(function () { setOpen(true); }, 120);
+          if (DESKTOP.matches && !hoverTimer && !header.classList.contains('Header--foundOpen')) later(function () { closeSearch(); setOpen(true); }, 120);
         };
         var quick = nav.querySelector('.FoundNav__Quick');
         if (quick) quick.addEventListener('mousemove', armOpen);
