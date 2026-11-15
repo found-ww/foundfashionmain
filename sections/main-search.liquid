@@ -41,7 +41,7 @@
         <h1 class="EmptyState__Title Heading u-h5">{{ 'search.general.title' | t }}</h1>
 
         {%- if search.performed -%}
-          {%- assign filtered_terms = search.terms | replace: '*', '' -%}
+          {%- assign filtered_terms = search.terms | replace: '*', '' | remove: 'title:' -%}
           <p>{{ 'search.general.no_results_with_terms' | t: terms: filtered_terms }}</p>
         {%- else -%}
           <p>{{ 'search.general.content' | t }}</p>
@@ -63,7 +63,7 @@
             <h1 class="SectionHeader__Heading Heading u-h1">{{ 'search.general.title' | t }}</h1>
 
             <div class="SectionHeader__Description">
-              {%- assign filtered_terms = search.terms | replace: '*', '' -%}
+              {%- assign filtered_terms = search.terms | replace: '*', '' | remove: 'title:' -%}
               {{- 'search.general.results_with_terms_count' | t: count: search.results_count, terms: filtered_terms -}}
             </div>
           </div>
