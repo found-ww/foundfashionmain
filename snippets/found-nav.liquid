@@ -330,7 +330,11 @@
     .shopify-section--header .Search { background: rgba(255, 255, 255, 0.97); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25); transform: translateY(-12px); }
     .shopify-section--header .Search[aria-hidden="false"] { transform: none; }
     .shopify-section--header .Search { z-index: 3; } /* above the open panel: search takes the panel's place without the panel closing */
-    .Header--foundSearching .FoundPanel { visibility: hidden; transition: visibility 0s 160ms; }
+    /* While search is showing: the panel's sheet and contents step aside (the shelf and sections set their own visibility, so they are named too), and the bar keeps its white. */
+    .Header--foundSearching .FoundPanel,
+    .Header--foundSearching .FoundPanel__Shelf.is-shown,
+    .Header--foundSearching .FoundPanel__Sub.is-shown { visibility: hidden; transition: visibility 0s 160ms; }
+    .Header--found.Header--foundSearching { background: var(--header-background); box-shadow: none; }
     .shopify-section--header .Search__Inner { position: relative; padding: 12px 50px 36px; max-height: calc(100vh - var(--header-height, 92px)); }
     .shopify-section--header .Search__SearchBar { width: 520px; margin: 0 auto; }
     .shopify-section--header .Search__Form { position: relative; flex: 1 1 auto; padding-bottom: 10px; border-bottom: 1px solid var(--header-heading-color); color: var(--header-heading-color); }
