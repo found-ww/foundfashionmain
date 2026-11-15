@@ -13,10 +13,10 @@
     {%- endif -%}
 
     {%- if search.results_count > 0 -%}
-      {%- comment -%} View all keeps to pieces whose name matches, sold ones ranked normally, so "birkin" lists the Birkins. {%- endcomment -%}
+      {%- comment -%} View all keeps to pieces whose name matches, so "birkin" lists the Birkins; Shopify puts sold ones after those in stock. {%- endcomment -%}
       {%- if search.types contains 'product' -%}
         {%- assign clean_terms = search.terms | remove: '*' | strip -%}
-        <a class="Heading Link Link--secondary u-h7" href="{{ routes.search_url }}?q=title:{{ clean_terms | url_param_escape }}*&type=product&options%5Bunavailable_products%5D=show">{{ 'search.general.view_all' | t }}</a>
+        <a class="Heading Link Link--secondary u-h7" href="{{ routes.search_url }}?q=title:{{ clean_terms | url_param_escape }}*&type=product&options%5Bunavailable_products%5D=last">{{ 'search.general.view_all' | t }}</a>
       {%- else -%}
         <a class="Heading Link Link--secondary u-h7" href="{{ routes.search_url }}?q={{ search.terms }}&type={{ search.types | join: ',' }}">{{ 'search.general.view_all' | t }}</a>
       {%- endif -%}
