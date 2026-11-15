@@ -1044,6 +1044,29 @@
 
       var phrases = Array.prototype.slice.call(section.querySelectorAll('.HeroSearch__Phrase'));
       var input = section.querySelector('.HeroSearch__Input');
+
+      // The hero bar is the same search as the header's: focusing it (or pressing Enter) opens the theme's
+      // search overlay, carries any typed text across, and the overlay's live results take over from there.
+      var themeSearch = document.getElementById('Search');
+      var heroForm = section.querySelector('.HeroSearch__Form');
+      if (input && themeSearch && heroForm) {
+        var openThemeSearch = function (value) {
+          var trigger = document.createElement('button');
+          trigger.type = 'button'; trigger.setAttribute('data-action', 'open-search'); trigger.style.display = 'none';
+          document.body.appendChild(trigger); trigger.click(); trigger.remove();
+          var field = themeSearch.querySelector('input[name="q"]');
+          if (field && value) { field.value = value; field.dispatchEvent(new Event('input', { bubbles: true })); }
+        };
+        input.addEventListener('focus', function () {
+          if (themeSearch.getAttribute('aria-hidden') === 'false') return;
+          openThemeSearch(input.value.trim());
+          input.blur();
+        });
+        heroForm.addEventListener('submit', function (event) {
+          event.preventDefault();
+          openThemeSearch(input.value.trim());
+        });
+      }
       var interval = parseInt(section.getAttribute('data-rotate-interval'), 10) || 3000;
       var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var timers = [];
