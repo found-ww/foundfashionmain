@@ -470,7 +470,8 @@
           if (!e.movementX && !e.movementY) return; // the browser's own hover refresh, not the hand
           if (DESKTOP.matches && !hoverTimer && !header.classList.contains('Header--foundOpen')) later(function () { closeSearch(); setOpen(true); }, 120);
         });
-        header.addEventListener('mouseleave', function () { later(function () { setOpen(false); }, 220); });
+        // The search sheet sits outside the header element, so moving onto it must not count as leaving.
+        header.addEventListener('mouseleave', function () { if (searchIsOpen()) return; later(function () { setOpen(false); }, 220); });
         header.addEventListener('mouseenter', function () { clearTimeout(hoverTimer); hoverTimer = null; });
         var backdrop = header.querySelector('[data-found-backdrop]');
         if (backdrop) {
