@@ -323,10 +323,25 @@
             <div class="CollectionInner__Products">
               <div class="ProductListWrapper">
                 <div class="ProductList ProductList--grid {% if paginate.pages > 1 %}ProductList--removeMargin{% endif %} Grid" data-mobile-count="{{ mobile_items_per_row }}" data-desktop-count="{{ desktop_items_per_row }}">
-                  {%- for result in search.results -%}
-                    <div class="Grid__Cell 1/{{ mobile_items_per_row }}--phone 1/{{ tablet_items_per_row }}--tablet-and-up 1/{{ desktop_items_per_row }}--{% if section.settings.filter_position == 'drawer' %}lap-and-up{% else %}desk{% endif %}">
-                      {%- render 'product-item', product: result, show_labels: true, show_product_info: true, show_vendor: false -%}
-                    </div>
+                  {%- comment -%} Within the page: pieces whose name contains the term first (in stock, then sold), then the rest (in stock, then sold). {%- endcomment -%}
+                  {%- assign term = search.terms | remove: '*' | remove: 'title:' | strip | downcase -%}
+                  {%- for pass in (1..4) -%}
+                    {%- for result in search.results -%}
+                      {%- assign named = false -%}
+                      {%- if result.object_type == 'product' and term != blank -%}{%- assign title_down = result.title | downcase -%}{%- if title_down contains term -%}{%- assign named = true -%}{%- endif -%}{%- endif -%}
+                      {%- assign in_stock = true -%}
+                      {%- if result.object_type == 'product' and result.available == false -%}{%- assign in_stock = false -%}{%- endif -%}
+                      {%- assign show = false -%}
+                      {%- if pass == 1 and named and in_stock -%}{%- assign show = true -%}
+                      {%- elsif pass == 2 and named and in_stock == false -%}{%- assign show = true -%}
+                      {%- elsif pass == 3 and named == false and in_stock -%}{%- assign show = true -%}
+                      {%- elsif pass == 4 and named == false and in_stock == false -%}{%- assign show = true -%}{%- endif -%}
+                      {%- if show -%}
+                        <div class="Grid__Cell 1/{{ mobile_items_per_row }}--phone 1/{{ tablet_items_per_row }}--tablet-and-up 1/{{ desktop_items_per_row }}--{% if section.settings.filter_position == 'drawer' %}lap-and-up{% else %}desk{% endif %}">
+                          {%- render 'product-item', product: result, show_labels: true, show_product_info: true, show_vendor: false -%}
+                        </div>
+                      {%- endif -%}
+                    {%- endfor -%}
                   {%- endfor -%}
                 </div>
               </div>
