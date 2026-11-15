@@ -28,7 +28,14 @@
           {%- assign results_count = 3 -%}
         {%- endif -%}
 
-        <div class="Grid Grid--xl">
+        {%- comment -%} Desktop (quick-links header): the same six-card row the menu panel uses. Phones and tablets keep the theme's grid below. {%- endcomment -%}
+        <div class="FoundSearch__Row">
+          {%- for result in search.results limit: 6 -%}
+            {%- render 'found-nav-card', product: result, index: forloop.index, eager: true -%}
+          {%- endfor -%}
+        </div>
+
+        <div class="Grid Grid--xl FoundSearch__Legacy">
           {%- for result in search.results limit: results_count -%}
             {%- comment -%}The inline onclick is a bit hacky, but it's easier on mobile to have the full line clickable{%- endcomment -%}
             <div class="Grid__Cell 1/{{ results_count }}--tablet-and-up" onclick="window.location.href = '{{ result.url }}'">

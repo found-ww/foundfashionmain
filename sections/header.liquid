@@ -129,6 +129,12 @@ Implementation note: make sure that the Search div is always just before the Hea
         </div>
 
         <input type="search" class="Search__Input Heading" name="q" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="{{ 'search.general.input_placeholder' | t }}" placeholder="{{ 'search.general.input_placeholder' | t }}" autofocus>
+        {%- if section.settings.found_nav -%}
+          {%- assign search_hints = section.settings.search_hints | default: 'Kelly 28, Birkin 25, Chanel Classic Flap, Cartier Love bracelet' | split: ',' -%}
+          <span class="FoundSearch__Hint" aria-hidden="true">{{ section.settings.search_hint_prefix | default: 'Search for' | escape }} <span class="FoundSearch__HintWords">
+            {%- for hint in search_hints -%}<span class="FoundSearch__HintWord {% if forloop.first %}is-active{% endif %}">{{ hint | strip | escape }}</span>{%- endfor -%}
+          </span></span>
+        {%- endif -%}
         <input type="hidden" name="type" value="product">
       </form>
 
@@ -754,6 +760,19 @@ HEADER CONTENT
       "label": "Quick links menu",
       "info": "The first six links are shown. When left on the main menu, the \"quick-links\" menu is used if it exists.",
       "default": "main-menu"
+    },
+    {
+      "type": "text",
+      "id": "search_hint_prefix",
+      "label": "Desktop search hint",
+      "default": "Search for"
+    },
+    {
+      "type": "text",
+      "id": "search_hints",
+      "label": "Desktop search suggestions",
+      "info": "Comma separated. They rotate after the hint while the search is empty.",
+      "default": "Kelly 28, Birkin 25, Chanel Classic Flap, Cartier Love bracelet"
     },
     {
       "type": "header",
