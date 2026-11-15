@@ -29,9 +29,29 @@
         {%- endif -%}
 
         {%- comment -%} Desktop (quick-links header): the same six-card row the menu panel uses. Phones and tablets keep the theme's grid below. {%- endcomment -%}
+        {%- comment -%}
+          Order for the desktop row: pieces whose name contains the search term first (in stock, then sold), then
+          the rest (in stock, then sold). Sold pieces stay in and carry the SOLD mark.
+        {%- endcomment -%}
+        {%- assign term = search.terms | remove: '*' | strip | downcase -%}
+        {%- assign shown = 0 -%}
         <div class="FoundSearch__Row">
-          {%- for result in search.results limit: 6 -%}
-            {%- render 'found-nav-card', product: result, index: forloop.index, eager: true -%}
+          {%- for pass in (1..4) -%}
+            {%- for result in search.results limit: 40 -%}
+              {%- if shown >= 6 -%}{%- break -%}{%- endif -%}
+              {%- assign title_down = result.title | downcase -%}
+              {%- assign named = false -%}
+              {%- if term != blank and title_down contains term -%}{%- assign named = true -%}{%- endif -%}
+              {%- if pass == 1 and named and result.available -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true -%}
+              {%- elsif pass == 2 and named and result.available == false -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true, sold: true -%}
+              {%- elsif pass == 3 and named == false and result.available -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true -%}
+              {%- elsif pass == 4 and named == false and result.available == false -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true, sold: true -%}
+              {%- endif -%}
+            {%- endfor -%}
           {%- endfor -%}
         </div>
 
