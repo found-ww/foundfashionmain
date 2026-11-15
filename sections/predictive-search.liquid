@@ -37,7 +37,7 @@
         {%- assign shown = 0 -%}
         <div class="FoundSearch__Row">
           {%- for pass in (1..4) -%}
-            {%- for result in search.results limit: 40 -%}
+            {%- for result in search.results -%}
               {%- if shown >= 6 -%}{%- break -%}{%- endif -%}
               {%- assign title_down = result.title | downcase -%}
               {%- assign named = false -%}
