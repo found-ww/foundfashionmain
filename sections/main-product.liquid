@@ -1042,19 +1042,23 @@
   border: 1px solid #1a1a1a;
   cursor: pointer;
   width: 100%;
-  transition: color 0.3s ease;
+  transition: color 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
+/* Left-to-right wipe, matching the Add to cart / theme Button hover */
 .ppv1-offer-trigger::before {
   content: '';
   position: absolute;
   inset: 0;
   background: #1a1a1a;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
+  transform: scale(0, 1);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   z-index: 0;
 }
-.ppv1-offer-trigger:hover::before { transform: translateY(0); }
-.ppv1-offer-trigger:hover { color: #ffffff; }
+@media (-moz-touch-enabled: 0), (hover: hover) {
+  .ppv1-offer-trigger:hover::before { transform: scale(1, 1); }
+  .ppv1-offer-trigger:hover { color: #ffffff; }
+}
 .ppv1-offer-trigger span { position: relative; z-index: 1; }
 
 /* ---- Make an Offer modal ---- */
