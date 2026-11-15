@@ -9,7 +9,6 @@
       <img data-src="{{ product.featured_media | img_url: '400x400', crop: 'center' }}" alt="" width="400" height="400">
     {%- endif -%}
   </span>
-  {%- if product.vendor != blank -%}<span class="FoundPanel__CardBrand">{{ product.vendor | escape }}</span>{%- endif -%}
   <span class="FoundPanel__CardName">{{ product.title | escape }}</span>
   <span class="FoundPanel__CardPrice">{{ product.price | money_without_trailing_zeros }}</span>
 </a>
