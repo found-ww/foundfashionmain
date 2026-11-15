@@ -1044,14 +1044,14 @@
   width: 100%;
   transition: color 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
-/* Left-to-right wipe, matching the Add to cart / theme Button hover */
+/* Right-to-left wipe on hover (fill grows from the right edge) */
 .ppv1-offer-trigger::before {
   content: '';
   position: absolute;
   inset: 0;
   background: #1a1a1a;
   transform: scale(0, 1);
-  transform-origin: left center;
+  transform-origin: right center;
   transition: transform 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
   z-index: 0;
 }
@@ -2352,6 +2352,12 @@
     }
     .ppv1-sticky-source-btn {
       flex: 1;
+    }
+    /* Right-to-left wipe, same as the main Make an offer button */
+    @media (-moz-touch-enabled: 0), (hover: hover) {
+      .features--show-button-transition .Button.ppv1-sticky-offer-btn:not([disabled]):hover::before {
+        transform-origin: right center;
+      }
     }
   }
 </style>
