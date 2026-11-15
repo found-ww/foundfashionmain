@@ -1,3 +1,5 @@
+{%- comment -%} A page of 50 results, so the ordering below sees every in-stock name match before it fills the six slots. {%- endcomment -%}
+{%- paginate search.results by 50 -%}
 <div class="Segment">
   <div class="Segment__Title Segment__Title--flexed">
     {%- if search.types contains 'product' -%}
@@ -82,6 +84,7 @@
   </div>
 </div>
 
+{%- endpaginate -%}
 {% schema %}
 {
   "name": "Predictive search"
