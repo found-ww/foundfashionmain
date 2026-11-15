@@ -271,19 +271,20 @@
             {%- if is_brand_filter -%}{%- assign filter_label = 'Brand' -%}{%- endif -%}
             {%- assign downcase_filter_label = filter.label | downcase -%}
 
-            <div class="Collapsible Collapsible--padded {% if section.settings.expand_filters %}Collapsible--autoExpand{% endif %}" data-filter-index="{% increment filter_index %}">
+            {%- comment -%} Brand arrives open (the same state the theme's own toggle produces), and can still be closed. {%- endcomment -%}
+            <div class="Collapsible Collapsible--padded {% if section.settings.expand_filters %}Collapsible--autoExpand{% endif %}" data-filter-index="{% increment filter_index %}" {% if is_brand_filter %}style="overflow: visible"{% endif %}>
               {%- if filter.type == 'boolean' -%}
                 <div class="Collapsible__Button BooleanFilter">
                   <label for="{{ filter.param_name }}" class="Heading u-h6">{{- filter_label -}}</label>
                   <input id="{{ filter.param_name }}" type="checkbox" class="switch-checkbox" name="{{ filter.param_name }}" value="1" {% if filter.true_value.active %}checked{% endif %}>
                 </div>
               {%- else -%}
-                <button type="button" class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="false">
+                <button type="button" class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="{% if is_brand_filter %}true{% else %}false{% endif %}">
                   {{- filter_label -}} <span class="Collapsible__Plus"></span>
                 </button>
               {%- endif -%}
 
-              <div class="Collapsible__Inner">
+              <div class="Collapsible__Inner" {% if is_brand_filter %}style="height: auto; overflow: visible"{% endif %}>
                 <div class="Collapsible__Content">
                   <ul class="{% if section.settings.show_filter_color_swatch and color_label contains downcase_filter_label %}ColorSwatchList HorizontalList HorizontalList--spacingTight{% else %}Linklist{% endif %}">
                     {%- if section.settings.show_filter_color_swatch and color_label contains downcase_filter_label -%}
