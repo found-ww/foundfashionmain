@@ -472,7 +472,10 @@
         g.addEventListener('focus', function () { show(g.getAttribute('data-group'), header.classList.contains('Header--foundOpen')); });
       });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
-      document.addEventListener('click', function (e) { if (header.classList.contains('Header--foundOpen') && !header.contains(e.target)) setOpen(false); });
+      document.addEventListener('click', function (e) {
+        if (searchEl && searchEl.contains(e.target)) return; // the search sheet, including its close button, is part of the open state
+        if (header.classList.contains('Header--foundOpen') && !header.contains(e.target)) setOpen(false);
+      });
 
       // The search hint cycles through a few pieces while the overlay is open and empty.
       var hintWords = searchEl ? Array.prototype.slice.call(searchEl.querySelectorAll('.FoundSearch__HintWord')) : [];
