@@ -335,6 +335,7 @@
     .Header--foundSearching .FoundPanel__Shelf.is-shown,
     .Header--foundSearching .FoundPanel__Sub.is-shown { visibility: hidden; transition: visibility 0s 160ms; }
     .Header--found.Header--foundSearching { background: var(--header-background); box-shadow: none; }
+    .Header--foundSearching .FoundBackdrop { opacity: 0; pointer-events: none; } /* the panel's dim sits over the bar's white; the theme's own overlay dims the page while searching */
     .shopify-section--header .Search__Inner { position: relative; padding: 12px 50px 36px; max-height: calc(100vh - var(--header-height, 92px)); }
     .shopify-section--header .Search__SearchBar { width: 520px; margin: 0 auto; }
     .shopify-section--header .Search__Form { position: relative; flex: 1 1 auto; padding-bottom: 10px; border-bottom: 1px solid var(--header-heading-color); color: var(--header-heading-color); }
