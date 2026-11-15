@@ -459,7 +459,6 @@
       if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         var hoverTimer = null;
         var later = function (fn, ms) { clearTimeout(hoverTimer); hoverTimer = setTimeout(function () { hoverTimer = null; fn(); }, ms); };
-        // mousemove rather than mouseenter, so a page that loads under a resting cursor does not open by itself
         header.addEventListener('mouseleave', function () { later(function () { setOpen(false); }, 220); });
         header.addEventListener('mouseenter', function () { clearTimeout(hoverTimer); hoverTimer = null; });
         var backdrop = header.querySelector('[data-found-backdrop]');
