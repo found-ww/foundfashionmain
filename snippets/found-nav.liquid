@@ -161,7 +161,7 @@
   .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) .Header__Icon svg { filter: drop-shadow(0 1px rgba(0, 0, 0, 0.25)); }
   .Header--found:not(.Header--foundClear) { background: var(--header-background); }
 
-  .FoundNav, .FoundPanel, .FoundBackdrop { display: none; }
+  .FoundNav, .FoundPanel, .FoundBackdrop, .FoundSearch__Hint, .FoundSearch__Row { display: none; }
 
   @media screen and (min-width: 1008px) {
     /* The theme's own desktop header rows step aside; the mobile header below 1008px is untouched. */
@@ -320,8 +320,44 @@
     .FoundPanel { padding: clamp(104px, 4vw, 124px) clamp(50px, 3vw, 110px) 28px; }
   }
 
+  /*
+    Desktop search, in the panel's clothes: the theme's overlay becomes the same white sheet, with a centred
+    underline field, a rotating "Search for …" hint while empty, and results as the panel's six-card row.
+    Phones and tablets keep the theme's own search untouched.
+  */
+  @media screen and (min-width: 1008px) {
+    .shopify-section--header .Search { background: rgba(255, 255, 255, 0.97); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25); transform: translateY(-12px); }
+    .shopify-section--header .Search[aria-hidden="false"] { transform: none; }
+    .shopify-section--header .Search__Inner { position: relative; padding: 12px 50px 36px; max-height: calc(100vh - var(--header-height, 92px)); }
+    .shopify-section--header .Search__SearchBar { width: 520px; margin: 0 auto; }
+    .shopify-section--header .Search__Form { position: relative; flex: 1 1 auto; padding-bottom: 10px; border-bottom: 1px solid var(--header-heading-color); color: var(--header-heading-color); }
+    .shopify-section--header .Search__Form .Icon--search-desktop { width: 13px; height: 13px; }
+    .shopify-section--header .Search__InputIconWrapper { top: 0; margin-right: 12px; color: inherit; line-height: 0; }
+    .shopify-section--header .Search__Input { font-family: var(--heading-font-family); font-weight: 500; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: inherit; padding: 0; height: 1.4em; }
+    .shopify-section--header .Search__Input::placeholder { color: transparent; }
+    .FoundSearch__Hint { position: absolute; left: 25px; right: 0; top: 0; height: 1.4em; display: flex; align-items: center; gap: 0.3em; white-space: nowrap; overflow: hidden; pointer-events: none; font-family: var(--heading-font-family); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-color-light); }
+    .shopify-section--header .Search__Input:not(:placeholder-shown) + .FoundSearch__Hint { display: none; }
+    .FoundSearch__HintWords { display: grid; min-width: 0; }
+    .FoundSearch__HintWord { grid-area: 1 / 1; opacity: 0; transform: translateY(0.6em); transition: opacity 420ms ease, transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .FoundSearch__HintWord.is-active { opacity: 1; transform: none; }
+    .FoundSearch__HintWord.is-leaving { opacity: 0; transform: translateY(-0.6em); }
+    .shopify-section--header .Search__Close { position: absolute; top: 14px; right: 50px; color: var(--header-heading-color); line-height: 0; }
+    .shopify-section--header .Search__Close svg { width: 15px; height: 15px; stroke-width: 1.5px; }
+    .shopify-section--header .Search__Results { margin: 28px 0 0; }
+    .shopify-section--header .Search__Results .PageLayout { display: block; margin: 0; }
+    .shopify-section--header .Search__Results .PageLayout__Section { width: auto; max-width: none; margin: 0; }
+    .shopify-section--header .Search__Results .PageLayout__Section--secondary { display: none; } /* pages and articles: the search page still lists them */
+    .shopify-section--header .Search__Results .Segment__Title { display: flex; justify-content: space-between; align-items: baseline; padding: 0 0 18px; margin: 0; border: 0; }
+    .shopify-section--header .Search__Results .Segment__Title .Heading { font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-color-light); }
+    .shopify-section--header .Search__Results .Segment__Title a.Heading { color: var(--header-heading-color); text-decoration: none; padding-bottom: 2px; border-bottom: 1px solid currentColor; }
+    .FoundSearch__Row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    .FoundSearch__Row .FoundPanel__Card { opacity: 0; animation: FoundPanel-rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+    .FoundSearch__Legacy { display: none; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .FoundNav__Roll > span, .FoundNav__Burger span, .FoundPanel, .FoundBackdrop { transition: none; }
+    .FoundNav__Roll > span, .FoundNav__Burger span, .FoundPanel, .FoundBackdrop, .FoundSearch__HintWord { transition: none; }
+    .FoundSearch__Row .FoundPanel__Card { animation: none; opacity: 1; }
     .FoundPanel__Shelf.is-shown .FoundPanel__Card, .FoundPanel__Shelf.is-shown .FoundPanel__Article { animation: none; opacity: 1; }
     .FoundPanel__CardImg, .FoundPanel__ArticleImg { animation: none; }
   }
@@ -440,6 +476,20 @@
       });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
       document.addEventListener('click', function (e) { if (header.classList.contains('Header--foundOpen') && !header.contains(e.target)) setOpen(false); });
+
+      // The search hint cycles through a few pieces while the overlay is open and empty.
+      var hintWords = searchEl ? Array.prototype.slice.call(searchEl.querySelectorAll('.FoundSearch__HintWord')) : [];
+      if (hintWords.length > 1) {
+        var hintIndex = 0;
+        setInterval(function () {
+          if (!searchIsOpen()) return;
+          var current = hintWords[hintIndex];
+          hintIndex = (hintIndex + 1) % hintWords.length;
+          current.classList.remove('is-active'); current.classList.add('is-leaving');
+          hintWords[hintIndex].classList.add('is-active');
+          setTimeout(function () { current.classList.remove('is-leaving'); }, 450);
+        }, 3000);
+      }
 
       // Transparency, every screen size: clear while the hero (or collection banner) is still under the header.
       // Measured against the first section after the hero when the hero is pinned, otherwise the hero's own bottom.
