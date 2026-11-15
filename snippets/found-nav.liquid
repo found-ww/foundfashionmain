@@ -327,7 +327,7 @@
     Phones and tablets keep the theme's own search untouched.
   */
   @media screen and (min-width: 1008px) {
-    .shopify-section--header .Search { background: rgba(255, 255, 255, 0.97); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25); transform: translateY(-12px); }
+    .shopify-section--header .Search { background: var(--header-background, #ffffff); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25); transform: translateY(-12px); } /* the same solid white as the bar above it, so the two read as one sheet */
     .shopify-section--header .Search[aria-hidden="false"] { transform: none; }
     .shopify-section--header .Search { z-index: 3; clip-path: inset(0 0 -200px 0); } /* above the open panel: search takes the panel's place without the panel closing; the clip keeps its shadow below the sheet, off the bar */
     /* While search is showing: the panel's sheet and contents step aside (the shelf and sections set their own visibility, so they are named too), and the bar keeps its white. */
