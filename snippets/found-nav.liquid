@@ -328,6 +328,8 @@
   @media screen and (min-width: 1008px) {
     .shopify-section--header .Search { background: rgba(255, 255, 255, 0.97); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25); transform: translateY(-12px); }
     .shopify-section--header .Search[aria-hidden="false"] { transform: none; }
+    .shopify-section--header .Search { z-index: 3; } /* above the open panel: search takes the panel's place without the panel closing */
+    .Header--foundSearching .FoundPanel { visibility: hidden; transition: visibility 0s 160ms; }
     .shopify-section--header .Search__Inner { position: relative; padding: 12px 50px 36px; max-height: calc(100vh - var(--header-height, 92px)); }
     .shopify-section--header .Search__SearchBar { width: 520px; margin: 0 auto; }
     .shopify-section--header .Search__Form { position: relative; flex: 1 1 auto; padding-bottom: 10px; border-bottom: 1px solid var(--header-heading-color); color: var(--header-heading-color); }
@@ -411,8 +413,14 @@
         Array.prototype.forEach.call(panel.querySelectorAll('[data-for="' + key + '"]'), function (el) { el.classList.add('is-shown'); });
       }
 
+      // Search and the panel share one sheet: with the panel open, search shows in its place and the panel
+      // returns when search closes; hovering the quick links while search is showing brings the panel back.
+      var searchEl = document.getElementById('Search');
+      function searchIsOpen() { return !!searchEl && searchEl.getAttribute('aria-hidden') === 'false'; }
+      function closeSearch() { var c = searchEl && searchEl.querySelector('[data-action="close-search"]'); if (searchIsOpen() && c) c.click(); }
       function setOpen(open) {
         var was = header.classList.contains('Header--foundOpen');
+        if (!open) closeSearch();
         header.classList.toggle('Header--foundOpen', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         panel.setAttribute('aria-hidden', open ? 'false' : 'true');
@@ -434,13 +442,10 @@
       });
 
 
-      // The theme's search overlay and this panel never show together: opening one closes the other,
-      // and hovering the quick links while search is open swaps search for the panel.
-      var searchEl = document.getElementById('Search');
-      function searchIsOpen() { return !!searchEl && searchEl.getAttribute('aria-hidden') === 'false'; }
-      function closeSearch() { var c = searchEl && searchEl.querySelector('[data-action="close-search"]'); if (searchIsOpen() && c) c.click(); }
-      var searchToggle = nav.querySelector('[data-action="toggle-search"]');
-      if (searchToggle) searchToggle.addEventListener('click', function () { if (header.classList.contains('Header--foundOpen')) setOpen(false); });
+      // Mirror the overlay's state onto the header, so the panel can step aside while search is showing.
+      if (searchEl && window.MutationObserver) {
+        new MutationObserver(function () { header.classList.toggle('Header--foundSearching', searchIsOpen()); }).observe(searchEl, { attributes: true, attributeFilter: ['aria-hidden'] });
+      }
 
       toggle.addEventListener('click', function () {
         var opening = !header.classList.contains('Header--foundOpen');
@@ -471,7 +476,7 @@
         }
       }
       groups.forEach(function (g) {
-        g.addEventListener('mouseenter', function () { show(g.getAttribute('data-group'), header.classList.contains('Header--foundOpen')); });
+        g.addEventListener('mouseenter', function () { closeSearch(); show(g.getAttribute('data-group'), header.classList.contains('Header--foundOpen')); });
         g.addEventListener('focus', function () { show(g.getAttribute('data-group'), header.classList.contains('Header--foundOpen')); });
       });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
