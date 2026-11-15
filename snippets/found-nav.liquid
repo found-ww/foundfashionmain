@@ -6,9 +6,10 @@
   theme's own mobile header and sidebar drawer stay exactly as they are.
 
   Closed:  wordmark left · up to eight quick links centred (label rolls on hover) · burger right.
-  Open:    quick links stay put and become the group selectors; currency, Account and Cart
-           appear; a panel drops from the header with the hovered group's sections centred
-           under the links and a row of ten products (or articles for a blog) beneath them.
+  Open:    quick links stay put and become the group selectors; the page dims; a panel drops
+           from the header with a search field left, currency, Account and Cart right, the
+           hovered group's sections centred, a row of ten products (or articles for a blog)
+           and a "See all" link. Clicks are reported to GA4 and Shopify customer events.
 
   Accepts: section (the header section).
 {%- endcomment -%}
@@ -66,11 +67,24 @@
       {%- endif -%}
       <a href="{{ routes.cart_url }}" class="FoundNav__Utility" {% unless template == 'cart' or settings.cart_type == 'page' %}data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="{{ 'header.navigation.open_cart' | t }}"{% endunless %}>{{ 'header.navigation.cart' | t }} (<span class="Header__CartCount">{{ cart.item_count }}</span>)</a>
     </div>
+    <a href="{{ routes.search_url }}" class="FoundNav__Search" data-action="toggle-search">{{ 'header.navigation.search' | t }}</a>
     <button type="button" class="FoundNav__Burger" data-found-toggle aria-expanded="false" aria-controls="FoundPanel-{{ section.id }}" aria-label="{{ 'header.navigation.open_sidebar' | t }}"><span></span><span></span></button>
   </div>
 </div>
 
 <div class="FoundPanel" id="FoundPanel-{{ section.id }}" aria-hidden="true" data-found-panel data-active="g1">
+  {%- assign search_hints = section.settings.panel_search_hints | default: 'Kelly 28, Birkin 25, Chanel Classic Flap, Cartier Love bracelet' | split: ',' -%}
+  <form action="{{ routes.search_url }}" method="get" role="search" class="FoundPanel__Search">
+    <input type="hidden" name="type" value="product">
+    <svg class="FoundPanel__SearchIcon" viewBox="0 0 21 21" width="13" height="13" aria-hidden="true"><g transform="translate(1 1)" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"><path d="M18 18l-5.7-5.7"/><circle cx="7.5" cy="7.5" r="7.5"/></g></svg>
+    <span class="FoundPanel__SearchField">
+      <input type="search" name="q" class="FoundPanel__SearchInput" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="{{ 'search.general.input_placeholder' | t }}">
+      <span class="FoundPanel__SearchHint" aria-hidden="true">{{ section.settings.panel_search_prefix | default: 'Search for' | escape }} <span class="FoundPanel__HintWords">
+        {%- for hint in search_hints -%}<span class="FoundPanel__HintWord {% if forloop.first %}is-active{% endif %}">{{ hint | strip | escape }}</span>{%- endfor -%}
+      </span></span>
+    </span>
+    <button type="submit" class="FoundPanel__SearchSubmit" aria-label="{{ 'header.navigation.search' | t }}"><svg viewBox="0 0 11 21" width="6" height="11" aria-hidden="true"><polyline fill="none" stroke="currentColor" points="0.5 0.5 10.5 10.5 0.5 20.5" stroke-width="1.25"/></svg></button>
+  </form>
   <div class="FoundPanel__Subs">
     {%- for link in main_menu.links -%}
       {%- if link.links.size > 0 -%}
@@ -123,16 +137,17 @@
     {%- endfor -%}
   </div>
 
-  {%- comment -%} Main-menu links without a quick link of their own (Personal shopping, Contact) stay reachable here. {%- endcomment -%}
-  {%- capture other_links -%}
-    {%- for main_link in main_menu.links -%}
-      {%- assign in_quick = false -%}
-      {%- for q in quick_menu.links limit: 8 -%}{%- if q.url == main_link.url -%}{%- assign in_quick = true -%}{%- endif -%}{%- endfor -%}
-      {%- unless in_quick -%}<a href="{{ main_link.url }}">{{ main_link.title | escape }}</a>{%- endunless -%}
+  <div class="FoundPanel__Foot">
+    {%- for link in main_menu.links -%}
+      {%- if link.type == 'collection_link' and link.object != blank -%}
+        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all {{ link.title | downcase | escape }} <span>({{ link.object.all_products_count }})</span></a>
+      {%- elsif link.type == 'blog_link' and link.object != blank -%}
+        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all articles <span>({{ link.object.articles_count }})</span></a>
+      {%- endif -%}
     {%- endfor -%}
-  {%- endcapture -%}
-  {%- if other_links != blank -%}<div class="FoundPanel__Other">{{ other_links }}</div>{%- endif -%}
+  </div>
 </div>
+<div class="FoundBackdrop" data-found-backdrop aria-hidden="true"></div>
 
 <style>
   /*
@@ -151,7 +166,7 @@
   .supports-sticky .Search[aria-hidden="true"] + .Header--found.Header--foundClear:not(.Header--foundOpen) .Header__Icon svg { filter: drop-shadow(0 1px rgba(0, 0, 0, 0.25)); }
   .Header--found:not(.Header--foundClear) { background: var(--header-background); }
 
-  .FoundNav, .FoundPanel { display: none; }
+  .FoundNav, .FoundPanel, .FoundBackdrop { display: none; }
 
   @media screen and (min-width: 1008px) {
     /* The theme's own desktop header rows step aside; the mobile header below 1008px is untouched. */
@@ -204,6 +219,8 @@
     .FoundNav__QuickLink:focus-visible .FoundNav__Roll > span { transform: translateY(-100%); }
 
     .FoundNav__Right { display: flex; align-items: center; gap: 28px; }
+    .FoundNav__Search { color: inherit; text-decoration: none; line-height: 1; }
+    .FoundNav__Search:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
     /* The quick links keep their place when the panel opens, so currency, Account and Cart sit on the panel's first row, right-aligned, level with the centred sections. */
     .FoundNav__Utilities { display: none; align-items: center; gap: 24px; position: absolute; top: 104px; right: 50px; line-height: 1; }
     .Header--foundOpen .FoundNav__Utilities { display: flex; }
@@ -243,6 +260,26 @@
     }
     .Header--foundOpen .FoundPanel { transform: none; visibility: visible; transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1); }
     .Header--foundOpen { background: transparent; box-shadow: none; }
+    .FoundPanel--quick .FoundPanel__Shelf.is-shown .FoundPanel__Card,
+    .FoundPanel--quick .FoundPanel__Shelf.is-shown .FoundPanel__Article { animation-duration: 220ms; animation-delay: 0ms; }
+
+    /* The page below dims while the panel is open; a click or a cursor resting on it closes the panel. */
+    .FoundBackdrop { display: block; position: fixed; inset: 0; z-index: 0; background: rgba(20, 18, 16, 0.32); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 420ms ease, visibility 0s 420ms; }
+    .Header--foundOpen .FoundBackdrop { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 420ms ease; }
+
+    /* Search on the panel's first row, left, in the hero's underline style, balancing the utilities on the right. */
+    .FoundPanel__Search { position: absolute; top: 104px; left: 50px; display: flex; align-items: center; gap: 10px; width: 290px; padding-bottom: 9px; border-bottom: 1px solid currentColor; font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--header-heading-color); }
+    .FoundPanel__SearchIcon { flex: none; }
+    .FoundPanel__SearchField { position: relative; flex: 1; min-width: 0; height: 1.4em; }
+    .FoundPanel__SearchInput { width: 100%; height: 100%; margin: 0; padding: 0; background: none; border: 0; border-radius: 0; font: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; outline: none; -webkit-appearance: none; appearance: none; }
+    .FoundPanel__SearchInput::-webkit-search-decoration, .FoundPanel__SearchInput::-webkit-search-cancel-button { display: none; }
+    .FoundPanel__SearchHint { position: absolute; inset: 0; display: flex; align-items: center; gap: 0.3em; white-space: nowrap; overflow: hidden; pointer-events: none; color: var(--text-color-light); }
+    .FoundPanel__SearchInput:focus + .FoundPanel__SearchHint, .FoundPanel__SearchInput:not(:placeholder-shown) + .FoundPanel__SearchHint { display: none; }
+    .FoundPanel__HintWords { display: grid; min-width: 0; }
+    .FoundPanel__HintWord { grid-area: 1 / 1; opacity: 0; transform: translateY(0.6em); transition: opacity 420ms ease, transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .FoundPanel__HintWord.is-active { opacity: 1; transform: none; }
+    .FoundPanel__HintWord.is-leaving { opacity: 0; transform: translateY(-0.6em); }
+    .FoundPanel__SearchSubmit { flex: none; display: inline-flex; align-items: center; padding: 0 2px; background: none; border: 0; color: inherit; cursor: pointer; }
 
 
     .FoundPanel__Subs { min-height: 34px; padding: 2px 230px 0; } /* side room keeps the centred sections clear of the utilities on the right */
@@ -251,13 +288,21 @@
     .FoundPanel__Sub a { font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-color-light); text-decoration: none; }
     .FoundPanel__Sub a:hover { color: var(--header-heading-color); }
 
-    .FoundPanel__Shelves { padding-top: 18px; }
-    .FoundPanel__Other { display: flex; justify-content: center; gap: 28px; padding-top: 16px; }
-    .FoundPanel__Other a { font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-color-light); text-decoration: none; }
-    .FoundPanel__Other a:hover { color: var(--header-heading-color); }
+    /* Every shelf occupies the same grid cell, so the row is always as tall as the tallest shelf and the bottom edge never jumps between groups. */
+    .FoundPanel__Shelves { display: grid; padding-top: 18px; }
+    .FoundPanel__Foot { display: flex; justify-content: center; padding-top: 16px; min-height: 30px; }
+    .FoundPanel__SeeAll { display: none; font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--header-heading-color); text-decoration: none; padding-bottom: 3px; border-bottom: 1px solid currentColor; }
+    .FoundPanel__SeeAll.is-shown { display: inline-block; }
+    .FoundPanel__SeeAll span { color: var(--text-color-light); }
+    .FoundPanel__SeeAll:hover span { color: inherit; }
+
+    /* Card hover: the image eases in, the name underlines and the brand line lifts, so the card reads as a link. */
+    .FoundPanel__Card:hover .FoundPanel__CardName, .FoundPanel__Article:hover .FoundPanel__ArticleTitle { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+    .FoundPanel__Card:hover .FoundPanel__CardBrand, .FoundPanel__Article:hover .FoundPanel__ArticleRead { color: var(--header-heading-color); }
+    .FoundPanel__CardBrand, .FoundPanel__ArticleRead { transition: color 200ms; }
     /* A full row of ten products always fits the panel width; the cards share the space and grow with the screen. */
-    .FoundPanel__Shelf { display: none; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 16px; padding-bottom: 8px; }
-    .FoundPanel__Shelf.is-shown { display: grid; }
+    .FoundPanel__Shelf { display: grid; grid-area: 1 / 1; visibility: hidden; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 16px; padding-bottom: 8px; }
+    .FoundPanel__Shelf.is-shown { visibility: visible; }
     .FoundPanel__Shelf--articles { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 220px; overflow-x: auto; scrollbar-width: thin; }
 
     .FoundPanel__Card, .FoundPanel__Article { display: grid; gap: 4px; color: var(--header-heading-color); text-decoration: none; min-width: 0; opacity: 0; }
@@ -284,13 +329,14 @@
   @media screen and (min-width: 1920px) {
     .FoundNav { padding: 0 clamp(50px, 3vw, 110px); font-size: clamp(12px, 0.5vw, 14px); height: clamp(92px, 3.6vw, 112px); }
     .FoundNav__Utilities { top: clamp(104px, 4vw, 124px); right: clamp(50px, 3vw, 110px); }
+    .FoundPanel__Search { top: clamp(104px, 4vw, 124px); left: clamp(50px, 3vw, 110px); }
     .FoundNav__Wordmark { font-size: clamp(16px, 0.7vw, 20px); }
     .FoundNav__Quick { gap: clamp(30px, 1.5vw, 46px); }
     .FoundPanel { padding: clamp(104px, 4vw, 124px) clamp(50px, 3vw, 110px) 28px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .FoundNav__Roll > span, .FoundNav__Burger span, .FoundPanel { transition: none; }
+    .FoundNav__Roll > span, .FoundNav__Burger span, .FoundPanel, .FoundBackdrop, .FoundPanel__HintWord { transition: none; }
     .FoundPanel__Shelf.is-shown .FoundPanel__Card, .FoundPanel__Shelf.is-shown .FoundPanel__Article { animation: none; opacity: 1; }
     .FoundPanel__CardImg, .FoundPanel__ArticleImg { animation: none; }
   }
@@ -322,19 +368,62 @@
         });
       }
 
-      function show(key) {
+      // Analytics: one event when the panel opens, one per click inside it. Sent to GA4 through gtag (or the
+      // data layer when gtag is absent) and to Shopify's customer events as a custom event for pixels.
+      function track(name, data) {
+        try { if (typeof window.gtag === 'function') window.gtag('event', name, data); else { window.dataLayer = window.dataLayer || []; window.dataLayer.push(Object.assign({ event: name }, data)); } } catch (e) {}
+        try { if (window.Shopify && window.Shopify.analytics && window.Shopify.analytics.publish) window.Shopify.analytics.publish(name, data); } catch (e) {}
+      }
+      function labelOf(link) {
+        var word = link && link.querySelector('.FoundNav__Roll > span');
+        return (word || link) ? (word || link).textContent.trim() : '';
+      }
+      function activeLabel() { return labelOf(nav.querySelector('[data-group].is-active')); }
+
+      // quick: a switch while the panel is already open crossfades instead of replaying the full stagger
+      function show(key, quick) {
         panel.setAttribute('data-active', key);
+        panel.classList.toggle('FoundPanel--quick', !!quick);
         groups.forEach(function (g) { g.classList.toggle('is-active', g.getAttribute('data-group') === key); });
         Array.prototype.forEach.call(panel.querySelectorAll('[data-for]'), function (el) { el.classList.remove('is-shown'); });
-        void panel.offsetWidth; // restart the stagger
+        void panel.offsetWidth; // restart the animation
         Array.prototype.forEach.call(panel.querySelectorAll('[data-for="' + key + '"]'), function (el) { el.classList.add('is-shown'); });
       }
 
       function setOpen(open) {
+        var was = header.classList.contains('Header--foundOpen');
         header.classList.toggle('Header--foundOpen', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         panel.setAttribute('aria-hidden', open ? 'false' : 'true');
-        if (open) { warm(); show(panel.getAttribute('data-active') || (groups[0] && groups[0].getAttribute('data-group'))); }
+        if (open) { warm(); show(panel.getAttribute('data-active') || (groups[0] && groups[0].getAttribute('data-group')), false); }
+        if (open && !was) track('found_menu_open', { menu_group: activeLabel() });
+      }
+
+      panel.addEventListener('click', function (e) {
+        var a = e.target.closest('a');
+        if (!a || !panel.contains(a)) return;
+        var type = a.getAttribute('data-item-type') || (a.classList.contains('FoundPanel__Card') ? 'product' : a.classList.contains('FoundPanel__Article') ? 'article' : a.closest('.FoundPanel__Sub') ? 'section' : 'link');
+        var name = a.querySelector('.FoundPanel__CardName, .FoundPanel__ArticleTitle');
+        var row = a.closest('.FoundPanel__Shelf');
+        track('found_menu_click', { menu_group: activeLabel(), item_type: type, item_name: (name ? name.textContent : a.textContent).trim().replace(/\s+/g, ' ').slice(0, 80), item_url: a.getAttribute('href'), position: row ? Array.prototype.indexOf.call(row.children, a) + 1 : undefined });
+      });
+      nav.addEventListener('click', function (e) {
+        var a = e.target.closest('.FoundNav__QuickLink');
+        if (a) track('found_menu_click', { menu_group: labelOf(a), item_type: 'quick_link', item_url: a.getAttribute('href') });
+      });
+
+      // The "Search for …" hint cycles through a few pieces while the panel is open.
+      var hintWords = Array.prototype.slice.call(panel.querySelectorAll('.FoundPanel__HintWord'));
+      if (hintWords.length > 1) {
+        var hintIndex = 0;
+        setInterval(function () {
+          if (!header.classList.contains('Header--foundOpen')) return;
+          var current = hintWords[hintIndex];
+          hintIndex = (hintIndex + 1) % hintWords.length;
+          current.classList.remove('is-active'); current.classList.add('is-leaving');
+          hintWords[hintIndex].classList.add('is-active');
+          setTimeout(function () { current.classList.remove('is-leaving'); }, 450);
+        }, 3000);
       }
 
       toggle.addEventListener('click', function () { setOpen(!header.classList.contains('Header--foundOpen')); });
@@ -345,16 +434,25 @@
         var hoverTimer = null;
         var later = function (fn, ms) { clearTimeout(hoverTimer); hoverTimer = setTimeout(function () { hoverTimer = null; fn(); }, ms); };
         // mousemove rather than mouseenter, so a page that loads under a resting cursor does not open by itself
-        nav.addEventListener('mousemove', function (e) {
+        // Only the quick links and the burger open it, not the wordmark or the empty bar.
+        var armOpen = function (e) {
           if (!e.movementX && !e.movementY) return; // the browser's own hover refresh, not the hand
           if (DESKTOP.matches && !hoverTimer && !header.classList.contains('Header--foundOpen')) later(function () { setOpen(true); }, 120);
-        });
+        };
+        var quick = nav.querySelector('.FoundNav__Quick');
+        if (quick) quick.addEventListener('mousemove', armOpen);
+        toggle.addEventListener('mousemove', armOpen);
         header.addEventListener('mouseleave', function () { later(function () { setOpen(false); }, 220); });
         header.addEventListener('mouseenter', function () { clearTimeout(hoverTimer); hoverTimer = null; });
+        var backdrop = header.querySelector('[data-found-backdrop]');
+        if (backdrop) {
+          backdrop.addEventListener('mouseenter', function () { later(function () { setOpen(false); }, 220); });
+          backdrop.addEventListener('click', function () { setOpen(false); });
+        }
       }
       groups.forEach(function (g) {
-        g.addEventListener('mouseenter', function () { show(g.getAttribute('data-group')); });
-        g.addEventListener('focus', function () { show(g.getAttribute('data-group')); });
+        g.addEventListener('mouseenter', function () { show(g.getAttribute('data-group'), header.classList.contains('Header--foundOpen')); });
+        g.addEventListener('focus', function () { show(g.getAttribute('data-group'), header.classList.contains('Header--foundOpen')); });
       });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
       document.addEventListener('click', function (e) { if (header.classList.contains('Header--foundOpen') && !header.contains(e.target)) setOpen(false); });
