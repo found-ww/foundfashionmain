@@ -9,9 +9,9 @@
   Closed and open: search and bag are small icons at the right of the bar, a dot on the bag
            when it holds something; currency and Account sit at the foot of the panel's index column.
   Open:    quick links stay put and become the group selectors; the page dims; a panel drops
-           from the header with an index column left (the hovered group's sections and "See all"),
-           six products (or articles for a blog) right, and a hairline strip across the foot with
-           the secondary pages left and currency and Account right.
+           from the header with the hovered group's sections centred under the bar, six products
+           (or articles for a blog) across the full width, "See all" centred beneath, and a hairline
+           strip across the foot with the secondary pages left and currency and Account right.
            Clicks are reported to GA4 and Shopify customer events.
 
   Accepts: section (the header section).
@@ -62,7 +62,6 @@
 </div>
 
 <div class="FoundPanel" id="FoundPanel-{{ section.id }}" aria-hidden="true" data-found-panel data-active="g1">
-  <div class="FoundPanel__Index">
   <div class="FoundPanel__Subs">
     {%- for link in main_menu.links -%}
       {%- if link.links.size > 0 -%}
@@ -77,16 +76,6 @@
         </div>
       {%- endif -%}
     {%- endfor -%}
-  </div>
-  <div class="FoundPanel__Foot">
-    {%- for link in main_menu.links -%}
-      {%- if link.type == 'collection_link' and link.object != blank -%}
-        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all {{ link.title | downcase | escape }} <span>({{ link.object.all_products_count }})</span></a>
-      {%- elsif link.type == 'blog_link' and link.object != blank -%}
-        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all articles <span>({{ link.object.articles_count }})</span></a>
-      {%- endif -%}
-    {%- endfor -%}
-  </div>
   </div>
 
   <div class="FoundPanel__Shelves">
@@ -125,6 +114,16 @@
     {%- endfor -%}
   </div>
 
+
+  <div class="FoundPanel__Foot">
+    {%- for link in main_menu.links -%}
+      {%- if link.type == 'collection_link' and link.object != blank -%}
+        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all {{ link.title | downcase | escape }} <span>({{ link.object.all_products_count }})</span></a>
+      {%- elsif link.type == 'blog_link' and link.object != blank -%}
+        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all articles <span>({{ link.object.articles_count }})</span></a>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
 
   {%- comment -%} Full-width strip: main-menu links without a quick link (Personal shopping, Contact) left; currency and Account right. {%- endcomment -%}
   <div class="FoundPanel__Strip">
@@ -236,7 +235,7 @@
     .FoundNav__Utility { color: inherit; text-decoration: none; }
 
     /* A hairline strip across the foot of the panel: secondary pages left in grey, currency and Account right. */
-    .FoundPanel__Strip { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--header-border-color); font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+    .FoundPanel__Strip { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--header-border-color); font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
     .FoundPanel__StripLinks, .FoundPanel__StripUtils { display: flex; align-items: center; gap: 24px; }
     .FoundPanel__StripLinks a { color: var(--text-color-light); text-decoration: none; }
     .FoundPanel__StripLinks a:hover, .FoundPanel__Account:hover, .FoundNav__Currency:hover { color: var(--text-color-light); }
@@ -275,7 +274,6 @@
       transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s 520ms;
     }
     .Header--foundOpen .FoundPanel { transform: none; visibility: visible; transition: transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1); }
-    .FoundPanel { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 56px; align-items: start; }
     .Header--foundOpen { background: transparent; box-shadow: none; }
     .FoundPanel--quick .FoundPanel__Shelf.is-shown .FoundPanel__Card,
     .FoundPanel--quick .FoundPanel__Shelf.is-shown .FoundPanel__Article { animation-duration: 220ms; animation-delay: 0ms; }
@@ -286,20 +284,19 @@
 
 
 
-    /* Index column: the group's sections as a list, "See all", then currency on narrow desktops. */
-    .FoundPanel__Index { display: grid; gap: 26px; align-content: start; }
-    .FoundPanel__Subs { display: grid; }
-    .FoundPanel__Sub { display: none; grid-area: 1 / 1; gap: 12px; }
-    .FoundPanel__Sub.is-shown { display: grid; }
-    .FoundPanel__Sub a { font-family: var(--heading-font-family); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--header-heading-color); text-decoration: none; }
+    /* The hovered group's sections, centred under the bar; the shelves below, full width; "See all" centred under them. */
+    .FoundPanel__Subs { display: grid; min-height: 41px; padding-bottom: 30px; } /* border-box: one 11px row of links plus the padding, so groups without sections keep the same panel height */
+    .FoundPanel__Sub { display: none; grid-area: 1 / 1; justify-content: center; flex-wrap: wrap; gap: 10px 30px; }
+    .FoundPanel__Sub.is-shown { display: flex; }
+    .FoundPanel__Sub a { font-family: var(--heading-font-family); font-size: 11px; line-height: 1; letter-spacing: 0.18em; text-transform: uppercase; color: var(--header-heading-color); text-decoration: none; }
     .FoundPanel__Sub a:first-child { color: var(--text-color-light); }
     .FoundPanel__Sub a:hover { color: var(--header-heading-color); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 
     /* Every shelf occupies the same grid cell, so the row is always as tall as the tallest shelf and the bottom edge never jumps between groups. */
     .FoundPanel__Shelves { display: grid; }
-    .FoundPanel__Foot { display: grid; min-height: 20px; }
+    .FoundPanel__Foot { display: grid; justify-content: center; min-height: 20px; padding-top: 26px; }
     .FoundPanel__SeeAll { display: none; font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--header-heading-color); text-decoration: none; padding-bottom: 3px; border-bottom: 1px solid currentColor; }
-    .FoundPanel__SeeAll.is-shown { display: inline-block; justify-self: start; }
+    .FoundPanel__SeeAll.is-shown { display: inline-block; justify-self: center; }
     .FoundPanel__SeeAll span { color: var(--text-color-light); }
     .FoundPanel__SeeAll:hover span { color: inherit; }
 
