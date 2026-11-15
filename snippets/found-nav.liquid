@@ -10,8 +10,7 @@
            when it holds something; currency and Account sit at the foot of the panel's index column.
   Open:    quick links stay put and become the group selectors; the page dims; a panel drops
            from the header with the hovered group's sections centred under the bar, six products
-           (or articles for a blog) across the full width, "See all" centred beneath, and a hairline
-           strip across the foot with the secondary pages left and currency and Account right.
+           (or articles for a blog) across the full width, and a hairline strip across the foot with the secondary pages left and currency and Account right.
            Clicks are reported to GA4 and Shopify customer events.
 
   Accepts: section (the header section).
@@ -115,15 +114,6 @@
   </div>
 
 
-  <div class="FoundPanel__Foot">
-    {%- for link in main_menu.links -%}
-      {%- if link.type == 'collection_link' and link.object != blank -%}
-        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all {{ link.title | downcase | escape }} <span>({{ link.object.all_products_count }})</span></a>
-      {%- elsif link.type == 'blog_link' and link.object != blank -%}
-        <a class="FoundPanel__SeeAll" data-for="g{{ forloop.index }}" href="{{ link.url }}" data-item-type="see_all">See all articles <span>({{ link.object.articles_count }})</span></a>
-      {%- endif -%}
-    {%- endfor -%}
-  </div>
 
   {%- comment -%} Full-width strip: main-menu links without a quick link (Personal shopping, Contact) left; currency and Account right. {%- endcomment -%}
   <div class="FoundPanel__Strip">
@@ -294,11 +284,6 @@
 
     /* Every shelf occupies the same grid cell, so the row is always as tall as the tallest shelf and the bottom edge never jumps between groups. */
     .FoundPanel__Shelves { display: grid; }
-    .FoundPanel__Foot { display: grid; justify-content: center; min-height: 20px; padding-top: 26px; }
-    .FoundPanel__SeeAll { display: none; font-family: var(--heading-font-family); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--header-heading-color); text-decoration: none; padding-bottom: 3px; border-bottom: 1px solid currentColor; }
-    .FoundPanel__SeeAll.is-shown { display: inline-block; justify-self: center; }
-    .FoundPanel__SeeAll span { color: var(--text-color-light); }
-    .FoundPanel__SeeAll:hover span { color: inherit; }
 
     /* Card hover: the image eases in, the name underlines and the brand line lifts, so the card reads as a link. */
     .FoundPanel__Card:hover .FoundPanel__CardName, .FoundPanel__Article:hover .FoundPanel__ArticleTitle { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
@@ -402,7 +387,7 @@
       panel.addEventListener('click', function (e) {
         var a = e.target.closest('a');
         if (!a || !panel.contains(a)) return;
-        var type = a.getAttribute('data-item-type') || (a.classList.contains('FoundPanel__Card') ? 'product' : a.classList.contains('FoundPanel__Article') ? 'article' : a.closest('.FoundPanel__Sub') ? 'section' : 'link');
+        var type = a.classList.contains('FoundPanel__Card') ? 'product' : a.classList.contains('FoundPanel__Article') ? 'article' : a.closest('.FoundPanel__Sub') ? 'section' : 'link';
         var name = a.querySelector('.FoundPanel__CardName, .FoundPanel__ArticleTitle');
         var row = a.closest('.FoundPanel__Shelf');
         track('found_menu_click', { menu_group: activeLabel(), item_type: type, item_name: (name ? name.textContent : a.textContent).trim().replace(/\s+/g, ' ').slice(0, 80), item_url: a.getAttribute('href'), position: row ? Array.prototype.indexOf.call(row.children, a) + 1 : undefined });
