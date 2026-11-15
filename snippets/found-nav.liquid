@@ -285,7 +285,7 @@
 
 
     /* The hovered group's sections, centred under the bar; the shelves below, full width; "See all" centred under them. */
-    .FoundPanel__Subs { display: grid; min-height: 11px; padding-bottom: 30px; } /* min-height matches one row of links, so groups without sections keep the same panel height */
+    .FoundPanel__Subs { display: grid; min-height: 41px; padding-bottom: 30px; } /* border-box: one 11px row of links plus the padding, so groups without sections keep the same panel height */
     .FoundPanel__Sub { display: none; grid-area: 1 / 1; justify-content: center; flex-wrap: wrap; gap: 10px 30px; }
     .FoundPanel__Sub.is-shown { display: flex; }
     .FoundPanel__Sub a { font-family: var(--heading-font-family); font-size: 11px; line-height: 1; letter-spacing: 0.18em; text-transform: uppercase; color: var(--header-heading-color); text-decoration: none; }
