@@ -22,7 +22,6 @@
     '.ProductItem',
     '.ArticleItem',
     '.FeatureText__ImageWrapper',
-    '.Timeline__Item',
     '.Product__Wrapper',
     '.Collection__Item'
   ].join(',');
