@@ -1,3 +1,5 @@
+{%- comment -%} A page of 50 results, so the ordering below sees every in-stock name match before it fills the six slots. {%- endcomment -%}
+{%- paginate search.results by 50 -%}
 <div class="Segment">
   <div class="Segment__Title Segment__Title--flexed">
     {%- if search.types contains 'product' -%}
@@ -13,7 +15,34 @@
     {%- endif -%}
 
     {%- if search.results_count > 0 -%}
-      <a class="Heading Link Link--secondary u-h7" href="{{ routes.search_url }}?q={{ search.terms }}&type={{ search.types | join: ',' }}">{{ 'search.general.view_all' | t }}</a>
+      {%- comment -%}
+        View all lists the pieces whose name matches. A title search only takes whole words, so a part-typed word
+        ("evely") is completed from the first matching name ("evelyn"); a phrase, or a word that completes to nothing,
+        falls back to the same prefix search as this sheet. Sold pieces come after those in stock either way.
+      {%- endcomment -%}
+      {%- if search.types contains 'product' -%}
+        {%- assign clean_terms = search.terms | remove: '*' | strip -%}
+        {%- assign term_down = clean_terms | downcase -%}
+        {%- assign term_size = term_down | size -%}
+        {%- assign full_word = '' -%}
+        {%- unless term_down contains ' ' -%}
+          {%- for result in search.results -%}
+            {%- if full_word != '' -%}{%- break -%}{%- endif -%}
+            {%- assign words = result.title | downcase | replace: ',', ' ' | replace: '(', ' ' | replace: ')', ' ' | replace: '/', ' ' | split: ' ' -%}
+            {%- for w in words -%}
+              {%- assign head = w | slice: 0, term_size -%}
+              {%- if head == term_down -%}{%- assign full_word = w -%}{%- break -%}{%- endif -%}
+            {%- endfor -%}
+          {%- endfor -%}
+        {%- endunless -%}
+        {%- if full_word != '' -%}
+          <a class="Heading Link Link--secondary u-h7" href="{{ routes.search_url }}?q=title:{{ full_word | url_param_escape }}*&type=product&options%5Bunavailable_products%5D=last">{{ 'search.general.view_all' | t }}</a>
+        {%- else -%}
+          <a class="Heading Link Link--secondary u-h7" href="{{ routes.search_url }}?q={{ clean_terms | url_param_escape }}*&type=product&options%5Bprefix%5D=last&options%5Bunavailable_products%5D=last">{{ 'search.general.view_all' | t }}</a>
+        {%- endif -%}
+      {%- else -%}
+        <a class="Heading Link Link--secondary u-h7" href="{{ routes.search_url }}?q={{ search.terms }}&type={{ search.types | join: ',' }}">{{ 'search.general.view_all' | t }}</a>
+      {%- endif -%}
     {%- endif -%}
   </div>
 
@@ -28,7 +57,34 @@
           {%- assign results_count = 3 -%}
         {%- endif -%}
 
-        <div class="Grid Grid--xl">
+        {%- comment -%} Desktop (quick-links header): the same six-card row the menu panel uses. Phones and tablets keep the theme's grid below. {%- endcomment -%}
+        {%- comment -%}
+          Order for the desktop row: pieces whose name contains the search term first (in stock, then sold), then
+          the rest (in stock, then sold). Sold pieces stay in and carry the SOLD mark.
+        {%- endcomment -%}
+        {%- assign term = search.terms | remove: '*' | strip | downcase -%}
+        {%- assign shown = 0 -%}
+        <div class="FoundSearch__Row">
+          {%- for pass in (1..4) -%}
+            {%- for result in search.results -%}
+              {%- if shown >= 6 -%}{%- break -%}{%- endif -%}
+              {%- assign title_down = result.title | downcase -%}
+              {%- assign named = false -%}
+              {%- if term != blank and title_down contains term -%}{%- assign named = true -%}{%- endif -%}
+              {%- if pass == 1 and named and result.available -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true -%}
+              {%- elsif pass == 2 and named and result.available == false -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true, sold: true -%}
+              {%- elsif pass == 3 and named == false and result.available -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true -%}
+              {%- elsif pass == 4 and named == false and result.available == false -%}
+                {%- assign shown = shown | plus: 1 -%}{%- render 'found-nav-card', product: result, index: shown, eager: true, sold: true -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endfor -%}
+        </div>
+
+        <div class="Grid Grid--xl FoundSearch__Legacy">
           {%- for result in search.results limit: results_count -%}
             {%- comment -%}The inline onclick is a bit hacky, but it's easier on mobile to have the full line clickable{%- endcomment -%}
             <div class="Grid__Cell 1/{{ results_count }}--tablet-and-up" onclick="window.location.href = '{{ result.url }}'">
@@ -49,6 +105,7 @@
   </div>
 </div>
 
+{%- endpaginate -%}
 {% schema %}
 {
   "name": "Predictive search"

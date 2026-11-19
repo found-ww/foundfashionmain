@@ -1,0 +1,49 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-article",
+      "settings": {
+        "show_article_image": true,
+        "show_date": false,
+        "show_category": false,
+        "show_author": false,
+        "show_share_buttons": true,
+        "show_prev_next": false
+      }
+    },
+    "article-comments": {
+      "type": "article-comments",
+      "settings": {}
+    },
+    "article-html-embed": {
+      "type": "article-html-embed",
+      "settings": {}
+    },
+    "shop-now": {
+      "type": "shop-now",
+      "settings": {
+        "title": "SHOP BAGS",
+        "collection": "bags",
+        "grid_items_count": 6,
+        "show_product_info": true,
+        "show_vendor": false,
+        "show_color_swatch": false
+      }
+    }
+  },
+  "order": [
+    "main",
+    "article-comments",
+    "article-html-embed",
+    "shop-now"
+  ]
+}

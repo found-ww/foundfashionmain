@@ -19,6 +19,11 @@ USEFUL VARIABLES
   {%- assign use_transparent_header = true -%}
 {%- endif -%}
 
+{%- comment -%} The quick-links header sits over the collection banner too, until the page scrolls up to it. {%- endcomment -%}
+{%- if template.name == 'collection' and section.settings.found_nav and collection.image and collection.template_suffix != 'no-image' -%}
+  {%- assign use_transparent_header = true -%}
+{%- endif -%}
+
 {%- if section.settings.navigation_style != 'sidebar' -%}
   {%- assign use_sidebar_menu = false -%}
 {%- else -%}
@@ -124,6 +129,12 @@ Implementation note: make sure that the Search div is always just before the Hea
         </div>
 
         <input type="search" class="Search__Input Heading" name="q" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="{{ 'search.general.input_placeholder' | t }}" placeholder="{{ 'search.general.input_placeholder' | t }}" autofocus>
+        {%- if section.settings.found_nav -%}
+          {%- assign search_hints = section.settings.search_hints | default: 'Kelly 28, Birkin 25, Chanel Classic Flap, Cartier Love bracelet' | split: ',' -%}
+          <span class="FoundSearch__Hint" aria-hidden="true">{{ section.settings.search_hint_prefix | default: 'Search for' | escape }} <span class="FoundSearch__HintWords">
+            {%- for hint in search_hints -%}<span class="FoundSearch__HintWord {% if forloop.first %}is-active{% endif %}">{{ hint | strip | escape }}</span>{%- endfor -%}
+          </span></span>
+        {%- endif -%}
         <input type="hidden" name="type" value="product">
       </form>
 
@@ -156,11 +167,14 @@ HEADER CONTENT
 {%- endcapture -%}
 
 <header id="section-{{ section.id }}"
-        class="Header Header--{{ section.settings.navigation_style }} {% if section.settings.navigation_style != 'inline' and section.settings.navigation_style != 'logoLeft' %}Header--initialized{% endif %} {% if use_transparent_header %}Header--transparent{% endif %} {% if section.settings.show_icons or section.settings.navigation_style == 'sidebar' %}Header--withIcons{% endif %}"
+        class="Header Header--{{ section.settings.navigation_style }} {% if section.settings.navigation_style != 'inline' and section.settings.navigation_style != 'logoLeft' %}Header--initialized{% endif %} {% if use_transparent_header %}Header--transparent{% endif %} {% if section.settings.show_icons or section.settings.navigation_style == 'sidebar' %}Header--withIcons{% endif %} {% if section.settings.found_nav %}Header--found{% endif %} {% if section.settings.found_nav and use_transparent_header %}Header--foundClear{% endif %}"
         data-section-id="{{ section.id }}"
         data-section-type="header"
         data-section-settings='{{ section_settings }}'
         role="banner">
+  {%- if section.settings.found_nav -%}
+    {%- render 'found-nav', section: section -%}
+  {%- endif -%}
   <div class="Header__Wrapper">
     <div class="Header__FlexItem Header__FlexItem--fill">
       <button class="Header__Icon Icon-Wrapper Icon-Wrapper--clickable {% unless use_sidebar_menu %}hidden-desk{% endunless %}" aria-expanded="false" data-action="open-drawer" data-drawer-id="sidebar-menu" aria-label="{{ 'header.navigation.open_sidebar' | t }}">
@@ -322,9 +336,29 @@ HEADER CONTENT
                               {%- endif -%}
                             {%- endfor -%}
                             {%- if rendered_count < 4 -%}
-                              {%- assign empty_count = 4 | minus: rendered_count -%}
-                              {%- for i in (1..empty_count) -%}
-                                <div class="FoundStrip__Empty"></div>
+                              {%- for product in mega_collection.products limit: 20 -%}
+                                {%- unless product.available -%}
+                                  {%- if rendered_count < 4 -%}
+                                    {%- assign rendered_count = rendered_count | plus: 1 -%}
+                                    <a href="{{ product.url }}" class="FoundStrip__Card FoundStrip__Card--soldout">
+                                      <div class="FoundStrip__ImageWrap">
+                                        {%- if product.featured_media -%}
+                                          <img class="FoundStrip__Img"
+                                               src="{{ product.featured_media | img_url: '400x' }}"
+                                               alt="{{ product.featured_media.alt | default: product.title | escape }}"
+                                               loading="lazy">
+                                        {%- endif -%}
+                                      </div>
+                                      <div class="FoundStrip__Info">
+                                        {%- if product.vendor != blank -%}
+                                          <span class="FoundStrip__Brand">{{ product.vendor | upcase }}</span>
+                                        {%- endif -%}
+                                        <span class="FoundStrip__Name">{{ product.title | escape }}</span>
+                                        <span class="FoundStrip__Price FoundStrip__Price--soldout">Sold out</span>
+                                      </div>
+                                    </a>
+                                  {%- endif -%}
+                                {%- endunless -%}
                               {%- endfor -%}
                             {%- endif -%}
                           {%- endif -%}
@@ -690,6 +724,8 @@ HEADER CONTENT
     letter-spacing: 0.04em;
     color: #7a7468;
   }
+  .FoundStrip__Card--soldout { opacity: 1; }
+  .FoundStrip__Price--soldout { font-style: italic; }
 </style>
 
 <script>
@@ -706,6 +742,37 @@ HEADER CONTENT
       "id": "use_sticky_header",
       "label": "Use sticky header",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "Quick-links header (desktop)"
+    },
+    {
+      "type": "checkbox",
+      "id": "found_nav",
+      "label": "Use the quick-links header on desktop",
+      "info": "Logo left, up to six quick links centred, burger right. The burger opens a panel with the full menu and a row of products for each group. Phones and tablets keep the standard header and drawer.",
+      "default": true
+    },
+    {
+      "type": "link_list",
+      "id": "quick_links_menu",
+      "label": "Quick links menu",
+      "info": "The first six links are shown. When left on the main menu, the \"quick-links\" menu is used if it exists.",
+      "default": "main-menu"
+    },
+    {
+      "type": "text",
+      "id": "search_hint_prefix",
+      "label": "Desktop search hint",
+      "default": "Search for"
+    },
+    {
+      "type": "text",
+      "id": "search_hints",
+      "label": "Desktop search suggestions",
+      "info": "Comma separated. They rotate after the hint while the search is empty.",
+      "default": "Kelly 28, Birkin 25, Chanel Classic Flap, Cartier Love bracelet"
     },
     {
       "type": "header",

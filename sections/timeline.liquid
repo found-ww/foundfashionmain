@@ -69,6 +69,11 @@
   #section-{{ section.id }} .Timeline__ListItem {
     color: {{ section.settings.text_color }};
   }
+
+  /* Keep every tab label in capitals, whatever case was typed in the editor */
+  #section-{{ section.id }} .Timeline__NavLabel {
+    text-transform: uppercase;
+  }
 </style>
 
 {% schema %}

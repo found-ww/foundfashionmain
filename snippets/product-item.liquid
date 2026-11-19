@@ -1,3 +1,19 @@
+{%- comment -%}
+  Stock / tag hierarchy (keep in sync with sections/main-product.liquid):
+  1. Out of stock (overrides tags)  -> "Sold" label, no price
+  2. In stock + "Sourcing"          -> "Price on request" in place of the price
+  3. In stock (incl. "Request Only") -> normal card
+{%- endcomment -%}
+{%- assign item_is_sourcing = false -%}
+{%- for tag in product.tags -%}
+  {%- assign item_tag_downcase = tag | downcase -%}
+  {%- if item_tag_downcase == 'sourcing' -%}{%- assign item_is_sourcing = true -%}{%- break -%}{%- endif -%}
+{%- endfor -%}
+{%- assign item_hide_price = false -%}
+{%- if product.available == false -%}{%- assign item_hide_price = true -%}{%- endif -%}
+{%- assign item_price_on_request = false -%}
+{%- if product.available and item_is_sourcing -%}{%- assign item_price_on_request = true -%}{%- endif -%}
+
 <div class="ProductItem {% if use_horizontal %}ProductItem--horizontal{% endif %}">
   <div class="ProductItem__Wrapper">
     {%- comment -%}
@@ -62,7 +78,9 @@
           {%- endif -%}
         {%- endfor -%}
 
-        {%- if product.available -%}
+        {%- if item_price_on_request -%}
+          {%- comment -%} Sourcing items: no label; the price slot shows "Price on request" {%- endcomment -%}
+        {%- elsif product.available -%}
           {%- if product.compare_at_price > product.price -%}
             <span class="ProductItem__Label ProductItem__Label--onSale Heading Text--subdued">{{ 'product.labels.on_sale' | t }}</span>
           {%- endif -%}
@@ -84,9 +102,9 @@
           <p class="ProductItem__Vendor Heading">{{ product.vendor }}</p>
         {%- endif -%}
 
-        <h2 class="ProductItem__Title Heading">
+        <p class="ProductItem__Title Heading">
           <a href="{{ product.url }}">{{ product.title }}</a>
-        </h2>
+        </p>
 
         {%- if settings.show_product_rating -%}
           {%- unless use_horizontal -%}
@@ -153,9 +171,11 @@
           {{- color_swatch_list -}}
         {%- endif -%}
 
-        {%- if product.template_suffix != 'coming-soon' -%}
+        {%- if product.template_suffix != 'coming-soon' and item_hide_price == false -%}
           <div class="ProductItem__PriceList {% if show_price_on_hover %}ProductItem__PriceList--showOnHover{% endif %} Heading">
-            {%- if product.compare_at_price > product.price -%}
+            {%- if item_price_on_request -%}
+              <span class="ProductItem__Price Price Text--subdued">{{ 'product.labels.price_on_request' | t }}</span>
+            {%- elsif product.compare_at_price > product.price -%}
               {%- if settings.currency_code_enabled -%}
                 <span class="ProductItem__Price Price Price--highlight Text--subdued">
                 {% comment %}start BSS Commerce ltsp{% endcomment %}{% assign bssltspp = product | default: item | default: prod %}{% capture bssltspop %}{{ product.price | money_with_currency }}{% endcapture %}{% render 'bsscommerce-login-to-see-price', product: bssltspp, old_price: bssltspop %}{% comment %}end BSS Commerce ltsp{% endcomment %}</span>

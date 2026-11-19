@@ -1,0 +1,15 @@
+{%- comment -%}
+  One product card in the desktop navigation panel and the desktop search results. Accepts: product, sold (boolean),
+  index (1-based position in the row), eager (boolean). In the panel the image carries data-src only and the nav
+  script loads it when the page is idle or the panel opens; search results pass eager so the image loads at once.
+{%- endcomment -%}
+<a class="FoundPanel__Card {% if sold %}FoundPanel__Card--sold{% endif %} {% if eager %}is-loaded{% endif %}" href="{{ product.url }}" style="--i: {{ index | default: 1 | minus: 1 }}">
+  <span class="FoundPanel__CardImg">
+    {%- if sold -%}<span class="FoundPanel__CardSold">{{ 'product.labels.sold_out' | t }}</span>{%- endif -%}
+    {%- if product.featured_media -%}
+      <img {% if eager %}src{% else %}data-src{% endif %}="{{ product.featured_media | img_url: '400x400', crop: 'center' }}" alt="" width="400" height="400">
+    {%- endif -%}
+  </span>
+  <span class="FoundPanel__CardName">{{ product.title | escape }}</span>
+  <span class="FoundPanel__CardPrice">{{ product.price | money_without_trailing_zeros }}</span>
+</a>

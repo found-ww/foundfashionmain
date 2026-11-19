@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: frosted-sticky-header
+expected_outcome: |
+  The sticky header in assets/theme.css (or the header section) gets a white frosted-glass background using the theme's CSS variables, with -webkit-backdrop-filter and backdrop-filter, a hairline inset border, high alpha (about 0.85 to 0.92), no drop shadow, no border radius, and reduced-transparency / no-backdrop-filter fallbacks. The mega menu is not also frosted. Work happens on a branch, not main, and the note explains what the header overlaps so the frost is visible.

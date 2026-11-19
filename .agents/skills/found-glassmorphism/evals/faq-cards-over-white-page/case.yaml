@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: faq-cards-over-white-page
+expected_outcome: |
+  The run recognises that the FAQ page is plain white, so backdrop-filter has nothing to blur and a translucent panel would look like a bug. It says so plainly and either proposes a solid treatment (hairline border, subtle tint) or scopes glass to a surface that actually overlaps imagery, rather than silently applying blur to white-on-white cards. Any CSS it does write still carries the Safari prefix and fallbacks.

@@ -341,15 +341,67 @@
       {%- endif -%}
 
       {%- comment -%} CTA row: Add to cart only — Offerly injects its button automatically {%- endcomment -%}
+      {%- assign is_request_only = false -%}
+      {%- assign is_sourcing = false -%}
+      {%- for tag in product.tags -%}
+        {%- assign tag_downcase = tag | downcase -%}
+        {%- if tag_downcase == 'request only' -%}{%- assign is_request_only = true -%}{%- endif -%}
+        {%- if tag_downcase == 'sourcing' -%}{%- assign is_sourcing = true -%}{%- endif -%}
+      {%- endfor -%}
+
+      {%- comment -%}
+        Stock / tag hierarchy (keep in sync with snippets/product-item.liquid):
+        1. Out of stock (overrides tags)        -> SOLD, no price (existing sold UI)
+        2. In stock + "Sourcing"                -> MESSAGE OUR TEAM, no price
+        3. In stock + "Request Only"            -> MESSAGE OUR TEAM • price
+        4. In stock, untagged                   -> Add to cart / Make an offer
+        "Sourcing" wins when a product carries both tags.
+      {%- endcomment -%}
+      {%- assign show_sourcing_cta = false -%}
+      {%- assign show_request_price = false -%}
+      {%- if product.available -%}
+        {%- if is_sourcing -%}
+          {%- assign show_sourcing_cta = true -%}
+        {%- elsif is_request_only -%}
+          {%- assign show_request_price = true -%}
+        {%- endif -%}
+      {%- endif -%}
+
+      {%- if show_sourcing_cta or show_request_price -%}
+        {%- assign wa_product_url = shop.url | append: product.url -%}
+        {%- assign wa_message = "Hi, I'm interested in " | append: product.title | append: ". " | append: wa_product_url | url_encode -%}
+        <div class="ppv1-cta-row">
+          <a href="https://wa.me/447405520466?text={{ wa_message }}"
+             class="Button Button--primary ppv1-atc-btn"
+             target="_blank"
+             rel="noopener"
+             style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;">
+            MESSAGE OUR TEAM{%- if show_request_price -%} &bull; {{ product.price | money }}{%- endif -%}
+          </a>
+        </div>
+      {%- else -%}
+
       <div class="ppv1-cta-row">
         {%- form 'product', product, class: 'ppv1-form' -%}
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
           {%- if product.selected_or_first_available_variant.available -%}
             {%- assign atc_variant = product.selected_or_first_available_variant -%}
-            <button type="submit" class="Button Button--primary ppv1-atc-btn" data-action="add-to-cart"
-              onclick="gtag('event','add_to_cart',{'currency':'{{ shop.currency }}','value':{{ atc_variant.price | divided_by: 100.0 }},'items':[{'item_id':'{{ atc_variant.id }}','item_name':{{ product.title | json }},'item_variant':{{ atc_variant.title | json }},'price':{{ atc_variant.price | divided_by: 100.0 }},'quantity':1}]})">
-              ADD TO CART &bull; {{ atc_variant.price | money }}
-            </button>
+            {%- assign in_cart = false -%}
+            {%- for item in cart.items -%}
+              {%- if item.product.id == product.id -%}
+                {%- assign in_cart = true -%}
+                {%- break -%}
+              {%- endif -%}
+            {%- endfor -%}
+            {%- if in_cart -%}
+              <button type="button" class="Button Button--secondary ppv1-atc-btn ProductForm__AddToCart ppv1-atc-btn--added" id="ppv1-atc-btn" disabled>
+                ADDED TO CART
+              </button>
+            {%- else -%}
+              <button type="submit" class="Button Button--primary ppv1-atc-btn ProductForm__AddToCart" data-action="add-to-cart" id="ppv1-atc-btn" data-atc-price="{{ atc_variant.price | money }}">
+                ADD TO CART &bull; {{ atc_variant.price | money }}
+              </button>
+            {%- endif -%}
           {%- else -%}
             <button type="button" class="Button Button--secondary ppv1-atc-btn" disabled style="flex:1;">SOLD</button>
             {%- if customer -%}
@@ -373,6 +425,18 @@
           {%- endif -%}
         {%- endform -%}
       </div>
+      {%- if product.selected_or_first_available_variant.available -%}
+        <button type="button" class="ppv1-offer-trigger" id="ppv1-main-offer-btn" style="margin-top:8px;">
+          <span>MAKE AN OFFER</span>
+        </button>
+      {%- else -%}
+        <div class="ppv1-sourcing-card">
+          <p class="ppv1-sourcing-card__heading">Looking for something similar?</p>
+          <p class="ppv1-sourcing-card__text">Our team sources pieces to order. Tell us what you&rsquo;re looking for and we&rsquo;ll track it down.</p>
+          <a href="/pages/personal-shopping" class="ppv1-sourcing-card__cta"><span>Start a sourcing request &rarr;</span></a>
+        </div>
+      {%- endif -%}
+      {%- endif -%}
     </div>
   </div>
 
@@ -953,72 +1017,298 @@
   z-index: 1;
 }
 
-/* ---- MAKE AN OFFER app button (v7) ---- */
-/* Targets the injected button regardless of which class variant the app uses.
-   If none of these apply, inspect the button in browser devtools and add the exact class. */
-.mao-button,
-.mao_button,
-button[class*="mao-"],
-button[class*="make-an-offer"],
-#mao-widget button,
-#mao_widget button,
-[id*="make-an-offer"] button,
-[class*="make_an_offer"] button {
-  position: relative !important;
-  overflow: hidden !important;
-  font-family: 'Jost', sans-serif !important;
-  font-size: 11px !important;
-  font-weight: 400 !important;
-  letter-spacing: 0.18em !important;
-  text-transform: uppercase !important;
-  padding: 14px 24px !important;
-  border-radius: 0 !important;
-  background: #ffffff !important;
-  color: #1a1a1a !important;
-  border: 1px solid #1a1a1a !important;
-  cursor: pointer !important;
-  width: 100% !important;
-  transition: color 0.3s ease !important;
-}
+/* ---- Sold-out sourcing card ---- */
+.ppv1-sourcing-card{font-family:var(--text-font-family);background:#f4f4f4;border-radius:4px;padding:20px 16px;margin-top:16px;border:0.75px solid #dedad3;}
+.ppv1-sourcing-card__heading{font-family:var(--heading-font-family);font-size:15px;font-weight:600;letter-spacing:0.02em;color:#171513;margin:0 0 8px;}
+.ppv1-sourcing-card__text{font-family:var(--text-font-family);font-size:12px;letter-spacing:0.03em;color:#57534c;line-height:1.5;margin:0 0 18px;}
+.ppv1-sourcing-card__cta{position:relative;display:inline-block;overflow:hidden;font-family:var(--text-font-family);font-size:11px;letter-spacing:0.08em;color:#171513;background:transparent;border:0.5px solid #171513;padding:7px 14px;text-decoration:none;transition:color 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+.ppv1-sourcing-card__cta::before{content:"";position:absolute;inset:0;background:#171513;transform:scale(0,1);transform-origin:left center;transition:transform 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+.ppv1-sourcing-card__cta span{position:relative;}
+@media(-moz-touch-enabled:0),(hover:hover){.ppv1-sourcing-card__cta:hover{color:#fff;}.ppv1-sourcing-card__cta:hover::before{transform:scale(1,1);}}
 
-.mao-button::before,
-.mao_button::before,
-button[class*="mao-"]::before,
-button[class*="make-an-offer"]::before,
-#mao-widget button::before,
-#mao_widget button::before,
-[id*="make-an-offer"] button::before,
-[class*="make_an_offer"] button::before {
-  content: '' !important;
-  position: absolute !important;
-  inset: 0 !important;
-  background: #1a1a1a !important;
-  transform: translateY(100%) !important;
-  transition: transform 0.3s ease !important;
-  z-index: 0 !important;
+/* ---- Make an Offer button ---- */
+.ppv1-offer-trigger {
+  position: relative;
+  overflow: hidden;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  border-radius: 0;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+  cursor: pointer;
+  width: 100%;
+  transition: color 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
+/* Right-to-left wipe on hover (fill grows from the right edge) */
+.ppv1-offer-trigger::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #1a1a1a;
+  transform: scale(0, 1);
+  transform-origin: right center;
+  transition: transform 0.45s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  z-index: 0;
+}
+@media (-moz-touch-enabled: 0), (hover: hover) {
+  .ppv1-offer-trigger:hover::before { transform: scale(1, 1); }
+  .ppv1-offer-trigger:hover { color: #ffffff; }
+}
+.ppv1-offer-trigger span { position: relative; z-index: 1; }
 
-.mao-button:hover::before,
-.mao_button:hover::before,
-button[class*="mao-"]:hover::before,
-button[class*="make-an-offer"]:hover::before,
-#mao-widget button:hover::before,
-#mao_widget button:hover::before,
-[id*="make-an-offer"] button:hover::before,
-[class*="make_an_offer"] button:hover::before {
-  transform: translateY(0) !important;
+/* ---- Make an Offer modal ---- */
+.ff-offer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  padding: 24px;
 }
-
-.mao-button:hover,
-.mao_button:hover,
-button[class*="mao-"]:hover,
-button[class*="make-an-offer"]:hover,
-#mao-widget button:hover,
-#mao_widget button:hover,
-[id*="make-an-offer"] button:hover,
-[class*="make_an_offer"] button:hover {
-  color: #ffffff !important;
+.ff-offer-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
 }
+.ff-offer-modal {
+  background: #fff;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(16px);
+  transition: transform 0.25s ease;
+}
+.ff-offer-overlay.is-open .ff-offer-modal { transform: translateY(0); }
+.ff-offer-modal__head {
+  background: #1c1c1c;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ff-offer-modal__head-title {
+  color: #fff;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.ff-offer-modal__close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.ff-offer-modal__close:hover { color: #fff; }
+.ff-offer-modal__body { padding: 28px; }
+.ff-offer-modal__product {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e8e3de;
+}
+.ff-offer-modal__product-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.ff-offer-modal__product-title {
+  font-size: 13px;
+  color: #1c1c1c;
+  letter-spacing: 0.04em;
+  margin: 0 0 4px;
+}
+.ff-offer-modal__product-price {
+  font-size: 12px;
+  color: #9a8f86;
+  letter-spacing: 0.06em;
+}
+.ff-offer-modal__label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #9a8f86;
+  display: block;
+  margin-bottom: 10px;
+}
+.ff-offer-modal__presets {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.ff-offer-preset {
+  flex: 1;
+  border: 1px solid #e0dbd5;
+  background: #fff;
+  padding: 10px 8px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b6259;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.ff-offer-preset:hover,
+.ff-offer-preset.is-selected {
+  border-color: #1c1c1c;
+  color: #1c1c1c;
+  background: #faf9f7;
+}
+.ff-offer-modal__price-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+.ff-offer-modal__currency {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #9a8f86;
+  pointer-events: none;
+}
+.ff-offer-modal__price-input {
+  width: 100%;
+  border: 1px solid #e0dbd5;
+  padding: 14px 14px 14px 28px;
+  font-size: 15px;
+  color: #1c1c1c;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  border-radius: 0;
+  transition: border-color 0.2s;
+}
+.ff-offer-modal__price-input:focus { border-color: #9a8f86; }
+.ff-offer-modal__divider {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #b5ada5;
+  margin-bottom: 16px;
+}
+.ff-offer-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.ff-offer-field { position: relative; margin-bottom: 12px; }
+.ff-offer-field-row .ff-offer-field { margin-bottom: 0; }
+.ff-offer-input {
+  width: 100%;
+  border: 1px solid #e0dbd5;
+  background: #fff;
+  padding: 20px 14px 8px;
+  font-size: 14px;
+  color: #3d3530;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  display: block;
+  box-sizing: border-box;
+  border-radius: 0;
+}
+.ff-offer-input:focus { border-color: #9a8f86; }
+.ff-offer-label {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  font-size: 14px;
+  color: #b5ada5;
+  pointer-events: none;
+  transition: top 0.15s, font-size 0.15s, color 0.15s, letter-spacing 0.15s;
+  font-family: inherit;
+}
+.ff-offer-input:focus ~ .ff-offer-label,
+.ff-offer-input:not(:placeholder-shown) ~ .ff-offer-label {
+  top: 6px;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9a8f86;
+}
+.ff-offer-input.ff-error { border-color: #c0392b; }
+.ff-field-error {
+  font-size: 11px;
+  color: #c0392b;
+  margin-top: 3px;
+  display: block;
+}
+.ff-offer-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.ff-offer-checkbox input { cursor: pointer; accent-color: #1c1c1c; }
+.ff-offer-checkbox span { font-size: 13px; color: #6b6259; }
+.ff-offer-submit {
+  width: 100%;
+  background: #1c1c1c;
+  color: #fff;
+  border: none;
+  padding: 15px 24px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ff-offer-submit:hover { background: #3d3530; }
+.ff-offer-submit:disabled { opacity: 0.6; cursor: default; }
+.ff-offer-note {
+  font-size: 11px;
+  color: #9a8f86;
+  text-align: center;
+  margin-top: 12px;
+  letter-spacing: 0.04em;
+}
+.ff-offer-success {
+  text-align: center;
+  padding: 32px 0 16px;
+}
+.ff-offer-success__mark {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #c8c0b8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #9a8f86;
+}
+.ff-offer-success__title {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 400;
+  color: #1c1c1c;
+  margin-bottom: 8px;
+}
+.ff-offer-success__note { font-size: 13px; color: #9a8f86; line-height: 1.6; }
 
 .ppv1-btn--tertiary:hover {
   border-color: #1a1a1a;
@@ -1666,11 +1956,22 @@ button[class*="make-an-offer"]:hover,
       var slide = track.querySelector('.ppv1-strip__slide');
       return slide ? slide.offsetWidth + 10 : track.offsetWidth / 3;
     }
+    function getSlideCount() {
+      return track.querySelectorAll('.ppv1-strip__slide').length;
+    }
+    function getCurrentIndex() {
+      return Math.round(track.scrollLeft / getSlideWidth());
+    }
+    function scrollToIndex(i) {
+      var count = getSlideCount();
+      var target = ((i % count) + count) % count;
+      track.scrollTo({ left: target * getSlideWidth(), behavior: 'smooth' });
+    }
     prevBtn.addEventListener('click', function() {
-      track.scrollBy({ left: -getSlideWidth(), behavior: 'smooth' });
+      scrollToIndex(getCurrentIndex() - 1);
     });
     nextBtn.addEventListener('click', function() {
-      track.scrollBy({ left: getSlideWidth(), behavior: 'smooth' });
+      scrollToIndex(getCurrentIndex() + 1);
     });
   }
 })();
@@ -1705,6 +2006,716 @@ button[class*="make-an-offer"]:hover,
 })();
 </script>
 {%- endunless -%}
+
+{%- comment -%} GA4 view_item + Meta ViewContent on product page load {%- endcomment -%}
+<script>
+(function() {
+  var productData = {
+    item_id: {{ product.id | json }},
+    item_name: {{ product.title | json }},
+    item_brand: {{ product.vendor | json }},
+    item_category: {{ product.type | json }},
+    price: {{ product.price | divided_by: 100.0 }},
+    currency: {{ cart.currency.iso_code | json }}
+  };
+
+  /* GA4 view_item */
+  if (typeof gtag === 'function') {
+    gtag('event', 'view_item', {
+      currency: productData.currency,
+      value: productData.price,
+      items: [productData]
+    });
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'view_item',
+    currency: productData.currency,
+    value: productData.price,
+    items: [productData]
+  });
+
+  /* Meta Pixel ViewContent */
+  if (typeof fbq === 'function') {
+    fbq('track', 'ViewContent', {
+      content_name: productData.item_name,
+      content_ids: [String(productData.item_id)],
+      content_type: 'product',
+      value: productData.price,
+      currency: productData.currency
+    });
+  }
+})();
+</script>
+
+{%- comment -%} GA4 add_to_cart + Meta AddToCart — separate script to avoid breaking ATC {%- endcomment -%}
+<script>
+(function() {
+  var atcBtn = document.getElementById('ppv1-atc-btn');
+  if (!atcBtn) return;
+  atcBtn.addEventListener('click', function() {
+    try {
+      var currency = {{ cart.currency.iso_code | json }};
+      var itemName = {{ product.title | json }};
+      var variantInput = atcBtn.closest('form').querySelector('[data-product-select]');
+      var variantId = variantInput ? variantInput.value : '';
+      var price = {{ product.price | divided_by: 100.0 }};
+
+      if (typeof gtag === 'function') {
+        gtag('event', 'add_to_cart', {
+          currency: currency,
+          value: price,
+          items: [{ item_id: String(variantId), item_name: itemName, price: price, quantity: 1 }]
+        });
+      }
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'add_to_cart',
+        currency: currency,
+        value: price,
+        items: [{ item_id: String(variantId), item_name: itemName }]
+      });
+      if (typeof fbq === 'function') {
+        fbq('track', 'AddToCart', {
+          content_name: itemName,
+          content_ids: [String(variantId)],
+          content_type: 'product',
+          value: price,
+          currency: currency
+        });
+      }
+    } catch(e) { /* tracking should never block ATC */ }
+  });
+})();
+</script>
+
+{%- comment -%} Hide loading bar on ATC + suppress max quantity error + added state {%- endcomment -%}
+<style>
+  .LoadingBar { display: none !important; }
+  .ProductForm__Error.Alert--error { display: none !important; }
+  .ppv1-atc-btn--added {
+    opacity: 0.7;
+    cursor: default;
+  }
+</style>
+<script>
+(function() {
+  var section = document.querySelector('[data-section-id="{{ section.id }}"]');
+  if (!section) return;
+
+  /* After successful add, switch button to "Added to cart" */
+  section.addEventListener('product:added', function() {
+    var btn = document.getElementById('ppv1-atc-btn');
+    if (!btn) return;
+    btn.setAttribute('disabled', 'disabled');
+    btn.removeAttribute('data-action');
+    btn.setAttribute('type', 'button');
+    btn.classList.remove('Button--primary');
+    btn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+    btn.textContent = 'ADDED TO CART';
+  });
+
+  /* Listen for cart item removal — check cart when remove/quantity buttons are clicked */
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('[data-action="remove-item"], [data-action="update-item-quantity"]');
+    if (!target) return;
+    /* Delay to let the cart AJAX complete */
+    setTimeout(function() {
+      fetch('/cart.js', { credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(cart) {
+          var btn = document.getElementById('ppv1-atc-btn');
+          if (!btn || !btn.classList.contains('ppv1-atc-btn--added')) return;
+          var productId = {{ product.id }};
+          var inCart = cart.items.some(function(item) { return item.product_id === productId; });
+          if (!inCart) {
+            /* Re-enable main ATC button */
+            if (btn) {
+              btn.removeAttribute('disabled');
+              btn.setAttribute('data-action', 'add-to-cart');
+              btn.setAttribute('type', 'submit');
+              btn.classList.remove('Button--secondary', 'ppv1-atc-btn--added');
+              btn.classList.add('Button--primary');
+              btn.textContent = 'ADD TO CART \u2022 ' + (btn.getAttribute('data-atc-price') || '');
+            }
+            /* Re-enable sticky ATC button */
+            var sBtn = document.getElementById('ppv1-sticky-atc-btn');
+            if (sBtn) {
+              sBtn.removeAttribute('disabled');
+              sBtn.setAttribute('data-action', 'add-to-cart');
+              sBtn.setAttribute('type', 'submit');
+              sBtn.classList.remove('Button--secondary', 'ppv1-atc-btn--added');
+              sBtn.classList.add('Button--primary');
+              sBtn.textContent = 'ADD TO CART';
+            }
+          }
+        });
+    }, 1000);
+  });
+  /* Also update sticky bar button */
+  var stickyBtn = document.getElementById('ppv1-sticky-atc-btn');
+  if (stickyBtn) {
+    section.addEventListener('product:added', function() {
+      stickyBtn.setAttribute('disabled', 'disabled');
+      stickyBtn.classList.remove('Button--primary');
+      stickyBtn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+      stickyBtn.textContent = 'ADDED TO CART';
+    });
+  }
+})();
+</script>
+
+{%- comment -%} Make an Offer modal {%- endcomment -%}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<div class="ff-offer-overlay" id="ff-offer-overlay" role="dialog" aria-modal="true" aria-label="Make an offer">
+  <div class="ff-offer-modal" id="ff-offer-modal">
+    <div class="ff-offer-modal__head">
+      <p class="ff-offer-modal__head-title">Make an Offer</p>
+      <button class="ff-offer-modal__close" id="ff-offer-close" aria-label="Close">&times;</button>
+    </div>
+    <div class="ff-offer-modal__body">
+
+      {%- assign offer_image = product.featured_image | image_url: width: 112 -%}
+      <div class="ff-offer-modal__product">
+        {%- if product.featured_image -%}
+          <img src="{{ offer_image }}" alt="{{ product.title | escape }}" class="ff-offer-modal__product-img" width="56" height="56">
+        {%- endif -%}
+        <div>
+          <p class="ff-offer-modal__product-title">{{ product.title }}</p>
+          <p class="ff-offer-modal__product-price" id="ff-offer-product-price">{{ product.selected_or_first_available_variant.price | money }}</p>
+        </div>
+      </div>
+
+      <div id="ff-offer-form-wrap">
+        <span class="ff-offer-modal__label">Select an offer below</span>
+        <div class="ff-offer-modal__presets" id="ff-offer-presets">
+          {%- if ppv1_cat == 'bags' or ppv1_cat == 'small leather goods' -%}
+          <button type="button" class="ff-offer-preset" data-pct="2">2% off</button>
+          <button type="button" class="ff-offer-preset" data-pct="3">3% off</button>
+          <button type="button" class="ff-offer-preset" data-pct="5">5% off</button>
+          {%- else -%}
+          <button type="button" class="ff-offer-preset" data-pct="2">2% off</button>
+          <button type="button" class="ff-offer-preset" data-pct="3">3% off</button>
+          <button type="button" class="ff-offer-preset" data-pct="7">7% off</button>
+          {%- endif -%}
+        </div>
+        <div class="ff-offer-modal__divider">or</div>
+        <div class="ff-offer-modal__price-wrap">
+          <span class="ff-offer-modal__currency">{{ cart.currency.symbol }}</span>
+          <input type="number" class="ff-offer-modal__price-input" id="ff-offer-price" placeholder="Your offer" min="1" step="0.01">
+        </div>
+        <span class="ff-field-error" id="ff-offer-price-error" style="display:none;margin-bottom:12px;"></span>
+
+        <div class="ff-offer-field-row">
+          <div class="ff-offer-field">
+            <input type="text" class="ff-offer-input" id="ff-offer-fname" placeholder=" " value="{{ customer.first_name }}">
+            <label class="ff-offer-label" for="ff-offer-fname">First name</label>
+            <span class="ff-field-error" id="ff-offer-fname-error" style="display:none;"></span>
+          </div>
+          <div class="ff-offer-field">
+            <input type="text" class="ff-offer-input" id="ff-offer-lname" placeholder=" " value="{{ customer.last_name }}">
+            <label class="ff-offer-label" for="ff-offer-lname">Last name</label>
+            <span class="ff-field-error" id="ff-offer-lname-error" style="display:none;"></span>
+          </div>
+        </div>
+        <div class="ff-offer-field">
+          <input type="email" class="ff-offer-input" id="ff-offer-email" placeholder=" " value="{{ customer.email }}">
+          <label class="ff-offer-label" for="ff-offer-email">Email address</label>
+          <span class="ff-field-error" id="ff-offer-email-error" style="display:none;"></span>
+        </div>
+        <div class="ff-offer-field">
+          <input type="tel" class="ff-offer-input" id="ff-offer-phone" placeholder=" " value="{{ customer.phone }}">
+          <label class="ff-offer-label" for="ff-offer-phone">Phone number</label>
+          <span class="ff-field-error" id="ff-offer-phone-error" style="display:none;"></span>
+        </div>
+        {%- unless customer -%}
+        <label class="ff-offer-checkbox">
+          <input type="checkbox" id="ff-offer-create-account">
+          <span>Create a Found Fashion account</span>
+        </label>
+        {%- endunless -%}
+        <div id="ff-offer-turnstile" style="margin:4px 0 12px;"></div>
+        <button type="button" class="ff-offer-submit" id="ff-offer-submit">SUBMIT OFFER</button>
+        <p class="ff-offer-note">Our team will review your offer and respond within 48 hours.</p>
+      </div>
+
+      <div class="ff-offer-success" id="ff-offer-success" style="display:none;">
+        <div class="ff-offer-success__mark">
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M1 6L6 11L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <p class="ff-offer-success__title">Offer Received</p>
+        <p class="ff-offer-success__note">Thank you. Our team will review your offer and be in touch within 48 hours.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{%- comment -%} Sticky ATC bar (mobile only) — two-row layout {%- endcomment -%}
+<div class="ppv1-sticky-bar" id="ppv1-sticky-bar">
+  <div class="ppv1-sticky-bar__actions">
+    {%- if show_sourcing_cta or show_request_price -%}
+      {%- assign wa_product_url_sticky = shop.url | append: product.url -%}
+      {%- assign wa_message_hj_sticky = "Hi, I'm interested in " | append: product.title | append: ". " | append: wa_product_url_sticky | url_encode -%}
+      <a href="https://wa.me/447405520466?text={{ wa_message_hj_sticky }}"
+         class="Button Button--primary ppv1-sticky-atc-btn"
+         target="_blank"
+         rel="noopener"
+         style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none;">
+        MESSAGE OUR TEAM{%- if show_request_price -%} &bull; {{ product.price | money }}{%- endif -%}
+      </a>
+    {%- elsif product.selected_or_first_available_variant.available -%}
+      {%- form 'product', product, class: 'ppv1-sticky-form' -%}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-product-select>
+        {%- if in_cart -%}
+          <button type="button" class="Button Button--secondary ppv1-sticky-atc-btn ppv1-atc-btn--added" id="ppv1-sticky-atc-btn" disabled>
+            ADDED TO CART
+          </button>
+        {%- else -%}
+          <button type="submit" class="Button Button--primary ppv1-sticky-atc-btn" data-action="add-to-cart" id="ppv1-sticky-atc-btn">
+            ADD TO CART &bull; {{ atc_variant.price | money }}
+          </button>
+        {%- endif -%}
+      {%- endform -%}
+      <button type="button" class="Button Button--secondary ppv1-sticky-offer-btn" id="ppv1-sticky-offer-btn">
+        MAKE AN OFFER
+      </button>
+    {%- else -%}
+      {%- if customer -%}
+        {%- assign wa_product_url = shop.url | append: product.url -%}
+        {%- assign wa_message_sticky = "Hi, I'm looking to source the " | append: product.title | append: ". Could you let me know if you're able to source one? " | append: wa_product_url | url_encode -%}
+        <a href="https://wa.me/447405520466?text={{ wa_message_sticky }}" class="Button Button--primary ppv1-sticky-source-btn" target="_blank" rel="noopener">
+          ASK OUR TEAM TO SOURCE
+        </a>
+      {%- else -%}
+        <button type="button" class="Button Button--primary ppv1-sticky-source-btn ppv1-source-trigger">
+          ASK OUR TEAM TO SOURCE
+        </button>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>
+
+<style>
+  .ppv1-sticky-bar {
+    display: none;
+  }
+  @media screen and (max-width: 999px) {
+    /* Keep main CTA row visible on mobile alongside sticky bar */
+
+    .ppv1-sticky-bar {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.85);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 12px 20px 14px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .ppv1-sticky-bar--visible {
+      transform: translateY(0);
+    }
+    .ppv1-sticky-bar__actions {
+      display: flex;
+      gap: 8px;
+    }
+    .ppv1-sticky-bar__actions form {
+      flex: 1;
+    }
+    .ppv1-sticky-atc-btn,
+    .ppv1-sticky-offer-btn,
+    .ppv1-sticky-source-btn {
+      width: 100%;
+      white-space: nowrap;
+      padding: 12px 16px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ppv1-sticky-offer-btn {
+      flex: 1;
+      border: 1px solid #1a1a1a;
+      background: #fff;
+      color: #1a1a1a;
+      cursor: pointer;
+    }
+    .ppv1-sticky-source-btn {
+      flex: 1;
+    }
+    /* Right-to-left wipe, same as the main Make an offer button */
+    @media (-moz-touch-enabled: 0), (hover: hover) {
+      .features--show-button-transition .Button.ppv1-sticky-offer-btn:not([disabled]):hover::before {
+        transform-origin: right center;
+      }
+    }
+  }
+</style>
+<script>
+(function() {
+  var stickyBar = document.getElementById('ppv1-sticky-bar');
+  if (!stickyBar) return;
+
+  var isMobile = window.matchMedia('(max-width: 999px)').matches;
+
+  if (isMobile) {
+    /* On mobile: show sticky bar immediately (main CTA is hidden) */
+    stickyBar.classList.add('ppv1-sticky-bar--visible');
+    document.body.classList.add('ppv1-sticky-active');
+  } else {
+    /* On desktop: show sticky bar when main CTA scrolls past */
+    var mainCta = document.querySelector('.ppv1-cta-row');
+    if (mainCta) {
+      var hasScrolledPastCta = false;
+      var stickyObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (!entry.isIntersecting) {
+            var rect = mainCta.getBoundingClientRect();
+            if (rect.bottom < 0) {
+              hasScrolledPastCta = true;
+              stickyBar.classList.add('ppv1-sticky-bar--visible');
+              document.body.classList.add('ppv1-sticky-active');
+            }
+          } else {
+            if (hasScrolledPastCta) {
+              stickyBar.classList.remove('ppv1-sticky-bar--visible');
+              document.body.classList.remove('ppv1-sticky-active');
+            }
+          }
+        });
+      }, { threshold: 0 });
+      stickyObserver.observe(mainCta);
+    }
+  }
+
+  /* Prevent sticky form from native submit (would redirect to cart) */
+  var stickyForm = stickyBar.querySelector('form');
+  if (stickyForm) {
+    stickyForm.addEventListener('submit', function(e) { e.preventDefault(); });
+  }
+
+  /* Sticky ATC button — use AJAX add to cart directly */
+  var stickyBtn = document.getElementById('ppv1-sticky-atc-btn');
+  if (stickyBtn) {
+    stickyBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (stickyBtn.disabled) return;
+
+      var variantInput = stickyBar.querySelector('[data-product-select]');
+      var variantId = variantInput ? variantInput.value : '';
+      if (!variantId) return;
+
+      stickyBtn.setAttribute('disabled', 'disabled');
+
+      fetch((window.routes && window.routes.cartAddUrl || '/cart/add') + '.js', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ id: parseInt(variantId), quantity: 1 })
+      }).then(function(response) {
+        return response.json().then(function(data) { return { ok: response.ok, data: data }; });
+      }).then(function(result) {
+        if (result.ok) {
+          /* Update both buttons to "Added" state */
+          stickyBtn.classList.remove('Button--primary');
+          stickyBtn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+          stickyBtn.textContent = 'ADDED TO CART';
+
+          var mainBtn = document.getElementById('ppv1-atc-btn');
+          if (mainBtn) {
+            mainBtn.setAttribute('disabled', 'disabled');
+            mainBtn.removeAttribute('data-action');
+            mainBtn.setAttribute('type', 'button');
+            mainBtn.classList.remove('Button--primary');
+            mainBtn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+            mainBtn.textContent = 'ADDED TO CART';
+          }
+
+          /* Dispatch product:added so cart drawer opens */
+          document.dispatchEvent(new CustomEvent('product:added', { bubbles: true, detail: { product: result.data } }));
+
+          /* Update cart count + dot in header */
+          fetch('/cart.js', { credentials: 'same-origin' })
+            .then(function(r) { return r.json(); })
+            .then(function(cart) {
+              document.querySelectorAll('.Header__CartCount').forEach(function(el) {
+                el.textContent = cart.item_count;
+              });
+              document.querySelectorAll('.Header__CartDot').forEach(function(el) {
+                if (cart.item_count > 0) el.classList.add('is-visible');
+              });
+            });
+
+          /* Fire tracking */
+          try {
+            if (typeof gtag === 'function') {
+              gtag('event', 'add_to_cart', {
+                currency: {{ cart.currency.iso_code | json }},
+                value: {{ product.price | divided_by: 100.0 }},
+                items: [{ item_id: variantId, item_name: {{ product.title | json }}, quantity: 1 }]
+              });
+            }
+            if (typeof fbq === 'function') {
+              fbq('track', 'AddToCart', {
+                content_name: {{ product.title | json }},
+                content_ids: [variantId],
+                content_type: 'product',
+                value: {{ product.price | divided_by: 100.0 }},
+                currency: {{ cart.currency.iso_code | json }}
+              });
+            }
+          } catch(err) {}
+        } else {
+          stickyBtn.removeAttribute('disabled');
+          stickyBtn.innerHTML = 'ADD TO CART &bull; {{ atc_variant.price | money }}';
+        }
+      }).catch(function() {
+        stickyBtn.removeAttribute('disabled');
+        stickyBtn.innerHTML = 'ADD TO CART &bull; {{ atc_variant.price | money }}';
+      });
+    });
+  }
+
+  /* When inline CTA is clicked, update sticky button to "Added" state too */
+  document.addEventListener('product:added', function() {
+    if (stickyBtn) {
+      stickyBtn.setAttribute('disabled', 'disabled');
+      stickyBtn.classList.remove('Button--primary');
+      stickyBtn.classList.add('Button--secondary', 'ppv1-atc-btn--added');
+      stickyBtn.textContent = 'ADDED TO CART';
+    }
+  });
+
+  /* Make an Offer button — open our modal */
+  document.querySelectorAll('.ppv1-offer-trigger, #ppv1-sticky-offer-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.getElementById('ff-offer-overlay').classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      (function renderTs(){ if(!window.turnstile){ return void setTimeout(renderTs,300); } if(window.__ffOfferTsId==null){ window.__ffOfferTsId=turnstile.render('#ff-offer-turnstile',{sitekey:'0x4AAAAAAEuKKcQLPKhiinzM'}); } else { turnstile.reset(window.__ffOfferTsId); } })();
+    });
+  });
+})();
+</script>
+
+<script>
+(function() {
+  var OFFER_ENDPOINT = 'https://prh8oillgk.execute-api.eu-north-1.amazonaws.com/offer';
+  var productPriceCents = {{ product.selected_or_first_available_variant.price }};
+  var productPrice = productPriceCents;
+  function parseLocalPrice(str) {
+    str = String(str).replace(/[^\d.,]/g, '');
+    var lastComma = str.lastIndexOf(',');
+    var lastPeriod = str.lastIndexOf('.');
+    if (lastComma > lastPeriod) {
+      // European format: 2.154,95 → remove periods, replace comma with period
+      return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+    } else {
+      // Standard format: 2,154.95 → remove commas
+      return parseFloat(str.replace(/,/g, ''));
+    }
+  }
+  var productPriceDisplay = parseLocalPrice({{ product.selected_or_first_available_variant.price | money_without_currency | json }});
+  if (isNaN(productPriceDisplay)) productPriceDisplay = productPriceCents / 100;
+  var productTitle = {{ product.title | json }};
+  var productHandle = {{ product.handle | json }};
+  var productImage = ({{ product.featured_image | image_url: width: 400 | json }} || '').replace(/^\/\//, 'https://');
+  var productId = {{ product.id }};
+  var variantId = {{ product.selected_or_first_available_variant.id }};
+  var maxDiscountPct = {% if ppv1_cat == 'bags' or ppv1_cat == 'small leather goods' %}9{% else %}15{% endif %};
+  var isLoggedIn = {{ customer | json }} !== null;
+
+  var overlay = document.getElementById('ff-offer-overlay');
+  if (!overlay) return;
+
+  function closeModal() {
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('ff-offer-close').addEventListener('click', closeModal);
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* Preset buttons */
+  var priceInput = document.getElementById('ff-offer-price');
+  document.querySelectorAll('.ff-offer-preset').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.ff-offer-preset').forEach(function(b) { b.classList.remove('is-selected'); });
+      btn.classList.add('is-selected');
+      var pct = parseFloat(btn.dataset.pct);
+      var discounted = (productPriceDisplay * (1 - pct / 100)).toFixed(2);
+      priceInput.value = discounted;
+    });
+  });
+
+  priceInput.addEventListener('input', function() {
+    document.querySelectorAll('.ff-offer-preset').forEach(function(b) { b.classList.remove('is-selected'); });
+  });
+
+  function showError(id, msg) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = msg ? 'block' : 'none';
+    var input = el.previousElementSibling && el.previousElementSibling.tagName !== 'LABEL'
+      ? el.previousElementSibling
+      : el.parentElement.querySelector('input');
+    if (input) {
+      if (msg) input.classList.add('ff-error');
+      else input.classList.remove('ff-error');
+    }
+  }
+
+  function clearErrors() {
+    ['ff-offer-price-error','ff-offer-fname-error','ff-offer-lname-error','ff-offer-email-error','ff-offer-phone-error'].forEach(function(id) {
+      showError(id, '');
+    });
+    document.querySelectorAll('.ff-offer-modal__price-input').forEach(function(el) { el.classList.remove('ff-error'); });
+  }
+
+  document.getElementById('ff-offer-submit').addEventListener('click', function() {
+    clearErrors();
+    var price = parseFloat(priceInput.value);
+    var maxPrice = productPriceDisplay;
+    var minPrice = productPriceDisplay * (1 - maxDiscountPct / 100);
+    var fname = document.getElementById('ff-offer-fname').value.trim();
+    var lname = document.getElementById('ff-offer-lname').value.trim();
+    var email = document.getElementById('ff-offer-email').value.trim();
+    var phone = document.getElementById('ff-offer-phone').value.trim();
+    var createAccount = document.getElementById('ff-offer-create-account');
+    var valid = true;
+
+    if (!price || isNaN(price) || price <= 0) {
+      showError('ff-offer-price-error', 'Please enter your offer amount');
+      document.getElementById('ff-offer-price').classList.add('ff-error');
+      valid = false;
+    } else if (price > maxPrice) {
+      showError('ff-offer-price-error', 'Offer cannot exceed the listed price');
+      document.getElementById('ff-offer-price').classList.add('ff-error');
+      valid = false;
+    } else if (price < minPrice) {
+      showError('ff-offer-price-error', 'Offer is above the maximum we can accept');
+      document.getElementById('ff-offer-price').classList.add('ff-error');
+      valid = false;
+    }
+    if (!fname) { showError('ff-offer-fname-error', 'Required'); valid = false; }
+    if (!lname) { showError('ff-offer-lname-error', 'Required'); valid = false; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('ff-offer-email-error', 'Please enter a valid email'); valid = false; }
+    if (!phone) { showError('ff-offer-phone-error', 'Required'); valid = false; }
+    if (!valid) return;
+
+    var submitBtn = document.getElementById('ff-offer-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'SUBMITTING...';
+
+    fetch(OFFER_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: fname,
+        lastName: lname,
+        email: email,
+        phone: phone,
+        createAccount: createAccount ? createAccount.checked : false,
+        offerPrice: price,
+        listedPrice: productPriceDisplay,
+        discountPct: Math.round((1 - price / productPriceDisplay) * 100),
+        productTitle: productTitle,
+        productHandle: productHandle,
+        productImage: productImage,
+        productId: productId,
+        variantId: variantId,
+        currency: {{ cart.currency.iso_code | json }},
+        customerId: window.meta?.page?.customerId ? 'gid://shopify/Customer/' + window.meta.page.customerId : null,
+        turnstileToken: (window.turnstile && window.__ffOfferTsId!=null) ? turnstile.getResponse(window.__ffOfferTsId) : ''
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        document.getElementById('ff-offer-form-wrap').style.display = 'none';
+        document.getElementById('ff-offer-success').style.display = 'block';
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'SUBMIT OFFER';
+        showError('ff-offer-price-error', 'Something went wrong. Please try again.');
+      }
+    })
+    .catch(function() {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'SUBMIT OFFER';
+      showError('ff-offer-price-error', 'Something went wrong. Please try again.');
+    });
+  });
+})();
+</script>
+
+{%- comment -%} ── Structured data (Google rich results) ── {%- endcomment -%}
+{%- liquid
+  assign sd_availability = 'https://schema.org/OutOfStock'
+  if product.available
+    assign sd_availability = 'https://schema.org/InStock'
+  endif
+
+  assign sd_condition = 'https://schema.org/UsedCondition'
+  assign sd_condition_lower = ppv1_condition | downcase
+  if sd_condition_lower contains 'new' or sd_condition_lower contains 'unworn'
+    assign sd_condition = 'https://schema.org/NewCondition'
+  elsif sd_condition_lower contains 'refurb'
+    assign sd_condition = 'https://schema.org/RefurbishedCondition'
+  endif
+
+  assign sd_brand = ppv1_brand
+  if sd_brand == blank
+    assign sd_brand = product.vendor
+  endif
+
+  assign sd_price = product.price | money_without_currency | remove: ','
+  assign sd_image = product.featured_image | img_url: '1200x'
+-%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "description": {{ product.description | strip_html | truncate: 500 | json }},
+  "image": "https:{{ sd_image }}",
+  "url": "{{ shop.url }}{{ product.url }}",
+  "sku": {{ product.selected_or_first_available_variant.sku | default: product.id | json }},
+  {%- if sd_brand != blank %}
+  "brand": {
+    "@type": "Brand",
+    "name": {{ sd_brand | json }}
+  },
+  {%- endif %}
+  "itemCondition": "{{ sd_condition }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ shop.url }}{{ product.url }}",
+    "priceCurrency": {{ shop.currency | json }},
+    "price": "{{ sd_price }}",
+    "availability": "{{ sd_availability }}",
+    "seller": {
+      "@type": "Organization",
+      "name": {{ shop.name | json }}
+    }
+  }
+}
+</script>
 
 {% schema %}
 {

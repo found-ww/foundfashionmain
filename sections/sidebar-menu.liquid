@@ -65,6 +65,21 @@
                   <a href="{{ routes.account_url }}" class="Text--subdued Link Link--primary">{{ 'header.navigation.account' | t }}</a>
                 </li>
               {%- endif -%}
+
+              {%- if localization.available_countries.size > 1 -%}
+                <li class="Linklist__Item" style="padding-top:4px;">
+                  {%- form 'localization', id: 'localization_form_sidebar' -%}
+                    <input type="hidden" name="return_to" value="{{ request.path }}">
+                    <select name="country_code" onchange="this.form.submit()" style="appearance:none;-webkit-appearance:none;background:transparent;border:none;font-family:inherit;font-size:13px;color:inherit;cursor:pointer;padding:0;outline:none;opacity:0.6;">
+                      {%- for country in localization.available_countries -%}
+                        <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                          {{ country.currency.iso_code }} ({{ country.name }})
+                        </option>
+                      {%- endfor -%}
+                    </select>
+                  {%- endform -%}
+                </li>
+              {%- endif -%}
             </ul>
           </nav>
         </div>

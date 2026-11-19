@@ -3064,7 +3064,7 @@
           method: 'GET',
           credentials: 'same-origin'
         };
-        var queries = [fetch("".concat(window.routes.searchUrl, "?section_id=predictive-search&q=").concat(encodeURIComponent(this.lastInputValue), "*&type=product"), queryOptions)];
+        var queries = [fetch("".concat(window.routes.searchUrl, "?section_id=predictive-search&q=").concat(encodeURIComponent(this.lastInputValue), "*&type=product&options%5Bunavailable_products%5D=show"), queryOptions)]; // sold pieces rank normally; the section orders them
 
         if (window.theme.searchMode !== 'product') {
           queries.push(fetch("".concat(window.routes.searchUrl, "?section_id=predictive-search&q=").concat(encodeURIComponent(this.lastInputValue), "*&type=").concat(window.theme.searchMode.replace('product,', '')), queryOptions));

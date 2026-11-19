@@ -257,22 +257,34 @@
         {%- if section.settings.show_filters and collection.filters != empty -%}
           {%- assign color_label = 'color,colour,couleur,colore,farbe,색,色,färg,farve' | split: ',' -%}
 
+          {%- comment -%}
+            Two passes: the vendor filter (shown as "Brand") always comes first, whatever order the Search & Discovery
+            app has it in; every other filter follows in the app's order.
+          {%- endcomment -%}
+          {%- for filter_pass in (1..2) -%}
           {%- for filter in collection.filters -%}
+            {%- assign is_brand_filter = false -%}
+            {%- if filter.param_name == 'filter.p.vendor' -%}{%- assign is_brand_filter = true -%}{%- endif -%}
+            {%- if filter_pass == 1 and is_brand_filter == false -%}{%- continue -%}{%- endif -%}
+            {%- if filter_pass == 2 and is_brand_filter -%}{%- continue -%}{%- endif -%}
+            {%- assign filter_label = filter.label -%}
+            {%- if is_brand_filter -%}{%- assign filter_label = 'Brand' -%}{%- endif -%}
             {%- assign downcase_filter_label = filter.label | downcase -%}
 
-            <div class="Collapsible Collapsible--padded {% if section.settings.expand_filters %}Collapsible--autoExpand{% endif %}" data-filter-index="{% increment filter_index %}">
+            {%- comment -%} Brand arrives open (the same state the theme's own toggle produces), and can still be closed. {%- endcomment -%}
+            <div class="Collapsible Collapsible--padded {% if section.settings.expand_filters %}Collapsible--autoExpand{% endif %}" data-filter-index="{% increment filter_index %}" {% if is_brand_filter %}style="overflow: visible"{% endif %}>
               {%- if filter.type == 'boolean' -%}
                 <div class="Collapsible__Button BooleanFilter">
-                  <label for="{{ filter.param_name }}" class="Heading u-h6">{{- filter.label -}}</label>
+                  <label for="{{ filter.param_name }}" class="Heading u-h6">{{- filter_label -}}</label>
                   <input id="{{ filter.param_name }}" type="checkbox" class="switch-checkbox" name="{{ filter.param_name }}" value="1" {% if filter.true_value.active %}checked{% endif %}>
                 </div>
               {%- else -%}
-                <button type="button" class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="false">
-                  {{- filter.label -}} <span class="Collapsible__Plus"></span>
+                <button type="button" class="Collapsible__Button Heading u-h6" data-action="toggle-collapsible" aria-expanded="{% if is_brand_filter %}true{% else %}false{% endif %}">
+                  {{- filter_label -}} <span class="Collapsible__Plus"></span>
                 </button>
               {%- endif -%}
 
-              <div class="Collapsible__Inner">
+              <div class="Collapsible__Inner" {% if is_brand_filter %}style="height: auto; overflow: visible"{% endif %}>
                 <div class="Collapsible__Content">
                   <ul class="{% if section.settings.show_filter_color_swatch and color_label contains downcase_filter_label %}ColorSwatchList HorizontalList HorizontalList--spacingTight{% else %}Linklist{% endif %}">
                     {%- if section.settings.show_filter_color_swatch and color_label contains downcase_filter_label -%}
@@ -338,6 +350,7 @@
                 </div>
               </div>
             </div>
+          {%- endfor -%}
           {%- endfor -%}
         {%- endif -%}
 
@@ -443,6 +456,42 @@
                 {%- endif -%}
               </form>
             </div>
+            {%- if collection.handle == 'clothing' or collection.handle == 'shoes' or collection.handle == 'jewellery' or collection.handle == 'hats-scarves-gloves' -%}
+              {%- assign sourcing_item = 'clothing' -%}
+              {%- if collection.handle == 'shoes' -%}{%- assign sourcing_item = 'shoes' -%}{%- endif -%}
+              {%- if collection.handle == 'jewellery' -%}{%- assign sourcing_item = 'jewellery' -%}{%- endif -%}
+              {%- if collection.handle == 'hats-scarves-gloves' -%}{%- assign sourcing_item = 'scarves & accessories' -%}{%- endif -%}
+              <div class="sourcing-box">
+                <p class="sourcing-box__heading">Looking for something?</p>
+                <p class="sourcing-box__text">Our team source Hermès {{ sourcing_item }} to order.</p>
+                <a href="/pages/personal-shopping" class="sourcing-box__cta"><span>Source with us →</span></a>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if collection.handle == 'clothing' or collection.handle == 'shoes' or collection.handle == 'jewellery' or collection.handle == 'hats-scarves-gloves' -%}
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap');
+            .sourcing-box{font-family:var(--text-font-family);background:#f4f4f4;border-radius:4px;padding:20px 16px;margin-top:20px;border:0.75px solid #dedad3;}
+            .sourcing-box__heading{font-family:var(--heading-font-family);font-size:15px;font-weight:600;letter-spacing:0.02em;color:#171513;margin:0 0 8px;}
+            .sourcing-box__text{font-family:var(--text-font-family);font-size:12px;letter-spacing:0.03em;color:#57534c;line-height:1.5;margin:0 0 18px;}
+            .sourcing-box__cta{position:relative;display:inline-block;overflow:hidden;font-family:var(--text-font-family);font-size:11px;letter-spacing:0.08em;color:#171513;background:transparent;border:0.5px solid #171513;padding:7px 14px;text-decoration:none;transition:color 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+            .sourcing-box__cta::before{content:"";position:absolute;inset:0;background:#171513;transform:scale(0,1);transform-origin:left center;transition:transform 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+            .sourcing-box__cta span{position:relative;}
+            @media(-moz-touch-enabled:0),(hover:hover){.sourcing-box__cta:hover{color:#fff;}.sourcing-box__cta:hover::before{transform:scale(1,1);}}
+            .sourcing-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#f4f0ea;border-bottom:0.5px solid #dedad3;font-family:var(--text-font-family);margin-bottom:16px;}
+            .sourcing-strip__text{font-size:13px;letter-spacing:0.04em;color:#171513;line-height:1.5;margin:0;}
+            .sourcing-strip__cta{position:relative;overflow:hidden;font-size:11px;letter-spacing:0.08em;color:#171513;background:transparent;border:0.5px solid #171513;padding:6px 12px;white-space:nowrap;flex-shrink:0;text-decoration:none;transition:color 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+            .sourcing-strip__cta::before{content:"";position:absolute;inset:0;background:#171513;transform:scale(0,1);transform-origin:left center;transition:transform 0.45s cubic-bezier(0.785,0.135,0.15,0.86);}
+            .sourcing-strip__cta span{position:relative;}
+            @media(-moz-touch-enabled:0),(hover:hover){.sourcing-strip__cta:hover{color:#fff;}.sourcing-strip__cta:hover::before{transform:scale(1,1);}}
+          </style>
+
+          {%- comment -%}Mobile: full-width strip under filter bar (hidden — replaced by sticky bar){%- endcomment -%}
+          <div class="sourcing-strip hidden-lap-and-up" style="display:none!important">
+            <p class="sourcing-strip__text">Looking for something? Our team source Hermès clothing to order.</p>
+            <a href="/pages/personal-shopping" class="sourcing-strip__cta"><span>Source with us →</span></a>
           </div>
         {%- endif -%}
 
@@ -464,6 +513,82 @@
     </div>
   {%- endif -%}
 </section>
+
+{%- if collection.handle == 'clothing' or collection.handle == 'shoes' or collection.handle == 'jewellery' or collection.handle == 'hats-scarves-gloves' -%}
+  {%- assign sourcing_item = 'clothing' -%}
+  {%- if collection.handle == 'shoes' -%}{%- assign sourcing_item = 'shoes' -%}{%- endif -%}
+  {%- if collection.handle == 'jewellery' -%}{%- assign sourcing_item = 'jewellery' -%}{%- endif -%}
+  {%- if collection.handle == 'hats-scarves-gloves' -%}{%- assign sourcing_item = 'scarves & accessories' -%}{%- endif -%}
+<div class="cl-sticky-bar" id="cl-sticky-bar">
+  <div class="cl-sticky-bar__inner">
+    <div class="cl-sticky-bar__copy">
+      <p class="cl-sticky-bar__heading">Looking for something?</p>
+      <p class="cl-sticky-bar__text">Our team source Hermès {{ sourcing_item }} to order.</p>
+    </div>
+    <a href="/pages/personal-shopping" class="cl-sticky-bar__cta">Source with us →</a>
+  </div>
+</div>
+<style>
+  .cl-sticky-bar { display: none; }
+  @media screen and (max-width: 999px) {
+    .cl-sticky-bar {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      background: rgba(255,255,255,0.9);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      padding: 12px 20px 14px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    }
+    .cl-sticky-bar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .cl-sticky-bar__copy { margin: 0; }
+    .cl-sticky-bar__heading {
+      font-family: var(--heading-font-family);
+      font-size: 13px;
+      font-weight: 600;
+      color: #171513;
+      margin: 0 0 2px;
+      letter-spacing: 0.02em;
+    }
+    .cl-sticky-bar__text {
+      font-family: var(--text-font-family);
+      font-size: 11px;
+      color: #57534c;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+    .cl-sticky-bar__cta {
+      font-family: var(--text-font-family);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: #171513;
+      border: 1px solid #171513;
+      padding: 11px 20px;
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  }
+</style>
+<script>
+(function() {
+  if (window.matchMedia('(max-width: 999px)').matches) {
+    document.body.classList.add('cl-sticky-active');
+  }
+})();
+</script>
+{%- endif -%}
 
 <script>
   (function () {
@@ -707,8 +832,61 @@ document.addEventListener('shopify:section:load', function () {
   })();
 </script>
 
+{%- comment -%} GA4 view_item_list + Meta ViewContent (category) {%- endcomment -%}
+<script>
+(function() {
+  var items = [];
+  {%- for product in collection.products -%}
+    items.push({
+      item_id: {{ product.id | json }},
+      item_name: {{ product.title | json }},
+      item_brand: {{ product.vendor | json }},
+      item_category: {{ product.type | json }},
+      price: {{ product.price | divided_by: 100.0 }},
+      index: {{ forloop.index0 }}
+    });
+  {%- endfor -%}
 
+  /* GA4 view_item_list */
+  if (typeof gtag === 'function') {
+    gtag('event', 'view_item_list', {
+      item_list_id: {{ collection.handle | json }},
+      item_list_name: {{ collection.title | json }},
+      items: items
+    });
+  }
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'view_item_list',
+    item_list_id: {{ collection.handle | json }},
+    item_list_name: {{ collection.title | json }},
+    items: items
+  });
 
+  /* Meta Pixel ViewContent (category) */
+  if (typeof fbq === 'function') {
+    fbq('track', 'ViewContent', {
+      content_name: {{ collection.title | json }},
+      content_type: 'product_group',
+      content_ids: items.map(function(i) { return String(i.item_id); })
+    });
+  }
+
+  /* select_item: track product card clicks */
+  document.querySelectorAll('.ProductItem__ImageWrapper, .ProductItem__Title a').forEach(function(link, idx) {
+    link.addEventListener('click', function() {
+      var item = items[Math.floor(idx / 2)] || items[idx] || {};
+      if (typeof gtag === 'function') {
+        gtag('event', 'select_item', {
+          item_list_id: {{ collection.handle | json }},
+          item_list_name: {{ collection.title | json }},
+          items: [item]
+        });
+      }
+    });
+  });
+})();
+</script>
 
 {% schema %}
 {

@@ -1,9 +1,54 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-personal-shopping",
-      "settings": {}
+      "settings": {
+        "hero_image": "shopify://shop_images/Hermes-Birkin-Faubourg-Midnight-and-Snow.jpg",
+        "hero_eyebrow": "Found Fashion",
+        "hero_title": "Personal Shopping",
+        "hero_sub": "Our personal shopping service is designed for clients looking for specific pieces — rare, discontinued, or simply hard to find. We work with a global network of trusted sources to find what you're looking for.",
+        "intro_text": "",
+        "process_label": "How it works",
+        "step_1_title": "Submit your request",
+        "step_1_body": "Tell us what you're looking for — style, colour, size, condition, and budget. The more detail, the better.",
+        "step_2_title": "We get to work",
+        "step_2_body": "Our team responds within 48 hours with an estimated sourcing timeline. A deposit secures your search. Cancellations before shipment are subject to a cancellation fee of 10% of the total order value.",
+        "step_3_title": "Delivered to you",
+        "step_3_body": "Once sourced and authenticated, your piece is shipped via DHL Express worldwide — or collected at our London location.",
+        "trust_1": "Response within 24 hours",
+        "trust_2": "Every piece authenticated",
+        "trust_3": "Worldwide delivery",
+        "form_eyebrow": "Begin your search",
+        "form_title": "Submit a Request",
+        "form_note": "We typically respond within 24 hours.",
+        "success_note": "We will be in touch within 24 hours.",
+        "faq_eyebrow": "Good to know",
+        "faq_title": "Frequently Asked",
+        "faq_1_q": "How long does sourcing take?",
+        "faq_1_a": "Once your request has been submitted, our team will respond within 48 hours with an estimated sourcing timeframe, price and shipping details. Timings vary depending on the rarity, availability and specification of the piece.",
+        "faq_2_q": "What items can I request?",
+        "faq_2_a": "You can request Hermès bags, accessories, shoes, ready-to-wear, homeware, jewellery and other special pieces through the form. Our team will review your request and come back with the best available price and estimated sourcing time.",
+        "faq_3_q": "How do you authenticate items?",
+        "faq_3_a": "We source through Hermès boutiques or via our trusted network. Each piece is carefully reviewed by our team, all items will include receipts, original packaging and where available, relevant documentation.",
+        "faq_4_q": "What if you can't find my piece?",
+        "faq_4_a": "If we're unable to source your exact request, we'll keep you updated and, where possible, suggest suitable alternatives in a similar style, colour, size or price range.",
+        "faq_5_q": "Do you ship worldwide?",
+        "faq_5_a": "Yes. Pieces are shipped fully insured via DHL Express worldwide, or can be collected in person at our London location by appointment.",
+        "faq_6_q": "How does payment work?",
+        "faq_6_a": "Once you approve a sourced piece, we'll issue a secure invoice for payment. We accept bank transfer and major cards, and can discuss bespoke payment terms for higher-value pieces."
+      }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }

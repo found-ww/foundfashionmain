@@ -135,3 +135,36 @@
     {%- endif -%}
   {%- endfor -%}
 </div>
+
+{%- comment -%} GA4 remove_from_cart tracking {%- endcomment -%}
+<script>
+(function() {
+  var itemData = {};
+  {%- for line_item in cart.items -%}
+    itemData[{{ forloop.index | json }}] = {
+      item_id: {{ line_item.product.id | json }},
+      item_name: {{ line_item.product.title | json }},
+      item_variant: {{ line_item.variant.title | json }},
+      price: {{ line_item.final_price | divided_by: 100.0 }},
+      quantity: {{ line_item.quantity }}
+    };
+  {%- endfor -%}
+
+  document.querySelectorAll('[data-action="remove-item"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var line = btn.getAttribute('data-line');
+      var item = itemData[line];
+      if (!item) return;
+      if (typeof gtag === 'function') {
+        gtag('event', 'remove_from_cart', {
+          currency: {{ shop.currency | json }},
+          value: item.price * item.quantity,
+          items: [item]
+        });
+      }
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'remove_from_cart', currency: {{ shop.currency | json }}, value: item.price * item.quantity, items: [item] });
+    });
+  });
+})();
+</script>
